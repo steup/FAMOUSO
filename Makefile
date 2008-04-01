@@ -31,11 +31,14 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 
 # --------------------------------------------------------------------------
 # Definition der Targets
-.PHONY: all clean
+.PHONY: all clean doc
 
 all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBCOSMIC) $(COMMANDS)
 
 tools: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBCOSMIC) rmbin $(TOOLBIN)
+
+doc:
+	doxygen ./doc/doxygen.conf
 
 $(LIBDIR):
 	@mkdir -p $@

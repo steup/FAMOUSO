@@ -19,9 +19,9 @@ SAMPLEDIR   = $(INSTALLDIR)/testsuite
 
 LIBBASE		= $(INSTALLDIR)/lib
 LIBDIR 		= $(LIBBASE)/$(MACHINETYPE)/$(GCCVERSION)
-LIBCOSMIC	= $(LIBDIR)/libcosmic.a
+LIBCOSMIC	= $(LIBDIR)/libfamouso.a
 
-LIB			= -L$(LIBDIR) -lcosmic
+LIB			= -L$(LIBDIR) -lfamouso
 INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 
 DEBUG		= -g

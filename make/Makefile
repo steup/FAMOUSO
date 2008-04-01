@@ -1,12 +1,12 @@
 # zunaechst bestimmen, wo wir ueberhaupt installiert sind
 ifeq ($(INSTALLDIR),)
-ifeq ($(findstring /cosmic/,$(shell pwd)/),/cosmic/)
+ifeq ($(findstring /famouso/,$(shell pwd)/),/famouso/)
 
 MW_SEARCH_COMMAND := \
-while test ! -d cosmic; do cd ..; done; \
+while test ! -d famouso; do cd ..; done; \
 pwd
 
-INSTALLDIR := $(shell $(MW_SEARCH_COMMAND))/cosmic
+INSTALLDIR := $(shell $(MW_SEARCH_COMMAND))/famouso
 
 endif
 endif
