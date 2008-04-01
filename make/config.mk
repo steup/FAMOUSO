@@ -1,0 +1,3 @@
+#PLATFORM=linux
+PLATFORM=windows
+#PLATFORM=avr

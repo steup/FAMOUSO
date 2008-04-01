@@ -1,0 +1,9 @@
+/**	\mainpage
+*	\author Michael Schulze, Uni Magdeburg, IVS/EOS
+*   \date 31.03.2008
+*
+*	\section FAMOUSO FAMOUSO -- a Framework of an Adaptive Middleware for autonomOUs Sentient Objects
+*	Ein bissl blafasel
+*
+*	\todo NetworkByteOrder beachten bei den Kanaelen
+*/
