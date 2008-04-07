@@ -72,6 +72,7 @@ class EventChannel : public Chain {
   void subscribe() {
     DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
     _ech.subscribe(*this);
+	callback.from_function<EventChannel<ECH>, &EventChannel<ECH>::cb>(this);
   }
 
   /*! \brief publish an event via the event channel
@@ -100,7 +101,7 @@ class EventChannel : public Chain {
    *         to have. Future version will remove that function.
    */
   void cb(CallBackData& cbd) {
-    DEBUG(("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.getLen(), cbd._data));
+    DEBUG(("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data));
   }
 
  protected:

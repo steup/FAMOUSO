@@ -15,7 +15,7 @@ typedef SubscriberEventChannel<EC> SEC;
 // }
 
 void cb(EC::CallBackData& cbd) { 
-  printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.getLen(), cbd._data);
+  printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
 }
 
 

@@ -4,38 +4,22 @@
 #include <stdint.h>
 #include "mw/common/Subject.h"
 
-/* namespace cosmic { */
-/* namespace EventLayer { */
-
-class Event {
- public:
+struct Event {
   typedef uint16_t Type;
-  Type len;
-  uint8_t *_data;
-  const Subject &_subj;
- public:
+  Type length;
+  uint8_t *data;
+  const Subject &subject;
 
-  Event (const Subject &s): len(0), _subj (s) {}
-  //  Event (uint8_t s) : len(0), _subj((uint8_t)s) {}
 
-  void setLen(const Type &l) {
-    len=l;
-  }
-
-  const Type& getLen() const {
-    return len;
-  }
+  Event (const Subject &s): length(0), data(0), subject (s) {}
 
   uint8_t & operator[](uint8_t i) {
-    return _data[i];
+    return data[i];
   }
 
   uint8_t & operator[](uint8_t i) const {
-    return _data[i];
+    return data[i];
   }
 };
-
-/* } */
-/* } */
 
 #endif /* __Event_h__ */

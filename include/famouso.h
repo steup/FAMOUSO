@@ -5,12 +5,20 @@ struct FAMOUSO {
   enum {
     SUBSCRIBE=0x50,
     UNSUBSCRIBE,
-    PUBLISH,
+    PUBLISH=0x52,
 
     ANNOUNCE=0x56
   };
 };
 
-#define echoServPort 5005
+// definition des lokelen Ports, wo der ECH lauscht
+#define ServPort 5005
+// mit dem localen ECH verbinden.
+#define servAddress "127.0.0.1"
+
+// Buffergroesse, beschreibt maximale Nachrichtengroesse.
+// sollte vielleicht nicht so fest geschrieben werden.
+#define BUFSIZE 65535
+
 
 #endif

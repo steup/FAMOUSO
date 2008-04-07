@@ -7,4 +7,5 @@
 *
 *	\todo NetworkByteOrder beachten bei den Kanaelen
 *	\todo Rueckgabewerte wirklich ueberall Testen, um die Qualitaet und Sicherheit zu staerken
+*	\todo Rebind des Sockets ermoeglichen
 */
