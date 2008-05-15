@@ -1,9 +1,12 @@
 #ifndef __Packet_h__
 #define __Packet_h__
 
-template<uint32_t size>
+#include <stdint.h>
+
+template<class T>
 struct Packet {
-	uint8_t	data[size];
+  const T& snn;
+  uint8_t* data;
 };
 
 

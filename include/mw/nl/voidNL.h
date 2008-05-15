@@ -1,6 +1,7 @@
 #ifndef __voidNL_h__
 #define __voidNL_h__
 
+#include "mw/nl/Packet.h"
 #include "mw/common/NodeID.h"
 #include "mw/common/Subject.h"
 #include "mw/api/EventChannel.h"
@@ -17,10 +18,7 @@ public:
 
     typedef uint16_t SNN;
 
-    struct Packet {
-	const SNN &snn;
-	uint8_t	*data;
-    };
+    typedef Packet<SNN> Packet_t;
 
 
     voidNL() {}
@@ -36,15 +34,15 @@ public:
 	snn=0x1;
     }
 
-    void deliver(const Packet& p) {
+    void deliver(const Packet_t& p) {
 	DEBUG(("%s\n", __PRETTY_FUNCTION__));
     }
 
-    void deliver_fragment(const Packet& p) {
+    void deliver_fragment(const Packet_t& p) {
 	DEBUG(("%s\n", __PRETTY_FUNCTION__));
     }
 
-    void fetch(Packet& p) {
+    void fetch(Packet_t& p) {
 	DEBUG(("%s\n", __PRETTY_FUNCTION__));
     }
 

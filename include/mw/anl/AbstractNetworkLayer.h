@@ -19,7 +19,7 @@ class AbstractNetworkLayer : public NL{
 
   void publish(const SNN &snn, const Event &e) {
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    typename NL::Packet p={snn, &e[0]};
+    typename NL::Packet_t p={snn, &e[0]};
     if (e.length <= NL::info::payload)
       NL::deliver(p);
   }
