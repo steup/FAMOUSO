@@ -82,14 +82,15 @@ class SubscriberThread:public TCPSocketThread {
     int recvMsgSize;
     if ((recvMsgSize = sock->recv (echoBuffer, 8)) > 0) {	// Zero means
 
-      // EventChannel mit entsprechendem Subject erstellen und ankuendigen
-      SEC sec (ntohll(*(unsigned long long *) (echoBuffer)));
+      // EventChannel mit entsprechendem Subject erstellen
+      SEC sec (ntohll(*(uint64_t *) (echoBuffer)));
+      // Callback eintragen
+      // und ankuendigen
       sec.subscribe ();
       cout << "Subscription for channel:\t0x" << hex << sec.subject().value << endl;
-
-      // 1. Callback eintragen
       sec.callback.from_function < SubscriberThread, &SubscriberThread::cb > (this);
-      // 2. auf weitere Sachen auf dem Kanal warten, kann eigentlich nur die Abmeldung sein
+      
+      // auf weitere Sachen auf dem Kanal warten, kann eigentlich nur die Abmeldung sein
       while ((recvMsgSize = sock->recv (echoBuffer, 1)) > 0) {
 	// Zero means connection closed
       }
