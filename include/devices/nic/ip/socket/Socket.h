@@ -47,20 +47,20 @@ public:
   void setLocalAddressAndPort(const string &localAddress, 
     unsigned short localPort = 0) throw(SocketException);
 
-  /**
-   *   If WinSock, unload the WinSock DLLs; otherwise do nothing. I ignore
-   *   this in the sample code but include it in the library for
-   *   completeness.  If you are running on Windows and you are concerned
-   *   about DLL resource consumption, call this after you are done with all
-   *   Socket instances.  If you execute this on Windows while some instance of
-   *   Socket exists, you are toast.  For portability of client code, this is
-   *   an empty function on non-Windows platforms so you can always include it.
-   *   @param buffer buffer to receive the data
-   *   @param bufferLen maximum number of bytes to read into buffer
-   *   @return number of bytes read, 0 for EOF, and -1 for error
-   *   @exception SocketException thrown WinSock clean up fails
-   */
-  static void cleanUp() throw(SocketException);
+//  /**
+//   *   If WinSock, unload the WinSock DLLs; otherwise do nothing. I ignore
+//   *   this in the sample code but include it in the library for
+//   *   completeness.  If you are running on Windows and you are concerned
+//   *   about DLL resource consumption, call this after you are done with all
+//   *   Socket instances.  If you execute this on Windows while some instance of
+//   *   Socket exists, you are toast.  For portability of client code, this is
+//   *   an empty function on non-Windows platforms so you can always include it.
+//   *   @param buffer buffer to receive the data
+//   *   @param bufferLen maximum number of bytes to read into buffer
+//   *   @return number of bytes read, 0 for EOF, and -1 for error
+//   *   @exception SocketException thrown WinSock clean up fails
+//   */
+//  static void cleanUp() throw(SocketException);
 
   /**
    *   Resolve the specified service for the specified protocol to the
