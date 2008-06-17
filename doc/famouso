@@ -8,4 +8,9 @@
 *	\todo NetworkByteOrder beachten bei den Kanaelen
 *	\todo Rueckgabewerte wirklich ueberall Testen, um die Qualitaet und Sicherheit zu staerken
 *	\todo Rebind des Sockets ermoeglichen
+*	\todo Sockets auf boost::asio umstellen, weil dadruch die Portabilitaet steigt und auch 
+*	      das asynchrone Verhalten verbessert wird. Dadurch eigentliche Abkehr von Threads
+*	      innerhalb der MW. Erhoeht ebenfalls die Portablitaet. boost::asio kann hingegen auf
+*	      dem AVR nicht genutzt werden. Ist aber auch nicht notwendig, da dort Interrupts zur
+*	      Verfuegung stehen
 */
