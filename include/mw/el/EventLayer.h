@@ -37,6 +37,7 @@ class EventLayer : public LL{
     LL::publish(ec.snn(),e);
 
     // hier erfolgt die local Abarbeitung des Kanaele
+    // eigentlich der LocalEventChannelHandler
     {
       typedef EventChannel<EventLayer> ec_t;
       ec_t* sec= reinterpret_cast<ec_t*>(Subscriber.select());
@@ -44,7 +45,7 @@ class EventLayer : public LL{
 	DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value,ec.subject().value));
 	if (sec->subject() == ec.subject()) 
 	  sec->callback(e);
-	 sec=reinterpret_cast<ec_t*>(sec->select());
+	sec=reinterpret_cast<ec_t*>(sec->select());
       }
     }
   }
