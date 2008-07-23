@@ -1,3 +1,3 @@
 PLATFORM=linux
-#PLATFORM=windows
+PLATFORM=windows
 #PLATFORM=avr

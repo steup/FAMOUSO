@@ -13,5 +13,6 @@ src/devices/nic/ip/socket/UDPSocket.cc \
 src/devices/nic/ip/socket/TCPServerSocket.cc \
 src/devices/nic/ip/socket/win32/WinSocket.cc \
 src/devices/nic/ip/socket/win32/WinSocketBase.cc\
-src/util/win32/WinThread.cc
+src/util/win32/WinThread.cc \
+src/mw/el/SocketEventHandler.cc
 

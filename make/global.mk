@@ -19,17 +19,21 @@ SAMPLEDIR   = $(INSTALLDIR)/testsuite
 
 LIBBASE		= $(INSTALLDIR)/lib
 LIBDIR 		= $(LIBBASE)/$(MACHINETYPE)/$(GCCVERSION)
-LIBCOSMIC	= $(LIBDIR)/libfamouso.a
+LIBFAMOUSO	= $(LIBDIR)/libfamouso.a
 
 LIB			= -L$(LIBDIR) -lfamouso
 INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 
 DEBUG		= -g
 
-#ADDITIONAL_CFLAGS+= -DNDEBUG
+#ADDITIONAL_CFLAGS	+= -DNDEBUG
+ADDITIONAL_LIBS		+= -lboost_system-mt
 
 CCFLAGS		= -Wall -ansi $(DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
 CCOPTION	= -O3
 
 CXXFLAGS	= -Wall -ansi $(DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
 CXXOPTION	= $(CCOPTION)
+
+#Additional external libs
+LIBBOOST	= $(LIBDIR)/libboost_system-mt.a

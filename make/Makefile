@@ -27,6 +27,7 @@ include $(INSTALLDIR)/make/sources.mk
 
 include $(INSTALLDIR)/make/rules.mk
 
+EXTERNALLIBS=$(LIBBOOST)
 COMMANDS=tools
 
 ifeq ($(PLATFORM),avr)

@@ -33,9 +33,9 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBCOSMIC) $(COMMANDS)
+all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(EXTERNALLIBS) $(LIBFAMOUSO) $(COMMANDS)
 
-tools: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBCOSMIC) rmbin $(TOOLBIN)
+tools: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBFAMOUSO) rmbin $(TOOLBIN)
 
 doc:
 	doxygen ./doc/doxygen.conf
@@ -72,10 +72,12 @@ $(BINDIR)/%: $(MODULEDIR)/%.o $(TOOLOBJ)
 
 # -------------------------------------------------
 # Bauen der lib
-$(LIBCOSMIC):$(LIBOBJ)
+$(LIBFAMOUSO):$(LIBOBJ)
 	@echo "generate lib *.o -> $(notdir $@)"
 	@$(AR) $(ARFLAGS) $@ $(LIBOBJ)
 	@$(RANLIB) $@
+
+include ./make/boost.mk
 
 clean:	
 	@rm -f $(MODULEDIR)/*.[oO] $(LIBLOADER) $(DEPENDDIR)/*.d $(BINDIR)/*
