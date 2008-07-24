@@ -26,6 +26,7 @@ INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 
 DEBUG		= -g
 
+ADDITIONAL_CFLAGS	+= -I$(INCDIR)/asio
 #ADDITIONAL_CFLAGS	+= -DNDEBUG
 ADDITIONAL_LIBS		+= -lboost_system-mt
 

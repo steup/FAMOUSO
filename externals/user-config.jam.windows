@@ -1,1 +1,1 @@
-using gcc : : i386-mingw32-gcc : <cxxflags>-mthreads ; 
+using gcc : : gcc : <cxxflags>-mthreads ; 
