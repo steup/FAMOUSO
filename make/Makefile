@@ -22,8 +22,8 @@ include $(INSTALLDIR)/make/sources.mk
 
 # Definition lesen, die fuer spezielle Targets gelten
 -include $(INSTALLDIR)/make/$(PLATFORM)/gcc.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/sources.mk
-
+#$(shell dirname ${PLATFORM})
+-include $(INSTALLDIR)/make/$(shell dirname ${PLATFORM})/sources.mk
 
 include $(INSTALLDIR)/make/rules.mk
 

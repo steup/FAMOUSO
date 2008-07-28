@@ -2,7 +2,7 @@
 
 pushd `dirname $0`
 
-BJAMCONFIG=" gcc --layout=system --with-system link=static --user-config=`pwd`/user-config.jam.$3 install "
+BJAMCONFIG=" gcc --layout=system --with-system link=static --user-config=`pwd`/user-config.jam.${3%/*} install "
 PARAMS=" --libdir=$1 --includedir=$2 "
 echo Configure-Parameter $PARAMS
 echo BJAM-Parameter $BJAMCONFIG
