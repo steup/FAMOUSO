@@ -31,6 +31,5 @@ include $(INSTALLDIR)/make/rules.mk
 ifeq ($(PLATFORM),avr)
 COMMANDS=
 else
-EXTERNALLIBS=$(LIBBOOST)
 COMMANDS=tools
 endif

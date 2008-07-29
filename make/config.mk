@@ -1,6 +1,6 @@
 CONFIG=linux
-CONFIG=windows/cross-mingw
-CONFIG=windows/native-mingw
+#CONFIG=windows/cross-mingw
+#CONFIG=windows/native-mingw
 #CONFIG=avr
 
 COMPILER=$(word 2, $(subst /, ,$(CONFIG)))

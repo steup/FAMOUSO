@@ -12,6 +12,4 @@ src/devices/nic/ip/socket/SocketException.cc \
 src/devices/nic/ip/socket/UDPSocket.cc \
 src/devices/nic/ip/socket/TCPServerSocket.cc \
 src/devices/nic/ip/socket/bsd/BSDSocket.cc \
-src/util/posix/PThread.cc \
-src/mw/el/SocketEventHandler.cc
-
+src/util/posix/PThread.cc
