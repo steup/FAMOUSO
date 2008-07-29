@@ -22,7 +22,7 @@ LIBOBJ   = $(addprefix $(MODULEDIR)/,$(notdir $(SOURCES:.cc=.o)))
 # Objekt fuer die Tools
 TOOLOBJ = $(addprefix $(MODULEDIR)/,$(notdir $(TOOLSRC:.cc=.o)))
 # Ausfuehrbaren Tools
-TOOLBIN = $(addprefix $(BINDIR)/,$(notdir $(TOOLSRC:.cc=)))
+TOOLBIN = $(addprefix $(BINDIR)/,$(notdir $(TOOLSRC:.cc=$(SUFFIX))))
 
 # Listen mit den Dependency-dateien, die beim Kompilieren entstehen:
 # (werden automatisch aus den Quelltextdateinamen ermittelt)
@@ -33,7 +33,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(EXTERNALLIBS) $(LIBFAMOUSO) $(COMMANDS)
+all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(EXTERNALLIBS) $(LIBFAMOUSO) $(COMMANDS)
 
 tools: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBFAMOUSO) rmbin $(TOOLBIN)
 
@@ -47,6 +47,10 @@ $(MODULEDIR):
 	@mkdir -p $@
 
 $(BINDIR):
+	@mkdir -p $@
+
+$(DEPENDDIR):
+	echo $(DEPENDDIR)
 	@mkdir -p $@
 
 rmbin:
@@ -66,7 +70,7 @@ $(DEPENDDIR)/%.d : %.cc
 
 # --------------------------------------------------------------------------
 # Regeln zur Erzeugung der ausfuehrbaren Tools
-$(BINDIR)/%: $(MODULEDIR)/%.o $(TOOLOBJ)
+$(BINDIR)/%$(SUFFIX): $(MODULEDIR)/%.o $(TOOLOBJ)
 	@$(RULEECHO) ; \
 	$(CXX) $(CXXOPTION) $(CXXFLAGS) -o $@ $< $(LIB) $(ADDITIONAL_LIBS)
 
@@ -79,14 +83,17 @@ $(LIBFAMOUSO):$(LIBOBJ)
 
 include ./make/boost.mk
 
-clean:	
+clean:
 	@rm -f $(MODULEDIR)/*.[oO] $(LIBLOADER) $(DEPENDDIR)/*.d $(BINDIR)/*
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
 
 distclean: clean
-	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) ./doc/html
+	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE) ./doc/html
 
+ifneq ($(subst dist,,$(MAKECMDGOALS)),clean)
+$(shell mkdir -p $(DEPENDDIR))
 -include $(DEPSPRE)
+endif
 
 
