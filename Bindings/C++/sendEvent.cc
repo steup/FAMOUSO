@@ -36,13 +36,14 @@ int main(int argc, char **argv) {
 	e.data = data;
 
 	while(!done) {
-		e.data[0]++;
-		pec.publish(e);
 // 25 us ist sicherlich die untere Grenze, sonst laufen die
 // internen Queues im System ueber
 // ist auch abhaengig von der Gegenseite, ob sie die Daten
 // auch abnimmt
 		Thread::sleep(2);
+// publish data
+		e.data[0]++;
+		pec.publish(e);
 	}
 }
 
