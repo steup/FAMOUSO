@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 	done = 0;
 	signal(SIGINT,siginthandler);
 
-	PEC pec(0xf200000000000000ll);
+	PEC pec(0xf200000000000000ull);
 	pec.announce();
 
 	Event e(pec.subject());
