@@ -21,15 +21,16 @@ include $(INSTALLDIR)/make/global.mk
 include $(INSTALLDIR)/make/sources.mk
 
 # Definition lesen, die fuer spezielle Targets gelten
--include $(INSTALLDIR)/make/$(PLATFORM)/gcc.mk
-#$(shell dirname ${PLATFORM})
--include $(INSTALLDIR)/make/$(shell dirname ${PLATFORM})/sources.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/defs.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/sources.mk
 
 include $(INSTALLDIR)/make/rules.mk
 
-EXTERNALLIBS=$(LIBBOOST)
-COMMANDS=tools
 
 ifeq ($(PLATFORM),avr)
 COMMANDS=
+else
+EXTERNALLIBS=$(LIBBOOST)
+COMMANDS=tools
 endif

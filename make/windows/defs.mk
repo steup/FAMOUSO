@@ -1,0 +1,4 @@
+ADDITIONAL_LIBS         += -lwsock32 -lws2_32
+ADDITIONAL_CFLAGS       += -DWIN32 -D_WIN32_WINNT=0x0501 -D__USE_W32_SOCKETS -mno-cygwin
+
+SUFFIX=.exe
