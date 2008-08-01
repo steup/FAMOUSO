@@ -32,8 +32,9 @@ public:
 template < char *&_dev >
 class NLUDP {
 public:
-    NLUDP () { {
-        } void bind ()
+    NLUDP () {
+	} 
+	void bind (){
         DEBUG (("%s %s\n", __PRETTY_FUNCTION__, _dev));
     }
 };
@@ -95,13 +96,13 @@ typedef ANL < NLUDP < deviceUDP > >ANL_UDP;
 typedef ANL < NLCAN < deviceCAN0 > >ANL_CAN0;
 typedef ANL < NLCAN < deviceCAN1 > >ANL_CAN1;
 
-typedef EC < ANL < NLCAN < deviceCAN0 > >>avrEC;
+typedef EC < ANL < NLCAN < deviceCAN0 > > >avrEC;
 
 // und einige einfache Instanzierungen zur Probe
 int main (int argc, char **argv) {
 
     DEBUG (("Ausfuehrliches Beispiel fuer z.B. ein Gateway mit drei Netzwerken\n"));
-    EC < ECH_A < NA < ANL_UDP, NA < ANL_CAN0, ANL_CAN1 > >>>a;
+    EC < ECH_A < NA < ANL_UDP, NA < ANL_CAN0, ANL_CAN1 > > > >a;
     a.announce ();
 
     DEBUG (("\nBeispiel fuer minimales System z.B. fuer den AVR\n"));
