@@ -22,6 +22,8 @@ class AbstractNetworkLayer : public NL{
     typename NL::Packet_t p={snn, &e[0]};
     if (e.length <= NL::info::payload)
       NL::deliver(p);
+    else
+      DEBUG(("Event is to big to deliver at once and fragmentation is not supported at the moment\n"));
   }
 
   void subscribe(const Subject &s, SNN &snn) {

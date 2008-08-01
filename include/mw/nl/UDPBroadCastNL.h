@@ -21,7 +21,7 @@ public:
     typedef Packet<SNN> Packet_t;
 
 
-    UDPBroadCastNL() { init();}
+    UDPBroadCastNL() { }
     ~UDPBroadCastNL() {}
 
     void init(const NodeID &i) {
