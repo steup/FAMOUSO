@@ -3,7 +3,6 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <asio.hpp>
 
 #include <iostream>
 #include <list>
@@ -11,7 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "mw/nl/voidNL.h"
+#include "mw/nl/UDPBroadCastNL.h"
 #include "mw/anl/AbstractNetworkLayer.h"
 #include "mw/el/EventLayer.h"
 #include "mw/common/Event.h"
@@ -24,17 +23,21 @@
 
 #include "famouso.h"
 #include "util/endianess.h"
+#include "util/ios.h"
 
-typedef EventChannel<EventLayer<AbstractNetworkLayer<voidNL> > > EC;
-typedef PublisherEventChannel<EC> PEC;
-typedef SubscriberEventChannel<EC> SEC;
+namespace famouso {
+
+    typedef EventChannel<EventLayer<AbstractNetworkLayer<UDPBroadCastNL> > > EC;
+    typedef PublisherEventChannel<EC> PEC;
+    typedef SubscriberEventChannel<EC> SEC;
+    
 
 class EventChannelConnection : public boost::enable_shared_from_this<EventChannelConnection> {
 public:
     typedef boost::shared_ptr<EventChannelConnection> pointer;
 
-    static pointer create(asio::io_service& io_service) {
-        return pointer(new EventChannelConnection(io_service));
+    static pointer create() {
+        return pointer(new EventChannelConnection());
     }
 
     asio::ip::tcp::socket& socket() {
@@ -51,8 +54,8 @@ public:
     }
 
 private:
-    EventChannelConnection(asio::io_service& io_service)
-            : socket_(io_service) {
+    EventChannelConnection()
+            : socket_(famouso::ios::instance()) {
     }
 
     void get_event_head(boost::shared_ptr<PEC> pec,
@@ -160,14 +163,15 @@ private:
 
 class EventChannelHandler {
 public:
-    EventChannelHandler(asio::io_service& io_service)
-            : acceptor_(io_service, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), ServPort)) {
-        start_accept();
+    EventChannelHandler() : acceptor_(famouso::ios::instance(),
+				      asio::ip::tcp::endpoint(asio::ip::tcp::v4(),
+							      ServPort)) {
+	start_accept();
     }
 
 private:
     void start_accept() {
-        EventChannelConnection::pointer ecc = EventChannelConnection::create(acceptor_.io_service());
+        EventChannelConnection::pointer ecc = EventChannelConnection::create();
         acceptor_.async_accept(ecc->socket(),
                                boost::bind(&EventChannelHandler::handle_accept, this, ecc,
                                            asio::placeholders::error));
@@ -180,8 +184,17 @@ private:
             start_accept();
         }
     }
+
     asio::ip::tcp::acceptor acceptor_;
 };
+
+}
+
+
+void do_post(){
+	std::cout<<"\tMichael"<<std::endl;
+}
+
 
 int main (int argc, char **argv) {
     std::cout << "Project: FAMOUSO" << std::endl;
@@ -193,15 +206,26 @@ int main (int argc, char **argv) {
     std::cout << "last changed by $Author: mschulze $" << endl << std::endl;
 
     try {
-        asio::io_service io_service;
+	famouso::EventChannelHandler localECH;
+ 	famouso::ios::instance().run();
 
-        EventChannelHandler localECH(io_service);
-
-        io_service.run();
-
+//  	asio::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
+// 	while(1){
+// 	    sleep(1);
+// 	    famouso::ios::instance().post(boost::bind(&do_post));
+// 	}
     } catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
 
     return 0;
 }
+
+
+
+/* This stuff is for emacs
+ * Local variables:
+ * mode:c++
+ * c-basic-offset: 4
+ * End:
+ */
