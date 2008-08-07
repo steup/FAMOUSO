@@ -200,14 +200,14 @@ int main (int argc, char **argv) {
     std::cout << "Project: FAMOUSO" << std::endl;
     std::cout << "local Event Channel Handler" << std::endl << std::endl;
     std::cout << "Author: Michael Schulze" << std::endl;
-    std::cout << "Revision: $Rev: 341 $" << std::endl;
-    std::cout << "$Date: 2008-05-19 11:30:29 +0200 (Mon, 19 May 2008) $" << std::endl;
+    std::cout << "Revision: $Rev$" << std::endl;
+    std::cout << "$Date$" << std::endl;
     std::cout << "build at " << __TIME__ << std::endl;
-    std::cout << "last changed by $Author: mschulze $" << endl << std::endl;
+    std::cout << "last changed by $Author$" << endl << std::endl;
 
     try {
 	famouso::EventChannelHandler localECH;
- 	famouso::ios::instance().run();
+	famouso::ios::instance().run();
 
 //  	asio::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
 // 	while(1){
