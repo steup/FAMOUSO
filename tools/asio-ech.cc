@@ -30,7 +30,7 @@ namespace famouso {
     typedef EventChannel<EventLayer<AbstractNetworkLayer<UDPBroadCastNL> > > EC;
     typedef PublisherEventChannel<EC> PEC;
     typedef SubscriberEventChannel<EC> SEC;
-    
+
 
 class EventChannelConnection : public boost::enable_shared_from_this<EventChannelConnection> {
 public:
@@ -99,7 +99,7 @@ private:
 
     void unsubscribe(boost::shared_ptr<SEC> sec,
                      const asio::error_code& error) {
-        std::cout << "Unannouncement for channel:\t0x"
+        std::cout << "Unsubscription for channel:\t0x"
         << hex << sec->subject().value
         << std::endl;
     }
