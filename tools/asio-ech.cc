@@ -17,8 +17,8 @@
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
 
-#include "util/TCPSocketThread.h"
-#include "devices/nic/ip/socket/TCPServerSocket.h"
+//#include "util/TCPSocketThread.h"
+//#include "devices/nic/ip/socket/TCPServerSocket.h"
 #include "devices/nic/ip/socket/TCPSocket.h"
 
 #include "famouso.h"
@@ -73,7 +73,7 @@ private:
                 return;
             }
         }
-        std::cout << "Unannouncement for channel:\t0x" << hex << pec->subject().value << std::endl;
+        std::cout << "Unannouncement for channel:\t0x" << std::hex << pec->subject().value << std::endl;
     }
 
     void get_event_data(boost::shared_ptr<PEC> pec,
@@ -94,13 +94,13 @@ private:
                                          asio::placeholders::bytes_transferred));
             return;
         }
-        std::cout << "Unannouncement for channel:\t0x" << hex << pec->subject().value << std::endl;
+        std::cout << "Unannouncement for channel:\t0x" << std::hex << pec->subject().value << std::endl;
     }
 
     void unsubscribe(boost::shared_ptr<SEC> sec,
                      const asio::error_code& error) {
         std::cout << "Unsubscription for channel:\t0x"
-        << hex << sec->subject().value
+        << std::hex << sec->subject().value
         << std::endl;
     }
 
@@ -115,7 +115,7 @@ private:
     }
 
     void handle_request(const asio::error_code& error, size_t bytes_transferred) {
-        if (!error) {
+        if (!error && (bytes_transferred >=9) ) {
             switch (event_head[0]) {
             case FAMOUSO::SUBSCRIBE: {
                 // allocate a new subscribe event channel
@@ -130,7 +130,7 @@ private:
                                  boost::bind(&EventChannelConnection::unsubscribe, shared_from_this(),
                                              sec, asio::placeholders::error));
 
-                std::cout << "Subscription for channel:\t0x" << hex << sec->subject().value << std::endl;
+                std::cout << "Subscription for channel:\t0x" << std::hex << sec->subject().value << std::endl;
                 break;
             }
             case FAMOUSO::ANNOUNCE: {
@@ -145,12 +145,15 @@ private:
                                              pec, asio::placeholders::error,
                                              asio::placeholders::bytes_transferred));
 
-                std::cout << "Announcement for channel:\t0x" << hex << pec->subject().value << std::endl;
+                std::cout << "Announcement for channel:\t0x" << std::hex << pec->subject().value << std::endl;
                 break;
             }
+	    default:
+                std::cout << "Wrong opcode:\t0x" << event_head[0] << std::endl;
             }
-
-        }
+        } else {
+                std::cout << "Wrong message format:" << std::endl;
+	}
     }
 
     asio::ip::tcp::socket socket_;
@@ -203,7 +206,7 @@ int main (int argc, char **argv) {
     std::cout << "Revision: $Rev$" << std::endl;
     std::cout << "$Date$" << std::endl;
     std::cout << "build at " << __TIME__ << std::endl;
-    std::cout << "last changed by $Author$" << endl << std::endl;
+    std::cout << "last changed by $Author$" << std::endl << std::endl;
 
     try {
 	famouso::EventChannelHandler localECH;
