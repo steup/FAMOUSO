@@ -4,7 +4,7 @@
 #include "devices/nic/ip/socket/SocketDescriptor.h"
 #include "devices/nic/ip/socket/win32/WinSocketBase.h"
 
-#include <winsock.h>		// For socket(), connect(), send(), and recv()
+#include <winsock2.h>		// For socket(), connect(), send(), and recv()
 #include <iostream>
 
 typedef int socklen_t;
