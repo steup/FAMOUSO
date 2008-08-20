@@ -1,14 +1,17 @@
 include ../../make/Makefile
-ADDITIONAL_CFLAGS	+= -I./include
-all: sendEvent distance
+ADDITIONAL_CFLAGS+= -I./include
 
-distance: distance.o
-	@$(RULEECHO) ; \
-	$(CXX) -g -Wall -o distance distance.o $(LIB) $(ADDITIONAL_LIBS)
+TOOLS=sendEvent.cc distance.cc
 
-sendEvent: sendEvent.o
-	@$(RULEECHO) ; \
-	$(CXX) -g -Wall -o sendEvent sendEvent.o $(LIB) $(ADDITIONAL_LIBS)
+TOOLBIN = $(TOOLS:.cc=.foobar)
+TOOLCLEAR = $(TOOLS:.cc=$(SUFFIX))
+
+all: $(TOOLBIN)
+
+%.foobar: %.o
+	echo "$< -> $(basename $@)$(SUFFIX)"; \
+	$(CXX) $(CXXFLAGS) -o $@ $< $(LIB) $(ADDITIONAL_LIBS) && \
+	mv $@ $(basename $@)$(SUFFIX)
 
 clean:
-	rm -f *.o *~ distance sendEvent
+	rm -f *.o *~ $(TOOLCLEAR)
