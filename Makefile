@@ -33,7 +33,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_LIBS) $(LIBFAMOUSO) $(COMMANDS)
+all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(LIBFAMOUSO) $(COMMANDS)
 
 tools: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBFAMOUSO) rmbin $(TOOLBIN)
 
@@ -76,7 +76,7 @@ $(BINDIR)/%$(SUFFIX): $(MODULEDIR)/%.o $(TOOLOBJ)
 
 # -------------------------------------------------
 # Bauen der lib
-$(LIBFAMOUSO):$(LIBOBJ)
+$(LIBFAMOUSO): $(LIBOBJ)
 	@echo "generate lib *.o -> $(notdir $@)"
 	@$(AR) $(ARFLAGS) $@ $(LIBOBJ)
 	@$(RANLIB) $@
