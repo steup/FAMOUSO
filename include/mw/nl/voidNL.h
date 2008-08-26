@@ -8,6 +8,10 @@
 #include "debug.h"
 #include <stdio.h>
 
+namespace famouso {
+	namespace mw {
+		namespace nl {
+
 class voidNL {
 public:
     struct info{
@@ -51,6 +55,9 @@ public:
     }
 
 };
+		} // namespace nl
+	} // namespace mw
+} //namespace famouso
 
 #endif /* __voidNL_h__ */
 

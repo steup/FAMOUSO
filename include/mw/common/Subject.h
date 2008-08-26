@@ -4,11 +4,11 @@
 #include "mw/common/UID.h"
 #include <stdint.h>
 
-/* namespace cosmic { */
-/*   namespace EventLayer { */
+namespace famouso {
+	namespace mw {
 
 typedef UID Subject;
 
-/*   } */
-/* } */
+	}
+}
 #endif /* __Subject_h__ */

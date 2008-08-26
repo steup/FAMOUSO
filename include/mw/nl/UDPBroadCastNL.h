@@ -8,6 +8,10 @@
 #include "debug.h"
 #include <stdio.h>
 
+namespace famouso {
+	namespace mw {
+		namespace nl {
+
 class UDPBroadCastNL {
 public:
     struct info{
@@ -50,7 +54,9 @@ public:
     }
 
 };
-
+		}
+	}
+}
 #endif /* __UDPBroadCastNL_h__ */
 
 /* This stuff is for emacs

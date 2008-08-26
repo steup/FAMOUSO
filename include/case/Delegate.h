@@ -1,6 +1,9 @@
 #ifndef __Delagate_h__
 #define __Delagate_h__
 
+namespace famouso {
+	namespace util {
+
 /*!
  *		\class Delegate
  *		\brief Implements anonymous callback functionality
@@ -69,5 +72,6 @@ class Delegate {
     ( *stub_ptr_ )( obj_ptr_, a0 );
   }
 };
-
+	} // namespace util
+} // namespace famouso
 #endif

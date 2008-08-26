@@ -18,10 +18,12 @@
 #include "famouso.h"
 #include "util/endianess.h"
 
-typedef EventChannel<EventLayer<AbstractNetworkLayer<voidNL> > > EC;
-typedef PublisherEventChannel<EC> PEC;
-typedef SubscriberEventChannel<EC> SEC;
-
+typedef famouso::mw::nl::voidNL	nl;
+typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
+typedef famouso::mw::el::EventLayer< anl > el;
+typedef famouso::mw::api::EventChannel< el > EC;
+typedef famouso::mw::api::PublisherEventChannel<EC> PEC;
+typedef famouso::mw::api::SubscriberEventChannel<EC> SEC;
 
 class PublisherThread : public TCPSocketThread {
   void action () {
@@ -34,7 +36,7 @@ class PublisherThread : public TCPSocketThread {
       PEC pec (ntohll(*(unsigned long long *) (echoBuffer)));
       pec.announce ();
       // Zugehoeriges Event erzeugen
-      Event e (pec.subject ());
+      famouso::mw::Event e (pec.subject ());
       cout << "Announcement for channel:\t0x" << hex << pec.subject().value << endl;
 
       // Zero means end of transmission

@@ -18,6 +18,11 @@
  *
  * \todo open question, whether the ECH should be static or accessible via a singleton ???
  */
+
+namespace famouso {
+	namespace mw {
+		namespace api {
+
 template < class ECH >
 class EventChannel : public Chain {
   // definition of the event channel handler
@@ -88,7 +93,7 @@ class EventChannel : public Chain {
   // Definition of CallBackData as well as the callback itself
   // using a delegate mechanism
   typedef const Event CallBackData;
-  Delegate<CallBackData&> callback;
+  famouso::util::Delegate<CallBackData&> callback;
 
 
   /*! \brief cb is the default callback
@@ -131,5 +136,9 @@ class EventChannel : public Chain {
  * \todo open question, whether the ECH should be static or accessible via a singleton ???
  */
 template < class ECH > ECH EventChannel<ECH>::_ech;
+
+		} // namespace api
+	} // namespace mw
+} // namespace famouso
 
 #endif /* __EventChannel_h__ */

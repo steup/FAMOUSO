@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "mw/common/Subject.h"
 
+namespace famouso {
+	namespace mw {
+
 struct Event {
   typedef uint16_t Type;
   Type length;
@@ -21,5 +24,8 @@ struct Event {
     return data[i];
   }
 };
+
+	} // namespace mw
+} // namespace famouso
 
 #endif /* __Event_h__ */

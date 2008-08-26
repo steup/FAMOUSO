@@ -27,9 +27,12 @@
 
 namespace famouso {
 
-    typedef EventChannel<EventLayer<AbstractNetworkLayer<UDPBroadCastNL> > > EC;
-    typedef PublisherEventChannel<EC> PEC;
-    typedef SubscriberEventChannel<EC> SEC;
+    typedef famouso::mw::nl::UDPBroadCastNL	nl;
+    typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
+    typedef famouso::mw::el::EventLayer< anl > el;
+    typedef famouso::mw::api::EventChannel< el > EC;
+    typedef famouso::mw::api::PublisherEventChannel<EC> PEC;
+    typedef famouso::mw::api::SubscriberEventChannel<EC> SEC;
 
 
 class EventChannelConnection : public boost::enable_shared_from_this<EventChannelConnection> {
@@ -81,7 +84,7 @@ private:
                         size_t bytes_transferred) {
         if (!error) {
             // now the Event is complete
-            Event e(pec->subject());
+            famouso::mw::Event e(pec->subject());
             e.length=bytes_transferred;
             e.data = (uint8_t *) &event_data;
             // publish to FAMOUSO
@@ -212,19 +215,17 @@ int main (int argc, char **argv) {
 	famouso::EventChannelHandler localECH;
 	famouso::ios::instance().run();
 
-//  	asio::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
-// 	while(1){
-// 	    sleep(1);
-// 	    famouso::ios::instance().post(boost::bind(&do_post));
-// 	}
+//	asio::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
+//	while(1){
+//	    sleep(1);
+//	    famouso::ios::instance().post(boost::bind(&do_post));
+//	}
     } catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
 
     return 0;
 }
-
-
 
 /* This stuff is for emacs
  * Local variables:

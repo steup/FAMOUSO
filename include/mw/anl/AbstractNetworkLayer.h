@@ -3,6 +3,10 @@
 
 #include "debug.h"
 
+namespace famouso {
+	namespace mw {
+		namespace anl {
+
 // einfacher ANL
 template < class NL >
 class AbstractNetworkLayer : public NL{
@@ -34,5 +38,9 @@ class AbstractNetworkLayer : public NL{
   }
 
 };
+
+		} // namespace anl
+	} // namespace mw
+} //namespace famouso
 
 #endif /* __AbstractNetworkLayer_h__ */
