@@ -13,16 +13,18 @@
 
 
 namespace famouso {
+	namespace mw {
+		namespace nl {
 
 class UDPMultiCastNL : boost::noncopyable {
 	public:
-		
+
 		struct info{
 			enum {
 				payload=8192-sizeof( Subject),
 			};
 		};
-		
+
 		// type of an address
 		typedef asio::ip::address SNN;
 		
@@ -42,7 +44,7 @@ class UDPMultiCastNL : boost::noncopyable {
 		{
 			init();
 		}
-		
+
 
 		
 		/**
@@ -60,7 +62,7 @@ class UDPMultiCastNL : boost::noncopyable {
 		 * Sets the options for the socket and starts receiving.
 		 */
 		void init();
-		
+
 		/**
 		 * @brief subscribe a subject
 		 * 
@@ -79,7 +81,7 @@ class UDPMultiCastNL : boost::noncopyable {
 		 * @param bytes_recvd the amount of bytes that were sent
 		 */	
 		void handle_send_to( const asio::error_code& error, size_t bytes_recvd );
-		
+
 		/**
 		 * @brief publish
 		 *
@@ -89,14 +91,14 @@ class UDPMultiCastNL : boost::noncopyable {
 		 */
 		void deliver( const Packet_t& p );
 		void deliver_fragment( const Packet_t& p){ deliver( p ); };
-		
+
 		/**
 		 * @brief processes incoming packets
 		 * 
 		 * @param p fetched packet is saved here
 		 */
 		void fetch( Packet_t& p);
-		
+
 		/**
 		 * @brief handle called on receive
 		 * 
@@ -104,7 +106,7 @@ class UDPMultiCastNL : boost::noncopyable {
 		 *
 		 */
 		void interrupt( const asio::error_code& error, size_t bytes_recvd );
-			
+
 	private:
 		const int port;
 		asio::ip::udp::socket socket_;
@@ -114,7 +116,7 @@ class UDPMultiCastNL : boost::noncopyable {
 		Packet_t incoming_packet;
 };
 
-}
+}}} // namespaces
 
 
 #endif /* __UDPMultiCastNL_hpp__ */
