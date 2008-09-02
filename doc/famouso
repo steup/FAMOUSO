@@ -1,16 +1,49 @@
 /**	\mainpage
 *	\author Michael Schulze, Uni Magdeburg, IVS/EOS
-*   \date 31.03.2008
+*	\date 02.09.2008
 *
-*	\section FAMOUSO FAMOUSO -- a Framework of an Adaptive Middleware for autonomOUs Sentient Objects
-*	Ein bissl blafasel
-*
-*	\todo NetworkByteOrder beachten bei den Kanaelen
-*	\todo Rueckgabewerte wirklich ueberall Testen, um die Qualitaet und Sicherheit zu staerken
-*	\todo Rebind des Sockets ermoeglichen
-*	\todo Sockets auf boost::asio umstellen, weil dadruch die Portabilitaet steigt und auch 
-*	      das asynchrone Verhalten verbessert wird. Dadurch eigentliche Abkehr von Threads
-*	      innerhalb der MW. Erhoeht ebenfalls die Portablitaet. boost::asio kann hingegen auf
-*	      dem AVR nicht genutzt werden. Ist aber auch nicht notwendig, da dort Interrupts zur
-*	      Verfuegung stehen
+*	\section FAMOUSO FAMOUSO -- Family of Adaptive Middleware for autonomOUs Sentient Objects
+*	<img src="../images/FAMOUSO.png" width="50">
+
+%FAMOUSO is a publish/subscribe middleware that readopts the ideas and
+concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art
+dev<b>IC</b>es).  Additionally, %FAMOUSO provides means for adaption e.g. to a
+specific platform. The middleware offers an event-based communication model
+according to the publisher/subscriber concept.
+%FAMOUSO is especially designed to allow cooperation between smart
+sensors and actuators on different hardware platforms ranging from 8-bit
+micro-controllers up to 32-bit PC/Workstations and interaction over a broad
+variety of communication media like
+<a href="http://www.semiconductors.bosch.de/pdf/can2spec.pdf">ControllerArea Network</a>,
+<a href="http://standards.ieee.org/getieee802/802.15.html">802.15.4</a>,
+<a href="http://awds.berlios.de/">AWDS</a>,
+<a href="http://www.ietf.org/rfc/rfc3170.txt">UDP-MultiCast</a>.
+On application level it offers an unique API that is usable from different
+programming languages (C/C++, Python, Java) as well as engineering tools (
+<a href="http://www.mathworks.com/">Matlab/Simulink</a>,
+<a href="http://www.ni.com/labview/">Labview</a>).
+
+Key features of %FAMOUSO are:
+	- Publish/Subscribe middleware
+	- Uniform addressing of topics
+	- No control flow dependancies between Publisher and Subscriber
+	- Abstraction of the concrete underlying communiction media
+	- Hides heterogeneity
+	- Portability
+	- Adaptability
+	- Configurability
+	- Deployment of modern software technologies
+
+
+\todo
+- NetworkByteOrder beachten bei den Kanaelen
+- Rueckgabewerte wirklich ueberall Testen, um die Qualitaet und Sicherheit zu
+  staerken
+- Rebind des Sockets ermoeglichen
+- Sockets auf boost::asio umstellen, weil dadruch die Portabilitaet steigt und
+  auch das asynchrone Verhalten verbessert wird. Dadurch eigentliche Abkehr von
+  Threads innerhalb der MW. Erhoeht ebenfalls die Portablitaet. boost::asio
+  kann hingegen auf dem AVR nicht genutzt werden. Ist aber auch nicht
+  notwendig, da dort Interrupts zur Verfuegung stehen
+
 */
