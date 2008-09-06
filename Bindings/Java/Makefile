@@ -1,13 +1,17 @@
+include ../../make/Makefile
 INC=../include
 FILE=famouso.i
+GEN=generated
 
 all:
-	swig -java -I../include/ $(FILE)
-	gcc -fpic -c ../client/famouso.c famouso_wrap.c -I/usr/lib/jvm/java-1.5.0-gcj/include -I/usr/lib/jvm/java-1.5.0-gcj/include/linux -I../../include -I$(INC)
-	gcc -shared famouso.o famouso_wrap.o -o libfamouso.so
-	javac -cp . famouso.java
-	javac -cp . Publisher.java
-	javac -cp . Subscriber.java
+	mkdir -p $(GEN)
+	swig -java -c++ -outdir $(GEN) -I../include/ $(FILE)
+	$(CXX) -fpic -c ../client/famouso.cc -o $(GEN)/famouso.o -I/usr/lib/jvm/java-1.5.0-gcj/include -I/usr/lib/jvm/java-1.5.0-gcj/include/linux -I../../include -I$(INC)
+	$(CXX) -fpic -c famouso_wrap.cxx -o $(GEN)/famouso_wrap.o -I/usr/lib/jvm/java-1.5.0-gcj/include -I/usr/lib/jvm/java-1.5.0-gcj/include/linux -I../../include -I$(INC)
+	$(CXX) -shared $(GEN)/famouso.o $(GEN)/famouso_wrap.o -o libfamouso.so $(LIB)
+	javac -cp ./$(GEN) $(GEN)/famouso.java
+	javac -cp ./$(GEN) Publisher.java
+	javac -cp ./$(GEN)  Subscriber.java
 
 clean:
-	rm -f *.o *~ libfamouso* famouso* *.class
+	rm -fr *.o *~ $(GEN) famouso_wrap.cxx libfamouso* *.class

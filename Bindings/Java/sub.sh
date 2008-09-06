@@ -1,4 +1,4 @@
 #!/bin/sh
 
 LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:`pwd`
-java Subscriber
+java -cp ./:./generated Subscriber

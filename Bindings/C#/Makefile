@@ -1,17 +1,25 @@
+include ../../make/Makefile
 INC=../include
 FILE=famouso.i
+GEN=generated
+
+ifeq ($(PLATFORM),windows)
+ LDFLAGS+=-Wl,--add-stdcall-alias -o $(LIBNAME).dll
+else
+ CXXFLAGS+=-fpic
+ LDFLAGS+=-o lib$(LIBNAME).so
+endif
+
 
 all:
-	#swig -csharp -I../include/ -module Blafasel -namespace FAMOUSO $(FILE)
-	swig -csharp -I../include/ $(FILE)
-	gcc -fpic -c ../client/famouso.c famouso_wrap.c -I../../include -I$(INC)
-	gcc -shared famouso.o famouso_wrap.o -o libfamouso.so
-	mcs -out:Subscriber.exe Subscriber.cs famouso_event_t.cs famouso.cs famousoPINVOKE.cs
-	mcs -out:Publisher.exe Publisher.cs famouso_event_t.cs famouso.cs famousoPINVOKE.cs
-#	javac -cp . famouso.java
-#	javac -cp . Publisher.java
-#	javac -cp . Subscriber.java
+	mkdir -p $(GEN)
+	swig -csharp -c++ -outdir $(GEN) -namespace famouso -I../include/ $(FILE)
+	$(CXX) $(CXXFLAGS) -c ../client/famouso.cc -o $(GEN)/famouso.o -I../../include -I$(INC)
+	$(CXX) $(CXXFLAGS) -c famouso_wrap.cxx -o $(GEN)/famouso_wrap.o -I../../include -I$(INC)
+	$(CXX) -shared $(GEN)/famouso.o $(GEN)/famouso_wrap.o $(LDFLAGS) $(LIB) $(ADDITIONAL_LIBS)
+	mcs -out:Subscriber.exe $(GEN)/*.cs Subscriber.cs
+	mcs -out:Publisher.exe $(GEN)/*.cs Publisher.cs
 
 clean:
-	rm -f *.o *~ libfamouso* famouso* *.class *.exe
+	rm -fr $(GEN) famouso_wrap.* libfamouso.so famouso.dll *.exe
 
