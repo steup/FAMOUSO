@@ -1,5 +1,6 @@
 #include "devices/nic/ip/socket/SocketException.h"
 #include <errno.h>
+#include <string.h>
 
 // SocketException Code
 

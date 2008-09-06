@@ -92,14 +92,16 @@ public:
     void announce();
 private:
     static T _na;
-	typename T::SNN	SNN;
-	Subject	subj;
+	struct Topic {
+		Subject	subj;
+		typename T::SNN	SNN;
+	} topic;
 };
 template < class T > T EC < T >::_na;
 
 // einfach Definition eines EventChannels
 template < class T > void EC < T >::announce() {
-    DEBUG(("%s sizeof(SNN)=%d\n", __PRETTY_FUNCTION__, sizeof(SNN)));
+    DEBUG(("%s sizeof(SNN)=%d\n", __PRETTY_FUNCTION__, sizeof(topic.SNN)));
     _na.announce();
 };
 

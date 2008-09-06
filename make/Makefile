@@ -28,7 +28,7 @@ include $(INSTALLDIR)/make/sources.mk
 include $(INSTALLDIR)/make/rules.mk
 
 
-ifeq ($(PLATFORM),avr)
+ifeq ($(CONFIG),avr)
 COMMANDS=
 else
 COMMANDS=tools

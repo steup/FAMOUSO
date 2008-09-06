@@ -18,9 +18,10 @@ TOOLSDIR    = $(INSTALLDIR)/tools
 
 SAMPLEDIR   = $(INSTALLDIR)/testsuite
 
+LIBNAME		= famouso
 LIBBASE		= $(INSTALLDIR)/lib
 LIBDIR 		= $(LIBBASE)/$(MACHINETYPE)/$(GCCVERSION)
-LIBFAMOUSO	= $(LIBDIR)/libfamouso.a
+LIBFAMOUSO	= $(LIBDIR)/lib$(LIBNAME).a
 
 LIB			= -L$(LIBDIR) -lfamouso
 INCLUDE     = -I$(INCDIR) -I$(SRCDIR)

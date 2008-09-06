@@ -107,7 +107,7 @@ private:
         << std::endl;
     }
 
-    void cb (EC::CallBackData & cbd) {
+    void cb (famouso::mw::aux::CallBackData & cbd) {
         uint8_t preamble[13]= {FAMOUSO::PUBLISH};
         uint64_t *sub = (uint64_t *) & preamble[1];
         uint32_t *len = (uint32_t *) & preamble[9];

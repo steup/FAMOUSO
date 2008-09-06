@@ -1,5 +1,5 @@
 include ../../make/Makefile
-ADDITIONAL_CFLAGS+= -I./include
+ADDITIONAL_CFLAGS+= -I../include
 
 TOOLS=sendEvent.cc distance.cc
 
@@ -9,7 +9,7 @@ TOOLCLEAR = $(TOOLS:.cc=$(SUFFIX))
 all: $(TOOLBIN)
 
 %.foobar: %.o
-	echo "$< -> $(basename $@)$(SUFFIX)"; \
+	@echo "$< -> $(basename $@)$(SUFFIX)"; \
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LIB) $(ADDITIONAL_LIBS) && \
 	mv $@ $(basename $@)$(SUFFIX)
 

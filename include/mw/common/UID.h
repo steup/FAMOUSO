@@ -5,11 +5,12 @@
 
 struct UID {
     union {
-	uint64_t value;
+	unsigned long long value;
+//	uint64_t value;
 	uint8_t tab[8];
     };
-    
-    UID() {} 
+
+    UID() {}
     UID(uint8_t uid)  : value(uid) {}
     UID(uint16_t uid) : value(uid) {}
     UID(uint32_t uid) : value(uid) {}
@@ -19,7 +20,7 @@ struct UID {
 	return value==a.value;
     }
 
-//     const UID& 
+//     const UID&
 };
 
 #endif /* __UID_h__ */

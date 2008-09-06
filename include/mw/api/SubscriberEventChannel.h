@@ -16,7 +16,6 @@ class SubscriberEventChannel : public EC {
  SubscriberEventChannel(const Subject &s) : EC(s) {}
 
   ~SubscriberEventChannel() {
-/*     EventChannel<ECH>::unsubscribe();  */
     EC::unsubscribe();
   }
 };

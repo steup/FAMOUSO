@@ -7,7 +7,7 @@
  *   byte ordering function for 64bit variable
  *
  */
-uint64_t htonll(uint64_t host_longlong)
+inline uint64_t htonll(uint64_t host_longlong)
 {
     int x = 1;
 

@@ -18,7 +18,7 @@ typedef famouso::mw::api::SubscriberEventChannel<EC> SEC;
 //   printf("%s Parameter=%d\n", __PRETTY_FUNCTION__, m.snn());
 // }
 
-void cb(EC::CallBackData& cbd) {
+void cb(famouso::mw::aux::CallBackData& cbd) {
   printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
 }
 
@@ -27,18 +27,18 @@ void cb(EC::CallBackData& cbd) {
 int main(int argc, char **argv){
 
   SEC sec((uint8_t)0xf1);
-  sec.callback.from_function<EC, &EC::cb>(&sec);
+//  sec.callback.from_function<EC, &EC::cb>(&sec);
   sec.callback.from_function<&cb>();
   sec.subscribe();
   //  {
   SEC sec1((uint8_t)0xf1);
-  sec1.callback.from_function<EC, &EC::cb>(&sec1);
+//  sec1.callback.from_function<EC, &EC::cb>(&sec1);
   sec1.subscribe();
   //  }
 
   printf ("\n");
   PEC ec((uint8_t)0xf1);
-  ec.callback.from_function<EC, &EC::cb>(&ec);
+//  ec.callback.from_function<EC, &EC::cb>(&ec);
   printf ("sizeof(ec)=%d snn=%d\n",sizeof(ec), ec.snn());
 
 

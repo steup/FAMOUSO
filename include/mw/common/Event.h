@@ -8,13 +8,12 @@ namespace famouso {
 	namespace mw {
 
 struct Event {
-  typedef uint16_t Type;
+  typedef uint32_t Type;
+  const Subject &subject;
   Type length;
   uint8_t *data;
-  const Subject &subject;
 
-
-  Event (const Subject &s): length(0), data(0), subject (s) {}
+  Event (const Subject &s): subject(s), length(0), data(0) {}
 
   uint8_t & operator[](uint8_t i) {
     return data[i];

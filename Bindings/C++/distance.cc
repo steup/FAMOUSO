@@ -11,13 +11,13 @@
 #include <signal.h>
 #include <fcntl.h>
 
-#include "famouso_binding.h"
+#include "famouso_bindings.h"
 #include "util/Thread.h"
 
 
 int done;
 
-void cb(EC::CallBackData& cbd) { 
+void cb(famouso::mw::aux::CallBackData& cbd) {
   printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
 }
 
@@ -30,11 +30,11 @@ void siginthandler(int egal)
 int main(int argc, char **argv) {
 
 	SEC	sec(0xf200000000000000ll);
-	Event m(sec.subject());
+	famouso::mw::Event m(sec.subject());
 
 	done = 0;
 	signal(SIGINT,siginthandler);
-	
+
 	sec.subscribe();
 	sec.callback.from_function<cb>();
 

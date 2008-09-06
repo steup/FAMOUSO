@@ -1,3 +1,7 @@
+#ifndef __EventLayerClientStub_h__
+#define __EventLayerClientStub_h__
+
+
 #include "mw/api/EventChannel.h"
 
 #include "util/TCPSocketThread.h"
@@ -5,6 +9,10 @@
 #include "famouso.h"
 #include "util/endianess.h"
 #include "case/Delegate.h"
+
+namespace famouso {
+	namespace mw {
+		namespace el {
 
 template< class T >
 class NotifyWorkerThread : public TCPSocketThread {
@@ -37,7 +45,7 @@ class EventLayerClientStub {
 
   // announce legt hier nur einen Socket an und meldet sich
   // bei localen EventChannelHandler an
-  void announce(EventChannel<EventLayerClientStub> &ec){
+  void announce(famouso::mw::api::EventChannel<EventLayerClientStub> &ec){
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
     ec.snn() = new TCPSocket(); 
     // Establish connection with the ech
@@ -51,7 +59,7 @@ class EventLayerClientStub {
 
   // Publish uebermittelt die Daten
   // an den localen ECH
-  void publish(EventChannel<EventLayerClientStub> &ec, const Event &e) {
+  void publish(famouso::mw::api::EventChannel<EventLayerClientStub> &ec, const Event &e) {
     DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
     // Hier koennte der Test erfolgen, ob die Subjects vom Event
     // und vom EventChannel gleich sind, weil nur dann
@@ -72,7 +80,7 @@ class EventLayerClientStub {
   }
 
   // Verbindung  zum  ECH oeffnen und Subject subscrebieren
-  void subscribe(EventChannel<EventLayerClientStub> &ec) {
+  void subscribe(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
     DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
     ec.snn() = new TCPSocket(); 
 
@@ -86,25 +94,30 @@ class EventLayerClientStub {
 
     // Send the subscribe to the ech
     ec.snn()->send(transferBuffer, 9);
-    
+
     // create a thread that gets the ec and if a messages arrives at the
     // socket connection the ec is called back
     /// \todo potentiell ein Speicherleck, Der Thread bzw. die Daten sollten auch wieder zerstoert werden
     ///       wenn sie nicht mehr benoetigt werden
-    NotifyWorkerThread<EventChannel<EventLayerClientStub> > *nwt = new NotifyWorkerThread<EventChannel<EventLayerClientStub> >(ec);
+    NotifyWorkerThread<famouso::mw::api::EventChannel<EventLayerClientStub> > *nwt = new NotifyWorkerThread<famouso::mw::api::EventChannel<EventLayerClientStub> >(ec);
     nwt->start();
     DEBUG(("Generate Thread and Connect to local ECH\n"));
   }
 
   // Verbindung schliessen, sollte reichen
-  void unsubscribe(EventChannel<EventLayerClientStub> &ec) {
+  void unsubscribe(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
     DEBUG(("close connection\n"));
   }
 
   // Verbindung schliessen sollte reichen
-  void unannounce(EventChannel<EventLayerClientStub> &ec) {
+  void unannounce(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
     DEBUG(("close connection\n"));
   }
 };
+		} // namespace el
+	} // namespace mw
+} //namespace famouso
+
+#endif

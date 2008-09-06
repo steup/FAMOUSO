@@ -4,19 +4,22 @@
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
 #include "mw/common/AttributeList.h"
+#include "mw/common/CallBack.h"
 
 #include "debug.h"
 #include "object/Chain.h"
 #include "case/Delegate.h"
 
 /*! \class EventChannel
- *  \brief This is the base class of each EventChannel
  *
- *  The EventChannel encapsulates the needed data structures to handle
- *  the publish/subscribe communication and implements the redirection
- *  of the calls to the EventLayer also.
+ * \brief This is the base class of each EventChannel
  *
- * \todo open question, whether the ECH should be static or accessible via a singleton ???
+ *  The EventChannel encapsulates the needed data structures to handle the
+ *  publish/subscribe communication and implements the redirection of the calls
+ *  to the EventLayer also.
+ *
+ * \todo open question, whether the ECH should be static or accessible via a
+ * singleton ???
  */
 
 namespace famouso {
@@ -32,6 +35,13 @@ class EventChannel : public Chain {
   // definition of the short network names of a subjectes
   typename ECH::SNN _snn;
 
+ public:
+  /*! \brief is a callback that is called if an event occurs
+   *
+   *         \sa EventLayer::publish
+   *         \sa AbstractNetworkLayer::publish
+   */
+   famouso::mw::aux::CallBack callback;
 
  public:
   /*! \brief give the Short Network Name representation of
@@ -77,7 +87,7 @@ class EventChannel : public Chain {
   void subscribe() {
     DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
     _ech.subscribe(*this);
-	callback.from_function<EventChannel<ECH>, &EventChannel<ECH>::cb>(this);
+    callback.from_function<&famouso::mw::aux::cb>();
   }
 
   /*! \brief publish an event via the event channel
@@ -90,24 +100,7 @@ class EventChannel : public Chain {
     _ech.publish(*this,e);
   }
 
-  // Definition of CallBackData as well as the callback itself
-  // using a delegate mechanism
-  typedef const Event CallBackData;
-  famouso::util::Delegate<CallBackData&> callback;
 
-
-  /*! \brief cb is the default callback
-   *
-   *         \sa EventLayer::publish
-   *         \sa AbstractNetworkLayer::publish
-   *
-   *   \todo Probably not needed, because of defining callback by
-   *         the application itself. However for testing is nice
-   *         to have. Future versions will remove that function.
-   */
-  void cb(CallBackData& cbd) {
-    DEBUG(("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data));
-  }
 
  protected:
   /*! \brief Constructor of the class is protected to avoid
@@ -140,5 +133,6 @@ template < class ECH > ECH EventChannel<ECH>::_ech;
 		} // namespace api
 	} // namespace mw
 } // namespace famouso
+
 
 #endif /* __EventChannel_h__ */
