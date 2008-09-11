@@ -1,0 +1,41 @@
+Verschiedene zu erledigende Sachen
+--------------------
+BOOST-Specifisches Bauen der libboost_system noch zu erledigen:
+fuer Windows:
+    "gcc"  -ftemplate-depth-128 -mthreads -O3 -finline-functions -Wno-inline -Wall -mthreads  -DBOOST_ALL_NO_LIB=1 -DBOOST_SYSTEM_STATIC_LINK=1 -DNDEBUG  -I"." -c -o "bin.v2\libs\system\build\gcc-3.4.4\release\link-static\threading-multi\error_code.o" "libs\system\src\error_code.cpp"
+
+einziger Unterschied zu linux ist -mthreads und -pthreads
+
+--------------------
+astyle auf alle Dateien anwenden mit Parameter -aC
+--------------------
+Copyright Hinweis in allen Dateien vermerken. Vielleicht in einer Art release
+Script mit einbauen, welches nur auf einem extra-pfad ausgefuehrt wird und
+dann die entsprechenden Hinweise hinzufuegt und dann wars dies ohne svn und
+dann noch in ein tar.gz oder tar.bz2 zusammenpacken
+
+-------------------
+
+Programmiertechnisches:
+-asio-ech auf boost direkt umstellen
+-callback vom Networklayer in EL realisieren (Namensraum famouso::mw::EL)
+-Networklayer Identifikation ueber Id Methode des BaseNL
+ (siehe tst/approved/te-Inheritance.cc)
+-fetching von events realisieren
+-gateway-klasse bauen, welche interne Subscriber und Publisher ECs benutzt, um
+ forwarding entsprechend zu realisieren. Der Callback des Subscriber wird fuer
+ das Publishing ins jeweilige Netz verwendet (Proxy-Funktionalitaet)
+-CAN-NL + CCP + Brokering + RT-Channels
+
+Offene Fragen:
+	-Wie gross darf ein Event ueberhaupt sein??? Systemsicht
+
+
+Diss-Technisches:
+	-Problem genau herausarbeiten, warum adaptierbare Ausfuehrungsumgebung
+	 hier middleware -> kleine Systeme, schlanke Middleware,
+	 unterschiedliche Einsatzszenarien, Template-Konfiguration als Merkmal
+
+
+-Zu lesen (NDDS, Corba Notification Services)
+
