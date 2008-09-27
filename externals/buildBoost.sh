@@ -12,8 +12,9 @@ pushd Boost
 pushd tools/jam/src
 arch=`./bootstrap/jam0 -d0 -f build.jam --toolset=gcc --show-locate-target`
 popd
+make clean
 echo ./tools/jam/src/$arch/bjam $BJAMCONFIG $PARAMS
-./tools/jam/src/$arch/bjam $BJAMCONFIG $PARAMS
+./tools/jam/src/$arch/bjam -d2 -t/home/mschulze/Uni/Research/MIKRO/famouso/lib/i386-mingw32/gcc-3.4.5/libboost_system-mt.a $BJAMCONFIG $PARAMS
 #make distclean
 popd
 

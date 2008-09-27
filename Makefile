@@ -33,7 +33,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(LIBFAMOUSO) $(COMMANDS)
+all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) $(LIBFAMOUSO) $(COMMANDS)
 
 tools: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBFAMOUSO) rmbin $(TOOLBIN)
 
@@ -89,7 +89,7 @@ clean:
 	@find . -name "#*#" -exec rm -f {} \;
 
 distclean: clean
-	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE) ./doc/html
+	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE) ./doc/html ./doc/latex
 
 ifneq ($(subst dist,,$(MAKECMDGOALS)),clean)
 $(shell mkdir -p $(DEPENDDIR))
