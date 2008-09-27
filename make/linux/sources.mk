@@ -5,6 +5,7 @@
 # -----------------------------------------------------------------------------
 
 SOURCES  += \
+src/mw/nl/UDPMultiCastNL.cc \
 src/devices/nic/ip/socket/CommunicatingSocket.cc \
 src/devices/nic/ip/socket/TCPSocket.cc \
 src/devices/nic/ip/socket/Socket.cc \
