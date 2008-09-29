@@ -10,15 +10,15 @@ typedef famouso::mw::nl::voidNL	nl;
 typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
 typedef famouso::mw::el::EventLayer< anl > el;
 typedef famouso::mw::api::EventChannel< el > EC;
-typedef famouso::mw::api::PublisherEventChannel<EC> PEC;
-typedef famouso::mw::api::SubscriberEventChannel<EC> SEC;
+typedef famouso::mw::api::PublisherEventChannel<el> PEC;
+typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
 
 
 // void cb(const EventChannel<EL>& m){
 //   printf("%s Parameter=%d\n", __PRETTY_FUNCTION__, m.snn());
 // }
 
-void cb(famouso::mw::aux::CallBackData& cbd) {
+void cb(famouso::mw::api::SECCallBackData& cbd) {
   printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
 }
 
@@ -28,7 +28,7 @@ int main(int argc, char **argv){
 
   SEC sec((uint8_t)0xf1);
 //  sec.callback.from_function<EC, &EC::cb>(&sec);
-  sec.callback.from_function<&cb>();
+  sec.callback.bind<&cb>();
   sec.subscribe();
   //  {
   SEC sec1((uint8_t)0xf1);

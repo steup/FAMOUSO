@@ -82,10 +82,10 @@ template < class T >
 class EC {
 public:
     void announce();
-private:
     static T _na;
 	typename T::SNN	SNN;
 	Subject	subj;
+private:
 };
 template < class T > T EC < T >::_na;
 
@@ -108,4 +108,9 @@ int main(int argc, char **argv) {
 	avrEC avr2;
     avr.announce();
     avr2.announce();
+	avr.SNN=1000;
+	avr2.SNN.A_SNN=10;
+	avr2.SNN.B_SNN=20;
+
+	DEBUG(("%p %p %d\n",&avr2.SNN.A_SNN,&avr2.SNN.B_SNN, sizeof(avr2.SNN)));
 }

@@ -7,17 +7,46 @@ namespace famouso {
 	namespace mw {
 		namespace api {
 
-template < class EC >
-class SubscriberEventChannel : public EC {
-  void announce();
-  void publish(const Event& e);
+template < class ECH >
+class SubscriberEventChannel : public EventChannel<ECH> {
+
+ public:
+  /*! \brief This callback is called if an event occurs. 
+   *
+   *  CallBack is a generic delegate whish allows for using
+   *  C-functions, normal as well as const class member 
+   *  functions.
+   */
+   famouso::mw::api::SECCallBack callback;
+
  public:
 
- SubscriberEventChannel(const Subject &s) : EC(s) {}
+ SubscriberEventChannel(const Subject &s) : EventChannel<ECH>(s) {}
 
   ~SubscriberEventChannel() {
-    EC::unsubscribe();
+    unsubscribe();
   }
+
+  /*! \brief subscribe the event channel and reserve resources
+   *         and call the needed functionalities within the
+   *         sublayers to bind the subject etc.
+   *
+   *         \sa EventLayer::subscribe
+   *         \sa AbstractNetworkLayer::subscribe
+   */
+  void subscribe() {
+    DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
+    EventChannel<ECH>::ech().subscribe(*this);
+    // initialize a dummy callback
+    callback.bind<&famouso::mw::api::cb>();
+  }
+
+ private:
+  void unsubscribe() {
+    DEBUG(("%s\n", __PRETTY_FUNCTION__));
+    EventChannel<ECH>::ech().unsubscribe(*this);
+  }
+
 };
 
 		} // namespace api

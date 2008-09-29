@@ -1,10 +1,12 @@
 #ifndef __UDPBroadCastNL_h__
 #define __UDPBroadCastNL_h__
 
+#include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/common/NodeID.h"
 #include "mw/common/Subject.h"
 #include "mw/api/EventChannel.h"
+#include "mw/el/EventLayerCallBack.h"
 #include "debug.h"
 #include <stdio.h>
 
@@ -12,7 +14,7 @@ namespace famouso {
 	namespace mw {
 		namespace nl {
 
-class UDPBroadCastNL {
+class UDPBroadCastNL : public BaseNL{
 public:
     struct info{
 	enum {
@@ -35,6 +37,7 @@ public:
     // bind Subject to specific networks name
     void bind(const Subject &s, SNN &snn) {
 	DEBUG(("%s\n", __PRETTY_FUNCTION__));
+	famouso::mw::el::IncommingEventFromNL(this);
     }
 
     void deliver(const Packet_t& p) {

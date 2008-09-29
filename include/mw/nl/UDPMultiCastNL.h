@@ -2,12 +2,10 @@
 #define __UDPMultiCastNL_hpp__
 
 #include <stdio.h>
-#include <asio.hpp>
-#include <asio/error.hpp>
 #include <boost/bind.hpp>
-#include <boost/pool/detail/singleton.hpp>
 #include <boost/utility.hpp>
 #include <string>
+#include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.hpp"
 #include "util/ios.h"
 
@@ -16,7 +14,7 @@ namespace famouso {
 	namespace mw {
 		namespace nl {
 
-class UDPMultiCastNL : boost::noncopyable {
+class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 	public:
 
 		struct info{
@@ -26,27 +24,27 @@ class UDPMultiCastNL : boost::noncopyable {
 		};
 
 		// type of an address
-		typedef asio::ip::address SNN;
-		
+		typedef boost::asio::ip::address SNN;
+
 		// type of a packet
 		typedef Packet<SNN> Packet_t;
-		
+
 		/**
 		 * @brief default constructor
 		 *
 		 * Sets local variables and calls init.
-		 * 
+		 *
 		 * @param p port (default is 9999)
 		 */
 		UDPMultiCastNL( int p = 9999 )
 		:socket_( famouso::ios::instance() ), port( p ),
-		endpoint_listen( asio::ip::address::from_string("0.0.0.0"), port )
+		endpoint_listen( boost::asio::ip::address::from_string("0.0.0.0"), port )
 		{
 			init();
 		}
 
 
-		
+
 		/**
 		 * @brief destructor
 		 *
@@ -65,9 +63,9 @@ class UDPMultiCastNL : boost::noncopyable {
 
 		/**
 		 * @brief subscribe a subject
-		 * 
+		 *
 		 * Start listening on the multicast-address that belongs to the subject.
-		 * 
+		 *
 		 * @param s subject
 		 * @param snn bound address
 		 */
@@ -80,7 +78,7 @@ class UDPMultiCastNL : boost::noncopyable {
 		 * @param error tells if sending was successful
 		 * @param bytes_recvd the amount of bytes that were sent
 		 */	
-		void handle_send_to( const asio::error_code& error, size_t bytes_recvd );
+		void handle_send_to( const boost::system::error_code& error, size_t bytes_recvd );
 
 		/**
 		 * @brief publish
@@ -105,13 +103,13 @@ class UDPMultiCastNL : boost::noncopyable {
 		 * Will be called, whenever a packet was received.
 		 *
 		 */
-		void interrupt( const asio::error_code& error, size_t bytes_recvd );
+		void interrupt( const boost::system::error_code& error, size_t bytes_recvd );
 
 	private:
+		boost::asio::ip::udp::socket socket_;
 		const int port;
-		asio::ip::udp::socket socket_;
-		asio::ip::udp::endpoint endpoint_listen;
-		asio::ip::udp::endpoint endpoint_from;
+		boost::asio::ip::udp::endpoint endpoint_listen;
+		boost::asio::ip::udp::endpoint endpoint_from;
 		uint8_t buffer_[sizeof( Subject )+info::payload]; // Subject and Payload have to be sent
 		Packet_t incoming_packet;
 };

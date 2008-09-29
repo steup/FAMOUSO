@@ -15,7 +15,7 @@ typedef struct {
 
 class SubscriberEC {
 	SEC *sec;
-	void cb(famouso::mw::aux::CallBackData &cb);
+	void cb(famouso::mw::api::SECCallBackData &cb);
 	uint32_t first,last,max;
 	struct Storage {
 		Storage() : used(0) {event.data=data;}

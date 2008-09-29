@@ -36,14 +36,13 @@ class EventChannel : public Chain {
   typename ECH::SNN _snn;
 
  public:
-  /*! \brief is a callback that is called if an event occurs
-   *
-   *         \sa EventLayer::publish
-   *         \sa AbstractNetworkLayer::publish
+  /*! \brief give the Short Network Name representation of
+   *         the subject corresponding to that event channel
    */
-   famouso::mw::aux::CallBack callback;
+  static ECH& ech() {
+    return _ech;
+  }
 
- public:
   /*! \brief give the Short Network Name representation of
    *         the subject corresponding to that event channel
    */
@@ -65,42 +64,6 @@ class EventChannel : public Chain {
     return _subj;
   }
 
-  /*! \brief announce the event channel and reserve resources
-   *         and call the needed functionalities within the
-   *         sublayers to bind the subject etc.
-   *
-   *         \sa EventLayer::announce
-   *         \sa AbstractNetworkLayer::announce
-   */
-  void announce() {
-    DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    _ech.announce(*this);
-  }
-
-  /*! \brief subscribe the event channel and reserve resources
-   *         and call the needed functionalities within the
-   *         sublayers to bind the subject etc.
-   *
-   *         \sa EventLayer::subscribe
-   *         \sa AbstractNetworkLayer::subscribe
-   */
-  void subscribe() {
-    DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
-    _ech.subscribe(*this);
-    callback.from_function<&famouso::mw::aux::cb>();
-  }
-
-  /*! \brief publish an event via the event channel
-   *
-   *         \sa EventLayer::publish
-   *         \sa AbstractNetworkLayer::publish
-   */
-  void publish(const Event& e) {
-    DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    _ech.publish(*this,e);
-  }
-
-
 
  protected:
   /*! \brief Constructor of the class is protected to avoid
@@ -109,18 +72,6 @@ class EventChannel : public Chain {
   EventChannel(const Subject& s) : _subj(s) {
     DEBUG(("%s ECH-ADDR=%p\n", __PRETTY_FUNCTION__,&_ech));
   }
-
-
-  void unannounce() {
-    DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    _ech.unannounce(*this);
-  }
-
-  void unsubscribe() {
-    DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    _ech.unsubscribe(*this);
-  }
-
 
 };
 

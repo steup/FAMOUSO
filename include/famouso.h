@@ -21,4 +21,13 @@ struct FAMOUSO {
 #define BUFSIZE 65535
 
 
+// Initalisierungsfunktion, die mit dem richtigen Template
+// aufgerufen werden muss, welches der ECH ist.
+namespace famouso {
+template <class T>
+inline void init () {
+	T::ech().init();
+}
+}
+
 #endif

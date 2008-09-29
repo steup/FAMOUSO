@@ -47,21 +47,21 @@ class Delegate {
  Delegate() : obj_ptr_( 0 ), stub_ptr_( 0 ) { }
 
   template<typename T, void (T::*Fxn)(parameter)>
-    void from_function(T * obj)
+    void bind(T * obj)
     {
       obj_ptr_ = const_cast<T const *>( obj );
       stub_ptr_ = &mem_fn_stub<T, Fxn>::invoke;
     }
 
   template<typename T, void (T::*Fxn)(parameter) const>
-    void from_function(T const * obj)
+    void bind(T const * obj)
     {
       obj_ptr_ = obj;
       stub_ptr_ = &mem_fn_const_stub<T, Fxn>::invoke;
     }
 
   template<void (*Fxn)(parameter)>
-    void from_function()
+    void bind()
     {
       obj_ptr_ = 0;
       stub_ptr_ = &function_stub<Fxn>::invoke;

@@ -8,8 +8,8 @@
 
 #include "mw/common/Event.h"
 
-typedef famouso::mw::api::EventChannel < famouso::mw::el::EventLayerClientStub > EC;
-typedef famouso::mw::api::PublisherEventChannel  < EC > PEC;
-typedef famouso::mw::api::SubscriberEventChannel < EC > SEC;
+typedef famouso::mw::el::EventLayerClientStub ECH;
+typedef famouso::mw::api::PublisherEventChannel  < ECH > PEC;
+typedef famouso::mw::api::SubscriberEventChannel < ECH > SEC;
 
 #endif

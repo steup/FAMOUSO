@@ -3,7 +3,9 @@
 *	\date 02.09.2008
 *
 *	\section FAMOUSO FAMOUSO -- Family of Adaptive Middleware for autonomOUs Sentient Objects
-*	<img src="../images/FAMOUSO.png" width="50">
+
+\image html "../images/FAMOUSO.png"
+\image latex "../images/FAMOUSO.png"
 
 %FAMOUSO is a publish/subscribe middleware that readopts the ideas and
 concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art

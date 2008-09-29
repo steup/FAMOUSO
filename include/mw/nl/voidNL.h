@@ -1,6 +1,7 @@
 #ifndef __voidNL_h__
 #define __voidNL_h__
 
+#include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/common/NodeID.h"
 #include "mw/common/Subject.h"
@@ -12,7 +13,7 @@ namespace famouso {
 	namespace mw {
 		namespace nl {
 
-class voidNL {
+class voidNL : public BaseNL {
 public:
     struct info{
 	enum {

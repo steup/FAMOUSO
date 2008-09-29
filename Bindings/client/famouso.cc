@@ -13,7 +13,7 @@ SubscriberEC::~SubscriberEC() {
 	delete [] events;
 }
 
-void SubscriberEC::cb(famouso::mw::aux::CallBackData &cb) {
+void SubscriberEC::cb(famouso::mw::api::SECCallBackData &cb) {
 	if (!events[first].used) {
 		events[first].used=1;
 		events[first].event.subject=cb.subject.value;
@@ -25,7 +25,7 @@ void SubscriberEC::cb(famouso::mw::aux::CallBackData &cb) {
 
 int SubscriberEC::subscribe() {
 	sec->subscribe();
-	sec->callback.from_function<SubscriberEC, &SubscriberEC::cb>(this);
+	sec->callback.bind<SubscriberEC, &SubscriberEC::cb>(this);
 	return 1;
 }
 
