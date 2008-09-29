@@ -42,4 +42,5 @@ Erledigte Sachen:
 -callback vom Networklayer in EL realisieren (Namensraum famouso::mw::el)
 -Networklayer Identifikation ueber Id Methode des BaseNL
  (siehe tst/approved/te-Inheritance.cc)
-
+-Callback vom EventChannel fuer ankommende Events ist in den
+ SubscriberEventChannel gewandert, wo er ja auch hingehoert
