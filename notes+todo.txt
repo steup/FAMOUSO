@@ -17,10 +17,6 @@ dann noch in ein tar.gz oder tar.bz2 zusammenpacken
 -------------------
 
 Programmiertechnisches:
--asio-ech auf boost direkt umstellen
--callback vom Networklayer in EL realisieren (Namensraum famouso::mw::EL)
--Networklayer Identifikation ueber Id Methode des BaseNL
- (siehe tst/approved/te-Inheritance.cc)
 -fetching von events realisieren
 -gateway-klasse bauen, welche interne Subscriber und Publisher ECs benutzt, um
  forwarding entsprechend zu realisieren. Der Callback des Subscriber wird fuer
@@ -38,4 +34,12 @@ Diss-Technisches:
 
 
 -Zu lesen (NDDS, Corba Notification Services)
+
+_____________________________________________________
+
+Erledigte Sachen:
+-asio-ech auf boost direkt umstellen
+-callback vom Networklayer in EL realisieren (Namensraum famouso::mw::el)
+-Networklayer Identifikation ueber Id Methode des BaseNL
+ (siehe tst/approved/te-Inheritance.cc)
 
