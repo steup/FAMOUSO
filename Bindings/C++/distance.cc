@@ -17,7 +17,7 @@
 
 int done;
 
-void cb(famouso::mw::aux::CallBackData& cbd) {
+void cb(famouso::mw::api::SECCallBackData& cbd) {
   printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
 }
 
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 	signal(SIGINT,siginthandler);
 
 	sec.subscribe();
-	sec.callback.from_function<cb>();
+	sec.callback.bind<cb>();
 
 	// Integration eines Callbacks bis nach oben fehlt noch
 	while(!done) {
