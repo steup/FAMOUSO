@@ -84,7 +84,6 @@ switch action
             title = strrep(title,'(waiting ...)','(simulating ...)');
             set(h,'Name',title)
             h = findobj('Tag','StepText');
-            clear functions;      % We need to clear compiled algorithms
             figHndl = findobj('Tag','SimWindow');
             if iscell(no_steps)
                 if isinf(no_steps{1})
@@ -211,10 +210,11 @@ switch action
 
          h = findobj('Tag','SimWindow');
 			set(h,'UserData',0)
-            
+          
+        % --- FAMOUSO -----------------------------------    
+          FAMOUSOdisconnectAll();
           disp('Aus Maus');
-
-         
+        % --------------------------------------------------- 
  	case 'tracks'
     		h = findobj('Tag','ListStore');
          list = get(h,'UserData');

@@ -10,3 +10,11 @@ switch str
 end
 addpath(genpath(pwd));
 eval(sprintf('cd ''%s''',oldpath));	
+switch str
+	case 'PCWIN'
+		cd ..\..\..\Bindings\Matlab_Simulink\interface
+	case 'GLNX86'
+		cd ../../../Bindings/Matlab_Simulink/interface
+end
+addpath(genpath(pwd));
+eval(sprintf('cd ''%s''',oldpath));	

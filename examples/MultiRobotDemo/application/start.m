@@ -1,13 +1,14 @@
 clear;
 clear data;
-clear functions;
+%clear functions;
 home;
 setpaths;
 disp('Lets go!');
-% FAMOUSOinit(TCPconfiguration());
-% FAMOUSOconnectAll();
-% FAMOUSOsubscribeAll();
-% FAMOUSOannounceAll();
+
+FAMOUSOinit(TCPconfiguration());
+FAMOUSOconnectAll();
+FAMOUSOsubscribeAll();
+FAMOUSOannounceAll();
 
 disp('Loading Simulation ...')
 simview;
