@@ -1,0 +1,13 @@
+Simrobot Toolbox DLLs note:
+
+It seems that it is necesarry to use different DLLs for different versions of MS Windows. Using DLLs compiled in another version of Windows sometimes causes MATLAB crash. There are now two versions of DLLs available - for W98 and WinNT.
+
+PLEASE USE APPROPRIATE DLLs.
+
+There are source codes for these libraries included in the package (in subdirectory called \C) that can be compiled using Lcc compiler included in MATLAB. It can be done by entering
+
+>> mex path\to\c\source\source.c
+
+in the MATLAB Command Window.
+
+Note: It seems that the simulator can't work with Fuzzy toolbox under WinNT (trying to solve the problem).

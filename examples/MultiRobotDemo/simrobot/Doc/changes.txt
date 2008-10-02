@@ -1,0 +1,47 @@
+************* SIMROBOT TOOLBOX for MATLAB 5 changes.txt file *************
+
+
+
+VERSION 1.0beta
+
+**** NEW ALGORITHM FILES HEADER (DESCRIPTION) ****
+
+In previous versions of the toolbox the header syntax of algorithm files was:
+
+function new=alg_name(simrobot,matrix)
+
+Now, (from version 1.0beta) the syntax is:
+
+function new=alg_name(simrobot,matrix,step)
+
+This gives the user an access to the step number, stored in variable called 'step' :-).
+So please change your older algorithms (if you have any ...).
+Sorry for this, but the toolbox is still in development stage (beta versions ...) and this idea came too late ...
+
+Of course, it could be done in another way - using the 'global' command to declare the 'step' variable global. The main disadvantage of global variables is the fact that if you change any copy of that variable, all other copies are changed too. So, if someone accidentally would change actual step number, it could cause stop/crash or at least unpredictable simulation behaviour. 
+
+For any comments (swears) write to: simrobot@centrum.cz. Thank you!!
+
+***************************************************
+
+
+VERSION 1.1beta
+
+******************** STOP MENU **********************
+This menu item is new in Simulator. It is available in window toolbar menu (Run) and context menu. The keyboard shortcut is Ctrl+T.
+
+PLEASE USE THIS TO STOP THE SIMULATION/REPLAY, not Ctrl+C shortcut. If you stop the simulation using Ctrl+C, most of menus (except 'Stop') will stay deactivated. To correct this situation, select 'Stop' from either toolbar or context menu.
+
+Related changes:
+
+The simulation can run for unlimited number of steps now, until it is stopped. It is still possible to enter number of steps to run in 'Parameters' menu, but it has been renamed to 'Steps limit' and has implicit value 'Inf' (infinite number of steps). It can be used to limit the number of steps. Entered value is checked, it is not possible to enter negative number, zero or NaN (Not-a-Number).
+Note that if the simulation runs for a long time, it can slow down. This is due to huge amount of replay dat, which have to be handled.
+*****************************************************
+
+VERSION 1.2
+
+***************** UNITS OF LENGTH *******************
+The basic unit of length in the toolbox is 1 (one) centimeter, but could be e.g. 1 inch. These units have to be used when specifying the robot propositions in mmodel and invmodel functions (R, la and lb constants). Please refer to User's manual.
+
+Previous versions used different default kinematic velocity solution file (mmodel.m). Due to the changes, all velocities in control algorithms should be divided by the invariable 100. Thank you.
+*****************************************************
