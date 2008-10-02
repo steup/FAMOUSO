@@ -88,6 +88,5 @@ if get_output_channel_info('size')>0
         eval(sprintf('global %s;',channel_name));
         aux=set_properties(aux,'interaction_type',char(i_type));
         eval(sprintf('%s=set_properties(%s,''connection'',aux);',char(channel_name),char(channel_name)));
-        display(result)
     end
 end

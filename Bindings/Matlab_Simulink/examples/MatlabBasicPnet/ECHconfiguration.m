@@ -12,7 +12,7 @@ input =[['F200000000000000      polling    -                 5       distance   
 %         ['F400000000000001      polling    -                 5       distanc3        ']
 %         ['F200000000000001      polling    test.m            5       velocity        ']];
 
-output=['F300000000000000                                             result'];
+output=['F100000000000000                                             result'];
 
 %% maximum length of the data in Byte
 maxLenght=8;

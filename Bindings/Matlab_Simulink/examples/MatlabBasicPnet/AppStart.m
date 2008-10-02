@@ -7,8 +7,8 @@
 %
 
 %% Initialisation of the System
-clear;
-clear data;
+clear all;
+clear functions;
 home;
 setpaths;
 
@@ -38,7 +38,16 @@ FAMOUSOconnectAll();
 FAMOUSOsubscribeAll();
 FAMOUSOannounceAll();
 
-%% Application I - Reading Messages via Polling
+%% Allication I - Writing Messages triggered by a timer in the background
+global result;
+i=0;
+t_publish = timer('TimerFcn', ...
+            'publishing(result,[100+i 100 101 102 0 0 0 0]); i=i+1;disp(''event published'');',...
+           'ExecutionMode','fixedSpacing',...
+           'Period',0.1);
+start(t_publish);
+   
+%% Application II - Reading Messages via Polling
 % *get_events()* refreshes the data inside each input_channel object. For
 % illustration the distance object was shown before and afterwards. The
 % CurrentIndex points to the newest data record. The number of records is
@@ -52,22 +61,26 @@ FAMOUSOannounceAll();
 % The payload ist represented by characters and can be interpreted by the
 % application (uint vs. int).
 
-global result;
+%display(distance);
 for i=1:3
-    publishing(result,[100+i 100 101 102 0 0 0 0]);
-    pause(1);
     counter=0;
     while ~counter
         [counter,distance]=get_event(distance);
-        pause(0.5);
+        pause(0.01);
     end;
     disp(['Newest data: ' double(get_data(distance,'newest'))]);
 end
-display(distance);
+%display(distance);
+
+%% Finish the time objects
+if ~isempty(timerfind)
+    stop(timerfind);
+    delete(timerfind);
+end
 
 %% Disconnection
 % Unsubscibtion/Unannouncement is organised by FAMOUSO ECH
 FAMOUSOdisconnectAll()
 
-%% Close TCP/IP connection
+%% Finish the program
 disp('Aus Maus');
