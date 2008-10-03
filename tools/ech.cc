@@ -173,6 +173,10 @@ public:
 	start_accept();
     }
 
+	void run() {
+		famouso::ios::instance().run();
+	}
+
 private:
     void start_accept() {
         EventChannelConnection::pointer ecc = EventChannelConnection::create();
@@ -213,8 +217,7 @@ int main (int argc, char **argv) {
     try {
 		famouso::init<famouso::EC>();
 		famouso::EventChannelHandler localECH;
-		famouso::ios::instance().run();
-
+		localECH.run();
 //	boost::asio::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
 //	while(1){
 //	    sleep(1);
