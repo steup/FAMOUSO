@@ -84,12 +84,13 @@ $(LIBFAMOUSO): $(LIBOBJ)
 include ./make/boost.mk
 
 clean:
-	@rm -f $(MODULEDIR)/*.[oO] $(LIBLOADER) $(DEPENDDIR)/*.d $(BINDIR)/*
+	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR) $(BINDIR)
+
+distclean:
+	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE) ./doc/html ./doc/latex
+	@rm -rf ./include/boost
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
-
-distclean: clean
-	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE) ./doc/html ./doc/latex
 
 ifneq ($(subst dist,,$(MAKECMDGOALS)),clean)
 $(shell mkdir -p $(DEPENDDIR))
