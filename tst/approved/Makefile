@@ -1,10 +1,8 @@
-CXXFLAGS+=-I../../include -g -Wall
-# -fpack-struct
-CFLAGS+=-I../../include -g -Wall
+include ../../make/Makefile
 
-LDFLAGS= ../../lib/i386-redhat-linux/gcc-4.1.2/libboost_thread-mt.a -lpthread -lpcan
+LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
 
-filtered=$(filter-out %.cc %Makefile,$(shell find . -type f))
+filtered=$(filter-out %.cc %h %Makefile,$(shell find . -type f))
 
 .phony: all clean
 
