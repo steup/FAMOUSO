@@ -230,9 +230,3 @@ int main (int argc, char **argv) {
     return 0;
 }
 
-/* This stuff is for emacs
- * Local variables:
- * mode:c++
- * c-basic-offset: 4
- * End:
- */

@@ -62,9 +62,3 @@ public:
 
 #endif /* __voidNL_h__ */
 
-/* This stuff is for emacs
- * Local variables:
- * mode:c++
- * c-basic-offset: 4
- * End:
- */

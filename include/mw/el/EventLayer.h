@@ -116,9 +116,3 @@ class EventLayer : public LL {
 
 #endif /* __EventLayer_h__ */
 
-/* This stuff is for emacs
- * Local variables:
- * mode:c++
- * c-basic-offset: 4
- * End:
- */

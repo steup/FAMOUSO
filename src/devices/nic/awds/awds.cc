@@ -435,11 +435,3 @@ void    awds_unbind_subscribe(subject_t* subject) {
     // \todo implement this.
 }
 
-
-
-/* This stuff is for emacs
- * Local variables:
- * mode:c++
- * c-basic-offset: 4
- * End:
- */

@@ -8,9 +8,3 @@ typedef UID NodeID;
 
 #endif /* __NodeID_h__ */
 
-/* This stuff is for emacs
- * Local variables:
- * mode:c++
- * c-basic-offset: 4
- * End:
- */
