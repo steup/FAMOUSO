@@ -10,7 +10,13 @@
 #include "object/Chain.h"
 #include "case/Delegate.h"
 
-/*! \class EventChannel
+namespace famouso {
+	namespace mw {
+		namespace api {
+
+/*! \file EventChannel.h
+ *
+ * \class EventChannel
  *
  * \brief This is the base class of each EventChannel
  *
@@ -21,11 +27,6 @@
  * \todo open question, whether the ECH should be static or accessible via a
  * singleton ???
  */
-
-namespace famouso {
-	namespace mw {
-		namespace api {
-
 template < class ECH >
 class EventChannel : public Chain {
   // definition of the event channel handler
