@@ -29,11 +29,11 @@ INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 DEBUG		= -g
 
 #Additional external libs
-LIBBOOST	= $(LIBDIR)/libboost_system-mt.a
+LIBBOOST	= $(LIBDIR)/libboost_system-mt.a $(LIBDIR)/libboost_thread-mt.a
 
 #ADDITIONAL_CFLAGS	+=
 ADDITIONAL_CFLAGS	+= -DNDEBUG
-ADDITIONAL_LIBS		+= $(LIBBOOST)
+ADDITIONAL_LIBS		+= $(LIBBOOST) -lpcan
 ADDITIONAL_BUILDS	+= $(LIBBOOST)
 
 CCFLAGS		= -Wall $(DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
