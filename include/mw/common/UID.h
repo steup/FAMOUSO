@@ -11,9 +11,9 @@ struct UID {
     };
 
     UID() {}
-    UID(uint8_t uid)  : value(uid) {}
-    UID(uint16_t uid) : value(uid) {}
-    UID(uint32_t uid) : value(uid) {}
+//    UID(uint8_t uid)  : value(uid) {}
+//    UID(uint16_t uid) : value(uid) {}
+//    UID(uint32_t uid) : value(uid) {}
     UID(uint64_t uid) : value(uid) {}
 
     bool operator == (const UID &a) const{
