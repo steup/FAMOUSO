@@ -89,7 +89,7 @@ switch action
                 if isinf(no_steps{1})
                     while (get(figHndl,'UserData')==1)              
                         step = step + 1;
-                           set(h,'String',int2str(step))
+                        %   set(h,'String',int2str(step))
                        [list,matrix]=run(list,matrix,step);   
                        drawnow;
                     end
@@ -97,7 +97,7 @@ switch action
             else
                 while (get(figHndl,'UserData')==1) & (step<no_steps)               
                     step = step + 1;
-                   set(h,'String',int2str(step))
+                  % set(h,'String',int2str(step))
                    [list,matrix]=run(list,matrix,step);   
                    drawnow;
                 end               
@@ -541,7 +541,7 @@ end
       
 function LocalDraw(matrix,size_of_marker);
 
-matrix_bmp=imread('BMParea.bmp','bmp');
+matrix_bmp=imread('Buero1.bmp','bmp');
 
 [xmax, ymax] = size(matrix);
 [x, y] = find(matrix);
@@ -594,5 +594,9 @@ set(axHndl, ...
 %         'TickLength',[0 0],...
 %         'XColor',color,...
 %         'YColor',color);
-    
+
+axis off          % Remove axis ticks and numbers
+axis image
+%text(100,30,'Demonstration setup','FontSize',18);
+text(0,1250,'DECOMOR Demonstration setup','FontSize',20,'FontWeight','bold');
 drawnow;

@@ -56,9 +56,9 @@ item8 = uimenu(uicm,'Label','&Algorithm','Callback','','UserData',simrobot.numbe
 set(uicm,'UserData',simrobot.number);
 % ********************************
 
-if prmex(round([xd'+simrobot.position(1);yd'+simrobot.position(2)]),matrix,-1,simrobot.number) == -1
+%if prmex(round([xd'+simrobot.position(1);yd'+simrobot.position(2)]),matrix,-1,simrobot.number) == -1
 	% This section is executed on robot-placing error   
-end
+%end
 
 
 if isempty(simrobot.history)					% 'putrob' is also used for robots with history -
