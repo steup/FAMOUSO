@@ -208,8 +208,8 @@ int main (int argc, char **argv) {
     std::cout << "Project: FAMOUSO" << std::endl;
     std::cout << "local Event Channel Handler" << std::endl << std::endl;
     std::cout << "Author: Michael Schulze" << std::endl;
-    std::cout << "Revision: $Rev: 471 $" << std::endl;
-    std::cout << "$Date: 2008-09-06 13:37:29 +0200 (Sat, 06 Sep 2008) $" << std::endl;
+    std::cout << "Revision: $Rev$" << std::endl;
+    std::cout << "$Date$" << std::endl;
     std::cout << "last changed by $Author$" << std::endl << std::endl;
     std::cout << "build Time: " << __TIME__ << std::endl;
 	std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
