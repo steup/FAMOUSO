@@ -59,8 +59,17 @@ namespace famouso {
 	      return parts_ccp._stage;
 	    }
 
+	    void ccp_stage(uint8_t stage) {
+	      parts_ccp._stage=stage;
+	    }
+
 	    uint8_t ccp_nibble() {
 	      return parts_ccp._nibblelo | (parts_ccp._nibblehi << 2) ;
+	    }
+
+	    void ccp_nibble(uint8_t nibble) {
+	      parts_ccp._nibblelo=nibble;
+		  parts_ccp._nibblehi=nibble >> 2;
 	    }
 
 	    uint8_t & operator[](uint8_t i) {
