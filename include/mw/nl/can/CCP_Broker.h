@@ -1,15 +1,23 @@
-#ifndef __CCP_Broker_h__
-#define __CCP_Broker_h__
+#ifndef __ccp_h__
+#define __ccp_h__
 
 #include "devices/nic/can/peak/PeakCAN.h"
+#include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
 #include "mw/nl/can/canID.h"
 #include "mw/common/UID.h"
+
 
 namespace famouso {
   namespace mw {
     namespace nl {
       namespace CAN {
+namespace ccp {
+		enum {
+			CCP_RUNNING=0,	/*!< Configuration is running */
+			CCP_COMPLETE,	/*!< Configuration is complete */
+			CCP_WAIT		/*!< Configuration is pending */
+		};
 
 //
 // damit der Algorithmus ordentlich funktioniert, ist eine
@@ -17,22 +25,15 @@ namespace famouso {
 // verwendet wird.
 //
 template < class CAN_MOB, typename ID=famouso::mw::nl::CAN::detail::ID>
-class CCP_Broker {
-        struct constants {
-            enum {
-                Broker_tx_node = 0x7f,
-                count = 0x7f
-            };
-        };
+class Broker {
 
-        UID knownNodes [constants::count];
-
+        UID knownNodes [constants::ccp::count];
         uint8_t ccp_stage;
         UID uid;
 
         uint8_t search_tx_node(UID &uid) {
             uint8_t freeplace = 0xff;
-            for (uint8_t i = 0; i < constants::count; ++i) {
+            for (uint8_t i = 0; i < constants::ccp::count; ++i) {
                 if (knownNodes[i] == 0) {
                     freeplace = i;
                 } else {
@@ -44,8 +45,8 @@ class CCP_Broker {
             return freeplace;
         }
     public:
-        CCP_Broker() : ccp_stage(15), uid(0) {
-            for ( uint8_t i = 0; i < constants::count; ++i ) {
+        Broker() : ccp_stage(15), uid(0) {
+            for ( uint8_t i = 0; i < constants::ccp::count; ++i ) {
                 knownNodes[i].value = 0;
             }
         }
@@ -124,6 +125,133 @@ class CCP_Broker {
         }
 };
 
+template < class CAN_Driver, typename ID=famouso::mw::nl::CAN::detail::ID>
+class Client {
+void debug(char* s){
+		std::cout<<s;
+	}
+uint8_t compareUID(uint8_t *msg, uint8_t* uid_str, uint8_t stage)
+{
+	register int8_t count;
+
+	for (count=constants::ccp::ccp_stages;count>=stage;--count) {
+		register uint8_t uidPart = (constants::ccp::ccp_stages-count) >> 1;
+		register uint8_t uidNibble = (count%2) ?  (uid_str[uidPart] >> 4) : (uid_str[uidPart] &0xf);
+		register uint8_t msgNibble = (count%2) ?  (msg[uidPart] >> 4) : (msg[uidPart] &0xf);
+		if (uidNibble!=msgNibble) {
+//			if (stage != 0 ) debug(" UIDs nicht identisch. folglich konfiguriert anderer Knoten parallel.\n");
+			return 0;
+		}
+	}
+	return 1;
+}
+
+ public:
+
+uint8_t ccp_run(const char* uid, CAN_Driver& canDriver)
+{
+	uint8_t *uid_str= (uint8_t*)uid;
+	typename CAN_Driver::MOB	msg;
+	// \todo hier besteht noch eine Abhaengigkeit zu Peak
+	//		 sollte in der kommenden Version ueber ein allgemeines
+	//		 CAN-MSG-Format geloesst werden.
+	msg.MSGTYPE=MSGTYPE_EXTENDED;
+
+	ID *id = reinterpret_cast<ID*>(&msg.ID);
+	uint8_t ccp_status;
+	uint8_t ccp_stage;
+	uint8_t tx_node;
+	int8_t stage;
+
+	uint8_t zeros[8]={0};
+
+	ccp_status = CCP_RUNNING;
+	ccp_stage = 0;
+
+	// Anzahl der durchzufuehrenden Stages
+	stage=constants::ccp::ccp_stages;
+	do {
+		// erzeuge die entsprechende ID
+		register uint8_t uidPart=(constants::ccp::ccp_stages-stage) >> 1;
+	    register uint8_t uidNibble = (stage%2) ? (uid_str[uidPart] >> 4) :
+						(uid_str[uidPart] &0xf);
+
+        // 0xFD is non-real-time
+        // \todo RealTimeClasses for the CAN-Bus needs to be defined somewhere
+        id->prio(0xFD);
+		id->ccp_stage(stage);
+		id->ccp_nibble(uidNibble);
+
+//		std::cout<<"Stage " << (uint32_t)id->ccp_stage() << std::endl;
+//		std::cout<<"Nibble " << (uint32_t)id->ccp_nibble() << std::endl;
+        id->etag(famouso::mw::nl::CAN::ETAGS::CCP_RSI);
+
+	// \todo hier besteht noch eine Abhaengigkeit zu Peak
+	//		 sollte in der kommenden Version ueber ein allgemeines
+	//		 CAN-MSG-Format geloesst werden.
+		msg.LEN = 0;
+
+		// Nachricht senden
+		canDriver.send(msg);
+
+		ccp_status = CCP_WAIT;
+
+		do {
+			// und auf Antwort warten
+			do {
+				canDriver.receive_blocking(&msg);
+				// Ist die Nachricht ein Konfigurationsantwort
+			} while ( id->etag() != famouso::mw::nl::CAN::ETAGS::CCP_SSI );
+
+			// extrahiere die KnotenID
+			tx_node=id->tx_node();
+			// ja, also laufen wir erstmal weiter
+			ccp_status=CCP_RUNNING;
+			// ist dies eine Brokernachricht mit Stagezaehler im letzten Datenbyte der Nachricht
+			// wird angezeigt durch die knotenID == BrokerID == 0x7f
+			if ( tx_node == constants::Broker_tx_node ) {
+				// ist ein knoten vielleicht ausgestiegen, dann generiert der Broker
+				// eine Nachricht mit leerem Inhalt, um unselektierte Knoten zur
+				// Neukonfiguration zu bewegen
+				if (compareUID(msg.DATA, zeros, 0))	{
+					stage = constants::ccp::ccp_stages;
+				} else {
+					if ((stage == (msg.DATA[7] & 0xf)) && compareUID(msg.DATA,uid_str,stage) ) {
+						// gehe in den naechsten Zyklus
+						--stage;
+					} else {
+						ccp_status=CCP_WAIT;
+					}
+				}
+
+			} else {
+				// die BrokerNachricht enthaelt keinen Stagezaehler mehr, dafuer aber eine
+				// konfigurierte KnotenID, weil sich mindestens ein Knoten in Stage 0 befindet
+				// dies koennte ich sein. Einfach mal die uid mit den Daten vergleichen
+
+				// untersuche Nachrichteninhalt auf Gleichheit mit eigener ID
+				// wenn ja, extrahierte txnode ist meine
+				// verlasse beide Schleifen da stage==0 und ccp_status==CCP_RUNNING
+				if (compareUID(msg.DATA, uid_str, 0)) {
+					ccp_stage=CCP_COMPLETE;
+//					debug("Knoten ID ist meine\n");
+				} else {
+					// wenn nein einfach von vorn
+					// und gehe in die aeussere Schleife weil ccp_status==CCP_RUNNING
+					// und setze stage wieder auf den initialen Wert
+//					debug("Knoten ID ist nicht meine\n");
+					stage = constants::ccp::ccp_stages;
+				}
+			}
+		} while( (ccp_status!=CCP_RUNNING) );
+	} while ( (ccp_stage !=CCP_COMPLETE) );
+
+	// Konfiguration erfolgreich und KnotenID erhalten
+	return tx_node;
+}
+
+};
+}
       } /* namespace CAN */
     } /* namespace nl */
   } /* namespace mw */

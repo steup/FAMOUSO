@@ -1,7 +1,8 @@
-#ifndef __ETAG_Broker_h__
-#define __ETAG_Broker_h__
+#ifndef __etagBP_h__
+#define __etagBP_h__
 
 #include "devices/nic/can/peak/PeakCAN.h"
+#include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
 #include "mw/nl/can/canID.h"
 #include "mw/common/UID.h"
@@ -11,42 +12,50 @@ namespace famouso {
     namespace nl {
       namespace CAN {
 
+namespace etagBP {
 // old ETAG supply protocol
 template < class CAN_MOB, typename ID=famouso::mw::nl::CAN::detail::ID>
-class ETAG_Broker {
-        struct constants {
-            enum {
-				reserved = 100,
-                Broker_tx_node = 0x7f,
-                count = (1 << 14)-reserved
-            };
-        };
+class Broker {
 
-        UID etags[constants::count];
+        UID etags[constants::etagBP::count];
+
+		uint16_t bind_etag(UID &uid) {
+			uint16_t etag=0;
+			while (etag < constants::etagBP::count) {
+                if ( (etags[etag] == 0 ) || ( etags[etag] == uid ) )
+					break;
+				++etag;
+			}
+			return etag;
+		}
 
     public:
-        ETAG_Broker() {
-            for ( uint16_t i = 0; i < constants::count; ++i ) {
+        Broker() {
+            for ( uint16_t i = 0; i < constants::etagBP::count; ++i ) {
                 etags[i].value = 0;
             }
         }
+
+		uint16_t bind(UID &uid) {
+			return bind_etag(uid) & 0x3fff;
+		}
 
         bool get_etag(CAN_MOB &mob) {
 			ID *id = reinterpret_cast<ID*>(&mob.ID);
 			UID uid(*reinterpret_cast<UID*>(mob.DATA));
 
 			uint16_t etag=0;
-			while (etag < constants::count) {
+			while (etag < constants::etagBP::count) {
                 if ( (etags[etag] == 0 ) || ( etags[etag] == uid ) )
 					break;
 				++etag;
 			}
-            if ( etag ==  constants::count) {
+            if ( etag ==  constants::etagBP::count) {
 				std::cout << "no free etags -- that should never be happen" << std::endl;
 				return false;
 			} else {
 				etags[etag]=uid;
-				etag+=constants::reserved;
+				etag+=constants::etagBP::reserved;
 				mob.LEN=4;
 				mob.DATA[0] = id->tx_node();
 				mob.DATA[1] = 0x3;
@@ -61,7 +70,17 @@ class ETAG_Broker {
          }
 };
 
-      } /* namespace CAN */
+
+template < class CAN_MOB, typename ID=famouso::mw::nl::CAN::detail::ID>
+class Client {
+	public:
+		uint16_t bind(UID &uid) {
+			return 1000;
+		}
+};
+
+}
+} /* namespace CAN */
     } /* namespace nl */
   } /* namespace mw */
 } /* namespace famouso */

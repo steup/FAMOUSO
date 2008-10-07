@@ -27,8 +27,8 @@ int main(int argc, char **argv) {
 		dev=argv[1];
 
 	can canDriver;
-	famouso::mw::nl::CAN::CCP_Broker<mob> ccp_broker;
-	famouso::mw::nl::CAN::ETAG_Broker<mob> etag_broker;
+	famouso::mw::nl::CAN::ccp::Broker<mob> ccp_broker;
+	famouso::mw::nl::CAN::etagBP::Broker<mob> etag_broker;
 
     canDriver.init();
     while (1) {
