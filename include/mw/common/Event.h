@@ -8,7 +8,7 @@ namespace famouso {
 	namespace mw {
 
 struct Event {
-  typedef uint32_t Type;
+  typedef uint16_t Type;
   const Subject &subject;
   Type length;
   uint8_t *data;
