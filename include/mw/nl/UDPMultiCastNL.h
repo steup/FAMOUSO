@@ -6,7 +6,7 @@
 #include <boost/utility.hpp>
 #include <string>
 #include "mw/nl/BaseNL.h"
-#include "mw/nl/Packet.hpp"
+#include "mw/nl/Packet.h"
 #include "util/ios.h"
 
 
