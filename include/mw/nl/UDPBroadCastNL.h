@@ -56,6 +56,12 @@ public:
 	DEBUG(("%s\n", __PRETTY_FUNCTION__));
     }
 
+    void init() {
+        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+    }
+    SNN lastPacketSNN() {
+        return 0;
+    }
 };
 		}
 	}

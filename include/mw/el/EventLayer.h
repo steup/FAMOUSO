@@ -31,6 +31,7 @@ class EventLayer : public LL {
             // z.B. Callbacks setzen und in allen
             // Netzen registrieren, CCP in unteren Layer, etc.
             IncommingEventFromNL.bind<EventLayer<LL>, &EventLayer<LL>::fetch >(this);
+            LL::init();
         }
 
         typedef typename LL::SNN SNN;
@@ -82,7 +83,7 @@ class EventLayer : public LL {
             ec_t* sec= reinterpret_cast<ec_t*>(Subscriber.select());
             while (sec) {
                 DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value,ec.subject().value));
-                if (sec->subject() == ec.subject())
+                if ( sec->subject() == e.subject )
                     sec->callback(e);
                 sec=reinterpret_cast<ec_t*>(sec->select());
             }
@@ -105,8 +106,24 @@ class EventLayer : public LL {
             //		c) Referenz oder Pointer auf ein Event gegeben werden
             //
             DEBUG(("%s\n", __PRETTY_FUNCTION__));
-//			if (getEvent)
-//				publish_to_Subscribers();
+            typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
+            ec_t* sec= reinterpret_cast<ec_t*>(Subscriber.select());
+            if (!sec)
+                DEBUG(("Now Subscribers\n"));
+            else{
+                do {
+//                DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value,ec.subject().value));
+                    if (LL::fetch(sec->subject(), sec->snn())) {// vergleich der Subjects
+                        // versuchen das Event zu holen
+                        // kommt eins zurueck, direkt den Callback des sec aufrufen
+                        // gegebenfalls weiter die liste traversieren
+                        Event e(sec->subject());
+                        LL::getEvent(e);
+                        sec->callback(e);
+                    }
+                sec=reinterpret_cast<ec_t*>(sec->select());
+                } while(sec);
+            }
         }
 };
 

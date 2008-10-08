@@ -37,6 +37,29 @@ class AbstractNetworkLayer : public NL{
     // dass dieser Kanal subscribiert wird
   }
 
+//    bool retrieveSubject(const Subject &s, SNN &snn) {
+
+  bool fetch(const Subject &s, SNN &snn) {
+    DEBUG(("%s\n", __PRETTY_FUNCTION__));
+    if ( snn == NL::lastPacketSNN() ) {
+        return true;
+    } else {
+        return false;
+    }
+  }
+
+    bool getEvent(Event &e){
+        typename NL::Packet_t p;
+        NL::fetch(p);
+        e.length=p.data_length;
+        e.data=p.data;
+        return true;
+    }
+
+    void init() {
+        NL::init();
+    }
+
 };
 
 		} // namespace anl
