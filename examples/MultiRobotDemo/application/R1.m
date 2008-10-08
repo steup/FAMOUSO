@@ -1,5 +1,5 @@
 function new = R1(simrobot,matrix,step)
-global distance;
+
 % your algorithm starts here
 %    getname(simrobot)
 % sensor reading
@@ -9,40 +9,30 @@ global distance;
    [aux(3),num] = readusonic(simrobot,'right',matrix);   
 % num, the nearest obstacle number, is not used    
  
-    threshold=50;
-    dist=0;
-    for i=1:3
-       if aux(i)<threshold 
-            dist=dist+power(2,i-1);
-       end
+    %% senden des mittleren Entfernungswertes
+    global distance;
+    if aux(2)>=255
+        aux(2)=255;
     end
-
- %  publishing(distance,[100+dist 100 101 102 0 0 0 0]);
+    publishing(distance,[1 aux(2)]);
     
-    switch dist
-        case 0  % alles aus
-            simrobot = setvel(simrobot,[0.7 0.7]);
-            
-        case 1  % left only 
-            simrobot = setvel(simrobot,[-0.2 0.2]);              
-        case 3  % left and center
-            simrobot = setvel(simrobot,[-0.2 0.2]);
-            
-        case 2   % center only
-            simrobot = setvel(simrobot,[0 0.2]); 
-              
-        case 4  % right only
-            simrobot = setvel(simrobot,[0.2 -0.2]);  
-        case 6   % center and right 
-            simrobot = setvel(simrobot,[0.2 -0.2]);            
-
-        case 5   % center and left 
-            simrobot = setvel(simrobot,[0.2 -0.2]);
-        case 7   % all
-            simrobot = setvel(simrobot,[0.2 -0.2]);
+    %% lesen der Daten
+    global velocity_data
+    char2int(velocity_data);
+    if ~isempty(velocity_data)
+        char 
+        a=find(velocity_data(:,1)==1)
+        if ~isempty(a)
+            left=uint8TOint8(velocity_data(a,2))/100;
+            right=uint8TOint8(velocity_data(a,3))/100;
+            simrobot = setvel(simrobot,[left right]);
+        else
+            simrobot = setvel(simrobot,[0 0]);
+        end
+    else
+        simrobot = setvel(simrobot,[0 0]);
     end
-    aux
-    dist
+   
 % end of your algorithm
 
 new = simrobot;
