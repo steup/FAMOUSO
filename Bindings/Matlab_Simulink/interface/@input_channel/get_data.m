@@ -12,6 +12,18 @@ function [val,a] = get_data(a, propName)
        else
            val=[]; 
        end
+    case 'all'
+       val=[];
+       if a.index~=0
+           % search for all new event data
+           num=find([a.messages.flag]==1);
+           if ~isempty(num)
+               val= [a.messages(num).values];
+               for i=1:length(num)
+                  a.messages(i).flag=0;
+               end
+           end
+       end
     case 'sum'
        disp('have to be implemented !!!!')
     otherwise

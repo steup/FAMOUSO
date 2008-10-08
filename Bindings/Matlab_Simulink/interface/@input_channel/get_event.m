@@ -43,7 +43,8 @@ counter=0;
                 if max(size(aux))<2
                     current_subject=[current_subject '0' aux];  
                 else
-                    current_subject=[current_subject aux]; 
+
+                    current_subject=[current_subject aux];
                 end
             end
             current_length=data(k+9)*256^3+data(k+10)*256^2+data(k+11)*256+data(k+12);
@@ -78,6 +79,8 @@ counter=0;
             end
         else
         % no complete message header
+            break;
         end
         % Reading the rest
+        break;
     end
