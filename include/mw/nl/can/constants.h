@@ -22,7 +22,7 @@ namespace famouso {
 	  struct etagBP {
 	    enum {
 	      reserved = 100,
-	      count = (1 << 14)-reserved
+	      count = (1 << 14)
 	    };
 	  };
         };

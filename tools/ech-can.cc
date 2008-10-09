@@ -104,7 +104,9 @@ private:
                 return;
             }
         }
-        std::cout << "Unannouncement for channel:\t0x" << std::hex << pec->subject().value << std::endl;
+        std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                  << pec->subject().value << "] -> Unannouncement"
+                  << std::endl;
     }
 
     void get_event_data(boost::shared_ptr<config::PEC> pec,
@@ -125,14 +127,16 @@ private:
                                          boost::asio::placeholders::bytes_transferred));
             return;
         }
-        std::cout << "Unannouncement for channel:\t0x" << std::hex << pec->subject().value << std::endl;
+        std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                  << pec->subject().value << "] -> Unannouncement"
+                  << std::endl;
     }
 
     void unsubscribe(boost::shared_ptr<config::SEC> sec,
                      const boost::system::error_code& error) {
-        std::cout << "Unsubscription for channel:\t0x"
-        << std::hex << sec->subject().value
-        << std::endl;
+        std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                  << sec->subject().value << "] -> Unsubscription"
+                  << std::endl;
     }
 
     void cb (famouso::mw::api::SECCallBackData & cbd) {
@@ -161,7 +165,9 @@ private:
                                  boost::bind(&EventChannelConnection::unsubscribe, shared_from_this(),
                                              sec, boost::asio::placeholders::error));
 
-                std::cout << "Subscription for channel:\t0x" << std::hex << sec->subject().value << std::endl;
+                std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                          << sec->subject().value << "] -> Subscription"
+                          << std::endl;
                 break;
             }
             case FAMOUSO::ANNOUNCE: {
@@ -176,14 +182,16 @@ private:
                                              pec, boost::asio::placeholders::error,
                                              boost::asio::placeholders::bytes_transferred));
 
-                std::cout << "Announcement for channel:\t0x" << std::hex << pec->subject().value << std::endl;
+                std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                          << pec->subject().value << "] -> Announcement"
+                          << std::endl;
                 break;
             }
 	    default:
-                std::cout << "Wrong opcode:\t0x" << event_head[0] << std::endl;
+                std::cerr << "Wrong opcode:\t0x" << event_head[0] << std::endl;
             }
         } else {
-                std::cout << "Wrong message format:" << std::endl;
+                std::cerr << "Wrong message format:" << std::endl;
 	}
     }
 
@@ -228,12 +236,6 @@ private:
 
 }
 
-
-void do_post(){
-	std::cout<<"\tMichael"<<std::endl;
-}
-
-
 int main (int argc, char **argv) {
     std::cout << "Project: FAMOUSO" << std::endl;
     std::cout << "local Event Channel Handler" << std::endl << std::endl;
@@ -248,11 +250,6 @@ int main (int argc, char **argv) {
 		famouso::init<famouso::config::EC>();
 		famouso::EventChannelHandler localECH;
 		localECH.run();
-//	boost::asio::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
-//	while(1){
-//	    sleep(1);
-//	    famouso::ios::instance().post(boost::bind(&do_post));
-//	}
     } catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }

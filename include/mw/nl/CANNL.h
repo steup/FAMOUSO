@@ -62,9 +62,10 @@ public:
 
     // bind Subject to specific networks name
     void bind(const Subject &s, SNN &snn) {
+//        std::cout<< __PRETTY_FUNCTION__ << std::endl;
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
         /*! \todo binding integrieren */
-		snn=0x100;
+		snn=etagBP.bind_subject(s);
     }
 
     void deliver(const Packet_t& p) {

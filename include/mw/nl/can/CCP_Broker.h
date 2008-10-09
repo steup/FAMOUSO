@@ -109,10 +109,10 @@ class Broker {
                                   << " nodes configured that means something went wrong" << std::endl;
                         return false;
                     } else {
-                        std::cout << std::hex << "CCP\t\t -- UID 0x" << uid.value
-                                  << " [" << reinterpret_cast<char*>(&uid.value) << "] "
-                                  << "-> tx_node [0x"
-                                  << static_cast<uint32_t>(tx_node) << "]" << std::endl;
+                        std::cout << std::hex << "CCP\t\t -- NodeID  [0x" << uid.value
+                                  << "] -> tx_node [0x" << static_cast<uint32_t>(tx_node)
+                                  << "] Name=[" << reinterpret_cast<char*>(&uid.value)
+                                  << "] " << std::endl;
                     }
                     ccp_stage = 15;
                     uid = 0;

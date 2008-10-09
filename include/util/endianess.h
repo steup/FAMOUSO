@@ -1,7 +1,7 @@
 #ifndef __endianess_h__
 #define __endianess_h__
 
-//#include <arpa/inet.h>
+#include <arpa/inet.h>
 
 /**
  *   byte ordering function for 64bit variable

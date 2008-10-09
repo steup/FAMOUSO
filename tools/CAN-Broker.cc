@@ -32,22 +32,22 @@ int main(int argc, char **argv) {
 
     canDriver.init();
     while (1) {
-		mob m;
-        canDriver.receive_blocking(&m);
-        ID *id = reinterpret_cast<ID*>(&m.ID);
-        switch ( id->etag()) {
-            case famouso::mw::nl::CAN::ETAGS::CCP_RSI: {
-                    if ( ccp_broker.handle_ccp_rsi(m) )
-                        canDriver.send(m);
-                    break;
-                }
-            case famouso::mw::nl::CAN::ETAGS::GET_ETAG: {
-                    if ( etag_broker.get_etag(m) )
-                        canDriver.send(m);
-                    break;
-                }
-
-        }
+//		mob m;
+//        canDriver.receive_blocking(&m);
+//        ID *id = reinterpret_cast<ID*>(&m.ID);
+//        switch ( id->etag()) {
+//            case famouso::mw::nl::CAN::ETAGS::CCP_RSI: {
+//                    if ( ccp_broker.handle_ccp_rsi(m) )
+//                        canDriver.send(m);
+//                    break;
+//                }
+//            case famouso::mw::nl::CAN::ETAGS::GET_ETAG: {
+//                    if ( etag_broker.get_etag(m) )
+//                        canDriver.send(m);
+//                    break;
+//                }
+//
+//        }
     }
     return 0;
 }
