@@ -4,9 +4,9 @@ function [input, output, maxLenght]=FAMOUSOconfig()
 
 %% Definition of "interesting" FAMOUSO channels
 %       subject                 type       callback_function number  comment          '
-input =['F100000000000000      polling    -                 5         velocity        '];
+input =['F200000000000000      polling    -                 5         velocity        '];
 
-output=['F200000000000000                                             distance'];
+output=['F100000000000000                                             distance'];
 
 %% maximum length of the data in Byte
 maxLenght=8;
