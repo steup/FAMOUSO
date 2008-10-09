@@ -1,7 +1,7 @@
 include ../../make/Makefile
 ADDITIONAL_CFLAGS+= -I../include
 
-TOOLS=sendEvent.cc distance.cc
+TOOLS=$(wildcard *.cc)
 
 TOOLBIN = $(TOOLS:.cc=.foobar)
 TOOLCLEAR = $(TOOLS:.cc=$(SUFFIX))
