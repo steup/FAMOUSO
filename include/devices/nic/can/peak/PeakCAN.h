@@ -48,6 +48,9 @@ namespace device {
        */
       typedef TPCANMsg MOB;
       PeakCAN() : sbb(elements) {}
+      ~PeakCAN() {
+          CAN_Close(handle);
+      }
 
       bool receive(MOB* mob) {
 	if (sbb.is_not_empty()) {
