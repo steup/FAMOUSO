@@ -18,8 +18,8 @@ function [val,a] = get_data(a, propName)
            % search for all new event data
            num=find([a.messages.flag]==1);
            if ~isempty(num)
-               val= [a.messages(num).values];
                for i=1:length(num)
+                  val = [val; a.messages(i).values]; 
                   a.messages(i).flag=0;
                end
            end
