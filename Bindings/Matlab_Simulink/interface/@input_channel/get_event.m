@@ -68,46 +68,4 @@ counter=0;
             % no complete header
             return
         end
-        
-        
-        
-        
-%         if (number-k)>12
-%             current_subject=[];
-% %             [str,maxsize,endian]=computer;
-% %             if endian=='L'
-% %                 swapbytes(data(2:9));
-% %                 swapbytes(data(10:13));
-% %             end
-%             for i=1:8
-%                 aux=dec2hex(double(data(k+i)));
-%                 if max(size(aux))<2
-%                     current_subject=[current_subject '0' aux];  
-%                 else
-%                     current_subject=[current_subject aux];
-%                 end
-%             end
-%             %current_length=bitshift(data(k+9),24)+bitshift(data(k+10),16)+bitshift(data(k+11),8)+data(k+12);
-%              A=data(k+12)
-%             current_length=3
-%             k
-%             current_length=A
-%             % is the data message complete?
-%             if ((number-(k+12))>=current_length)
-%                 a=inc_index(a);
-%                 values=char(data(k+12+1:k+12+current_length));
-%                 a=set_data(a,0,current_length,values);
-%                 counter=counter+1;
-%                 k=k+12+current_length+1;
-%             else
-%                if counter>0
-%                     data=data(k:number);
-%                end
-%             end
-%         else
-%         % no complete message header
-%             if counter>0
-%                 data=data(k:number); 
-%             end
-%         end
     end
