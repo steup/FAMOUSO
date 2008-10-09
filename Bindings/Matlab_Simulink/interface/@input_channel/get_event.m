@@ -45,7 +45,9 @@ counter=0;
                 if max(size(aux))<2
                     current_subject=[current_subject '0' aux];  
                 else
+
                     current_subject=[current_subject aux];
+
                 end
             end 
             current_length=bitshift(data(10),24)+bitshift(data(11),16)+bitshift(data(12),8)+data(13);
@@ -67,5 +69,7 @@ counter=0;
         else
             % no complete header
             return
+            break;
         end
+        break;
     end

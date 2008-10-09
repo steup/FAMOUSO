@@ -1,5 +1,6 @@
 function new = R1(simrobot,matrix,step)
-persistent state;
+
+
 % your algorithm starts here
 %    getname(simrobot)
 % sensor reading
@@ -14,35 +15,28 @@ persistent state;
     if aux(2)>=255
         aux(2)=255;
     end
-    publishing(distance,[1 aux(2)])
+    publishing(distance,[1 aux(2)]);
+
     
     %% lesen der Daten
     global velocity_data
-    
-    a=[];
-    left=0;
-    right=0;
+    char2int(velocity_data);
     if ~isempty(velocity_data)
-        char2int(velocity_data);
-        a=find(velocity_data(:,1)==1);
+        char 
+        a=find(velocity_data(:,1)==1)
         if ~isempty(a)
             left=uint8TOint8(velocity_data(a,2))/100;
             right=uint8TOint8(velocity_data(a,3))/100;
-            state=0;
+            simrobot = setvel(simrobot,[left right]);
+        else
+            simrobot = setvel(simrobot,[0 0]);
         end
     else
-        state=state+1;
-        if state<30
-             vel=getvel(simrobot);
-             left=vel(1);
-             right=vel(2);
-        else
-             left=0;
-             right=0;
-             disp('zero')
-        end
+        simrobot = setvel(simrobot,[0 0]);
+
     end
-    simrobot = setvel(simrobot,[left right]);
+   
+
 % end of your algorithm
 
 new = simrobot;

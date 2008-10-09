@@ -15,6 +15,7 @@ global velocity;
 global velocity_data;
 
 [counter,velocity]=get_event(velocity);
+pause(0.01);
 if counter>0
     [velocity_data,velocity] = get_data(velocity, 'all');
 else
@@ -22,6 +23,7 @@ else
 end
 
 %% Execution 
+
 for j = 1:length(list)
    list(j) = feval(list(j).af,list(j),matrix,step);	% Take robot from the list and execute algorithm
 %    aux= list(j).af;

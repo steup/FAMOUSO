@@ -24,7 +24,7 @@ namespace ccp {
 // Randbedingung, dass die UID = 0x0 von keinem Knoten
 // verwendet wird.
 //
-template < class CAN_MOB, typename ID=famouso::mw::nl::CAN::detail::ID>
+template < class CAN_Driver, typename ID=famouso::mw::nl::CAN::detail::ID>
 class Broker {
 
         UID knownNodes [constants::ccp::count];
@@ -51,7 +51,7 @@ class Broker {
             }
         }
 
-        bool handle_ccp_rsi(CAN_MOB &mob) {
+        bool handle_ccp_rsi(typename CAN_Driver::MOB &mob) {
 //           if ( ccp_stage == 15 )
 //                std::cout << "CAN Configuration Protocol request for nodeID" << std::hex << std::endl;
 
@@ -123,6 +123,18 @@ class Broker {
             }
             return true;
         }
+
+        void handle_ccp_configure_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
+            if ( reinterpret_cast<ID*>(&mob.ID)->etag() == famouso::mw::nl::CAN::ETAGS::CCP_RSI) {
+                if ( handle_ccp_rsi(mob) )
+                    canDriver.send(mob);
+            }
+         }
+
+        uint8_t ccp_configure_tx_node(const char* uid, CAN_Driver& canDriver) {
+            return constants::Broker_tx_node;
+        }
+
 };
 
 template < class CAN_Driver, typename ID=famouso::mw::nl::CAN::detail::ID>
@@ -139,7 +151,6 @@ uint8_t compareUID(uint8_t *msg, uint8_t* uid_str, uint8_t stage)
 		register uint8_t uidNibble = (count%2) ?  (uid_str[uidPart] >> 4) : (uid_str[uidPart] &0xf);
 		register uint8_t msgNibble = (count%2) ?  (msg[uidPart] >> 4) : (msg[uidPart] &0xf);
 		if (uidNibble!=msgNibble) {
-//			if (stage != 0 ) debug(" UIDs nicht identisch. folglich konfiguriert anderer Knoten parallel.\n");
 			return 0;
 		}
 	}
@@ -148,7 +159,7 @@ uint8_t compareUID(uint8_t *msg, uint8_t* uid_str, uint8_t stage)
 
  public:
 
-uint8_t ccp_run(const char* uid, CAN_Driver& canDriver)
+uint8_t ccp_configure_tx_node(const char* uid, CAN_Driver& canDriver)
 {
 	uint8_t *uid_str= (uint8_t*)uid;
 	typename CAN_Driver::MOB	msg;
@@ -250,6 +261,8 @@ uint8_t ccp_run(const char* uid, CAN_Driver& canDriver)
 	return tx_node;
 }
 
+        void handle_ccp_configure_request(typename CAN_Driver::MOB&, CAN_Driver&) {
+        };
 };
 }
       } /* namespace CAN */

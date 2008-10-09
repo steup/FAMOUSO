@@ -27,10 +27,11 @@ namespace famouso {
  *  the CAN Configuration Protocol is used to ensure uniquenesss of CAN IDs.
  *
  */
-template< class CAN_Driver >
+template< class CAN_Driver, class CCP >
 class CANNL : public BaseNL {
 	uint16_t tx_node;
 	CAN_Driver driver;
+    CCP ccp;
     typedef famouso::mw::nl::CAN::detail::ID ID;
 	typename CAN_Driver::MOB mob;
 public:
@@ -55,7 +56,8 @@ public:
 		// vorher darf man aus dieser Funktion nicht zurueck kommen
 		DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
         driver.init();
-        driver.set_rx_Interrupt(boost::bind(&CANNL<CAN_Driver>::rx_interrupt, this));
+        tx_node=ccp.ccp_configure_tx_node("Schulze\0", driver);
+        driver.set_rx_Interrupt(boost::bind(&CANNL<CAN_Driver,CCP>::rx_interrupt, this));
     }
 
     // bind Subject to specific networks name
@@ -69,9 +71,10 @@ public:
 		// senden des CAN Paketes
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
 		typename CAN_Driver::MOB m;
-        // \todo hier besteht noch eine Abhaengigkeit zu Peak
-        //               sollte in der kommenden Version ueber ein allgemeines
-        //               CAN-MSG-Format geloesst werden.
+        /*! \todo hier besteht noch eine Abhaengigkeit zu Peak
+         * sollte in der kommenden Version ueber ein allgemeines
+         * CAN-MSG-Format geloesst werden.
+         */
         m.MSGTYPE=MSGTYPE_EXTENDED;
         /*! \todo genID function bauen, die vielleicht dann einige Setzungen auf dem AVR vermeidet */
 		reinterpret_cast<ID*>(&m.ID)->prio(0xfd);
@@ -102,9 +105,16 @@ public:
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
 	}
 
+    /*! \todo ueber das auslesen einer CAN Nachricht und deren
+     * Zwischenspeichern muss sicherlich noch mal nachgedacht
+     * werden insbesonder fuer den AVR ist dies vielleicht
+     * nicht immer notwendig bzw der zusaetzliche Speicher-
+     * bedarf nicht gerechtfertigt.
+     */
     void rx_interrupt() {
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
 		driver.receive_blocking(&mob);
+        ccp.handle_ccp_configure_request(mob, driver);
 		famouso::mw::el::IncommingEventFromNL(this);
     }
 
