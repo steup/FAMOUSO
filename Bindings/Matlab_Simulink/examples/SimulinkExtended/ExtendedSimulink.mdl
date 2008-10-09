@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.167"
+    ComputedModelVersion    "1.206"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -49,9 +49,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "zug"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Oct 02 19:21:40 2008"
+  LastModifiedDate	  "Thu Oct 09 17:58:24 2008"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:167>"
+  ModelVersionFormat	  "1.%<AutoIncrement:206>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -112,7 +112,7 @@ Model {
 	  StartTime		  "0.0"
 	  StopTime		  "inf"
 	  AbsTol		  "auto"
-	  FixedStep		  "auto"
+	  FixedStep		  "[[0.001 0 10]]"
 	  InitialStep		  "auto"
 	  MaxNumMinSteps	  "-1"
 	  MaxOrder		  5
@@ -141,7 +141,7 @@ Model {
 	    Type		    "Struct"
 	    Dimension		    1
 	    MATStruct {
-	      SampleTime	      "0.05"
+	      SampleTime	      "0.01"
 	      Offset		      "0"
 	      Priority		      [10.0]
 	    }
@@ -534,6 +534,12 @@ Model {
       SampleTime	      "-1"
     }
     Block {
+      BlockType		      Demux
+      Outputs		      "4"
+      DisplayOption	      "none"
+      BusSelectionMode	      off
+    }
+    Block {
       BlockType		      EnablePort
       StatesWhenEnabling      "held"
       ShowOutputPort	      off
@@ -650,6 +656,16 @@ Model {
       SampleTime	      "inf"
       FramePeriod	      "inf"
     }
+    Block {
+      BlockType		      RelationalOperator
+      Operator		      ">="
+      InputSameDT	      on
+      LogicOutDataTypeMode    "Logical (see Configuration Parameters: Optimization)"
+      LogicDataType	      "uint(8)"
+      OutDataTypeStr	      "Inherit: Logical (see Configuration Parameters: Optimization)"
+      ZeroCross		      on
+      SampleTime	      "-1"
+    }
   }
   AnnotationDefaults {
     HorizontalAlignment	    "center"
@@ -671,7 +687,7 @@ Model {
   }
   System {
     Name		    "ExtendedSimulink"
-    Location		    [458, 274, 857, 511]
+    Location		    [8, 79, 407, 316]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -756,8 +772,8 @@ Model {
       Ports		      [1]
       Position		      [310, 109, 340, 141]
       Floating		      off
-      Location		      [515, 472, 1186, 711]
-      Open		      on
+      Location		      [6, 394, 413, 711]
+      Open		      off
       NumInputPorts	      "1"
       ZoomMode		      "xonly"
       List {
@@ -809,7 +825,7 @@ Model {
       MaskIconUnits	      "autoscale"
       System {
 	Name			"Sentient Object 1"
-	Location		[597, 345, 982, 578]
+	Location		[419, 82, 804, 315]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -826,13 +842,13 @@ Model {
 	  BlockType		  EnablePort
 	  Name			  "Enable"
 	  Ports			  []
-	  Position		  [190, 55, 210, 75]
+	  Position		  [190, 40, 210, 60]
 	}
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "Application"
-	  Ports			  [1, 1]
-	  Position		  [150, 104, 250, 146]
+	  Ports			  [1, 2]
+	  Position		  [135, 104, 235, 146]
 	  MinAlgLoopOccurrences	  off
 	  PropExecContextOutsideSubsystem off
 	  RTWSystemCode		  "Auto"
@@ -842,7 +858,7 @@ Model {
 	  MaskHideContents	  off
 	  System {
 	    Name		    "Application"
-	    Location		    [255, 224, 1025, 544]
+	    Location		    [816, 79, 1228, 315]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -854,37 +870,305 @@ Model {
 	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
 	    TiledPageScale	    1
 	    ShowPageBoundaries	    off
-	    ZoomFactor		    "100"
+	    ZoomFactor		    "89"
 	    Block {
 	      BlockType		      Inport
 	      Name		      "Input"
-	      Position		      [30, 158, 60, 172]
+	      Position		      [15, 108, 45, 122]
 	      IconDisplay	      "Port number"
-	      PortDimensions	      "[1 8]"
+	      PortDimensions	      "[1 2]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      BusCreator
+	      Name		      "Bus\nCreator"
+	      Ports		      [3, 1]
+	      Position		      [375, 88, 380, 152]
+	      ShowName		      off
+	      Inputs		      "3"
+	      DisplayOption	      "bar"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Compare\nTo Constant"
+	      Ports		      [1, 1]
+	      Position		      [160, 30, 190, 60]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Compare\nTo Constant"
+	      SourceType	      "Compare To Constant"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      relop		      "=="
+	      const		      "1"
+	      LogicOutDataTypeMode    "uint8"
+	      ZeroCross		      off
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant"
+	      Position		      [250, 85, 280, 115]
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Demux
+	      Name		      "Demux"
+	      Ports		      [1, 2]
+	      Position		      [120, 96, 125, 134]
+	      ShowName		      off
+	      Outputs		      "2"
+	      DisplayOption	      "bar"
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "Embedded\nMATLAB Function"
+	      Ports		      [1, 2]
+	      Position		      [185, 162, 285, 228]
+	      ForegroundColor	      "blue"
+	      PermitHierarchicalResolution "ExplicitOnly"
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      Array {
+		Type			"Handle"
+		Dimension		0
+		PropName		"AvailSigsLoadSave"
+	      }
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      MaskType		      "Stateflow"
+	      MaskDescription	      "Embedded MATLAB block"
+	      MaskDisplay	      "disp('fcn');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      off
+	      MaskIconRotate	      "none"
+	      MaskIconUnits	      "autoscale"
+	      System {
+		Name			"Embedded\nMATLAB Function"
+		Location		[257, 457, 812, 717]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"A4"
+		PaperUnits		"centimeters"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "u"
+		  Position		  [20, 101, 40, 119]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Demux
+		  Name			  " Demux "
+		  Ports			  [1, 1]
+		  Position		  [270, 180, 320, 220]
+		  Outputs		  "1"
+		}
+		Block {
+		  BlockType		  "S-Function"
+		  Name			  " SFunction "
+		  Tag			  "Stateflow S-Function ExtendedSimulink 2"
+		  Ports			  [1, 3]
+		  Position		  [180, 100, 230, 180]
+		  FunctionName		  "sf_sfun"
+		  PortCounts		  "[1 3]"
+		  EnableBusSupport	  on
+		  Port {
+		    PortNumber		    2
+		    Name		    "left"
+		    RTWStorageClass	    "Auto"
+		    DataLoggingNameMode	    "SignalName"
+		  }
+		  Port {
+		    PortNumber		    3
+		    Name		    "right"
+		    RTWStorageClass	    "Auto"
+		    DataLoggingNameMode	    "SignalName"
+		  }
+		}
+		Block {
+		  BlockType		  Terminator
+		  Name			  " Terminator "
+		  Position		  [460, 191, 480, 209]
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "left"
+		  Position		  [460, 101, 480, 119]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "right"
+		  Position		  [460, 136, 480, 154]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		}
+		Line {
+		  SrcBlock		  " SFunction "
+		  SrcPort		  1
+		  DstBlock		  " Demux "
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "u"
+		  SrcPort		  1
+		  DstBlock		  " SFunction "
+		  DstPort		  1
+		}
+		Line {
+		  Name			  "left"
+		  Labels		  [0, 0]
+		  SrcBlock		  " SFunction "
+		  SrcPort		  2
+		  DstBlock		  "left"
+		  DstPort		  1
+		}
+		Line {
+		  Name			  "right"
+		  Labels		  [0, 0]
+		  SrcBlock		  " SFunction "
+		  SrcPort		  3
+		  DstBlock		  "right"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  " Demux "
+		  SrcPort		  1
+		  DstBlock		  " Terminator "
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope"
+	      Ports		      [1]
+	      Position		      [75, 179, 105, 211]
+	      Orientation	      "left"
+	      Floating		      off
+	      Location		      [819, 392, 1238, 710]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      ZoomMode		      "xonly"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "4"
+	      YMin		      "0"
+	      YMax		      "255"
+	      SaveName		      "ScopeData1"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "trigger"
+	      Position		      [405, 38, 435, 52]
+	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
 	    Block {
 	      BlockType		      Outport
-	      Name		      "Output"
-	      Position		      [635, 158, 665, 172]
+	      Name		      "output"
+	      Position		      [405, 113, 435, 127]
+	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
 	    Line {
+	      Labels		      [0, 0]
 	      SrcBlock		      "Input"
 	      SrcPort		      1
-	      DstBlock		      "Output"
+	      DstBlock		      "Demux"
 	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Demux"
+	      SrcPort		      1
+	      Points		      [5, 0; 0, -60]
+	      DstBlock		      "Compare\nTo Constant"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Compare\nTo Constant"
+	      SrcPort		      1
+	      DstBlock		      "trigger"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Bus\nCreator"
+	      SrcPort		      1
+	      DstBlock		      "output"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant"
+	      SrcPort		      1
+	      DstBlock		      "Bus\nCreator"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Demux"
+	      SrcPort		      2
+	      Points		      [5, 0; 0, 70]
+	      Branch {
+		DstBlock		"Embedded\nMATLAB Function"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Scope"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "Embedded\nMATLAB Function"
+	      SrcPort		      1
+	      Points		      [35, 0; 0, -60]
+	      DstBlock		      "Bus\nCreator"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Embedded\nMATLAB Function"
+	      SrcPort		      2
+	      Points		      [70, 0]
+	      DstBlock		      "Bus\nCreator"
+	      DstPort		      3
+	    }
+	    Annotation {
+	      Name		      "Number of the robot"
+	      Position		      [255, 24]
 	    }
 	  }
 	}
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "Publish Def 1"
-	  Ports			  [1]
-	  Position		  [275, 87, 375, 163]
+	  Ports			  [1, 0, 1]
+	  Position		  [275, 97, 375, 173]
 	  AttributesFormatString  "%<subject>\\n%<nickname>"
 	  MinAlgLoopOccurrences	  off
 	  PropExecContextOutsideSubsystem off
@@ -911,7 +1195,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "'F300000000000000'|17509995351216488000|'distance'"
+	  MaskValueString	  "'F200000000000000'|17437937757178561000|'velocity'"
 	  MaskTabNameString	  ",,"
 	  System {
 	    Name		    "Publish Def 1"
@@ -933,9 +1217,15 @@ Model {
 	      Name		      "data"
 	      Position		      [210, 158, 240, 172]
 	      IconDisplay	      "Port number"
-	      PortDimensions	      "[1 8]"
+	      PortDimensions	      "[1 3]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      EnablePort
+	      Name		      "Enable"
+	      Ports		      []
+	      Position		      [400, 20, 420, 40]
 	    }
 	    Block {
 	      BlockType		      BusCreator
@@ -1044,11 +1334,11 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "'F200000000000000'|17437937757178561000|'robot'|0|0"
+	  MaskValueString	  "'F100000000000000'|17365880163140633000|'distance'|5|0"
 	  MaskTabNameString	  ",,,,"
 	  System {
 	    Name		    "Subcribe Def 1"
-	    Location		    [109, 100, 656, 193]
+	    Location		    [5, 82, 552, 175]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -1083,7 +1373,7 @@ Model {
 	      Name		      "get_events"
 	      Ports		      [1, 1]
 	      Position		      [345, 26, 430, 64]
-	      MATLABFcn		      "Simulink_get_data(u,'newest')"
+	      MATLABFcn		      "Simulink_get_data(u,'all')"
 	      OutputSignalType	      "real"
 	      Output1D		      off
 	    }
@@ -1124,6 +1414,13 @@ Model {
 	Line {
 	  SrcBlock		  "Application"
 	  SrcPort		  1
+	  Points		  [0, -55; 85, 0]
+	  DstBlock		  "Publish Def 1"
+	  DstPort		  enable
+	}
+	Line {
+	  SrcBlock		  "Application"
+	  SrcPort		  2
 	  DstBlock		  "Publish Def 1"
 	  DstPort		  1
 	}
@@ -1159,7 +1456,7 @@ Model {
       MaskIconOpaque	      on
       MaskIconRotate	      "none"
       MaskIconUnits	      "autoscale"
-      MaskValueString	      "'127.0.0.1'|5005"
+      MaskValueString	      "'10.68.13.74'|5005"
       MaskTabNameString	      ","
       System {
 	Name			"TCP/IP configuration"
@@ -1202,7 +1499,7 @@ Model {
       MaskIconOpaque	      on
       MaskIconRotate	      "none"
       MaskIconUnits	      "autoscale"
-      MaskValueString	      "50|HIGH|TIME CRITICAL"
+      MaskValueString	      "10|HIGH|HIGHEST"
       MaskTabNameString	      ",,"
     }
     Line {
@@ -1224,5 +1521,168 @@ Model {
       DstBlock		      "Scope1"
       DstPort		      1
     }
+  }
+}
+# Finite State Machines
+#
+#    Stateflow Version 7.1 (R2008a) dated Feb  7 2008, 21:38:28
+#
+#
+
+
+Stateflow {
+  machine {
+    id			    1
+    name		    "ExtendedSimulink"
+    created		    "09-Oct-2008 16:29:44"
+    isLibrary		    0
+    firstTarget		    10
+    sfVersion		    71014000.000003
+  }
+  chart {
+    id			    2
+    name		    "Sentient Object 1/Application/Embedded\nMATLAB Function"
+    windowPosition	    [281.813 330 200.25 189.75]
+    viewLimits		    [0 156.75 0 153.75]
+    screen		    [1 1 1280 768 1.333333333333333]
+    treeNode		    [0 3 0 0]
+    firstTransition	    5
+    firstJunction	    4
+    viewObj		    2
+    machine		    1
+    toolbarMode		    LIBRARY_TOOLBAR
+    subviewS {
+    }
+    ssIdHighWaterMark	    6
+    decomposition	    CLUSTER_CHART
+    type		    EML_CHART
+    firstData		    6
+    chartFileNumber	    2
+    disableImplicitCasting  1
+    eml {
+      name		      "fcn"
+    }
+  }
+  state {
+    id			    3
+    labelString		    "eML_blk_kernel()"
+    position		    [18 64.5 118 66]
+    fontSize		    12
+    chart		    2
+    treeNode		    [2 0 0 0]
+    superState		    SUBCHART
+    subviewer		    2
+    ssIdNumber		    1
+    type		    FUNC_STATE
+    decomposition	    CLUSTER_STATE
+    eml {
+      isEML		      1
+      script		      "function [left,right] = fcn(u)\n% This block supports the Embedded MATLAB subset.\n% See the help menu for details. \n\n% left=0;\n% right=0;\n% \nif u<40\n   left=200;\n   right=50;\nelse\n    left=100;\n    right=100;   \nend"
+      editorLayout	      "100 M4x1[146 214 671 364]"
+    }
+  }
+  junction {
+    id			    4
+    position		    [23.5747 49.5747 7]
+    chart		    2
+    linkNode		    [2 0 0]
+    subviewer		    2
+    ssIdNumber		    3
+    type		    CONNECTIVE_JUNCTION
+  }
+  transition {
+    id			    5
+    labelString		    "{eML_blk_kernel();}"
+    labelPosition	    [32.125 19.875 102.544 14.964]
+    fontSize		    12
+    src {
+      intersection	      [0 0 1 0 23.5747 14.625 0 0]
+    }
+    dst {
+      id		      4
+      intersection	      [7 0 -1 -1 23.5747 42.5747 0 0]
+    }
+    midPoint		    [23.5747 24.9468]
+    chart		    2
+    linkNode		    [2 0 0]
+    dataLimits		    [23.575 23.575 14.625 34.575]
+    subviewer		    2
+    drawStyle		    SMART
+    executionOrder	    1
+    ssIdNumber		    2
+  }
+  data {
+    id			    6
+    ssIdNumber		    4
+    name		    "u"
+    linkNode		    [2 0 7]
+    scope		    INPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+      }
+      complexity	      SF_COMPLEX_INHERITED
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
+  data {
+    id			    7
+    ssIdNumber		    5
+    name		    "left"
+    linkNode		    [2 6 8]
+    scope		    OUTPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+      }
+      complexity	      SF_COMPLEX_INHERITED
+      frame		      SF_FRAME_NO
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
+  data {
+    id			    8
+    ssIdNumber		    6
+    name		    "right"
+    linkNode		    [2 7 0]
+    scope		    OUTPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+	isSigned		1
+	wordLength		"16"
+      }
+      complexity	      SF_COMPLEX_INHERITED
+      frame		      SF_FRAME_NO
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
+  instance {
+    id			    9
+    name		    "Sentient Object 1/Application/Embedded\nMATLAB Function"
+    machine		    1
+    chart		    2
+  }
+  target {
+    id			    10
+    name		    "sfun"
+    description		    "Default Simulink S-Function Target."
+    machine		    1
+    linkNode		    [1 0 0]
   }
 }
