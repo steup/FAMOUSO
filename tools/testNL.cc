@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "mw/nl/CANNL.h"
 #include "mw/nl/voidNL.h"
 #include "mw/anl/AbstractNetworkLayer.h"
 #include "mw/el/EventLayer.h"
@@ -6,7 +7,22 @@
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
 
-typedef famouso::mw::nl::voidNL	nl;
+#include "devices/nic/can/peak/PeakCAN.h"
+#include "mw/nl/can/canETAGS.h"
+#include "mw/nl/can/canID.h"
+#include "mw/nl/can/ETAG_Broker.h"
+#include "mw/nl/can/CCP_Broker.h"
+#include "mw/common/UID.h"
+#include "famouso.h"
+
+char *dev = "/dev/pcan33";
+
+typedef device::nic::CAN::PeakCAN<dev, 0x001c> can;
+typedef famouso::mw::nl::CAN::detail::ID ID;
+typedef can::MOB	mob;
+
+typedef famouso::mw::nl::CAN::ccp::Client<can> broker;
+typedef famouso::mw::nl::CANNL<can, broker> nl;
 typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
 typedef famouso::mw::el::EventLayer< anl > el;
 typedef famouso::mw::api::EventChannel< el > EC;
@@ -19,36 +35,18 @@ typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
 // }
 
 void cb(famouso::mw::api::SECCallBackData& cbd) {
-  printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
+  printf("Michaels CallBack %s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
 }
 
 
 
 int main(int argc, char **argv){
 
+  famouso::init<EC>();
   SEC sec((uint8_t)0xf1);
-//  sec.callback.from_function<EC, &EC::cb>(&sec);
-  sec.callback.bind<&cb>();
   sec.subscribe();
-  //  {
-  SEC sec1((uint8_t)0xf1);
-//  sec1.callback.from_function<EC, &EC::cb>(&sec1);
-  sec1.subscribe();
-  //  }
+  sec.callback.bind<&cb>();
 
-  printf ("\n");
-  PEC ec((uint8_t)0xf1);
-//  ec.callback.from_function<EC, &EC::cb>(&ec);
-  printf ("sizeof(ec)=%d snn=%d\n",sizeof(ec), ec.snn());
-
-
-//   ec.callback(ec);
-  ec.announce();
-//   ec.callback(sec);
-  printf ("sizeof(ec)=%d snn=%d\n\n",sizeof(ec), ec.snn());
-
-  famouso::mw::Event e(ec.subject());
-  ec.publish(e);
-
+  pause();
   return 0;
 }
