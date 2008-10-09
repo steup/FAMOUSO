@@ -10,7 +10,7 @@ FAMOUSOconnectAll();
 FAMOUSOsubscribeAll();
 FAMOUSOannounceAll();
 
-%dbstop in R1 at 25
+%dbstop in get_event.m  at 24
 disp('Loading Simulation ...')
 simview;
 simviewcb('load_configfile');

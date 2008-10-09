@@ -18,10 +18,11 @@ function new = R1(simrobot,matrix,step)
     
     %% lesen der Daten
     global velocity_data
-    char2int(velocity_data);
+    
+    a=[];
     if ~isempty(velocity_data)
-        char 
-        a=find(velocity_data(:,1)==1)
+        char2int(velocity_data);
+        a=find(velocity_data(:,1)==1);
         if ~isempty(a)
             left=uint8TOint8(velocity_data(a,2))/100;
             right=uint8TOint8(velocity_data(a,3))/100;

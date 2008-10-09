@@ -29,7 +29,7 @@ void siginthandler(int egal)
 
 int main(int argc, char **argv) {
 
-	SEC	sec(0xf200000000000000ll);
+	SEC	sec(0xf100000000000000ll);
 	famouso::mw::Event m(sec.subject());
 
 	done = 0;

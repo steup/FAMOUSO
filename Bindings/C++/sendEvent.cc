@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
 	pec.announce();
 
 	famouso::mw::Event e(pec.subject());
-	uint8_t data[16]={0,'M','i','c','h','a','e','l','-','M','i','c','h','a','e','l'};
-	e.length = 16;
+	uint8_t data[3]={1,50,-50};
+	e.length = 3;
 	e.data = data;
 
 	while(!done) {
@@ -40,13 +40,12 @@ int main(int argc, char **argv) {
 // internen Queues im System ueber
 // ist auch abhaengig von der Gegenseite, ob sie die Daten
 // auch abnimmt
-		Thread::sleep(1);
+		usleep(50000);
 // publish data
-		e.data[0]++;
+	//	e.data[0]++;
 		pec.publish(e);
 	}
 }
-
 
 
 

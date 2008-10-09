@@ -112,7 +112,7 @@ void scan(unsigned char grid[], int grid_rows, int grid_columns,
 
 
 
-unsigned int round(double input)	  	// Just rounds the input argument (or how to round in C)
+unsigned int round_F(double input)	  	/* Just rounds the input argument (or how to round in C)*/
 
 {	unsigned int ans;
 	double ipart;
@@ -168,7 +168,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   y0 = *p;
 
   /*  Now get the matrix ("world") from MATLAB (type UINT8 - unsigned char */
-   grid = (unsigned char *) mxGetData(prhs[1]);	// Get the input matrix
+   grid = (unsigned char *) mxGetData(prhs[1]);	 /* Get the input matrix */
   /* We've got it */
 
    grid_rows = mxGetM(prhs[1]);
@@ -191,8 +191,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   for (i = params[0]; (i < params[1])  && (i_frame < 2*params[2]);
   		 i += ((params[1] - params[0]) / (params[2]))) {
-  		frame[i_frame++] = round(x0 + params[3]*cos(i*pi/180));
-   	frame[i_frame++] = round(y0 + params[3]*sin(i*pi/180));
+  		frame[i_frame++] = round_F(x0 + params[3]*cos(i*pi/180));
+   	frame[i_frame++] = round_F(y0 + params[3]*sin(i*pi/180));
    /* Eliminate doubled points */
    if ((i_frame > 2) && (frame[i_frame - 3] == frame[i_frame - 1]) &&
    	 (frame[i_frame - 4] == frame[i_frame - 2])) {
@@ -203,18 +203,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 
-  scan(grid, grid_rows, grid_columns, frame, i_frame, x0, y0, visible_points, &n_points); // Go !!
+  scan(grid, grid_rows, grid_columns, frame, i_frame, x0, y0, visible_points, &n_points); 
 
   /* Pass back some useful output data */
 
   /* Number of robot, 1 for obstacle, 0 for no visible obstacle nor robot */
   
   /* Distance to nearest visible point */
-  plhs[0] = mxCreateDoubleMatrix(1, 1, mxREAL);	// Create unpopulated matrix 1-by-1
-  outM = mxGetPr(plhs[0]);								// Pointer to data in output matrix
+  plhs[0] = mxCreateDoubleMatrix(1, 1, mxREAL);	/* Create unpopulated matrix 1-by-1 */
+  outM = mxGetPr(plhs[0]);								/*Pointer to data in output matrix*/
 
-  plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);	// Create unpopulated matrix 1-by-1
-  rob_no = mxGetPr(plhs[1]);							// Pointer to data in output matrix
+  plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);	/* Create unpopulated matrix 1-by-1 */
+  rob_no = mxGetPr(plhs[1]);							/* Pointer to data in output matrix*/
 
   *outM = nearest(grid, x0, y0, visible_points, n_points, &obstacle, grid_rows);
   
@@ -232,4 +232,3 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   return;
 }
-

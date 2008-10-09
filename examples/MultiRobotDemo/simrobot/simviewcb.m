@@ -307,7 +307,14 @@ switch action
     
     case 'load_configfile'
          filename= 'simDef.mat';
-         pathname = strcat(pwd,'\saves\');
+         [str,maxsize] = computer;
+         switch str
+          case 'PCWIN'
+                pathname = strcat(pwd,'\saves\');
+            case 'GLNX86'
+                 pathname = strcat(pwd,'/saves/');
+        end
+        
          disp(['Loading Configuration file ... ' filename])
 
          if filename ~= 0
@@ -338,7 +345,14 @@ switch action
          h = findobj('Tag','SimPath');
          path = get(h,'UserData');
          [pathname,filename,ext,ver] = fileparts(path);
-         pathname = [pathname '\'];
+         [str,maxsize] = computer;
+         switch str
+          case 'PCWIN'
+                pathname = [pathname '\'];
+            case 'GLNX86'
+                pathname = [pathname '/'];
+        end         
+                
          filename = [filename ext];
 			% **************************
          typ=[];

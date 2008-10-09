@@ -91,7 +91,7 @@ void ray(unsigned char grid[], int grid_rows, int grid_columns,
 }
 
 
-unsigned int round(double input)
+unsigned int round_F(double input)
 
 {	unsigned int ans;
 	double ipart;
@@ -122,8 +122,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mexErrMsgTxt("Four input arguments required.");
     }
 
-  polygon = mxGetPr(prhs[0]);  	// Patch apexes coords
-  i = mxGetN(prhs[0]);           // No. of apexes
+  polygon = mxGetPr(prhs[0]);  	/* Patch apexes coords */
+  i = mxGetN(prhs[0]);           /* No. of apexes */
 
   grid_rows = mxGetM(prhs[1]);
   grid_columns = mxGetN(prhs[1]);
@@ -136,7 +136,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
   /*  Now get the matrix ("world") from MATLAB (type UINT8 - unsigned char */
-   grid = (unsigned char *) mxGetData(prhs[1]);	// Get the input matrix
+   grid = (unsigned char *) mxGetData(prhs[1]);	/* Get the input matrix*/
   /* We've got it */
 
   crashed = 0;
@@ -144,14 +144,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
   /* Fill in the matrix */
   for (i_frame = 1; i_frame < i; i_frame++) {
-     ray(grid, grid_rows, grid_columns, round(polygon[2*(i_frame - 1)]),
-     round(polygon[2*(i_frame - 1) + 1]), round(polygon[2*i_frame]),
-     round(polygon[2*i_frame + 1]),*value, &crashed, robots);
+     ray(grid, grid_rows, grid_columns, round_F(polygon[2*(i_frame - 1)]),
+     round_F(polygon[2*(i_frame - 1) + 1]), round_F(polygon[2*i_frame]),
+     round_F(polygon[2*i_frame + 1]),*value, &crashed, robots);
 
   }
   /* Now close the patch */
-	  ray(grid, grid_rows, grid_columns, round(polygon[2*i - 2]),
-     round(polygon[2*i - 1]), round(polygon[0]), round(polygon[1]),
+	  ray(grid, grid_rows, grid_columns, round_F(polygon[2*i - 2]),
+     round_F(polygon[2*i - 1]), round_F(polygon[0]), round_F(polygon[1]),
      *value, &crashed, robots);
 
    plhs[0] = mxCreateDoubleMatrix(1, 1, mxREAL);
