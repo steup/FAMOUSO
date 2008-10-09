@@ -2,8 +2,8 @@
 #include "devices/nic/can/peak/PeakCAN.h"
 #include "mw/nl/can/canETAGS.h"
 #include "mw/nl/can/canID.h"
-#include "mw/nl/can/ETAG_Broker.h"
-#include "mw/nl/can/CCP_Broker.h"
+#include "mw/nl/can/etagBP/Broker.h"
+#include "mw/nl/can/ccp/Broker.h"
 #include "mw/common/UID.h"
 
 char *dev = "/dev/pcan32";
