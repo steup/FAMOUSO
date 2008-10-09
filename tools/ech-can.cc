@@ -7,6 +7,7 @@
 #include <iostream>
 #include <list>
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdint.h>
 
@@ -146,6 +147,8 @@ private:
         uint32_t *len = (uint32_t *) & preamble[9];
         *sub = htonll(cbd.subject.value);
         *len = htonl(cbd.length);
+        boost::asio::socket_base::send_low_watermark option(*len+13);
+        socket().set_option(option);
         boost::asio::write(socket(), boost::asio::buffer(preamble, 13));
         boost::asio::write(socket(), boost::asio::buffer(cbd.data, cbd.length));
     }
@@ -237,6 +240,9 @@ private:
 
 }
 
+void siginthandler(int){
+	famouso::ios::instance().stop();
+}
 int main (int argc, char **argv) {
     std::cout << "Project: FAMOUSO" << std::endl;
     std::cout << "local Event Channel Handler" << std::endl << std::endl;
@@ -250,11 +256,16 @@ int main (int argc, char **argv) {
     try {
 		famouso::init<famouso::config::EC>();
 		famouso::EventChannelHandler localECH;
+        signal(SIGINT,siginthandler);
+        std::cout << "FAMOUSO -- Initalisation successfull"
+                  << std::endl << std::endl;
 		localECH.run();
     } catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
 
+    std::cout << "FAMOUSO -- successfully finished"
+              << std::endl;
     return 0;
 }
 
