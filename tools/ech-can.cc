@@ -36,9 +36,10 @@ namespace famouso {
 namespace CAN {
     char *dev = "/dev/pcan32";
     class config {
-        typedef device::nic::CAN::PeakCAN<dev, 0x001c> can;
-        typedef famouso::mw::nl::CAN::ccp::Broker<can> broker;
-        typedef famouso::mw::nl::CANNL<can, broker> nl;
+        typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
+        typedef famouso::mw::nl::CAN::ccp::Broker<can> ccpBroker;
+        typedef famouso::mw::nl::CAN::etagBP::Broker<can> etagBroker;
+        typedef famouso::mw::nl::CANNL<can, ccpBroker, etagBroker> nl;
         typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
         typedef famouso::mw::el::EventLayer< anl > el;
     public:

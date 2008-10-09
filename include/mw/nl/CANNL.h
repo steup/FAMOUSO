@@ -27,11 +27,12 @@ namespace famouso {
  *  the CAN Configuration Protocol is used to ensure uniquenesss of CAN IDs.
  *
  */
-template< class CAN_Driver, class CCP >
+template< class CAN_Driver, class CCP, class BP >
 class CANNL : public BaseNL {
 	uint16_t tx_node;
 	CAN_Driver driver;
     CCP ccp;
+    BP  etagBP;
     typedef famouso::mw::nl::CAN::detail::ID ID;
 	typename CAN_Driver::MOB mob;
 public:
@@ -57,7 +58,7 @@ public:
 		DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
         driver.init();
         tx_node=ccp.ccp_configure_tx_node("Schulze\0", driver);
-        driver.set_rx_Interrupt(boost::bind(&CANNL<CAN_Driver,CCP>::rx_interrupt, this));
+        driver.set_rx_Interrupt(boost::bind(&CANNL<CAN_Driver,CCP,BP>::rx_interrupt, this));
     }
 
     // bind Subject to specific networks name
@@ -106,16 +107,27 @@ public:
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
 	}
 
-    /*! \todo ueber das auslesen einer CAN Nachricht und deren
-     * Zwischenspeichern muss sicherlich noch mal nachgedacht
-     * werden insbesonder fuer den AVR ist dies vielleicht
-     * nicht immer notwendig bzw der zusaetzliche Speicher-
-     * bedarf nicht gerechtfertigt.
+    /*! \brief This function is called from the driver-level as
+     *         reaction to a pysical interrupt that was triggered
+     *         by the arriving of a CAN message.
+     *
+     *  \todo ueber das Auslesen einer CAN Nachricht und deren
+     *        Zwischenspeichern muss noch mal nachgedacht werden.
+     *        Insbesonder fuer den AVR ist dies vielleicht nicht
+     *        immer notwendig bzw der zusaetzliche Speicherbedarf
+     *        nicht gerechtfertigt.
+     *
+     * \todo die Code-Introduktions der verschiedenen Protokolle
+     *       sind ueber Aspecte oder ueber Feature-Orientierte
+     *       Technicken zu realisieren.
      */
     void rx_interrupt() {
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
 		driver.receive_blocking(&mob);
-        ccp.handle_ccp_configure_request(mob, driver);
+        if ( ccp.handle_ccp_configure_request(mob, driver) )
+            return;
+        if ( etagBP.handle_subject_bind_request(mob, driver) )
+            return;
 		famouso::mw::el::IncommingEventFromNL(this);
     }
 

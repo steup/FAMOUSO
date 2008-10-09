@@ -21,8 +21,9 @@ typedef device::nic::CAN::PeakCAN<dev, 0x001c> can;
 typedef famouso::mw::nl::CAN::detail::ID ID;
 typedef can::MOB	mob;
 
-typedef famouso::mw::nl::CAN::ccp::Client<can> broker;
-typedef famouso::mw::nl::CANNL<can, broker> nl;
+typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
+typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
+typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
 typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
 typedef famouso::mw::el::EventLayer< anl > el;
 typedef famouso::mw::api::EventChannel< el > EC;
