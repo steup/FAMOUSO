@@ -30,7 +30,7 @@ function publishing(a,data)
             end
             output=[output char(0) char(0) char(0)];
             output=[output char(max(size(data)))];
-            data=int8(data);
+            %data=int8(data);
             for i=1:max(size(data))
             %     if (data(i)>126 || data(i)<-127)
             %         disp('Wertebereich von int8 verlassen !!!')

@@ -22,7 +22,7 @@ function value=Simulink_get_data(subject, method)
             % erstbeste Datansatz mit der richtigen Robot ID gesucht
             data=double(data);
             a=find(data(:,1)==1);
-            value=[0 0 0];
+            value=[0 0];
             if ~isempty(a)
                 value=data(a(1),:);
             end
