@@ -147,10 +147,10 @@ private:
         uint32_t *len = (uint32_t *) & preamble[9];
         *sub = htonll(cbd.subject.value);
         *len = htonl(cbd.length);
-        boost::asio::socket_base::send_low_watermark option(*len+13);
-        socket().set_option(option);
-        boost::asio::write(socket(), boost::asio::buffer(preamble, 13));
-        boost::asio::write(socket(), boost::asio::buffer(cbd.data, cbd.length));
+        boost::asio::write(socket(), boost::asio::buffer(preamble, 13),
+                           boost::asio::transfer_all());
+        boost::asio::write(socket(), boost::asio::buffer(cbd.data, cbd.length),
+                           boost::asio::transfer_all());
     }
 
     void handle_request(const boost::system::error_code& error, size_t bytes_transferred) {
