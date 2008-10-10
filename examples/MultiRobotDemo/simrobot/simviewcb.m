@@ -93,6 +93,11 @@ switch action
                        [list,matrix]=run(list,matrix,step);   
                        drawnow;
                     end
+                   % --- FAMOUSO -----------------------------------    
+                  dbstop simviewcb.m at 216   
+                  FAMOUSOdisconnectAll();
+                  disp('Aus Maus');
+                  % -----------------------------------------------   
                 end                
             else
                 while (get(figHndl,'UserData')==1) & (step<no_steps)               
@@ -100,7 +105,12 @@ switch action
                   % set(h,'String',int2str(step))
                    [list,matrix]=run(list,matrix,step);   
                    drawnow;
-                end               
+                end
+                   % --- FAMOUSO -----------------------------------    
+                  dbstop simviewcb.m at 216   
+                  FAMOUSOdisconnectAll();
+                  disp('Aus Maus');
+                  % -----------------------------------------------   
             end
 
 				h = findobj('Tag','ActualStep');
@@ -211,10 +221,7 @@ switch action
          h = findobj('Tag','SimWindow');
 			set(h,'UserData',0)
           
-        % --- FAMOUSO -----------------------------------    
-          FAMOUSOdisconnectAll();
-          disp('Aus Maus');
-        % --------------------------------------------------- 
+        
  	case 'tracks'
     		h = findobj('Tag','ListStore');
          list = get(h,'UserData');
@@ -612,5 +619,6 @@ set(axHndl, ...
 axis off          % Remove axis ticks and numbers
 axis image
 %text(100,30,'Demonstration setup','FontSize',18);
-text(0,1250,'DECOMOR Demonstration setup','FontSize',20,'FontWeight','bold');
+text(0,1350,'DECOMOR Demonstration setup','FontSize',20,'FontWeight','bold');
+text(0,1250,'Michael Schulze and Sebastian Zug','FontSize',20,'FontWeight','bold');
 drawnow;

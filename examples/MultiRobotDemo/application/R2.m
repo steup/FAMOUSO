@@ -1,4 +1,4 @@
-function new = R1(simrobot,matrix,step)
+function new = R2(simrobot,matrix,step)
 persistent state;
 persistent wait_counter;
 % your algorithm starts here
@@ -12,14 +12,14 @@ persistent wait_counter;
     if aux>=255
         aux=255;
     end
-  
+    
     if wait_counter<25
         wait_counter=wait_counter+1;
     else
-        publishing(distance,[1 aux 118])
+        publishing(distance,[2 aux 118])
         wait_counter=0;
-    end    
-    
+    end
+        
     %% lesen der Daten
     global velocity_data
     
@@ -28,18 +28,17 @@ persistent wait_counter;
     right=0;
     if ~isempty(velocity_data)
         char2int(velocity_data);
-        a=find(velocity_data(:,1)==1);
+        a=find(velocity_data(:,1)==2);
         if ~isempty(a)
-            left=uint8TOint8(velocity_data(a(1),2))/1000;
-            right=uint8TOint8(velocity_data(a(1),3))/1000;
+            left=uint8TOint8(velocity_data(a(1),2))/100;
+            right=uint8TOint8(velocity_data(a(1),3))/100;
             state=0;
             simrobot = setvel(simrobot,[left right]);
-            left
             simrobot=setpower(simrobot,1);
         end   
     else
         state=state+1;
-        if state<50
+        if state<20
              vel=getvel(simrobot);
              left=vel(1);
              right=vel(2);
