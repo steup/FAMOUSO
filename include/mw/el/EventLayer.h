@@ -83,7 +83,7 @@ class EventLayer : public LL {
             ec_t* sec= reinterpret_cast<ec_t*>(Subscriber.select());
             while (sec) {
                 DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value,ec.subject().value));
-                if ( sec->subject() == e.subject )
+                if ( sec->subject() == ec.subject() )
                     sec->callback(e);
                 sec=reinterpret_cast<ec_t*>(sec->select());
             }
@@ -109,17 +109,17 @@ class EventLayer : public LL {
             typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
             ec_t* sec= reinterpret_cast<ec_t*>(Subscriber.select());
             if (!sec)
-                DEBUG(("Now Subscribers\n"));
+                DEBUG(("No Subscribers\n"));
             else{
                 do {
 //                DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value,ec.subject().value));
                     if (LL::fetch(sec->subject(), sec->snn())) {// vergleich der Subjects
                         // versuchen das Event zu holen
-                        // kommt eins zurueck, direkt den Callback des sec aufrufen
-                        // gegebenfalls weiter die liste traversieren
+                        // finden wir eins, wird es local gepublished, welches
+                        // das verteilen an alle Subscriber bewirkt.
                         Event e(sec->subject());
                         LL::getEvent(e);
-                        sec->callback(e);
+                        publish_local(*sec,e);
                     }
                 sec=reinterpret_cast<ec_t*>(sec->select());
                 } while(sec);
