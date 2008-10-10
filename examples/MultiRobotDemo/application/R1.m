@@ -30,11 +30,10 @@ persistent wait_counter;
         char2int(velocity_data);
         a=find(velocity_data(:,1)==1);
         if ~isempty(a)
-            left=uint8TOint8(velocity_data(a(1),2))/1000;
-            right=uint8TOint8(velocity_data(a(1),3))/1000;
+            left=uint8TOint8(velocity_data(a(1),2))/100;
+            right=uint8TOint8(velocity_data(a(1),3))/100;
             state=0;
             simrobot = setvel(simrobot,[left right]);
-            left
             simrobot=setpower(simrobot,1);
         end   
     else
