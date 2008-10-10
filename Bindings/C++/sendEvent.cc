@@ -27,21 +27,22 @@ int main(int argc, char **argv) {
 	done = 0;
 	signal(SIGINT,siginthandler);
 
-	PEC pec(0xf100000000000000ull);
+//	PEC pec(0xf100000000000000ull);
+	PEC pec(0x44697374616e6365ull);
 	pec.announce();
 
 	famouso::mw::Event e(pec.subject());
-	uint8_t data[3]={1,50,-50};
+	uint8_t data[3]={1,50,'v'};
 	e.length = 3;
 	e.data = data;
 
 	while(!done) {
-// 25 us ist sicherlich die untere Grenze, sonst laufen die
-// internen Queues im System ueber
-// ist auch abhaengig von der Gegenseite, ob sie die Daten
-// auch abnimmt
+    // 25 us ist sicherlich die untere Grenze, sonst laufen die
+    // internen Queues im System ueber
+    // ist auch abhaengig von der Gegenseite, ob sie die Daten
+    // auch abnimmt
 		usleep(50000);
-// publish data
+    // publish data
 	//	e.data[0]++;
 		pec.publish(e);
 	}

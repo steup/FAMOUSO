@@ -14,7 +14,6 @@
 #include "famouso_bindings.h"
 #include "util/Thread.h"
 
-
 int done;
 
 void cb(famouso::mw::api::SECCallBackData& cbd) {
@@ -27,8 +26,7 @@ void siginthandler(int egal)
 }
 
 int main(int argc, char **argv) {
-//	SEC	sec(0xf100000000000000ll);
-	SEC	sec(0x44697374616e6365ull);
+	SEC	sec(0x56656c6f63697479ull);
 	famouso::mw::Event m(sec.subject());
 
 	done = 0;
@@ -37,10 +35,9 @@ int main(int argc, char **argv) {
 	sec.subscribe();
 	sec.callback.bind<cb>();
 
-	// Integration eines Callbacks bis nach oben fehlt noch
 	while(!done) {
-    // mam muss nicht unbedingt warten, jedoch entlasstet dies
-    // die cpu, weil es sonst busy-waiting ist
+        // mam muss nicht unbedingt warten, jedoch entlasstet dies
+        // die cpu, weil es sonst busy-waiting ist
 		Thread::sleep(100);
 	}
 }
