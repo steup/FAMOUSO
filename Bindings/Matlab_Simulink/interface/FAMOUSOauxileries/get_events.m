@@ -6,7 +6,7 @@ function counter=get_events()
             eval(sprintf('global %s;',channel_name));
             eval(sprintf('[aux %s]=get_event(%s);',channel_name, channel_name));
             if aux>=1
-                counter=counter+1;
+                counter=counter+aux;
             end
         end
     end
