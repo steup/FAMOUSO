@@ -19,7 +19,7 @@ P=famouso.PublisherEC(0xf100000000000000L)
 event=famouso.event_t()
 event.len=16
 event.data="QNode000 Michael"
-event.subject=0xf200000000000000L
+event.subject=0xf100000000000000L
 print "Subject:",event.subject,"Laenge:",event.len,"Daten: ",event.data
 
 print "Kuendige das Subject an"
