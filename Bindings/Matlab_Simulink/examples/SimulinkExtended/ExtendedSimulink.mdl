@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.270"
+    ComputedModelVersion    "1.271"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -49,9 +49,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "zug"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Oct 10 13:59:38 2008"
+  LastModifiedDate	  "Fri Oct 10 23:48:15 2008"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:270>"
+  ModelVersionFormat	  "1.%<AutoIncrement:271>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -773,7 +773,7 @@ Model {
       Position		      [310, 109, 340, 141]
       Floating		      off
       Location		      [6, 400, 413, 717]
-      Open		      on
+      Open		      off
       NumInputPorts	      "1"
       ZoomMode		      "xonly"
       List {
@@ -825,7 +825,7 @@ Model {
       MaskIconUnits	      "autoscale"
       System {
 	Name			"Sentient Object 1"
-	Location		[419, 82, 804, 323]
+	Location		[241, 82, 626, 323]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -1624,7 +1624,7 @@ Stateflow {
     decomposition	    CLUSTER_STATE
     eml {
       isEML		      1
-      script		      "function [left,right,dist] = fcn(u)\n% This block supports thae Embedded MATLAB subset.\n% See the help menu for details. \n\nleft=0;\nright=0;\nif u>50\n    left=12;\n    right=12;\nelse   \n   left=253;\n   right=2;    \nend\ndist=u\nif dist==255\n     dist=0;\nend\n"
+      script		      "function [left,right,dist] = fcn(u)\n% This block supports thae Embedded MATLAB subset.\n% See the help menu for details. \n\nleft=0;\nright=0;\nif u>50\n    left=2;\n    right=2;\nelse   \n   left=253;\n   right=2;    \nend\ndist=u\nif dist==255\n     dist=0;\nend\n"
       editorLayout	      "100 M4x1[245 245 720 461]"
     }
   }

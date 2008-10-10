@@ -20,6 +20,7 @@ function value=Simulink_get_data(subject, method)
         case 'all'
             % hier wird jetzt fuer das Szenario geschummelt und der
             % erstbeste Datansatz mit der richtigen Robot ID gesucht
+            
             data=double(data);
             a=find(data(:,1)==1);
 %             value=[[0 0 0];[0 0 0]];
