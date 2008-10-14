@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'sub.ui'
-#
-# Created: Thu Jun 12 12:28:31 2008
-#      by: PyQt4 UI code generator 4.3.3
-#
-# WARNING! All changes made in this file will be lost!
 # Famouso
 from pyFAMOUSO.famouso import *
 
@@ -14,7 +6,6 @@ import signal, struct
 from threading import Thread
 
 from PyQt4 import QtCore, QtGui
-from pygame.locals import *
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -54,20 +45,19 @@ class StartQT4(QtGui.QMainWindow):
             self.state=0;
 
         def sig_handler(signum, frame):
-            LogSubscriber.unsubscribe()
-            print "Alle Sockets geschlossen, mit ENTER beenden"
             sys.exit(1)
 
         def PublishHumanDetection(self):
             self.state = ~self.state
-#            print " Status " + str(self.state)
             if (self.state == 0):
-                e=event.Event(self.subject,str('\0'))
+                e=event.Event(self.subject,str('\0\0B'))
             else:
-                e=event.Event(self.subject,str('H'))
+                e=event.Event(self.subject,str('H\0B'))
             self.pub.publish(e)
 
         def exit_dialog(self):
+            e=event.Event(self.subject,str('\0\0B'))
+            self.pub.publish(e)
             self.pub.close()
 
 
