@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.271"
+    ComputedModelVersion    "1.323"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -49,9 +49,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "zug"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Oct 10 23:48:15 2008"
+  LastModifiedDate	  "Sun Oct 12 15:31:32 2008"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:271>"
+  ModelVersionFormat	  "1.%<AutoIncrement:323>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -112,7 +112,7 @@ Model {
 	  StartTime		  "0.0"
 	  StopTime		  "inf"
 	  AbsTol		  "auto"
-	  FixedStep		  "[[0.001 0 10]]"
+	  FixedStep		  ""
 	  InitialStep		  "auto"
 	  MaxNumMinSteps	  "-1"
 	  MaxOrder		  5
@@ -141,9 +141,9 @@ Model {
 	    Type		    "Struct"
 	    Dimension		    1
 	    MATStruct {
-	      SampleTime	      "0.001"
+	      SampleTime	      "0.01"
 	      Offset		      "0"
-	      Priority		      [1.0]
+	      Priority		      [10.0]
 	    }
 	    PropName		    "SampleTimeProperty"
 	  }
@@ -540,6 +540,13 @@ Model {
       BusSelectionMode	      off
     }
     Block {
+      BlockType		      Display
+      Format		      "short"
+      Decimation	      "10"
+      Floating		      off
+      SampleTime	      "-1"
+    }
+    Block {
       BlockType		      EnablePort
       StatesWhenEnabling      "held"
       ShowOutputPort	      off
@@ -575,6 +582,15 @@ Model {
       OutputSignalType	      "auto"
       Output1D		      on
       SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Memory
+      X0		      "0"
+      InheritSampleTime	      off
+      LinearizeMemory	      off
+      LinearizeAsDelay	      off
+      StateMustResolveToSignalObject off
+      RTWStateStorageClass    "Auto"
     }
     Block {
       BlockType		      Outport
@@ -656,16 +672,6 @@ Model {
       SampleTime	      "inf"
       FramePeriod	      "inf"
     }
-    Block {
-      BlockType		      RelationalOperator
-      Operator		      ">="
-      InputSameDT	      on
-      LogicOutDataTypeMode    "Logical (see Configuration Parameters: Optimization)"
-      LogicDataType	      "uint(8)"
-      OutDataTypeStr	      "Inherit: Logical (see Configuration Parameters: Optimization)"
-      ZeroCross		      on
-      SampleTime	      "-1"
-    }
   }
   AnnotationDefaults {
     HorizontalAlignment	    "center"
@@ -687,7 +693,7 @@ Model {
   }
   System {
     Name		    "ExtendedSimulink"
-    Location		    [9, 82, 408, 319]
+    Location		    [9, 82, 400, 278]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -701,90 +707,6 @@ Model {
     ShowPageBoundaries	    off
     ZoomFactor		    "100"
     ReportName		    "simulink-default.rpt"
-    Block {
-      BlockType		      SubSystem
-      Name		      "FAMOUSOinterface"
-      Ports		      [0, 1]
-      Position		      [20, 104, 160, 146]
-      BackgroundColor	      "yellow"
-      NamePlacement	      "alternate"
-      MinAlgLoopOccurrences   off
-      PropExecContextOutsideSubsystem off
-      RTWSystemCode	      "Auto"
-      FunctionWithSeparateData off
-      Opaque		      off
-      RequestExecContextInheritance off
-      MaskHideContents	      off
-      System {
-	Name			"FAMOUSOinterface"
-	Location		[448, 299, 831, 469]
-	Open			off
-	ModelBrowserVisibility	off
-	ModelBrowserWidth	200
-	ScreenColor		"white"
-	PaperOrientation	"landscape"
-	PaperPositionMode	"auto"
-	PaperType		"A4"
-	PaperUnits		"centimeters"
-	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
-	TiledPageScale		1
-	ShowPageBoundaries	off
-	ZoomFactor		"100"
-	Block {
-	  BlockType		  Ground
-	  Name			  "Ground"
-	  Position		  [35, 35, 55, 55]
-	}
-	Block {
-	  BlockType		  MATLABFcn
-	  Name			  "get_events()"
-	  Ports			  [1, 1]
-	  Position		  [105, 26, 190, 64]
-	  MATLABFcn		  "get_events()"
-	  OutputSignalType	  "real"
-	  Output1D		  off
-	}
-	Block {
-	  BlockType		  Outport
-	  Name			  "number of \nreceived\nmessages"
-	  Position		  [245, 38, 275, 52]
-	  IconDisplay		  "Port number"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	}
-	Line {
-	  SrcBlock		  "get_events()"
-	  SrcPort		  1
-	  DstBlock		  "number of \nreceived\nmessages"
-	  DstPort		  1
-	}
-	Line {
-	  SrcBlock		  "Ground"
-	  SrcPort		  1
-	  DstBlock		  "get_events()"
-	  DstPort		  1
-	}
-      }
-    }
-    Block {
-      BlockType		      Scope
-      Name		      "Scope"
-      Ports		      [1]
-      Position		      [310, 109, 340, 141]
-      Floating		      off
-      Location		      [6, 400, 413, 717]
-      Open		      off
-      NumInputPorts	      "1"
-      ZoomMode		      "xonly"
-      List {
-	ListType		AxesTitles
-	axes1			"%<SignalLabel>"
-      }
-      YMin		      "0"
-      YMax		      "175"
-      DataFormat	      "StructureWithTime"
-      SampleTime	      "0"
-    }
     Block {
       BlockType		      Scope
       Name		      "Scope1"
@@ -809,8 +731,8 @@ Model {
     Block {
       BlockType		      SubSystem
       Name		      "Sentient Object 1"
-      Ports		      [0, 0, 1]
-      Position		      [145, 152, 295, 208]
+      Ports		      []
+      Position		      [115, 102, 265, 158]
       MinAlgLoopOccurrences   off
       PropExecContextOutsideSubsystem off
       RTWSystemCode	      "Auto"
@@ -825,7 +747,7 @@ Model {
       MaskIconUnits	      "autoscale"
       System {
 	Name			"Sentient Object 1"
-	Location		[241, 82, 626, 323]
+	Location		[6, 381, 405, 576]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -839,16 +761,10 @@ Model {
 	ShowPageBoundaries	off
 	ZoomFactor		"100"
 	Block {
-	  BlockType		  EnablePort
-	  Name			  "Enable"
-	  Ports			  []
-	  Position		  [190, 40, 210, 60]
-	}
-	Block {
 	  BlockType		  SubSystem
 	  Name			  "Application"
-	  Ports			  [1, 2]
-	  Position		  [135, 104, 235, 146]
+	  Ports			  [3, 1]
+	  Position		  [165, 52, 230, 128]
 	  MinAlgLoopOccurrences	  off
 	  PropExecContextOutsideSubsystem off
 	  RTWSystemCode		  "Auto"
@@ -858,8 +774,8 @@ Model {
 	  MaskHideContents	  off
 	  System {
 	    Name		    "Application"
-	    Location		    [816, 82, 1274, 333]
-	    Open		    on
+	    Location		    [400, 319, 827, 613]
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -881,6 +797,26 @@ Model {
 	      OutScaling	      "2^0"
 	    }
 	    Block {
+	      BlockType		      Inport
+	      Name		      "number"
+	      Position		      [15, 68, 45, 82]
+	      Port		      "2"
+	      IconDisplay	      "Port number"
+	      PortDimensions	      "[1 1]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Inport
+	      Name		      "human"
+	      Position		      [20, 23, 50, 37]
+	      Port		      "3"
+	      IconDisplay	      "Port number"
+	      PortDimensions	      "[1 1]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator"
 	      Ports		      [3, 1]
@@ -890,29 +826,10 @@ Model {
 	      DisplayOption	      "bar"
 	    }
 	    Block {
-	      BlockType		      Reference
-	      Name		      "Compare\nTo Constant"
-	      Ports		      [1, 1]
-	      Position		      [200, 30, 230, 60]
-	      SourceBlock	      "simulink/Logic and Bit\nOperations/Compare\nTo Constant"
-	      SourceType	      "Compare To Constant"
-	      ShowPortLabels	      "FromPortIcon"
-	      SystemSampleTime	      "-1"
-	      FunctionWithSeparateData off
-	      RTWMemSecFuncInitTerm   "Inherit from model"
-	      RTWMemSecFuncExecute    "Inherit from model"
-	      RTWMemSecDataConstants  "Inherit from model"
-	      RTWMemSecDataInternal   "Inherit from model"
-	      RTWMemSecDataParameters "Inherit from model"
-	      relop		      "=="
-	      const		      "1"
-	      LogicOutDataTypeMode    "uint8"
-	      ZeroCross		      off
-	    }
-	    Block {
 	      BlockType		      Constant
 	      Name		      "Constant"
 	      Position		      [265, 70, 295, 100]
+	      Value		      "4"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -926,9 +843,17 @@ Model {
 	      DisplayOption	      "bar"
 	    }
 	    Block {
+	      BlockType		      Display
+	      Name		      "Display"
+	      Ports		      [1]
+	      Position		      [205, 15, 295, 45]
+	      Decimation	      "1"
+	      Lockdown		      off
+	    }
+	    Block {
 	      BlockType		      SubSystem
 	      Name		      "Embedded\nMATLAB Function"
-	      Ports		      [1, 3]
+	      Ports		      [4, 4]
 	      Position		      [180, 118, 255, 192]
 	      ForegroundColor	      "blue"
 	      PermitHierarchicalResolution "ExplicitOnly"
@@ -969,11 +894,32 @@ Model {
 		ZoomFactor		"100"
 		Block {
 		  BlockType		  Inport
-		  Name			  "u"
+		  Name			  "number"
 		  Position		  [20, 101, 40, 119]
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "u"
+		  Position		  [20, 136, 40, 154]
+		  Port			  "2"
 		  IconDisplay		  "Port number"
 		  OutDataType		  "sfix(16)"
 		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "state"
+		  Position		  [20, 171, 40, 189]
+		  Port			  "3"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "human"
+		  Position		  [20, 206, 40, 224]
+		  Port			  "4"
+		  IconDisplay		  "Port number"
 		}
 		Block {
 		  BlockType		  Demux
@@ -986,10 +932,10 @@ Model {
 		  BlockType		  "S-Function"
 		  Name			  " SFunction "
 		  Tag			  "Stateflow S-Function ExtendedSimulink 2"
-		  Ports			  [1, 4]
-		  Position		  [180, 111, 230, 254]
+		  Ports			  [4, 5]
+		  Position		  [180, 113, 230, 257]
 		  FunctionName		  "sf_sfun"
-		  PortCounts		  "[1 4]"
+		  PortCounts		  "[4 5]"
 		  EnableBusSupport	  on
 		  Port {
 		    PortNumber		    2
@@ -1006,6 +952,12 @@ Model {
 		  Port {
 		    PortNumber		    4
 		    Name		    "dist"
+		    RTWStorageClass	    "Auto"
+		    DataLoggingNameMode	    "SignalName"
+		  }
+		  Port {
+		    PortNumber		    5
+		    Name		    "state1"
 		    RTWStorageClass	    "Auto"
 		    DataLoggingNameMode	    "SignalName"
 		  }
@@ -1037,6 +989,13 @@ Model {
 		  Port			  "3"
 		  IconDisplay		  "Port number"
 		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "state1"
+		  Position		  [460, 206, 480, 224]
+		  Port			  "4"
+		  IconDisplay		  "Port number"
+		}
 		Line {
 		  SrcBlock		  " SFunction "
 		  SrcPort		  1
@@ -1044,10 +1003,28 @@ Model {
 		  DstPort		  1
 		}
 		Line {
-		  SrcBlock		  "u"
+		  SrcBlock		  "number"
 		  SrcPort		  1
 		  DstBlock		  " SFunction "
 		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "u"
+		  SrcPort		  1
+		  DstBlock		  " SFunction "
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "state"
+		  SrcPort		  1
+		  DstBlock		  " SFunction "
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "human"
+		  SrcPort		  1
+		  DstBlock		  " SFunction "
+		  DstPort		  4
 		}
 		Line {
 		  Name			  "left"
@@ -1074,6 +1051,14 @@ Model {
 		  DstPort		  1
 		}
 		Line {
+		  Name			  "state1"
+		  Labels		  [0, 0]
+		  SrcBlock		  " SFunction "
+		  SrcPort		  5
+		  DstBlock		  "state1"
+		  DstPort		  1
+		}
+		Line {
 		  SrcBlock		  " Demux "
 		  SrcPort		  1
 		  DstBlock		  " Terminator "
@@ -1082,18 +1067,24 @@ Model {
 	      }
 	    }
 	    Block {
+	      BlockType		      Memory
+	      Name		      "Memory"
+	      Position		      [200, 225, 230, 255]
+	      Orientation	      "left"
+	    }
+	    Block {
 	      BlockType		      Scope
 	      Name		      "Scope"
 	      Ports		      [1]
 	      Position		      [355, 174, 385, 206]
 	      Floating		      off
-	      Location		      [404, 401, 823, 719]
-	      Open		      on
+	      Location		      [856, 415, 1275, 733]
+	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "xonly"
 	      List {
 		ListType		AxesTitles
-		axes1			"%<SignalLabel>"
+		axes1			"Virtual Sensor Measurements Robot 1"
 	      }
 	      TimeRange		      "4"
 	      YMin		      "0"
@@ -1106,15 +1097,16 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope1"
 	      Ports		      [1]
-	      Position		      [65, 194, 95, 226]
+	      Position		      [75, 194, 105, 226]
+	      Orientation	      "left"
 	      Floating		      off
-	      Location		      [829, 399, 1248, 717]
-	      Open		      on
+	      Location		      [856, 45, 1275, 363]
+	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "xonly"
 	      List {
 		ListType		AxesTitles
-		axes1			"%<SignalLabel>"
+		axes1			"Virtual Sensor Measurements Robot 2"
 	      }
 	      TimeRange		      "4"
 	      YMin		      "0"
@@ -1125,26 +1117,11 @@ Model {
 	    }
 	    Block {
 	      BlockType		      Outport
-	      Name		      "trigger"
-	      Position		      [385, 38, 415, 52]
-	      IconDisplay	      "Port number"
-	      OutDataType	      "sfix(16)"
-	      OutScaling	      "2^0"
-	    }
-	    Block {
-	      BlockType		      Outport
 	      Name		      "output"
 	      Position		      [385, 113, 415, 127]
-	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
-	    }
-	    Line {
-	      SrcBlock		      "Compare\nTo Constant"
-	      SrcPort		      1
-	      DstBlock		      "trigger"
-	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "Bus\nCreator"
@@ -1155,16 +1132,16 @@ Model {
 	    Line {
 	      SrcBlock		      "Embedded\nMATLAB Function"
 	      SrcPort		      1
-	      Points		      [0, -10]
+	      Points		      [0, -5; 80, 0]
 	      DstBlock		      "Bus\nCreator"
-	      DstPort		      2
+	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "Embedded\nMATLAB Function"
 	      SrcPort		      2
 	      Points		      [80, 0]
 	      DstBlock		      "Bus\nCreator"
-	      DstPort		      3
+	      DstPort		      2
 	    }
 	    Line {
 	      SrcBlock		      "Input"
@@ -1173,51 +1150,75 @@ Model {
 	      DstPort		      1
 	    }
 	    Line {
-	      SrcBlock		      "Demux"
-	      SrcPort		      1
-	      Points		      [0, -35; 40, 0; 0, -55]
-	      DstBlock		      "Compare\nTo Constant"
+	      SrcBlock		      "Embedded\nMATLAB Function"
+	      SrcPort		      3
+	      Points		      [80, 0]
+	      DstBlock		      "Scope"
 	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "Demux"
-	      SrcPort		      2
-	      Points		      [25, 0; 0, 10]
+	      SrcPort		      3
+	      Points		      [10, 0]
+	      DstBlock		      "Scope1"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "number"
+	      SrcPort		      1
+	      Points		      [115, 0]
 	      DstBlock		      "Embedded\nMATLAB Function"
 	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "Embedded\nMATLAB Function"
-	      SrcPort		      3
-	      Points		      [0, 10]
-	      DstBlock		      "Scope"
+	      SrcPort		      4
+	      Points		      [10, 0; 0, 55]
+	      DstBlock		      "Memory"
 	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Memory"
+	      SrcPort		      1
+	      Points		      [-40, 0; 0, -75]
+	      DstBlock		      "Embedded\nMATLAB Function"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Demux"
+	      SrcPort		      1
+	      Points		      [25, 0; 0, 10]
+	      DstBlock		      "Embedded\nMATLAB Function"
+	      DstPort		      2
 	    }
 	    Line {
 	      SrcBlock		      "Constant"
 	      SrcPort		      1
-	      Points		      [20, 0; 0, 15]
+	      Points		      [35, 0; 0, 55]
 	      DstBlock		      "Bus\nCreator"
-	      DstPort		      1
+	      DstPort		      3
 	    }
 	    Line {
-	      SrcBlock		      "Demux"
-	      SrcPort		      3
-	      Points		      [10, 0; 0, 55]
-	      DstBlock		      "Scope1"
-	      DstPort		      1
-	    }
-	    Annotation {
-	      Name		      "Number of the robot"
-	      Position		      [255, 24]
+	      SrcBlock		      "human"
+	      SrcPort		      1
+	      Points		      [95, 0]
+	      Branch {
+		Points			[0, 155]
+		DstBlock		"Embedded\nMATLAB Function"
+		DstPort			4
+	      }
+	      Branch {
+		DstBlock		"Display"
+		DstPort			1
+	      }
 	    }
 	  }
 	}
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "Publish Def 1"
-	  Ports			  [1, 0, 1]
-	  Position		  [270, 97, 370, 173]
+	  Ports			  [1]
+	  Position		  [255, 52, 355, 128]
 	  AttributesFormatString  "%<subject>\\n%<nickname>"
 	  MinAlgLoopOccurrences	  off
 	  PropExecContextOutsideSubsystem off
@@ -1269,12 +1270,6 @@ Model {
 	      PortDimensions	      "[1 3]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
-	    }
-	    Block {
-	      BlockType		      EnablePort
-	      Name		      "Enable"
-	      Ports		      []
-	      Position		      [400, 20, 420, 40]
 	    }
 	    Block {
 	      BlockType		      BusCreator
@@ -1355,8 +1350,8 @@ Model {
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "Subcribe Def 1"
-	  Ports			  [0, 1]
-	  Position		  [20, 89, 115, 161]
+	  Ports			  [0, 3]
+	  Position		  [30, 53, 125, 127]
 	  AttributesFormatString  "%<subject>\\n%<nickname>"
 	  MinAlgLoopOccurrences	  off
 	  PropExecContextOutsideSubsystem off
@@ -1377,7 +1372,7 @@ Model {
 	  MaskToolTipString	  "on,on,on,on,on"
 	  MaskVarAliasString	  ",,,,"
 	  MaskVariables		  "subject=@1;subject_dec=@2;nickname=@3;number=@4;timeout=@5;"
-	  MaskInitialization	  "clear global input_channel_IDs;\nglobal input_channel_IDs\n\nsubject=strrep(get_param(gcb, 'subject'), '''', '');\nsubject=char(subject);\ncomment=strrep(get_param(gcb, 'nickname'), '''', '');\ntimeout=1;\nnumber=8;\naux=0;\nvalue=deblank(subject);\nfor i=1:8\n     aux=aux+hex2dec(value(2*i-1:2*i))*256^(8-i); \nend\nset_param(gcb, 'subject_dec',num2str(aux));\n\nexists_already=0;\n%if isempty(input_channel_IDs)\n%     input_channel_IDs=struct('name',{},'subject',{});  \n%     fprintf('\\n           subject            comment\\n-----------------------------------------------\\n');\n    i=1;\n% else\n%     for j=1:size(input_channel_IDs,2)\n%         if strcmp(input_channel_IDs(j).subject,subject)\n%             exists_already=1;\n%             break;\n%         else\n%             if strcmp(input_channel_IDs(j).name,comment)\n%                 error('same nicknames used !!!')\n%             end\n%         end\n%     end\n% end\n%if ~exists_already\n   % i=size(input_channel_IDs,2)+1;\n    %Ausgabe auf der Konsole\n%     fprintf('subscribe  %s   %s\\n', subject, comment);\n    % Anlegen der globalen Variablen\n    eval(sprintf('global %s;',comment));\n    %Initialisieren\n    %eval(sprintf('%s=input_channel(subject, timeout, number, comment);', comment));\n    eval(sprintf('%s=input_channel(char(subject), number, char(comment), ''-'');',char(comment)));\n	input_channel_IDs(i).name=comment;\n	input_channel_IDs(i).subject=subject;\n%end\n\n\nglobal TCPIPsettings;\n\nif get_input_channel_info('size')>0\n    aux=TCPIP_connection();\n    aux=set_properties(aux,'host',TCPIPsettings.host);\n    aux=set_properties(aux,'port',TCPIPsettings.port);\n    aux=set_properties(aux,'message_length',21); \n    for i=1:get_input_channel_info('size')\n        channel_name=get_input_channel_info('channel_name',i);\n        aux=set_properties(aux,'channel_name',channel_name);\n        eval(sprintf('global %s;',channel_name));\n        aux=set_properties(aux,'interaction_type','polling');     \n        eval(sprintf('%s=set_properties(%s,''connection'',aux);',char(channel_name),char(channel_name)));\n    end\nend"
+	  MaskInitialization	  "clear global input_channel_IDs;\nglobal input_channel_IDs\n\nsubject=strrep(get_param(gcb, 'subject'), '''', '');\nsubject=char(subject);\ncomment=strrep(get_param(gcb, 'nickname'), '''', '');\ntimeout=1;\nnumber=8;\naux=0;\nvalue=deblank(subject);\nfor i=1:8\n     aux=aux+hex2dec(value(2*i-1:2*i))*256^(8-i); \nend\nset_param(gcb, 'subject_dec',num2str(aux));\n\nexists_already=0;\n%if isempty(input_channel_IDs)\n%     input_channel_IDs=struct('name',{},'subject',{});  \n%     fprintf('\\n           subject            comment\\n-----------------------------------------------\\n');\n    i=1;\n% else\n%     for j=1:size(input_channel_IDs,2)\n%         if strcmp(input_channel_IDs(j).subject,subject)\n%             exists_already=1;\n%             break;\n%         else\n%             if strcmp(input_channel_IDs(j).name,comment)\n%                 error('same nicknames used !!!')\n%             end\n%         end\n%     end\n% end\n%if ~exists_already\n   % i=size(input_channel_IDs,2)+1;\n    %Ausgabe auf der Konsole\n%     fprintf('subscribe  %s   %s\\n', subject, comment);\n    % Anlegen der globalen Variablen\n    eval(sprintf('global %s;',comment));\n    %Initialisieren\n    %eval(sprintf('%s=input_channel(subject, timeout, number, comment);', comment));\n    eval(sprintf('%s=input_channel(char(subject), number, char(comment), ''-'');',char(comment)));\n	input_channel_IDs(i).name=comment;\n	input_channel_IDs(i).subject=subject;\n%end\n\nglobal HumanDet\nHumanDet=input_channel(char('48756D616E446574'),5,char('HumanDet'),''-'');\n	input_channel_IDs(2).name='HumanDet';\n	input_channel_IDs(2).subject='48756D616E446574';\n\nglobal TCPIPsettings;\n\nif get_input_channel_info('size')>0\n    aux=TCPIP_connection();\n    aux=set_properties(aux,'host',TCPIPsettings.host);\n    aux=set_properties(aux,'port',TCPIPsettings.port);\n    aux=set_properties(aux,'message_length',21); \n    for i=1:get_input_channel_info('size')\n        channel_name=get_input_channel_info('channel_name',i);\n        aux=set_properties(aux,'channel_name',channel_name);\n        eval(sprintf('global %s;',channel_name));\n        aux=set_properties(aux,'interaction_type','polling');     \n        eval(sprintf('%s=set_properties(%s,''connection'',aux);',char(channel_name),char(channel_name)));\n    end\nend"
 	  MaskDisplay		  "fprintf('Subcribe\\n%s\\n %s',get_param(gcb, 'subject'),get_param(gcb, 'nickname'))\nimage(imread('figures/SentientObjectInput.jpg'));"
 	  MaskIconFrame		  off
 	  MaskIconOpaque	  on
@@ -1387,7 +1382,7 @@ Model {
 	  MaskTabNameString	  ",,,,"
 	  System {
 	    Name		    "Subcribe Def 1"
-	    Location		    [5, 82, 552, 175]
+	    Location		    [251, 201, 947, 428]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -1401,58 +1396,351 @@ Model {
 	    ShowPageBoundaries	    off
 	    ZoomFactor		    "100"
 	    Block {
-	      BlockType		      Constant
-	      Name		      "Constant"
-	      Position		      [50, 27, 180, 63]
-	      Value		      "subject_dec"
-	      OutDataType	      "sfix(16)"
-	      OutScaling	      "2^0"
+	      BlockType		      Display
+	      Name		      "Display"
+	      Ports		      [1]
+	      Position		      [470, 75, 560, 105]
+	      Decimation	      "1"
+	      Lockdown		      off
 	    }
 	    Block {
-	      BlockType		      DataTypeConversion
-	      Name		      "Data Type Conversion"
-	      Position		      [230, 28, 305, 62]
-	      OutDataType	      "sfix(16)"
-	      OutScaling	      "2^0"
-	      RndMeth		      "Floor"
-	      SaturateOnIntegerOverflow	off
+	      BlockType		      Display
+	      Name		      "Display1"
+	      Ports		      [1]
+	      Position		      [475, 165, 565, 195]
+	      Decimation	      "1"
+	      Lockdown		      off
 	    }
 	    Block {
-	      BlockType		      MATLABFcn
-	      Name		      "get_events"
-	      Ports		      [1, 1]
-	      Position		      [345, 26, 430, 64]
-	      MATLABFcn		      "Simulink_get_data(u,'all')"
-	      OutputSignalType	      "real"
-	      Output1D		      off
+	      BlockType		      SubSystem
+	      Name		      "Enabled\nSubsystem"
+	      Ports		      [0, 2, 1]
+	      Position		      [160, 114, 260, 156]
+	      TreatAsAtomicUnit	      on
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"Enabled\nSubsystem"
+		Location		[396, 189, 1065, 539]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"A4"
+		PaperUnits		"centimeters"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  EnablePort
+		  Name			  "Enable"
+		  Ports			  []
+		  Position		  [235, 20, 255, 40]
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "Constant"
+		  Position		  [25, 77, 155, 113]
+		  Value			  "subject_dec"
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "Constant1"
+		  Position		  [35, 177, 165, 213]
+		  Value			  "5221199608235189620"
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion"
+		  Position		  [205, 78, 280, 112]
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion1"
+		  Position		  [215, 178, 290, 212]
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Display
+		  Name			  "Display"
+		  Ports			  [1]
+		  Position		  [515, 245, 605, 275]
+		  Decimation		  "1"
+		  Lockdown		  off
+		}
+		Block {
+		  BlockType		  MATLABFcn
+		  Name			  "simulink_get_data"
+		  Ports			  [1, 1]
+		  Position		  [320, 76, 405, 114]
+		  MATLABFcn		  "Simulink_get_data(u,'all')"
+		  OutputSignalType	  "real"
+		  Output1D		  off
+		}
+		Block {
+		  BlockType		  MATLABFcn
+		  Name			  "simulink_get_data1"
+		  Ports			  [1, 1]
+		  Position		  [330, 176, 415, 214]
+		  MATLABFcn		  "Simulink_get_data(u,'all')"
+		  OutputSignalType	  "real"
+		  Output1D		  off
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Out"
+		  Position		  [475, 88, 505, 102]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "human"
+		  Position		  [485, 188, 515, 202]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "Constant1"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion1"
+		  SrcPort		  1
+		  DstBlock		  "simulink_get_data1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "simulink_get_data1"
+		  SrcPort		  1
+		  Points		  [40, 0]
+		  Branch {
+		    DstBlock		    "human"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 65]
+		    DstBlock		    "Display"
+		    DstPort		    1
+		  }
+		}
+		Line {
+		  SrcBlock		  "simulink_get_data"
+		  SrcPort		  1
+		  DstBlock		  "Out"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion"
+		  SrcPort		  1
+		  DstBlock		  "simulink_get_data"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Constant"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "FAMOUSOinterface"
+	      Ports		      [0, 1]
+	      Position		      [35, 34, 175, 76]
+	      BackgroundColor	      "yellow"
+	      NamePlacement	      "alternate"
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"FAMOUSOinterface"
+		Location		[448, 299, 831, 469]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"A4"
+		PaperUnits		"centimeters"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Ground
+		  Name			  "Ground"
+		  Position		  [35, 35, 55, 55]
+		}
+		Block {
+		  BlockType		  MATLABFcn
+		  Name			  "get_events()"
+		  Ports			  [1, 1]
+		  Position		  [105, 26, 190, 64]
+		  MATLABFcn		  "get_events()"
+		  OutputSignalType	  "real"
+		  Output1D		  off
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "number of \nreceived\nmessages"
+		  Position		  [245, 38, 275, 52]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "sfix(16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "get_events()"
+		  SrcPort		  1
+		  DstBlock		  "number of \nreceived\nmessages"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Ground"
+		  SrcPort		  1
+		  DstBlock		  "get_events()"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope"
+	      Ports		      [1]
+	      Position		      [255, 14, 285, 46]
+	      Floating		      off
+	      Location		      [404, 401, 823, 719]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      ZoomMode		      "xonly"
+	      List {
+		ListType		AxesTitles
+		axes1			"Virtual Sensor Measurements Robot 1"
+	      }
+	      TimeRange		      "4"
+	      YMin		      "0"
+	      YMax		      "11"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
 	    }
 	    Block {
 	      BlockType		      Outport
 	      Name		      "data"
-	      Position		      [460, 38, 490, 52]
+	      Position		      [305, 118, 335, 132]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "number_of_data"
+	      Position		      [300, 48, 330, 62]
+	      Port		      "2"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "human"
+	      Position		      [310, 143, 340, 157]
+	      Port		      "3"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
 	    Line {
-	      SrcBlock		      "Constant"
+	      SrcBlock		      "Enabled\nSubsystem"
 	      SrcPort		      1
-	      DstBlock		      "Data Type Conversion"
-	      DstPort		      1
+	      Points		      [20, 0]
+	      Branch {
+		DstBlock		"data"
+		DstPort			1
+	      }
+	      Branch {
+		Points			[0, -35]
+		DstBlock		"Display"
+		DstPort			1
+	      }
 	    }
 	    Line {
-	      SrcBlock		      "Data Type Conversion"
+	      SrcBlock		      "FAMOUSOinterface"
 	      SrcPort		      1
-	      DstBlock		      "get_events"
-	      DstPort		      1
+	      Points		      [30, 0]
+	      Branch {
+		DstBlock		"Enabled\nSubsystem"
+		DstPort			enable
+	      }
+	      Branch {
+		Points			[15, 0]
+		Branch {
+		  DstBlock		  "number_of_data"
+		  DstPort		  1
+		}
+		Branch {
+		  Points		  [0, -25]
+		  DstBlock		  "Scope"
+		  DstPort		  1
+		}
+	      }
 	    }
 	    Line {
-	      SrcBlock		      "get_events"
-	      SrcPort		      1
-	      DstBlock		      "data"
-	      DstPort		      1
+	      SrcBlock		      "Enabled\nSubsystem"
+	      SrcPort		      2
+	      Points		      [15, 0; 0, 5; 10, 0]
+	      Branch {
+		DstBlock		"human"
+		DstPort			1
+	      }
+	      Branch {
+		Points			[0, 30]
+		DstBlock		"Display1"
+		DstPort			1
+	      }
 	    }
 	  }
+	}
+	Line {
+	  SrcBlock		  "Application"
+	  SrcPort		  1
+	  DstBlock		  "Publish Def 1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Subcribe Def 1"
+	  SrcPort		  2
+	  DstBlock		  "Application"
+	  DstPort		  2
 	}
 	Line {
 	  SrcBlock		  "Subcribe Def 1"
@@ -1461,17 +1749,10 @@ Model {
 	  DstPort		  1
 	}
 	Line {
-	  SrcBlock		  "Application"
-	  SrcPort		  1
-	  Points		  [0, -55; 80, 0]
-	  DstBlock		  "Publish Def 1"
-	  DstPort		  enable
-	}
-	Line {
-	  SrcBlock		  "Application"
-	  SrcPort		  2
-	  DstBlock		  "Publish Def 1"
-	  DstPort		  1
+	  SrcBlock		  "Subcribe Def 1"
+	  SrcPort		  3
+	  DstBlock		  "Application"
+	  DstPort		  3
 	}
       }
     }
@@ -1505,7 +1786,7 @@ Model {
       MaskIconOpaque	      on
       MaskIconRotate	      "none"
       MaskIconUnits	      "autoscale"
-      MaskValueString	      "'192.168.0.122'|5005"
+      MaskValueString	      "'192.168.0.1'|5005"
       MaskTabNameString	      ","
       System {
 	Name			"TCP/IP configuration"
@@ -1548,21 +1829,8 @@ Model {
       MaskIconOpaque	      on
       MaskIconRotate	      "none"
       MaskIconUnits	      "autoscale"
-      MaskValueString	      "1|HIGH|NORMAL"
+      MaskValueString	      "10|HIGH|NORMAL"
       MaskTabNameString	      ",,"
-    }
-    Line {
-      SrcBlock		      "FAMOUSOinterface"
-      SrcPort		      1
-      Points		      [55, 0]
-      Branch {
-	DstBlock		"Scope"
-	DstPort			1
-      }
-      Branch {
-	DstBlock		"Sentient Object 1"
-	DstPort			enable
-      }
     }
     Line {
       SrcBlock		      "Timer Function"
@@ -1585,7 +1853,7 @@ Stateflow {
     name		    "ExtendedSimulink"
     created		    "09-Oct-2008 16:29:44"
     isLibrary		    0
-    firstTarget		    11
+    firstTarget		    15
     sfVersion		    71014000.000003
   }
   chart {
@@ -1600,7 +1868,7 @@ Stateflow {
     viewObj		    2
     machine		    1
     toolbarMode		    LIBRARY_TOOLBAR
-    ssIdHighWaterMark	    10
+    ssIdHighWaterMark	    15
     decomposition	    CLUSTER_CHART
     type		    EML_CHART
     firstData		    6
@@ -1624,8 +1892,8 @@ Stateflow {
     decomposition	    CLUSTER_STATE
     eml {
       isEML		      1
-      script		      "function [left,right,dist] = fcn(u)\n% This block supports thae Embedded MATLAB subset.\n% See the help menu for details. \n\nleft=0;\nright=0;\nif u>50\n    left=2;\n    right=2;\nelse   \n   left=253;\n   right=2;    \nend\ndist=u\nif dist==255\n     dist=0;\nend\n"
-      editorLayout	      "100 M4x1[245 245 720 461]"
+      script		      "function [left,right,dist,state1] = fcn(number,u,state,human)\n% This block supports thae Embedded MATLAB seubset.\n% See the help menu for details. \n\nif state==1\n    % Drehung\n    left=245;\n    right=10;\nelse\n    % Straight\n    left=60;\n    right=60;    \nend\nif number>0\n    if u<50\n       left=245;\n       right=10;\n       state=1;\n    else\n       state=0;\n    end\nend\ndist=u;\nif dist==255\n     dist=0;\nend\nif human~=0\n     left=0;\n     right=0;\nend    \nstate1=state;"
+      editorLayout	      "100 M4x1[97 219 720 461]"
     }
   }
   junction {
@@ -1660,30 +1928,10 @@ Stateflow {
   }
   data {
     id			    6
-    ssIdNumber		    5
-    name		    "left"
+    ssIdNumber		    11
+    name		    "number"
     linkNode		    [2 0 7]
-    scope		    OUTPUT_DATA
-    machine		    1
-    props {
-      array {
-	size			"-1"
-      }
-      type {
-	method			SF_INHERITED_TYPE
-	primitive		SF_DOUBLE_TYPE
-      }
-      complexity	      SF_COMPLEX_INHERITED
-      frame		      SF_FRAME_NO
-    }
-    dataType		    "Inherit: Same as Simulink"
-  }
-  data {
-    id			    7
-    ssIdNumber		    6
-    name		    "right"
-    linkNode		    [2 6 8]
-    scope		    OUTPUT_DATA
+    scope		    INPUT_DATA
     machine		    1
     props {
       array {
@@ -1696,14 +1944,34 @@ Stateflow {
 	wordLength		"16"
       }
       complexity	      SF_COMPLEX_INHERITED
+      frame		      SF_FRAME_INHERITED
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
+  data {
+    id			    7
+    ssIdNumber		    5
+    name		    "left"
+    linkNode		    [2 6 8]
+    scope		    OUTPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+      }
+      complexity	      SF_COMPLEX_INHERITED
       frame		      SF_FRAME_NO
     }
     dataType		    "Inherit: Same as Simulink"
   }
   data {
     id			    8
-    ssIdNumber		    8
-    name		    "dist"
+    ssIdNumber		    6
+    name		    "right"
     linkNode		    [2 7 9]
     scope		    OUTPUT_DATA
     machine		    1
@@ -1724,9 +1992,31 @@ Stateflow {
   }
   data {
     id			    9
+    ssIdNumber		    8
+    name		    "dist"
+    linkNode		    [2 8 10]
+    scope		    OUTPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+	isSigned		1
+	wordLength		"16"
+      }
+      complexity	      SF_COMPLEX_INHERITED
+      frame		      SF_FRAME_NO
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
+  data {
+    id			    10
     ssIdNumber		    4
     name		    "u"
-    linkNode		    [2 8 0]
+    linkNode		    [2 9 11]
     scope		    INPUT_DATA
     machine		    1
     props {
@@ -1741,14 +2031,80 @@ Stateflow {
     }
     dataType		    "Inherit: Same as Simulink"
   }
+  data {
+    id			    11
+    ssIdNumber		    12
+    name		    "state"
+    linkNode		    [2 10 12]
+    scope		    INPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+	isSigned		1
+	wordLength		"16"
+      }
+      complexity	      SF_COMPLEX_INHERITED
+      frame		      SF_FRAME_INHERITED
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
+  data {
+    id			    12
+    ssIdNumber		    13
+    name		    "state1"
+    linkNode		    [2 11 13]
+    scope		    OUTPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+	isSigned		1
+	wordLength		"16"
+      }
+      complexity	      SF_COMPLEX_INHERITED
+      frame		      SF_FRAME_NO
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
+  data {
+    id			    13
+    ssIdNumber		    15
+    name		    "human"
+    linkNode		    [2 12 0]
+    scope		    INPUT_DATA
+    machine		    1
+    props {
+      array {
+	size			"-1"
+      }
+      type {
+	method			SF_INHERITED_TYPE
+	primitive		SF_DOUBLE_TYPE
+	isSigned		1
+	wordLength		"16"
+      }
+      complexity	      SF_COMPLEX_INHERITED
+      frame		      SF_FRAME_INHERITED
+    }
+    dataType		    "Inherit: Same as Simulink"
+  }
   instance {
-    id			    10
+    id			    14
     name		    "Sentient Object 1/Application/Embedded\nMATLAB Function"
     machine		    1
     chart		    2
   }
   target {
-    id			    11
+    id			    15
     name		    "sfun"
     description		    "Default Simulink S-Function Target."
     machine		    1

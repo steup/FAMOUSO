@@ -19,11 +19,12 @@ function [val,a] = get_data(a, propName)
            num=find([a.messages.flag]==1);
            if ~isempty(num)
                for i=1:length(num)
-                  val= [val; a.messages(i).values];
+                  val= [val; a.messages(i).values(1:3)];
                   a.messages(i).flag=0;
                end
            end
        end
+
 
     case 'sum'
        disp('have to be implemented !!!!')
