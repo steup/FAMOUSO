@@ -26,7 +26,7 @@ class LoopThread(Thread):
 
 ## Callback Klasse
 
-class LoggerCallback():
+class LoggerCallback:
     def LogCallback(self, myEvent):
         for x in range(Qsize):
             print str(LogSubscriber.getQueueData().content)

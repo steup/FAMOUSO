@@ -25,7 +25,7 @@ class LoopThread(Thread):
 
 ## Callback Klasse
 
-class LoggerCallback():
+class LoggerCallback:
     def LogCallback(self, myEvent):
         #self.receivedString = myEvent.content
         print "recv: " + str(myEvent.content)
