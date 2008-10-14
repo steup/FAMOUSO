@@ -10,12 +10,31 @@ switch action
 	case 'initialize' 
 
 	case 'sim'
-   	h = findobj('Tag','RunType');
-      set(h,'UserData','simulation')
+        clear;
+        clear data;
+        clear functions;
+        home;
+        disp('Lets go!');
+
+        FAMOUSOinit(TCPconfiguration());
+        FAMOUSOconnectAll();
+        FAMOUSOsubscribeAll();
+        FAMOUSOannounceAll();
+
+        %dbstop in run.m  at 19
+        disp('Loading Simulation ...')
+        if isempty(findobj('Tag','SimWindow'))
+            simview;
+        end
+        simviewcb('load_configfile');
+        disp('Simulation started ...');
+        h = findobj('Tag','RunType');
+        set(h,'UserData','simulation')
 		h = findobj('Tag','SimWindow');
-      set(h,'UserData',1)
+        set(h,'UserData',1)
 		h = findobj('Tag','ActualStep');	% Must be here (due to continue option}
-		set(h,'UserData',0);         
+		set(h,'UserData',0);     
+        
 		simviewcb run;
    
 	case 'rep'
@@ -52,6 +71,8 @@ switch action
       delay = delay{1};
       h = findobj('Tag','ListStore');
       list = get(h,'UserData');
+      
+          
 		% ********* Reset robots **********
             for j = 1:length(list)										
                history = gethist(list(j));
@@ -65,6 +86,12 @@ switch action
 		% *********************************
         
       h = findobj('Tag','StepText');
+      
+        robots = ones(1,length(list));
+        for j = 1:length(list)
+            [list(j),matrix,robots]=update(list(j),matrix,robots);	% Update robot
+        end
+      
       
       switch typ
 	      case 'simulation' 

@@ -1,10 +1,8 @@
-function new = R1(simrobot,matrix,step)
-persistent state;
-persistent wait_counter;
+function new = R1(simrobot,matrix,step,id)
+
 % your algorithm starts here
-%    getname(simrobot)
-% sensor reading
-   [aux,num] = readusonic(simrobot,'center',matrix);
+
+[aux,num] = readusonic(simrobot,'sensor_1',matrix);
 % num, the nearest obstacle number, is not used    
  
     %% senden des mittleren Entfernungswertes
@@ -13,41 +11,25 @@ persistent wait_counter;
         aux=255;
     end
   
-    if wait_counter<25
-        wait_counter=wait_counter+1;
-    else
-        publishing(distance,[1 aux 118])
-        wait_counter=0;
-    end    
+    publishing(distance,[aux 118 id])
+   
     
     %% lesen der Daten
     global velocity_data
-    
+   
     a=[];
     left=0;
     right=0;
     if ~isempty(velocity_data)
         char2int(velocity_data);
-        a=find(velocity_data(:,1)==1);
+        a=find(velocity_data(:,3)==id);
         if ~isempty(a)
-            left=uint8TOint8(velocity_data(a(1),2))/100;
-            right=uint8TOint8(velocity_data(a(1),3))/100;
+            left=uint8TOint8(velocity_data(a(1),1))/100;
+            right=uint8TOint8(velocity_data(a(1),2))/100;
             state=0;
             simrobot = setvel(simrobot,[left right]);
             simrobot=setpower(simrobot,1);
         end   
-    else
-        state=state+1;
-        if state<50
-             vel=getvel(simrobot);
-             left=vel(1);
-             right=vel(2);
-             simrobot = setvel(simrobot,[left right]);
-        else
-             simrobot=setpower(simrobot,0);
-        end
     end
-%    simrobot = setvel(simrobot,[left right]);
-% end of your algorithm
 
 new = simrobot;
