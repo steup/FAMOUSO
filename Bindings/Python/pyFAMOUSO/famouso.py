@@ -6,7 +6,7 @@ import asyncore, os, sys, time
 
 # private bibliothek
 from eventchannel import *
-import event, publisher, subscriber, storage_subscriber
+import event, publisher, subscriber, storage_subscriber, config
 
 
 

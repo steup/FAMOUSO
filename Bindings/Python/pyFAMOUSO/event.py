@@ -9,7 +9,7 @@
 # und muss nicht manuell angegeben werden
 # ab dem 14. Byte kann somit der Inhalt, als String verpackt, folgen
 
-class Event():
+class Event:
 
     def __init__(self, subject, content):   #Konstruktor der Eventklasse
         self.subject = subject

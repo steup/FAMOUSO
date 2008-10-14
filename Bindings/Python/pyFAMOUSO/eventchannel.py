@@ -5,13 +5,7 @@ import asyncore         # zum Verwalten von asynchronen Socket Threads
 import time             # für Performance Anpassungen bei schnell aufeinderfolgenden Sende-Anweisungen
 import event            # die Event Klasse
 from Queue import Queue # die Warteschlange für den Storage Subscriber
-
-# Gloabale Variablen
-# HOST kennzeichnet den Zielrechner, auf dem der Famouso EventChannelHandler läuft
-# PORT kennzeichnet den entpsrechenden Port des ECH
-
-HOST = "127.0.0.1"
-PORT = 5005
+import config
 
 # EventChannel Klasse
 # von dieser Klassen werden der EventChannelPublisher, Subscriber und Storagesubscriber abgeleitet
@@ -29,7 +23,7 @@ class EventChannel(asyncore.dispatcher):
         asyncore.dispatcher.__init__(self)
         # Erstellen und verbinden des Sockets
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect((HOST, PORT))
+        self.connect((config.HOST, config.PORT))
         # Puffer um das Sockethandling abzuschließen, bevor das erste Datenpacket versendet wird
         time.sleep(0.2)
 
