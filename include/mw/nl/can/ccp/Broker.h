@@ -41,7 +41,7 @@ class Broker {
         }
 
         bool handle_ccp_rsi(typename CAN_Driver::MOB &mob) {
-            ID *id = reinterpret_cast<ID*>(&mob.ID);
+            ID *id = &mob.id();
             // extrahiere zunaechst die wichtigsten Infos
             uint8_t nibble = id->ccp_nibble();
             uint8_t stage = id->ccp_stage();
@@ -68,11 +68,11 @@ class Broker {
                 // \todo RealTimeClasses for the CAN-Bus needs to be defined somewhere
                 id->prio(0xFD);
                 id->etag(famouso::mw::nl::CAN::ETAGS::CCP_SSI);
-                mob.LEN = 8;
+                mob.len(8);
                 // kopieren des uid in die Nachricht um auf ClientSeite die Arbitrierung
                 // durchfuehren zu koennen.
                 for (uint8_t i = 0; i < 8; ++i) {
-                    mob.DATA[i] = uid.tab[i];
+                    mob.data()[i] = uid.tab[i];
                 }
                 // wenn wir im letzten Stage sind, weisen wir eine KnotenID zu
                 if (!stage) {
@@ -105,7 +105,7 @@ class Broker {
         }
 
         bool handle_ccp_configure_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
-            if ( reinterpret_cast<ID*>(&mob.ID)->etag() == famouso::mw::nl::CAN::ETAGS::CCP_RSI) {
+            if ( mob.id().etag() == famouso::mw::nl::CAN::ETAGS::CCP_RSI) {
                 if ( handle_ccp_rsi(mob) )
                     canDriver.send(mob);
                 return true;

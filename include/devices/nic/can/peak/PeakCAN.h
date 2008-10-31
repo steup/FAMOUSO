@@ -11,6 +11,8 @@
 #include <fcntl.h>    // O_RDWR
 #include <libpcan.h>
 
+#include "mw/nl/can/canID.h"
+
 namespace device {
   namespace nic {
     namespace CAN {
@@ -37,7 +39,8 @@ namespace device {
        *
        */
 
-      template < char *&device, uint16_t wBTR0BTR1, uint32_t elements=1000 >
+      template <char *&device, uint16_t wBTR0BTR1, uint32_t elements=1000,
+                class IDType=famouso::mw::nl::CAN::detail::ID>
 	class PeakCAN {
       public:
 
@@ -46,7 +49,20 @@ namespace device {
        *        geaendert werden, um eine allgemeine Nachricht zu
        *        haben. Es bedarf eines einheitlichen Interfaces.
        */
-      typedef TPCANMsg MOB;
+      class MOB : private TPCANMsg {
+          friend class PeakCAN<device,wBTR0BTR1,elements> ;
+      public:
+        void extended() { MSGTYPE=MSGTYPE_EXTENDED;}
+          IDType& id() {
+              return *reinterpret_cast<IDType*>(&ID);
+          }
+          uint8_t& len() {return LEN;}
+          void len(uint8_t l) {LEN = l;}
+          uint8_t *data() {return DATA;}
+          void data(uint8_t *) {}
+          uint8_t &data(uint8_t i) {return &DATA[i];}
+      };
+
       PeakCAN() : sbb(elements) {}
       ~PeakCAN() {
           CAN_Close(handle);
@@ -104,7 +120,10 @@ namespace device {
 
       private:
 
-      void CAN_Message_Reader_Thread() {
+	/*! \brief the thread for receiving messages this allows asynchonity
+     *         and callbacking for simulating receive interrupts
+     */
+    void CAN_Message_Reader_Thread() {
 	MOB mob;
 	while (1) {
 	  uint32_t status;
@@ -129,8 +148,12 @@ namespace device {
 	      sbb.push_front(mob);
 
 	      // the rx_interrupt could be also executed in a extra thread
+          /*! \todo the rx_interrupt has to be synchronized with the asio
+           *        in order to avoid inconsistencies in the data-structures
+           *        of the event layer
+           */
 	      if (rx_Interrupt)
-		rx_Interrupt();
+                rx_Interrupt();
 	    }
 	  }
 	}
@@ -149,7 +172,7 @@ namespace device {
 
       boost::function<void()> rx_Interrupt;
       void set_rx_Interrupt(boost::function<void()> f) {
-	rx_Interrupt=f;
+            rx_Interrupt=f;
       }
 
       /*! \brief The tx_interrupt is called if the driver is able to

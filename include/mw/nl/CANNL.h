@@ -33,7 +33,6 @@ class CANNL : public BaseNL {
 	CAN_Driver driver;
     CCP ccp;
     BP  etagBP;
-    typedef famouso::mw::nl::CAN::detail::ID ID;
 	typename CAN_Driver::MOB mob;
 public:
     struct info{
@@ -53,12 +52,13 @@ public:
     void init() { init(0);}
 
     void init(const NodeID &i) {
-		// hier muss dass CAN Configuration Protokoll durchlaufen werden.
+		// hier muss das CAN Configuration Protokoll durchlaufen werden.
 		// vorher darf man aus dieser Funktion nicht zurueck kommen
 		DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
         driver.init();
         tx_node=ccp.ccp_configure_tx_node("Schulze\0", driver);
         driver.set_rx_Interrupt(boost::bind(&CANNL<CAN_Driver,CCP,BP>::rx_interrupt, this));
+        // driver.interrupts_on(); sowas muss irgendwie noch mit rein
     }
 
     // bind Subject to specific networks name
@@ -73,19 +73,16 @@ public:
 		// senden des CAN Paketes
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
 		typename CAN_Driver::MOB m;
-        /*! \todo hier besteht noch eine Abhaengigkeit zu Peak
-         * sollte in der kommenden Version ueber ein allgemeines
-         * CAN-MSG-Format geloesst werden.
-         */
-        m.MSGTYPE=MSGTYPE_EXTENDED;
+
+        m.extended();
         /*! \todo genID function bauen, die vielleicht dann einige Setzungen auf dem AVR vermeidet */
-		reinterpret_cast<ID*>(&m.ID)->prio(0xfd);
-		reinterpret_cast<ID*>(&m.ID)->tx_node(tx_node);
-		reinterpret_cast<ID*>(&m.ID)->etag(p.snn);
-		m.LEN=0;
-        while (m.LEN != p.data_length){
-            m.DATA[m.LEN]=p.data[m.LEN];
-            ++m.LEN;
+		m.id().prio(0xfd);
+		m.id().tx_node(tx_node);
+		m.id().etag(p.snn);
+		m.len()=0;
+        while (m.len() != p.data_length){
+            m.data()[m.len()]=p.data[m.len()];
+            ++m.len();
         }
 		driver.send(m);
     }
@@ -98,8 +95,8 @@ public:
     void fetch(Packet_t& p) {
 		// ist das Auslesen eines einzelnen Paketes
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
-        p.data=mob.DATA;
-        p.data_length=mob.LEN;
+        p.data=mob.data();
+        p.data_length=mob.len();
     }
 
 
@@ -123,7 +120,7 @@ public:
      */
     void rx_interrupt() {
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
-		driver.receive_blocking(&mob);
+		driver.receive(&mob);
         if ( ccp.handle_ccp_configure_request(mob, driver) )
             return;
         if ( etagBP.handle_subject_bind_request(mob, driver) )
@@ -132,7 +129,7 @@ public:
     }
 
     SNN lastPacketSNN() {
-        return reinterpret_cast<ID*>(&mob.ID)->etag();
+        return mob.id().etag();
     }
 };
 		} // namespace nl

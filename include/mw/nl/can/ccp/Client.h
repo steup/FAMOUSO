@@ -49,13 +49,9 @@ class Client {
         uint8_t ccp_configure_tx_node(const char* uid, CAN_Driver& canDriver) {
             uint8_t *uid_str = (uint8_t*)uid;
             typename CAN_Driver::MOB	msg;
-            /* \todo hier besteht noch eine Abhaengigkeit zu Peak
-             *       sollte in der kommenden Version ueber ein
-             *       allgemeines CAN-MSG-Format geloesst werden.
-             */
-            msg.MSGTYPE = MSGTYPE_EXTENDED;
+            msg.extended();
 
-            ID *id = reinterpret_cast<ID*>(&msg.ID);
+            ID *id = &msg.id();
             uint8_t ccp_status;
             uint8_t ccp_stage;
             uint8_t tx_node;
@@ -75,18 +71,14 @@ class Client {
                                              (uid_str[uidPart] & 0xf);
 
                 // 0xFD is non-real-time
-                /* \todo RealTimeClasses for the CAN-Bus needs to be defined somewhere */
+                /*! \todo RealTimeClasses for the CAN-Bus needs to be defined somewhere */
                 id->prio(0xFD);
                 id->ccp_stage(stage);
                 id->ccp_nibble(uidNibble);
 
                 id->etag(famouso::mw::nl::CAN::ETAGS::CCP_RSI);
 
-                /* \todo hier besteht noch eine Abhaengigkeit zu Peak
-                 *       sollte in der kommenden Version ueber ein
-                 *       allgemeines CAN-MSG-Format geloesst werden.
-                 */
-                msg.LEN = 0;
+                msg.len(0);
 
                 // Nachricht senden
                 canDriver.send(msg);
@@ -110,10 +102,10 @@ class Client {
                         // ist ein knoten vielleicht ausgestiegen, dann generiert der Broker
                         // eine Nachricht mit leerem Inhalt, um unselektierte Knoten zur
                         // Neukonfiguration zu bewegen
-                        if (compareUID(msg.DATA, zeros, 0))	{
+                        if (compareUID(msg.data(), zeros, 0))	{
                             stage = constants::ccp::ccp_stages;
                         } else {
-                            if ((stage == (msg.DATA[7] & 0xf)) && compareUID(msg.DATA, uid_str, stage) ) {
+                            if ((stage == (msg.data()[7] & 0xf)) && compareUID(msg.data(), uid_str, stage) ) {
                                 // gehe in den naechsten Zyklus
                                 --stage;
                             } else {
@@ -129,7 +121,7 @@ class Client {
                         // untersuche Nachrichteninhalt auf Gleichheit mit eigener ID
                         // wenn ja, extrahierte txnode ist meine
                         // verlasse beide Schleifen da stage==0 und ccp_status==CCP_RUNNING
-                        if (compareUID(msg.DATA, uid_str, 0)) {
+                        if (compareUID(msg.data(), uid_str, 0)) {
 //                            debug("Knoten ID ist meine\n");
                             ccp_stage = CCP_COMPLETE;
                         } else {

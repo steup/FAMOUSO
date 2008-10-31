@@ -21,8 +21,10 @@ namespace famouso {
 	  // needed constants for the CAN etag Binding Protocol
 	  struct etagBP {
 	    enum {
-	      reserved = 100,
-	      count = (1 << 14)
+//	      reserved = 100,
+	      reserved = 10,
+	      count = 14
+//	      count = (1 << 14)
 	    };
 	  };
         };
