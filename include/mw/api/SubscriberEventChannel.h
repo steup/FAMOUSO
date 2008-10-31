@@ -36,9 +36,10 @@ class SubscriberEventChannel : public EventChannel<ECH> {
    */
   void subscribe() {
     DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
-    EventChannel<ECH>::ech().subscribe(*this);
     // initialize a dummy callback
     callback.bind<&famouso::mw::api::cb>();
+
+    EventChannel<ECH>::ech().subscribe(*this);
   }
 
  private:
