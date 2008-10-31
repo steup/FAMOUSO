@@ -15,7 +15,7 @@
 #include "util/Thread.h"
 #include "util/endianess.h"
 
-#define RobotID 3
+#define RobotID 4
 
 int done;
 char *HumanDetectionSubject="HumanDet";
