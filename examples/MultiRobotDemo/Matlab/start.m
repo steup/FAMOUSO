@@ -1,18 +1,54 @@
-% clear;
-% clear data;
-% clear functions;
-% home;
+clear variables;
+delete(timerfind);
+%clear classes;
+%clear functions;
+home;
 setpaths;
-% disp('Lets go!');
-% 
-% FAMOUSOinit(TCPconfiguration());
-% FAMOUSOconnectAll();
-% FAMOUSOsubscribeAll();
-% FAMOUSOannounceAll();
-% 
-% %dbstop in run.m  at 19
-% disp('Loading Simulation ...')
-% simview;
-% simviewcb('load_configfile');
-% disp('Simulation started ...')
-simviewcb('sim');
+disp('Lets go!');
+
+global scenario;
+
+scenario.startTime=[];
+scenario.matrix=[];
+scenario.bmp_name='BMParea.bmp';
+scenario.period=0.05;
+
+disp('Building one robot manualy')
+sensors.name='sensor_1';
+sensors.position=[5 0];
+sensors.axisangle=0;
+sensors.scanangle=120;
+sensors.range=20;
+sensors.resolution=30;
+sensors.line=0;
+
+scenario.robots=simrobot('robot_1',...
+              2,...   
+              180,...   
+              1,...    
+              'robot_1_app',...
+              [1 1 0],...
+              1,...   
+              [-2 0 4 0 -2],...
+              [3 4 0 -4 -3],...
+              sensors, ...
+              [150 150]);
+
+% scenario.robots(2)=simrobot('robot_2',...
+%               3,...   
+%               0,...   
+%               1,...    
+%               'robot_1_app',...
+%               [1 1 0],...
+%               1,...   
+%               [-2 0 4 0 -2],...
+%               [3 4 0 -4 -3],...
+%               sensors, ...
+%               [150 200]);
+cd saves
+save('scenario','scenario');
+cd ..
+disp('Starting simulation environment ...');
+global gh;
+gh=simview(scenario);
+simviewcb('init');
