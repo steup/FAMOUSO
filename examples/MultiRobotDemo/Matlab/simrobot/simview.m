@@ -63,4 +63,6 @@ gh.runmenu.StartMenu=uimenu('Parent',gh.runmenu.main,'Label','S&tart','Accelerat
     'Callback','simviewcb init','Tag','StartMenu','Enable','on',...
     'Separator','on');
 
+cd saves
 save gh;
+cd ..

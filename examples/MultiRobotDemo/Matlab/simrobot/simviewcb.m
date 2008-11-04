@@ -11,15 +11,17 @@ switch action
         %generate the calculation matrix based on the background picture
         cd saves;
         load scenario;
-        matrix=imread(scenario.bmp_name,'bmp');           
-        matrix_aux=logical(matrix);
-        matrix_aux=~matrix_aux;
-        dim=size(matrix_aux);
-        matrix=zeros(dim(1:2));
-        for i=1:3
-           matrix=matrix | matrix_aux(:,:,i);
+        matrix_bmp=imread(scenario.bmp_name,'bmp'); 
+        matrix=ones(size(matrix_bmp,1),size(matrix_bmp,2));
+        for i=1:size(matrix_bmp,1)
+            for j=1:size(matrix_bmp,2)
+                if ((matrix_bmp(i,j,1) == 255) && ...
+                    (matrix_bmp(i,j,2) == 255) && ...
+                    (matrix_bmp(i,j,3) == 255))
+                    matrix(i,j)=0;
+                end
+            end
         end
-        matrix=uint8(matrix);
         scenario.matrix=rot90(matrix,3);
         scenario.startTime=clock;
         save ('scenario','scenario');
@@ -40,28 +42,30 @@ switch action
         end
         set(gh.figNumber,'UserData',1);
         step=1;
-        %%% -------------------------------------
-        i=1;
-%         t_main = timer('TimerFcn', ...
-%            '[scenario.robots,scenario.matrix]=run(scenario.robots,scenario.matrix,1);',...
-%            'ExecutionMode','fixedRate',...
-%            'Period',0.05);
-%        start(t_main);
        while (get(gh.figNumber,'UserData')==1)
-           tic
            step = step + 1;
            output=sprintf('%2.3f',etime(clock,scenario.startTime));
            set(gh.StepText,'String',output);
+           tic
            [scenario.robots,scenario.matrix]=run(scenario.robots,scenario.matrix,1);
-           scenario=manipulate(scenario);
+           %scenario=manipulate(scenario);
            aux=toc;
+           number(step-1)=toc;
            if aux<scenario.period
                 pause(scenario.period-aux);
            else
                 disp('Defined period crossed !!!')
            end
+%            if step>50
+%                 figure(2); 
+%                 disp(['mean of calculation time ' num2str(mean(number))])
+%                 hold on
+%                 plot(number,'-g');
+%                 plot([0 step],[scenario.period scenario.period],'-r')
+%                 disp('stop')
+%            end
        end
-%        stop(t_main);
+       disp('Main loop left ...')
 
  	case 'stop'
         set(gh.figNumber,'UserData',0);
@@ -69,7 +73,6 @@ switch action
         set(gh.runmenu.StartMenu,'Enable','on');
         
     case 'close'
-        load gh.mat;
         delete(gh.figNumber);
         disp('Figure closed');
         disp('Aus Maus');

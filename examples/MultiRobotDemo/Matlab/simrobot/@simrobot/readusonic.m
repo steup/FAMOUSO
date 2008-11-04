@@ -37,8 +37,8 @@ if y_window(2)>size(matrix,1)
     y_window(2)=size(matrix,1); 
 end
 
-% plot([x_window(1) x_window(2) x_window(2) x_window(1) x_window(1)],...
-%      [y_window(1) y_window(1) y_window(2) y_window(2) y_window(1)],'-g');
+%  plot([x_window(1) x_window(2) x_window(2) x_window(1) x_window(1)],...
+%       [y_window(1) y_window(1) y_window(2) y_window(2) y_window(1)],'-g');
 
 x=[];
 y=[];

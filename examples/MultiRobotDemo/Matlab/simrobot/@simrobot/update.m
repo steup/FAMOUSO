@@ -3,18 +3,47 @@ function [new,newmatrix,newrobots] = update(simrobot,matrix,robots)
 
 if (simrobot.power) & (~simrobot.crashed)
     % ***** Remove robot from matrix *****
-    ind=[];
-    %% hier kann der Suchbereich noch erheblich eingeschraenkt werden !!
-    ind=find(matrix==simrobot.number);
-    if ~isempty(ind)
-        matrix(ind)=0;
-    end
+%     profile on
+
+    xd = get(simrobot.patch,'XData');
+    yd = get(simrobot.patch,'YData');
     
+    x_window=[floor(min(xd)) ceil(max(xd))];
+    y_window=[floor(min(yd)) ceil(max(yd))];
+
+    [x,y]=find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))==simrobot.number);
+    x=x+x_window(1)-1;
+    y=y+y_window(1)-1;
+    if ~isempty(x)
+        matrix(x,y)=0;
+    end
+
     %% ***** Move robot and store data  ***** 
     simrobot.velocity(1) = simrobot.velocity(1) + simrobot.accel(1);
     simrobot.velocity(2) = simrobot.velocity(2) + simrobot.accel(2);
-    [xs ,ys ,rotspd] = mmodel(simrobot.velocity(1), simrobot.velocity(2), simrobot.heading);
+    
+    % Model constants, keep consistent with those ones in invmodel.m!
+    R = 1;
+    la = 3;
+    lb = 0;
 
+    v=(R/(2*la))*[[-lb*simrobot.velocity(1)+lb*simrobot.velocity(2)];[-la*simrobot.velocity(1)-la*simrobot.velocity(2)]];
+
+    heading = pi*simrobot.heading/180;
+    cosa=cos(heading + pi);
+    sina=sin(heading + pi);
+
+    mat_aux=[[cosa sina];[cosa sina]];
+    speed= v'*mat_aux;
+
+    xs=speed(1);
+    ys=speed(2);
+
+    rotspd = ((R/(2*la))*(-simrobot.velocity(1) + simrobot.velocity(2))*180/pi);
+    
+    
+    %[xs ,ys ,rotspd] = mmodel(simrobot.velocity(1), simrobot.velocity(2), simrobot.heading);
+    
     simrobot.position(1) = simrobot.position(1) + xs;	% Update x
     simrobot.position(2) = simrobot.position(2) + ys;	% Update y
     simrobot.heading = simrobot.heading + rotspd;		% Update heading
@@ -77,6 +106,8 @@ if (simrobot.power) & (~simrobot.crashed)
     xd(length(xd)+1)=xd(1);
     yd(length(yd)+1)=yd(1);
     
+    %plot(xd,yd,'-r');
+    
     x_window=[floor(min(xd)) ceil(max(xd))];
     y_window=[floor(min(yd)) ceil(max(yd))];
 
@@ -127,3 +158,6 @@ end
 newrobots = robots;
 new = simrobot;
 newmatrix = matrix;
+
+% profile viewer
+% disp('here')
