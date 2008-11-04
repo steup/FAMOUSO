@@ -17,7 +17,10 @@ switch aux
         r.af = '';
         r.color = [];
         r.scale = [];
+        
         r.patch = [];
+        r.line=[];
+        
         r.position = [];
         r.heading = [];
         r.velocity = [];
