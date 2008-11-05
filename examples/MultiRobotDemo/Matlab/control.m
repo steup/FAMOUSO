@@ -22,7 +22,7 @@ function varargout = control(varargin)
 
 % Edit the above text to modify the response to help control
 
-% Last Modified by GUIDE v2.5 04-Nov-2008 09:03:38
+% Last Modified by GUIDE v2.5 05-Nov-2008 06:39:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -58,9 +58,14 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
+handles=guidata(hObject);
+aux=get(handles.controlfigure,'Position');
+ssize = get(0,'ScreenSize');
+set(handles.controlfigure, ...
+    'Position',[ssize(3)*0.3 ssize(4)*0.1 aux(3) aux(4)]);
+
 % UIWAIT makes control wait for user response (see UIRESUME)
 % uiwait(handles.controlfigure);
-
 
 % --- Outputs from this function are returned to the command line.
 function varargout = control_OutputFcn(hObject, eventdata, handles)
@@ -78,8 +83,33 @@ function go_Callback(hObject, eventdata, handles)
 % hObject    handle to go (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global gh;
-run_simrobot(gh);
+
+    handles=guidata(hObject);
+    scenario=getappdata(handles.controlfigure,'scenario'); 
+    gh=getappdata(handles.controlfigure,'gh');     
+
+    delete(findobj('type','line'));
+    delete(findobj('type','patch'));
+    
+    for i=1:length(scenario.robots)
+        scenario.robots(i)=activate(scenario.robots(i));
+    end
+ 
+    setappdata(handles.stop,'Running',0);
+    scenario.startTime=clock;
+    while getappdata(handles.stop,'Running')==0
+        tic
+        set(handles.Active,'String',num2str(length(scenario.robots)));
+        set(handles.Time,'String',num2str(etime(clock,scenario.startTime)));
+        [scenario.robots,scenario.matrix]=run(scenario.robots,scenario.matrix,1);
+        scenario=manipulate(scenario);
+        aux=toc;
+        if aux<scenario.period
+            pause(scenario.period-aux);
+        else
+            disp('Defined period crossed !!!')
+        end
+    end
 
 
 % --- Executes on button press in stop.
@@ -87,3 +117,26 @@ function stop_Callback(hObject, eventdata, handles)
 % hObject    handle to stop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+setappdata(handles.stop,'Running',1);
+disp('Simulation stoped');
+
+
+% --- Executes when user attempts to close controlfigure.
+function controlfigure_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to controlfigure (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+if getappdata(handles.stop,'Running')==0
+    stop_Callback(hObject, eventdata, handles);
+else
+    handle=[];
+    handle=findobj('Tag','SimWindow');
+    if ~isempty(handle)
+        delete(handle);
+    end
+    delete(hObject);
+    disp('Aus Maus')
+end
+
+

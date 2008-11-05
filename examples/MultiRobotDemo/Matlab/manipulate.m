@@ -24,5 +24,5 @@ if etime(clock,scenario.startTime)>length(scenario.robots) && length(scenario.ro
         [100+aux*30 200]);
     addrobot=activate(addrobot);
     scenario.robots(aux+1)=addrobot;
-    disp('manipulate fertig')
+    disp('Scenario adapted ...')
 end

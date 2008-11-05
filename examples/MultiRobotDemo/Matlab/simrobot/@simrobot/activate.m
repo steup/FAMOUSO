@@ -8,6 +8,9 @@ function a = activate( a )
         
         x=[a.xdata a.ydata];
         conture = a.scale*x*transM;
+  
+        %% Kann man beim Plotbefehl die Ausgabe unterdrücken, sprich ich ""
+        
 
         a.patch = patch(	'XData',a.position(1)+conture(:,1), ...
                             'YData',a.position(2)+conture(:,2), ...
