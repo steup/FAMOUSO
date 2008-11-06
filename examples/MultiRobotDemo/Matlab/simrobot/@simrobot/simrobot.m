@@ -44,26 +44,33 @@ switch aux
     case 11
         r.name = varargin{1};	
         r.number =  varargin{2};
-        r.af = varargin{5};							% Here store the path to control algorithm file
+        % store the path to control algorithm file
+        r.af = varargin{5};							
         r.color = varargin{6};
         r.scale = varargin{7};   
-
+        r.history = [];
+        r.userdata = [];	
+        % Power switch
+        r.power = varargin{4};					
+        r.crashed = 0;
+        
         r.patch = [];
+        r.xdata = varargin{8}';                         
+        r.ydata = varargin{9}';
+        
         r.line = [];
-
-        r.position = varargin{11};							% Absolute position
-        r.heading = varargin{3};							% In degrees, 0 = facing east [°]
-        r.velocity = [0 0];							% Speed of left and right wheel
-        r.accel = [0 0];								% Acceleration of left and right wheel
+        
+        % Absolute position
+        r.position = varargin{11};	
+        % In degrees, 0 = facing east [°]					
+        r.heading = varargin{3};	
+        % Speed of left and right wheel
+        r.velocity = [0 0];	
+        % Acceleration of left and right wheel
+        r.accel = [0 0];								
         r.sensors = struct('name',[],'position',[],'axisangle',[],'scanangle',[],...
                                 'range',[],'resolution',[],'line',[]);
         r.sensors = varargin{10};                    
                             
-        r.history = [];
-        r.userdata = [];							
-        r.power = varargin{4};					% Power switch is OFF
-        r.crashed = 0;
-        r.xdata = varargin{8}';
-        r.ydata = varargin{9}';
         r = class(r, 'simrobot');				% Go !!   
 end

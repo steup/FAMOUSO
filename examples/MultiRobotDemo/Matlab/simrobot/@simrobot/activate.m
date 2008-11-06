@@ -1,4 +1,4 @@
-function a = activate( a )
+function a = activate( a, mode )
 %ACTIVATE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -10,8 +10,7 @@ function a = activate( a )
         conture = a.scale*x*transM;
   
         %% Kann man beim Plotbefehl die Ausgabe unterdrücken, sprich ich ""
-        
-
+        if strfind(mode, 'vis')
         a.patch = patch(	'XData',a.position(1)+conture(:,1), ...
                             'YData',a.position(2)+conture(:,2), ...
                             'FaceColor',a.color, ...
@@ -23,5 +22,10 @@ function a = activate( a )
                             'YData',[3 4 5], ...
                             'tag','Tralla', ...
                             'EraseMode','xor');	% Define the sensor observation area
-
+        else
+            a.patch.x=a.position(1)+conture(:,1);
+            a.patch.y=a.position(2)+conture(:,2);
+            a.line.x=[];
+            a.line.x=[];
+        end
 end
