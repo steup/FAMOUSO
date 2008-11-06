@@ -1,7 +1,7 @@
 function [new,newmatrix,newrobots] = update(simrobot,matrix,robots)
 % UPDATE	(system) updates the simulation.
 
-if (simrobot.power) & (~simrobot.crashed)
+if (simrobot.power) && (~simrobot.crashed)
     % ***** Remove robot from matrix *****
 %     profile on
 
@@ -40,10 +40,7 @@ if (simrobot.power) & (~simrobot.crashed)
     ys=speed(2);
 
     rotspd = ((R/(2*la))*(-simrobot.velocity(1) + simrobot.velocity(2))*180/pi);
-    
-    
-    %[xs ,ys ,rotspd] = mmodel(simrobot.velocity(1), simrobot.velocity(2), simrobot.heading);
-    
+           
     simrobot.position(1) = simrobot.position(1) + xs;	% Update x
     simrobot.position(2) = simrobot.position(2) + ys;	% Update y
     simrobot.heading = simrobot.heading + rotspd;		% Update heading
@@ -68,13 +65,14 @@ if (simrobot.power) & (~simrobot.crashed)
     %% Visualisation of each sensor detection area
     sensors=simrobot.sensors;
     scale=simrobot.scale;
+    resolution=10;
     x_points=[];
     y_points=[];
     for i=1:max(size(sensors))
         arcCorner=sensors(i).position*scale*aux+simrobot.position;
 
         % decomposition of the arc
-        angles = sensors(i).axisangle - sensors(i).scanangle/2:5:sensors(i).axisangle + sensors(i).scanangle/2;
+        angles = sensors(i).axisangle - sensors(i).scanangle/2:resolution:sensors(i).axisangle + sensors(i).scanangle/2;
         angles = angles*pi/180;
 
         arcElements=[];
@@ -124,15 +122,12 @@ if (simrobot.power) & (~simrobot.crashed)
         y_window(2)=size(matrix,1);
     end
     
-    x=[];
-    y=[];
     % ermittle alle nicht leeren Felder das Window of Interest == crash
     % detection
     [x y] = find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))~=0);
     if ~isempty(x)
         x=x+x_window(1)-1;
         y=y+y_window(1)-1;
-        in=[];
         in = myinpolygon(x,y,xd,yd);
         if ~isempty(in)
             simrobot.crashed=1;
@@ -143,7 +138,6 @@ if (simrobot.power) & (~simrobot.crashed)
     if ~isempty(x)
         x=x+x_window(1)-1;
         y=y+y_window(1)-1;
-        in=[];
         in = myinpolygon(x,y,xd,yd);
         matrix(x(in),y(in))=simrobot.number;
     end

@@ -97,19 +97,21 @@ function go_Callback(hObject, eventdata, handles)
  
     setappdata(handles.stop,'Running',0);
     scenario.startTime=clock;
+    profile on;
     while getappdata(handles.stop,'Running')==0
         tic
         set(handles.Active,'String',num2str(length(scenario.robots)));
         set(handles.Time,'String',num2str(etime(clock,scenario.startTime)));
         scenario=step(scenario);
-        scenario=manipulate(scenario);
-        aux=toc;
+       % scenario=manipulate(scenario);
+        aux=toc
         if aux<scenario.period
             pause(scenario.period-aux);
         else
             disp('Defined period crossed !!!')
         end
     end
+    profile viewer
 
 
 % --- Executes on button press in stop.

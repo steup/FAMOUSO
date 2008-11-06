@@ -5,12 +5,14 @@ function [dists,num] = readusonic(simrobot,sensname,matrix)
 
 [tmp s] = size(simrobot.sensors);
 i = 1;
-while ((i < s) & (~strcmp(simrobot.sensors(i).name,sensname))),
+while ((i < s) && (~strcmp(simrobot.sensors(i).name,sensname))),
    i = i + 1;
 end
 
-aux=[[cos(simrobot.heading*pi/180) sin(simrobot.heading*pi/180)]; ...
-    [-sin(simrobot.heading*pi/180) cos(simrobot.heading*pi/180)]];
+cosa=cos(simrobot.heading*pi/180);
+sina=sin(simrobot.heading*pi/180);
+aux=[[cosa sina]; ...
+    [-sina cosa]];
 pos=simrobot.sensors(i).position*simrobot.scale*aux+simrobot.position;
 
 angles = simrobot.heading + simrobot.sensors(i).axisangle - simrobot.sensors(i).scanangle/2: ...
@@ -40,8 +42,6 @@ end
 %  plot([x_window(1) x_window(2) x_window(2) x_window(1) x_window(1)],...
 %       [y_window(1) y_window(1) y_window(2) y_window(2) y_window(1)],'-g');
 
-x=[];
-y=[];
 dists=999999;
 num=1;
 
@@ -49,12 +49,6 @@ num=1;
 if ~isempty(x)
     x=x+x_window(1)-1;
     y=y+y_window(1)-1;
-
-    for i=1:length(xs)-1
-        m(i) = xs(i)*ys(i+1)-ys(i)*xs(i+1);
-        n(i) = ys(i)-ys(i+1);
-        o(i) = xs(i+1)-xs(i);
-    end
     
     in=myinpolygon(x,y,xs,ys);
     if (sum(in)>=1)

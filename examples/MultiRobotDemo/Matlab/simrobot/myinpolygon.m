@@ -18,6 +18,10 @@ function in=myinpolygon(x,y,xs,ys)
 
 in=zeros(length(x),1);
 
+m=zeros(1,length(xs)-1);
+n=zeros(1,length(xs)-1);
+o=zeros(1,length(xs)-1);
+
 for i=1:length(xs)-1
     m(i) = xs(i)*ys(i+1)-ys(i)*xs(i+1);
     n(i) = ys(i)-ys(i+1);
