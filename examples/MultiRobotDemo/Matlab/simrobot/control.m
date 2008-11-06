@@ -92,7 +92,7 @@ function go_Callback(hObject, eventdata, handles)
     delete(findobj('type','patch'));
     
     for i=1:length(scenario.robots)
-        scenario.robots(i)=activate(scenario.robots(i));
+        scenario.robots(i)=activate(scenario.robots(i),scenario.mode);
     end
  
     setappdata(handles.stop,'Running',0);
@@ -101,7 +101,7 @@ function go_Callback(hObject, eventdata, handles)
         tic
         set(handles.Active,'String',num2str(length(scenario.robots)));
         set(handles.Time,'String',num2str(etime(clock,scenario.startTime)));
-        [scenario.robots,scenario.matrix]=run(scenario.robots,scenario.matrix,1);
+        scenario=step(scenario);
         scenario=manipulate(scenario);
         aux=toc;
         if aux<scenario.period

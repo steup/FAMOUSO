@@ -1,11 +1,11 @@
-function scenario=scenarioDef()
+function scenario=scenarioDef(filename)
 
 %% Definition of the scenario header
-scenario.fileName='scenarioFile'
+scenario.fileName='scenarioFile';
 scenario.startTime=[];
 scenario.matrix=[];
 scenario.period=0.05;
-scenario.visualise=1;
+scenario.mode='vis+sim';
 
 %% Definition of the sensor parameter
 disp('Building one robot manualy')
@@ -33,7 +33,7 @@ scenario.robots=simrobot('robot_1',...
 
 %% Building the matrix based on a bitmap
 scenario.bmp_name='BMParea.bmp';
-%scenario.bmp_name='BueroLowResolution.bmp';
+scenario.bmp_name='Buero2.bmp';
 fprintf('Loading map ...')
 matrix_bmp=imread(scenario.bmp_name,'bmp');
 matrix=ones(size(matrix_bmp,1),size(matrix_bmp,2));
@@ -47,9 +47,8 @@ for i=1:size(matrix_bmp,1)
     end
 end
 scenario.matrix=rot90(matrix,3);
-fprintf('     finished \n');
+fprintf('                      [ok]\n');
 
 %% Saves
 cd saves
 save(scenario.fileName,'scenario');
-cd ..

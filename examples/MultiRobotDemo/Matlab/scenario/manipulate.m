@@ -22,7 +22,7 @@ if etime(clock,scenario.startTime)>length(scenario.robots) && length(scenario.ro
         [3 4 0 -4 -3],...
         sensors, ...
         [100+aux*30 200]);
-    addrobot=activate(addrobot);
+    addrobot=activate(addrobot,scenario.mode);
     scenario.robots(aux+1)=addrobot;
     disp('Scenario adapted ...')
 end
