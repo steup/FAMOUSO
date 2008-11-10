@@ -27,19 +27,19 @@ function varargout = control(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @control_OpeningFcn, ...
-                   'gui_OutputFcn',  @control_OutputFcn, ...
-                   'gui_LayoutFcn',  [], ...
-                   'gui_Callback',   []);
+   'gui_Singleton',  gui_Singleton, ...
+   'gui_OpeningFcn', @control_OpeningFcn, ...
+   'gui_OutputFcn',  @control_OutputFcn, ...
+   'gui_LayoutFcn',  [], ...
+   'gui_Callback',   []);
 if nargin && ischar(varargin{1})
-   gui_State.gui_Callback = str2func(varargin{1});
+gui_State.gui_Callback = str2func(varargin{1});
 end
 
 if nargout
-    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+[varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
-    gui_mainfcn(gui_State, varargin{:});
+gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
 
@@ -62,7 +62,7 @@ handles=guidata(hObject);
 aux=get(handles.controlfigure,'Position');
 ssize = get(0,'ScreenSize');
 set(handles.controlfigure, ...
-    'Position',[ssize(3)*0.3 ssize(4)*0.1 aux(3) aux(4)]);
+'Position',[ssize(3)*0.3 ssize(4)*0.1 aux(3) aux(4)]);
 
 % UIWAIT makes control wait for user response (see UIRESUME)
 % uiwait(handles.controlfigure);
@@ -84,61 +84,69 @@ function go_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    handles=guidata(hObject);
-    scenario=getappdata(handles.controlfigure,'scenario'); 
-    gh=getappdata(handles.controlfigure,'gh');     
+handles=guidata(hObject);
+set(handles.Time,'String',0);
+global scenario;
+scenario=getappdata(handles.controlfigure,'scenario');
+set(handles.Active,'String','Active');
+if strcmp(scenario.mode,'sim')
+    set(handles.Simulation,'Value',1);
+else
+    set(handles.Visualisation,'Value',1);
+end
 
-    delete(findobj('type','line'));
-    delete(findobj('type','patch'));
-    
-    for i=1:length(scenario.robots)
-        scenario.robots(i)=activate(scenario.robots(i),scenario.mode);
-    end
- 
-    setappdata(handles.stop,'Running',0);
-    scenario.startTime=clock;
-    profile on;
-    while getappdata(handles.stop,'Running')==0
-        tic
-        set(handles.Active,'String',num2str(length(scenario.robots)));
-        set(handles.Time,'String',num2str(etime(clock,scenario.startTime)));
-        scenario=step(scenario);
-        scenario=manipulate(scenario);
-        aux=toc
-        if aux<scenario.period
-            pause(scenario.period-aux);
-        else
-            disp('Defined period crossed !!!')
-        end
-    end
-    profile viewer
+delete(findobj('type','line'));
+delete(findobj('type','patch'));
 
+scenario.startTime=clock;
+
+disp('Simulator started ...')
+
+time_display = timer('TimerFcn',...
+    'set(handles.Time,''String'',num2str(etime(clock,scenario.startTime)));',...
+    'ExecutionMode','fixedRate',...
+    'Period',0.05);
+start(time_display);
+
+for i=1:length(scenario.robots)
+    timerHandle(i) = timer('TimerFcn',...
+        {'running' i,handles, scenario},...
+        'StartDelay',get(scenario.robots(i),'trigger_delay'),...
+        'ExecutionMode','fixedRate',...
+        'Period',get(scenario.robots(i),'trigger_period'));
+    start(timerHandle(i));
+end
 
 % --- Executes on button press in stop.
 function stop_Callback(hObject, eventdata, handles)
 % hObject    handle to stop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-setappdata(handles.stop,'Running',1);
-disp('Simulation stoped');
+%setappdata(handles.stop,'Running',1);
+    global scenario;
+    out = timerfind;
+    stop(out);
+    delete(out);
+    for i=1:length(scenario.robots)
+        scenario.robots(i)=set(scenario.robots(i),'power',0);
+    end
+    disp('Simulation stoped');
 
 
 % --- Executes when user attempts to close controlfigure.
 function controlfigure_CloseRequestFcn(hObject, eventdata, handles)
-% hObject    handle to controlfigure (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+    % hObject    handle to controlfigure (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
 
-if getappdata(handles.stop,'Running')==0
-    stop_Callback(hObject, eventdata, handles);
-else
-    handle=[];
-    handle=findobj('Tag','SimWindow');
-    if ~isempty(handle)
-        delete(handle);
+    if getappdata(handles.stop,'Running')==0
+        stop_Callback(hObject, eventdata, handles);
+    else
+        handle=[];
+        handle=findobj('Tag','SimWindow');
+        if ~isempty(handle)
+            delete(handle);
+        end
+        delete(hObject);
+        disp('Aus Maus')
     end
-    delete(hObject);
-    disp('Aus Maus')
-end
-
-

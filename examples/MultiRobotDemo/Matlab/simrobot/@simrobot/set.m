@@ -38,8 +38,10 @@ function a = set(varargin)
                             else
                                 a.line.y=value;
                             end
-                        case {'name','number','af','color','scale','power','crashed','position','heading','velocity','accel'}
-                            eval(sprintf('a.%s=value;',argument));
+                        case 'power'
+                                a.power=value;
+%                         case {'name','number','af','color','scale','crashed','position','heading','velocity','accel'}
+%                             eval(sprintf('a.%s=value;',varargin{3}));
                         otherwise
                             error('Wrong argument for class simrobot !!!')
                     end

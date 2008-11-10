@@ -33,6 +33,7 @@ switch aux
         r.crashed = [];
         r.xdata = [];
         r.ydata = [];
+        r.trigger = [];
         r = class(r, 'simrobot');
         disp('Empty robot defined !!!')
     case 1
@@ -41,7 +42,7 @@ switch aux
         else
             error('Incomplete definition passed to simrobot constructor');
         end
-    case 11
+    case 12
         r.name = varargin{1};	
         r.number =  varargin{2};
         % store the path to control algorithm file
@@ -71,6 +72,7 @@ switch aux
         r.sensors = struct('name',[],'position',[],'axisangle',[],'scanangle',[],...
                                 'range',[],'resolution',[],'line',[]);
         r.sensors = varargin{10};                    
-                            
+                       
+        r.trigger = varargin{12};
         r = class(r, 'simrobot');				% Go !!   
 end

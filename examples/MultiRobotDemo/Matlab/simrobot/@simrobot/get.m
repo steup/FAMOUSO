@@ -18,7 +18,11 @@ function output = get(a,argument)
                 output = get(a.patch,'YData');	% Define the patch
             else
                 output=a.patch.y;
-            end              
+            end   
+        case 'trigger_delay'
+            output=a.trigger.delay;
+        case 'trigger_period'
+            output=a.trigger.period;
         case 'crashed'
             output=a.crashed;
         case 'position'
