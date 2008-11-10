@@ -7,6 +7,18 @@ function output = get(a,argument)
             output=a.xdata;
         case 'ydata'
             output=a.ydata;
+        case 'patchXData' 
+            if strcmp(class(a.patch),'double')
+                output = get(a.patch,'XData');	% Define the patch
+            else
+                output=a.patch.x;
+            end           
+        case 'patchYData'
+            if strcmp(class(a.patch),'double')
+                output = get(a.patch,'YData');	% Define the patch
+            else
+                output=a.patch.y;
+            end              
         case 'crashed'
             output=a.crashed;
         case 'position'

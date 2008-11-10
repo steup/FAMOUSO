@@ -1,4 +1,7 @@
 function in=myinpolygon(x,y,xs,ys)
+% [xs,ys] ... Stützstellen des Polygons
+% [x, y]  ... Punkte des 
+
 % Mit
 %     | x(j)  |   | y(j)  |
 % A = |xs(i)  | x |ys(i)  |

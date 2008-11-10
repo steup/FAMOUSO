@@ -35,13 +35,13 @@ switch source
         error('Unkown source')
 end
 cd ..
-setappdata(aux,'scenario',scenario);
 
 %% Start respective environement 
 gh=[];
-mode='sim';
-mode='vis+sim';
-switch mode
+scenario.mode='sim';
+scenario.mode='vis+sim';
+setappdata(aux,'scenario',scenario);
+switch scenario.mode
     % start simulation and visualisation mode
     case 'vis+sim'
         disp('Starting simulation environment ...');

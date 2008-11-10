@@ -5,8 +5,8 @@ if (simrobot.power) && (~simrobot.crashed)
     % ***** Remove robot from matrix *****
 %     profile on
 
-    xd = get(simrobot.patch,'XData');
-    yd = get(simrobot.patch,'YData');
+    xd = get(simrobot,'patchXData');
+    yd = get(simrobot,'patchYData');
     
     x_window=[floor(min(xd)) ceil(max(xd))];
     y_window=[floor(min(yd)) ceil(max(yd))];
@@ -58,14 +58,13 @@ if (simrobot.power) && (~simrobot.crashed)
         [-sin(simrobot.heading*pi/180) cos(simrobot.heading*pi/180)]];
     conture=x*simrobot.scale*aux;
 
-    set(simrobot.patch,...
-        'XData',simrobot.position(1)+conture(:,1),...
-        'YData',simrobot.position(2)+conture(:,2));
+    set(simrobot,'patchXData',simrobot.position(1)+conture(:,1),...
+                 'patchYData',simrobot.position(2)+conture(:,2));
 
     %% Visualisation of each sensor detection area
     sensors=simrobot.sensors;
     scale=simrobot.scale;
-    resolution=10;
+    resolution=20;
     x_points=[];
     y_points=[];
     for i=1:max(size(sensors))
@@ -85,7 +84,7 @@ if (simrobot.power) && (~simrobot.crashed)
         x_points=[x_points simrobot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
         y_points=[y_points simrobot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
     end
-    set(simrobot.line,'XData',x_points,'YData',y_points,'Color','r');
+    set(simrobot,'lineXData',x_points,'lineYData',y_points);
     
     % ****** Place robot to matrix ****** !!!
     %prmex(round([xd';yd']),matrix,robots,simrobot.number);
@@ -99,8 +98,6 @@ if (simrobot.power) && (~simrobot.crashed)
     % da hier xd nicht als "patch" betrachtet wird muss der Polygonzug noch
     % geschlossen werden.
     
-    xd = get(simrobot.patch,'XData');
-    yd = get(simrobot.patch,'YData');
     xd(length(xd)+1)=xd(1);
     yd(length(yd)+1)=yd(1);
     
@@ -144,14 +141,6 @@ if (simrobot.power) && (~simrobot.crashed)
    
 end
 
-%% ?
-% We need to store robot's position
-%% I switch this off !!! It needs a lot of performance 
-%simrobot.history = [simrobot.history ; simrobot.position simrobot.heading];
-
 newrobots = robots;
 new = simrobot;
 newmatrix = matrix;
-
-% profile viewer
-% disp('here')

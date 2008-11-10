@@ -103,7 +103,7 @@ function go_Callback(hObject, eventdata, handles)
         set(handles.Active,'String',num2str(length(scenario.robots)));
         set(handles.Time,'String',num2str(etime(clock,scenario.startTime)));
         scenario=step(scenario);
-       % scenario=manipulate(scenario);
+        scenario=manipulate(scenario);
         aux=toc
         if aux<scenario.period
             pause(scenario.period-aux);
