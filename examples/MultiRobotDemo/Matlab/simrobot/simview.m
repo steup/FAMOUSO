@@ -1,4 +1,5 @@
-function gh=simview(scenario);
+function gh=simview();
+global scenario;
 
 %% close all related windows
 h = findobj('Tag','SimWindow');
@@ -9,8 +10,9 @@ gh.figNumber = figure;
 
 ssize = get(0,'ScreenSize');
 set(gh.figNumber, ...
-    'Position',[5 ssize(4)*0.1 ssize(3)/2 ssize(4)*0.8],...
+    'Position',[ssize(3)/2 ssize(4)*0.1 ssize(3)/2-5 ssize(4)*0.8],...
     'NumberTitle','off',...
+    'CloseRequestFcn',@my_closereq,...
     'Name','Simulation Window',...
     'RendererMode','manual',...
     'Renderer','Painters',...
@@ -34,3 +36,31 @@ set(gh.axHndl, 'Tag','SimAxes');
 cd saves
 save gh;
 cd ..
+end
+
+function my_closereq(src,evnt)
+% User-defined close request function
+%    selection = questdlg('Close This Figure?',...
+%       'Close Request Function',...
+%       'Yes','No','Yes');
+%    switch selection,
+%       case 'Yes',
+%         delete(gcf)
+%       case 'No'
+%       return
+%   end
+
+    % stop all timers
+    out = timerfind;
+    if ~isempty(out)
+        stop(out);
+        delete(out);
+    end
+    % close figure
+    handle=findobj('Tag','controlfigure');
+    if ~isempty(handle)
+        delete(handle);
+    end
+    % close visualisation figure
+    delete(gcf)
+end
