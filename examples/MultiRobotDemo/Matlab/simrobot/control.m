@@ -91,10 +91,11 @@ global scenario;
 switch scenario.source
     case 'file'
         cd saves
+        aux=scenario.filename;
         disp(['Loading scenario specification from ' scenario.filename])
         eval(sprintf('load %s',scenario.filename));
         scenario.source='file';
-        save(scenario.filename,'scenario');
+        save(aux,'scenario');
     case 'new'
         scenarioDef();
     otherwise

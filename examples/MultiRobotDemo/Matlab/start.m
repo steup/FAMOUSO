@@ -27,9 +27,9 @@ aux=control;
 %% determine scenario source
 global scenario;
 % select
-scenario.source='file';
+%scenario.source='file';
 % or
-% scenario.source='new';
+scenario.source='new';
 % and the according file
 scenario.filename='scenarioFile.mat';
 
