@@ -37,7 +37,7 @@ public:
     // bind Subject to specific networks name
     void bind(const Subject &s, SNN &snn) {
 	DEBUG(("%s\n", __PRETTY_FUNCTION__));
-	famouso::mw::el::IncommingEventFromNL(this);
+//	famouso::mw::el::IncommingEventFromNL(this);
     }
 
     void deliver(const Packet_t& p) {
