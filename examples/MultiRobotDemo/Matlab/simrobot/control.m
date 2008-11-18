@@ -1,30 +1,5 @@
 function varargout = control(varargin)
-%CONTROL M-file for control.fig
-%      CONTROL, by itself, creates a new CONTROL or raises the existing
-%      singleton*.
-%
-%      H = CONTROL returns the handle to a new CONTROL or the handle to
-%      the existing singleton*.
-%
-%      CONTROL('Property','Value',...) creates a new CONTROL using the
-%      given property value pairs. Unrecognized properties are passed via
-%      varargin to control_OpeningFcn.  This calling syntax produces a
-%      warning when there is an existing singleton*.
-%
-%      CONTROL('CALLBACK') and CONTROL('CALLBACK',hObject,...) call the
-%      local function named CALLBACK in CONTROL.M with the given input
-%      arguments.
-%
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
-%
-% See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help control
-
-% Last Modified by GUIDE v2.5 05-Nov-2008 06:39:24
-
-% Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
    'gui_Singleton',  gui_Singleton, ...
