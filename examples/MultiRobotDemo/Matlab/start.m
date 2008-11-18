@@ -33,6 +33,16 @@ scenario.source='new';
 % and the according file
 scenario.filename='scenarioFile.mat';
 
+
+%% FAMOUSO integration?
+scenario.FAMOUSO=1;
+if scenario.FAMOUSO==1
+    FAMOUSOinit(TCPconfiguration());
+    FAMOUSOconnectAll();
+    FAMOUSOsubscribeAll();
+    FAMOUSOannounceAll();
+end
+
 %% Start respective environement
 % select for simulation only
 scenario.mode='sim';
