@@ -29,6 +29,7 @@ public:
     voidNL() {}
     ~voidNL() {}
 
+    void init() { init(0);}
     void init(const NodeID &i) {
 	DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
     }
@@ -55,6 +56,9 @@ public:
 	DEBUG(("%s\n", __PRETTY_FUNCTION__));
     }
 
+    SNN lastPacketSNN() {
+        return 0xff;
+    }
 };
 		} // namespace nl
 	} // namespace mw
