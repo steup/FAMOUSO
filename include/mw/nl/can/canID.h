@@ -7,7 +7,7 @@ namespace famouso {
       namespace CAN {
 	namespace detail {
 
-	  // little endian defined ID
+	  // little endian defined ID for CAN on PCs
 	  union __attribute__((packed)) ID {
 	  private:
 	    uint32_t _value;

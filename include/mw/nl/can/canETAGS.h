@@ -12,7 +12,8 @@ namespace famouso {
 	    CCP_SSI		= 0x0,
 	    CCP_RSI,
 	    GET_ETAG,
-	    SUPPLY_ETAG
+	    SUPPLY_ETAG,
+	    SUPPLY_ETAG_NEW_BP
 	  };
 
 	} /* namespace ETAGS */
