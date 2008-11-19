@@ -17,6 +17,7 @@ function start()
 
 clear variables;
 clear scenario;
+delete(timerfind)
 home;
 setpaths;
 disp('Lets go!');
@@ -36,18 +37,11 @@ scenario.filename='scenarioFile.mat';
 
 %% FAMOUSO integration?
 scenario.FAMOUSO=1;
-if scenario.FAMOUSO==1
-    FAMOUSOinit(TCPconfiguration());
-    FAMOUSOconnectAll();
-    FAMOUSOsubscribeAll();
-    FAMOUSOannounceAll();
-end
 
 %% Start respective environement
 % select for simulation only
-scenario.mode='sim';
-% or 
-scenario.mode='vis+sim';
-% for simulation and visualisation
-
+%scenario.mode='sim';
+% % or 
+ scenario.mode='vis+sim';
+% % for simulation and visualisation
 control('go_Callback',aux);

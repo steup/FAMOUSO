@@ -1,4 +1,4 @@
-function [new,newmatrix,newrobots] = update(simrobot,matrix,robots)
+function [new,newmatrix] = update(simrobot,matrix)
 % UPDATE	(system) updates the simulation.
 
 if (simrobot.power) && (~simrobot.crashed)
@@ -87,7 +87,6 @@ if (simrobot.power) && (~simrobot.crashed)
     set(simrobot,'lineXData',x_points,'lineYData',y_points);
     
     % ****** Place robot to matrix ****** !!!
-    %prmex(round([xd';yd']),matrix,robots,simrobot.number);
     % An dieser Stelle muessen crashes untersucht werden und der aktuelle
     % Roboter in die Matrix eingefügt
     %
@@ -141,6 +140,5 @@ if (simrobot.power) && (~simrobot.crashed)
    
 end
 
-newrobots = robots;
 new = simrobot;
 newmatrix = matrix;

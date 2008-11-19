@@ -15,6 +15,8 @@ dispstr=strcat('		Algorithm : ',simrobot(j).af);
 disp(dispstr)
 dispstr=strcat('		Number    : ',num2str(simrobot(j).number));
 disp(dispstr)
+dispstr=strcat('		Crashed   : ',num2str(simrobot(j).crashed));
+disp(dispstr)
 end
 
 clear null i j dispstr					% Cleanup

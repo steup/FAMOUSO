@@ -59,6 +59,7 @@ function go_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+home
 handles=guidata(hObject);
 set(handles.Time,'String',0);
 global scenario;
@@ -102,24 +103,35 @@ end
 delete(findobj('type','line'));
 delete(findobj('type','patch'));
 
+if scenario.FAMOUSO==1
+    FAMOUSOinit(TCPconfiguration());
+    FAMOUSOconnectAll();
+    FAMOUSOsubscribeAll();
+    FAMOUSOannounceAll();
+    aux=TCPconfiguration();
+    set(handles.TCPIP,'String',aux.host);
+end
+
 scenario.startTime=clock;
 disp('Simulator started ...')
 
 % time trigger for the time display
 time_display = timer('TimerFcn',...
     {'timerdisplay',handles},...
+    'Name','timerdisplay',...
     'ExecutionMode','fixedRate',...
     'Period',0.05);
 start(time_display);
 
 % starting all timers (one for each robot)
 for i=1:length(scenario.robots)
-    timerHandle(i) = timer('TimerFcn',...
-        {'running' i,handles},...
+    aux = timer('TimerFcn',...
+        {'step' i,handles},...
+        'Name',sprintf('Robot_%i',i),...
         'StartDelay',get(scenario.robots(i),'trigger_delay'),...
         'ExecutionMode','fixedRate',...
         'Period',get(scenario.robots(i),'trigger_period'));
-    start(timerHandle(i));
+    start(aux);
 end
 
 % --- Executes on button press in stop.
@@ -128,7 +140,10 @@ function stop_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %setappdata(handles.stop,'Running',1);
-    global scenario;
+    global scenario;  
+    if scenario.FAMOUSO==1
+        FAMOUSOdisconnectAll();
+    end
     out = timerfind;
     if ~isempty(out)
         stop(out);
