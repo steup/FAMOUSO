@@ -1,4 +1,4 @@
-function new = robot_1_app(simrobot, id, matrix)
+function new = robot_T_app(simrobot, id, matrix)
 
 % your algorithm starts here
 

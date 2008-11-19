@@ -22,7 +22,9 @@ function output = get(a,argument)
         case 'trigger_delay'
             output=a.trigger.delay;
         case 'trigger_period'
-            output=a.trigger.period;          
+            output=a.trigger.period;
+         case 'trigger_mode'
+            output=a.trigger.mode; 
         case 'crashed'
             output=a.crashed;
         case 'position'

@@ -1,6 +1,8 @@
-function scenario = step(obj, event, i, handles)
+function scenario = step(obj, event, i)
 global scenario
 % robots = ones(1,length(scenario.robots));
+
+handles=guidata(findobj('name','control'));
 
 if get(scenario.robots(i),'power')==0 && get(scenario.robots(i),'crashed')==0;
     scenario.robots(i)=activate(scenario.robots(i),scenario.mode);
@@ -30,9 +32,13 @@ if get(scenario.robots(i),'crashed') && ...
      aux=timerfind;
      name=sprintf('Robot_%i',i);
      in=strcmp(aux.Name,name);
-     stop(aux(in));
-     delete(aux(in));
-     fprintf('Robot %i crashed - corresponding timer switched off \n',i);
+     if sum(in)>0
+         stop(aux(in));
+         delete(aux(in));
+         fprintf('Robot %i crashed - corresponding timer switched off \n',i);
+     else
+         fprintf('Robot %i crashed \n',i);
+     end
      scenario.robots(i)=set(scenario.robots(i),'power',0);
      set(handles.Active,'String',num2str(str2double(aux)-1));
 end
