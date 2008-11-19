@@ -2,7 +2,7 @@ Rollen:
 Famouso = client 
 AWDS    = server
 
-Verbindung über TCP/IP(v6), lokal.
+Verbindung ueber TCP/IP(v6), lokal.
 port 8555
 
 maximal 1 Verbindung pro server.
@@ -19,9 +19,12 @@ client->server
 structur {
 	 dest: 6 bytes
 	 type: 1 byte
+	 pad:  1 byte
 	 size: 16 bit unsigned big endian
 	 data: /size/ bytes
 }
+
+/* in C immer __packed__ structs verwenden! */
 
 dest: 
       FFFFFFFFFFFF : Broadcast
@@ -37,6 +40,7 @@ server->client
 stuctur {
 	src:  6 bytes
 	type: 1 byte
+	pad:  1 byte
 	size: 16 bit unsigned big endian
 	data: /size/ bytes
 }
@@ -48,13 +52,13 @@ Publishing per Fluten:
 
 dest=FFFFFFFFFFFF
 type=7C
-...daten + sende
+... daten + senden
 
 Publishing per Unicast:
 
 dest=<ziel mac>
 type=7C
-...daten + sende
+... daten + senden
 
 Announce von Subscriptions:
 
