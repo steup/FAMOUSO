@@ -1,0 +1,72 @@
+Rollen: 
+Famouso = client 
+AWDS    = server
+
+Verbindung über TCP/IP(v6), lokal.
+port 8555
+
+maximal 1 Verbindung pro server.
+
+Ablauf:
+
+
+(1) Client connected.
+(2) Server sendet MAC-Adresse
+
+Austauschformat: 
+client->server
+
+structur {
+	 dest: 6 bytes
+	 type: 1 byte
+	 size: 16 bit unsigned big endian
+	 data: /size/ bytes
+}
+
+dest: 
+      FFFFFFFFFFFF : Broadcast
+      andere       : unicast adresse
+
+mit type:
+    0x7C: Publish von Daten.
+    0x7D: announce von Subscriptions
+    
+
+server->client
+
+stuctur {
+	src:  6 bytes
+	type: 1 byte
+	size: 16 bit unsigned big endian
+	data: /size/ bytes
+}
+
+Eigene Flutpakete werden nicht hochgereicht. 
+
+
+Publishing per Fluten:
+
+dest=FFFFFFFFFFFF
+type=7C
+...daten + sende
+
+Publishing per Unicast:
+
+dest=<ziel mac>
+type=7C
+...daten + sende
+
+Announce von Subscriptions:
+
+dest=FFFFFFFFFFFF
+type=7D
+size= 4 /* reserved */ + 2 /*num*/ + (num of subjects) * 8
+data= [ reserved: 4 byte = 20_be, reserved
+        num subj.  : 2 bytes big endian
+        subj1      : 8 bytes
+        .
+        .
+        .
+      ]
++ senden
+
