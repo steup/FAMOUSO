@@ -1,5 +1,6 @@
 #include "devices/nic/ip/socket/Socket.h"
 #include <stdlib.h>
+#include <cstring>
 
 using namespace std;
 

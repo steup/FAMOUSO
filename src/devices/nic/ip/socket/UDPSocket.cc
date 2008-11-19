@@ -1,4 +1,5 @@
 #include "devices/nic/ip/socket/UDPSocket.h"
+#include <cstring>
 
 // UDPSocket Code
 
