@@ -15,10 +15,10 @@
 #include "mw/common/UID.h"
 #include "famouso.h"
 
-char *dev = "/dev/pcan33";
+char *dev = "/dev/pcan0";
 
-typedef device::nic::CAN::PeakCAN<dev, 0x001c> can;
-typedef famouso::mw::nl::CAN::detail::ID ID;
+typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
+//typedef famouso::mw::nl::CAN::detail::ID ID;
 typedef can::MOB	mob;
 
 typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;

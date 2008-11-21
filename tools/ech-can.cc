@@ -19,8 +19,6 @@
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
 
-#include "devices/nic/ip/socket/TCPSocket.h"
-
 #include "famouso.h"
 #include "util/endianess.h"
 #include "util/ios.h"
@@ -34,215 +32,216 @@
 
 namespace famouso {
 
-namespace CAN {
-    char *dev = "/dev/pcan32";
-    class config {
-        typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
-        typedef famouso::mw::nl::CAN::ccp::Broker<can> ccpBroker;
-        typedef famouso::mw::nl::CAN::etagBP::Broker<can> etagBroker;
-        typedef famouso::mw::nl::CANNL<can, ccpBroker, etagBroker> nl;
-        typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-        typedef famouso::mw::el::EventLayer< anl > el;
-    public:
-        typedef famouso::mw::api::EventChannel< el > EC;
-        typedef famouso::mw::api::PublisherEventChannel<el> PEC;
-        typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
-    };
-}
-
-namespace UDP {
-    class config {
-        typedef famouso::mw::nl::UDPBroadCastNL nl;
-        typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-        typedef famouso::mw::el::EventLayer< anl > el;
-    public:
-        typedef famouso::mw::api::EventChannel< el > EC;
-        typedef famouso::mw::api::PublisherEventChannel<el> PEC;
-        typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
-    };
-}
-
-typedef CAN::config config;
-
-
-class EventChannelConnection : public boost::enable_shared_from_this<EventChannelConnection> {
-public:
-    typedef boost::shared_ptr<EventChannelConnection> pointer;
-
-    static pointer create() {
-        return pointer(new EventChannelConnection());
+    namespace CAN {
+        char *dev = "/dev/pcan32";
+        class config {
+                typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
+                typedef famouso::mw::nl::CAN::ccp::Broker<can> ccpBroker;
+                typedef famouso::mw::nl::CAN::etagBP::Broker<can> etagBroker;
+                typedef famouso::mw::nl::CANNL<can, ccpBroker, etagBroker> nl;
+                typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
+                typedef famouso::mw::el::EventLayer< anl > el;
+            public:
+                typedef famouso::mw::api::EventChannel< el > EC;
+                typedef famouso::mw::api::PublisherEventChannel<el> PEC;
+                typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
+        };
     }
 
-    boost::asio::ip::tcp::socket& socket() {
-        return socket_;
+    namespace UDP {
+        class config {
+                typedef famouso::mw::nl::UDPBroadCastNL nl;
+                typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
+                typedef famouso::mw::el::EventLayer< anl > el;
+            public:
+                typedef famouso::mw::api::EventChannel< el > EC;
+                typedef famouso::mw::api::PublisherEventChannel<el> PEC;
+                typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
+        };
     }
 
-    void start() {
-        // Connection accepted and established
-        // Bind Request-Handler on socket and it fires if data arrive
-        async_read(socket(),boost::asio::buffer(event_head, event_head.size()-4),
-                   boost::bind(&EventChannelConnection::handle_request, shared_from_this(),
-                               boost::asio::placeholders::error,
-                               boost::asio::placeholders::bytes_transferred));
-    }
+    typedef CAN::config config;
 
-private:
-    EventChannelConnection()
-            : socket_(famouso::ios::instance()) {
-    }
 
-    void get_event_head(boost::shared_ptr<config::PEC> pec,
-                        const boost::system::error_code& error,
-                        size_t bytes_transferred) {
-        if (!error) {
-            // If it is no publich event, then it have to be an unannouncement.
-            if (event_head[0]==FAMOUSO::PUBLISH) {
-                // bind correct handler to the socket in order to
-                // receive the event_data on that socket
-                boost::asio::async_read(socket(), boost::asio::buffer(event_data, ntohl (*(uint32_t *)&(event_head[9]))),
-                                 boost::bind(&EventChannelConnection::get_event_data, shared_from_this(),
-                                             pec, boost::asio::placeholders::error,
-                                             boost::asio::placeholders::bytes_transferred));
-                return;
+    class EventChannelConnection : public boost::enable_shared_from_this<EventChannelConnection> {
+        public:
+            typedef boost::shared_ptr<EventChannelConnection> pointer;
+
+            static pointer create() {
+                return pointer(new EventChannelConnection());
             }
-        }
-        std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                  << pec->subject().value << "] -> Unannouncement"
-                  << std::endl;
-    }
 
-    void get_event_data(boost::shared_ptr<config::PEC> pec,
-                        const boost::system::error_code& error,
-                        size_t bytes_transferred) {
-        if (!error) {
-            // now the Event is complete
-            famouso::mw::Event e(pec->subject());
-            e.length=bytes_transferred;
-            e.data = (uint8_t *) &event_data;
-            // publish to FAMOUSO
-            pec->publish(e);
-            // bind correct handler to the socket in order to
-            // receive a new event_head on that socket
-            boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
-                             boost::bind(&EventChannelConnection::get_event_head, shared_from_this(),
-                                         pec, boost::asio::placeholders::error,
-                                         boost::asio::placeholders::bytes_transferred));
-            return;
-        }
-        std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                  << pec->subject().value << "] -> Unannouncement"
-                  << std::endl;
-    }
+            boost::asio::ip::tcp::socket& socket() {
+                return socket_;
+            }
 
-    void unsubscribe(boost::shared_ptr<config::SEC> sec,
-                     const boost::system::error_code& error) {
-        std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                  << sec->subject().value << "] -> Unsubscription"
-                  << std::endl;
-    }
+            void start() {
+                // Connection accepted and established
+                // Bind Request-Handler on socket and it fires if data arrive
+                async_read(socket(), boost::asio::buffer(event_head, event_head.size() - 4),
+                           boost::bind(&EventChannelConnection::handle_request, shared_from_this(),
+                                       boost::asio::placeholders::error,
+                                       boost::asio::placeholders::bytes_transferred));
+            }
 
-    void cb (famouso::mw::api::SECCallBackData & cbd) {
-        uint8_t preamble[13]= {FAMOUSO::PUBLISH};
-        uint64_t *sub = (uint64_t *) & preamble[1];
-        uint32_t *len = (uint32_t *) & preamble[9];
-        *sub = htonll(cbd.subject.value);
-        *len = htonl(cbd.length);
-        boost::asio::write(socket(), boost::asio::buffer(preamble, 13),
-                           boost::asio::transfer_all());
-        boost::asio::write(socket(), boost::asio::buffer(cbd.data, cbd.length),
-                           boost::asio::transfer_all());
-    }
+        private:
+            EventChannelConnection()
+                    : socket_(famouso::ios::instance()) {
+            }
 
-    void handle_request(const boost::system::error_code& error, size_t bytes_transferred) {
-        if (!error && (bytes_transferred >=9) ) {
-            switch (event_head[0]) {
-            case FAMOUSO::SUBSCRIBE: {
-                // allocate a new subscribe event channel
-                boost::shared_ptr<config::SEC> sec( new config::SEC(ntohll(*(uint64_t *) &(event_head[1]))));
-                // announce it to FAMOUSO
-                sec->subscribe ();
-                // set a specific callback
-                sec->callback.bind< EventChannelConnection, &EventChannelConnection::cb >(this);
-
-                // bind the receive function, however an unsubscription can come only
-                boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
-                                 boost::bind(&EventChannelConnection::unsubscribe, shared_from_this(),
-                                             sec, boost::asio::placeholders::error));
-
+            void get_event_head(boost::shared_ptr<config::PEC> pec,
+                                const boost::system::error_code& error,
+                                size_t bytes_transferred) {
+                if (!error) {
+                    // If it is no publich event, then it have to be an unannouncement.
+                    if (event_head[0] == FAMOUSO::PUBLISH) {
+                        // bind correct handler to the socket in order to
+                        // receive the event_data on that socket
+                        boost::asio::async_read(socket(), boost::asio::buffer(event_data, ntohl (*(uint32_t *)&(event_head[9]))),
+                                                boost::bind(&EventChannelConnection::get_event_data, shared_from_this(),
+                                                            pec, boost::asio::placeholders::error,
+                                                            boost::asio::placeholders::bytes_transferred));
+                        return;
+                    }
+                }
                 std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                          << sec->subject().value << "] -> Subscription"
-                          << std::endl;
-                break;
+                << pec->subject().value << "] -> Unannouncement"
+                << std::endl;
             }
-            case FAMOUSO::ANNOUNCE: {
-                // allocate a new publish event channel
-                boost::shared_ptr<config::PEC> pec( new config::PEC(ntohll(*(uint64_t *) &(event_head[1]))));
-                // announce it to FAMOUSO
-                pec->announce ();
 
-                // bind the receive function for published events or for the unannouncement event
-                boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
-                                 boost::bind(&EventChannelConnection::get_event_head, shared_from_this(),
-                                             pec, boost::asio::placeholders::error,
-                                             boost::asio::placeholders::bytes_transferred));
-
+            void get_event_data(boost::shared_ptr<config::PEC> pec,
+                                const boost::system::error_code& error,
+                                size_t bytes_transferred) {
+                if (!error) {
+                    // now the Event is complete
+                    famouso::mw::Event e(pec->subject());
+                    e.length = bytes_transferred;
+                    e.data = (uint8_t *) & event_data;
+                    // publish to FAMOUSO
+                    pec->publish(e);
+                    // bind correct handler to the socket in order to
+                    // receive a new event_head on that socket
+                    boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
+                                            boost::bind(&EventChannelConnection::get_event_head, shared_from_this(),
+                                                        pec, boost::asio::placeholders::error,
+                                                        boost::asio::placeholders::bytes_transferred));
+                    return;
+                }
                 std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                          << pec->subject().value << "] -> Announcement"
-                          << std::endl;
-                break;
+                << pec->subject().value << "] -> Unannouncement"
+                << std::endl;
             }
-	    default:
-                std::cerr << "Wrong opcode:\t0x" << event_head[0] << std::endl;
+
+            void unsubscribe(boost::shared_ptr<config::SEC> sec,
+                             const boost::system::error_code& error) {
+                std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                << sec->subject().value << "] -> Unsubscription"
+                << std::endl;
             }
-        } else {
-                std::cerr << "Wrong message format:" << std::endl;
-	}
-    }
 
-    boost::asio::ip::tcp::socket socket_;
-    // Buffer used to store data received from the client.
-    boost::array<char, 13> event_head;
-    boost::array<char, 65535> event_data;
+            void cb (famouso::mw::api::SECCallBackData & cbd) {
+                uint8_t preamble[13] = {FAMOUSO::PUBLISH};
+                uint64_t *sub = (uint64_t *) & preamble[1];
+                uint32_t *len = (uint32_t *) & preamble[9];
+                *sub = htonll(cbd.subject.value);
+                *len = htonl(cbd.length);
+                boost::asio::write(socket(), boost::asio::buffer(preamble, 13),
+                                   boost::asio::transfer_all());
+                boost::asio::write(socket(), boost::asio::buffer(cbd.data, cbd.length),
+                                   boost::asio::transfer_all());
+            }
 
-};
+            void handle_request(const boost::system::error_code& error, size_t bytes_transferred) {
+                if (!error && (bytes_transferred >= 9) ) {
+                    switch (event_head[0]) {
+                        case FAMOUSO::SUBSCRIBE: {
+                                // allocate a new subscribe event channel
+                                boost::shared_ptr<config::SEC> sec( new config::SEC(ntohll(*(uint64_t *) &(event_head[1]))));
+                                // announce it to FAMOUSO
+                                sec->subscribe ();
+                                // set a specific callback
+                                sec->callback.bind< EventChannelConnection, &EventChannelConnection::cb >(this);
+
+                                // bind the receive function, however an unsubscription can come only
+                                boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
+                                                        boost::bind(&EventChannelConnection::unsubscribe, shared_from_this(),
+                                                                    sec, boost::asio::placeholders::error));
+
+                                std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                                << sec->subject().value << "] -> Subscription"
+                                << std::endl;
+                                break;
+                            }
+                        case FAMOUSO::ANNOUNCE: {
+                                // allocate a new publish event channel
+                                boost::shared_ptr<config::PEC> pec( new config::PEC(ntohll(*(uint64_t *) &(event_head[1]))));
+                                // announce it to FAMOUSO
+                                pec->announce ();
+
+                                // bind the receive function for published events or for the unannouncement event
+                                boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
+                                                        boost::bind(&EventChannelConnection::get_event_head, shared_from_this(),
+                                                                    pec, boost::asio::placeholders::error,
+                                                                    boost::asio::placeholders::bytes_transferred));
+
+                                std::cout << "Channel\t\t -- Subject [0x" << std::hex
+                                << pec->subject().value << "] -> Announcement"
+                                << std::endl;
+                                break;
+                            }
+                        default:
+                            std::cerr << "Wrong opcode:\t0x" << event_head[0] << std::endl;
+                    }
+                } else {
+                    std::cerr << "Wrong message format:" << std::endl;
+                }
+            }
+
+            boost::asio::ip::tcp::socket socket_;
+            // Buffer used to store data received from the client.
+            boost::array<char, 13> event_head;
+            boost::array<char, 65535> event_data;
+
+    };
 
 
-class EventChannelHandler {
-public:
-    EventChannelHandler() : acceptor_(famouso::ios::instance(),
-				      boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
-							      ServPort)) {
-	start_accept();
-    }
+    class EventChannelHandler {
+        public:
+            EventChannelHandler() : acceptor_(famouso::ios::instance(),
+                                                      boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
+                                                                                     ServPort)) {
+                start_accept();
+            }
 
-	void run() {
-		famouso::ios::instance().run();
-	}
+            void run() {
+                famouso::ios::instance().run();
+            }
 
-private:
-    void start_accept() {
-        EventChannelConnection::pointer ecc = EventChannelConnection::create();
-        acceptor_.async_accept(ecc->socket(),
-                               boost::bind(&EventChannelHandler::handle_accept, this, ecc,
-                                           boost::asio::placeholders::error));
-    }
+        private:
+            void start_accept() {
+                EventChannelConnection::pointer ecc = EventChannelConnection::create();
+                acceptor_.async_accept(ecc->socket(),
+                                       boost::bind(&EventChannelHandler::handle_accept, this, ecc,
+                                                   boost::asio::placeholders::error));
+            }
 
-    void handle_accept(EventChannelConnection::pointer ecc,
-                       const boost::system::error_code& error) {
-        if (!error) {
-            ecc->start();
-            start_accept();
-        }
-    }
+            void handle_accept(EventChannelConnection::pointer ecc,
+                               const boost::system::error_code& error) {
+                if (!error) {
+                    ecc->start();
+                    start_accept();
+                }
+            }
 
-    boost::asio::ip::tcp::acceptor acceptor_;
-};
+            boost::asio::ip::tcp::acceptor acceptor_;
+    };
 
 }
 
-void siginthandler(int){
-	famouso::ios::instance().stop();
+void siginthandler(int) {
+    famouso::ios::instance().stop();
 }
+
 int main (int argc, char **argv) {
     std::cout << "Project: FAMOUSO" << std::endl;
     std::cout << "local Event Channel Handler" << std::endl << std::endl;
@@ -251,21 +250,19 @@ int main (int argc, char **argv) {
     std::cout << "$Date$" << std::endl;
     std::cout << "last changed by $Author$" << std::endl << std::endl;
     std::cout << "build Time: " << __TIME__ << std::endl;
-	std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
+    std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
 
     try {
-		famouso::init<famouso::config::EC>();
-		famouso::EventChannelHandler localECH;
-        signal(SIGINT,siginthandler);
-        std::cout << "FAMOUSO -- Initalisation successfull"
-                  << std::endl << std::endl;
-		localECH.run();
+        famouso::init<famouso::config::PEC>();
+        famouso::EventChannelHandler localECH;
+        signal(SIGINT, siginthandler);
+        std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
+        localECH.run();
     } catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
 
-    std::cout << "FAMOUSO -- successfully finished"
-              << std::endl;
+    std::cout << "FAMOUSO -- successfully finished" << std::endl;
     return 0;
 }
 

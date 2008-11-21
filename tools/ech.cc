@@ -17,8 +17,6 @@
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
 
-#include "devices/nic/ip/socket/TCPSocket.h"
-
 #include "famouso.h"
 #include "util/endianess.h"
 #include "util/ios.h"
