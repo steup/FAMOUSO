@@ -34,7 +34,7 @@ scenario.filename='scenarioFile.mat';
 
 
 %% FAMOUSO integration?
-scenario.FAMOUSO=1;
+scenario.FAMOUSO=0;
 
 %% Start respective environement
 % select for simulation only

@@ -1,17 +1,19 @@
 function new = robot_T_app(simrobot, id, matrix)
-
+global scenario
 % your algorithm starts here
 
 % sensor reading
    [dist,num] = readusonic(simrobot,'sensor_1',matrix);
    
-    global distance;
-    aux=dist;
-    if aux>=255
-        aux=255;
-    end
-  
-    publishing(distance,[aux 118 id])
+   if scenario.FAMOUSO==1
+       global distance;
+       aux=dist;
+       if aux>=255
+           aux=255;
+       end
+       publishing(distance,[aux 118 id])
+   end
+
 % num, the nearest obstacle number, is not used    
 
    if dist<20
