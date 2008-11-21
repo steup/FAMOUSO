@@ -1,13 +1,6 @@
 Verschiedene zu erledigende Sachen
 --------------------
-BOOST-Specifisches Bauen der libboost_system noch zu erledigen:
-fuer Windows:
-    "gcc"  -ftemplate-depth-128 -mthreads -O3 -finline-functions -Wno-inline -Wall -mthreads  -DBOOST_ALL_NO_LIB=1 -DBOOST_SYSTEM_STATIC_LINK=1 -DNDEBUG  -I"." -c -o "bin.v2\libs\system\build\gcc-3.4.4\release\link-static\threading-multi\error_code.o" "libs\system\src\error_code.cpp"
-
-einziger Unterschied zu linux ist -mthreads und -pthreads
-
---------------------
-astyle auf alle Dateien anwenden mit Parameter -aC
+astyle auf alle Dateien anwenden mit Parameter -aCNopKSV
 --------------------
 Copyright Hinweis in allen Dateien vermerken. Vielleicht in einer Art release
 Script mit einbauen, welches nur auf einem extra-pfad ausgefuehrt wird und
@@ -15,13 +8,20 @@ dann die entsprechenden Hinweise hinzufuegt und dann wars dies ohne svn und
 dann noch in ein tar.gz oder tar.bz2 zusammenpacken
 
 -------------------
+-Webseite FAMOUSO auf sourcefore umziehen lassen von unserem System
+ und ueberarbeiten
+
+-------------------
 
 Programmiertechnisches:
--fetching von events realisieren
+-fetching von events realisieren (prototypisch momentan)
 -gateway-klasse bauen, welche interne Subscriber und Publisher ECs benutzt, um
  forwarding entsprechend zu realisieren. Der Callback des Subscriber wird fuer
  das Publishing ins jeweilige Netz verwendet (Proxy-Funktionalitaet)
--CAN-NL + CCP + Brokering + RT-Channels
+-CAN-NL + new Binding Protocoll (prototypisch momentan)
+-RT-Channels
+-adaptive attributes
+-adaptive fragmentation protocol
 
 Offene Fragen:
 	-Wie gross darf ein Event ueberhaupt sein??? Systemsicht
@@ -44,3 +44,13 @@ Erledigte Sachen:
  (siehe tst/approved/te-Inheritance.cc)
 -Callback vom EventChannel fuer ankommende Events ist in den
  SubscriberEventChannel gewandert, wo er ja auch hingehoert
+-BOOST-Specifisches Bauen der libboost_system noch zu erledigen:
+	-fuer Windows:
+	    "gcc"  -ftemplate-depth-128 -mthreads -O3 -finline-functions
+	    -Wno-inline -Wall -mthreads  -DBOOST_ALL_NO_LIB=1
+	    -DBOOST_SYSTEM_STATIC_LINK=1 -DNDEBUG  -I"." -c -o
+	    "bin.v2\libs\system\build\gcc-3.4.4\release\link-static\threading-multi\error_code.o"
+	    "libs\system\src\error_code.cpp"
+	-einziger Unterschied zu linux ist -mthreads und -pthreads
+-CAN-NL CCP
+
