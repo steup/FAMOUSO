@@ -1,32 +1,38 @@
 #ifndef __EventLayerClientStub_h__
 #define __EventLayerClientStub_h__
 
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/PublisherEventChannel.h"
 
-#include "util/TCPSocketThread.h"
-
 #include "famouso.h"
 #include "util/endianess.h"
 #include "case/Delegate.h"
+#include "util/ios.h"
+
 
 namespace famouso {
 	namespace mw {
 		namespace el {
 
 template< class T >
-class NotifyWorkerThread : public TCPSocketThread {
+class NotifyWorkerThread {
 
   T &sec;
-  void action(){
+public:
+void action(){
     uint8_t recvBuffer[BUFSIZE];
     int recvMsgSize;
-    while ((recvMsgSize = sec.snn()->recv (recvBuffer, 13)) > 0) {
+    while ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, 13))) > 0) {
       // ermitteln der Laenge des Events
       unsigned int len = ntohl (*(uint32_t *)&(recvBuffer[9]));
       // und den Rest aus dem Socket holen
-      if ((recvMsgSize = sec.snn()->recv (recvBuffer, len)) > 0) {
+      if ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, len))) > 0) {
 		// Event aufbauen und veroeffentlichen
 		Event e(sec.subject());
 		e.length=len;
@@ -36,26 +42,49 @@ class NotifyWorkerThread : public TCPSocketThread {
 	}
   }
  public:
- NotifyWorkerThread(T &ec) : TCPSocketThread (ec.snn()), sec(ec) {
+ NotifyWorkerThread(T &ec) : sec(ec) {
   }
 };
 
 class EventLayerClientStub {
+
+   typedef famouso::mw::api::SubscriberEventChannel<EventLayerClientStub>  SEC;
+   boost::array<char, 13> event_head;
+   boost::array<char, 65535> event_data;
+
+   void do_connection_socket(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
+        ec.snn()=new boost::asio::ip::tcp::socket(famouso::ios::instance());
+        // Establish connection with the ech
+        boost::asio::ip::tcp::endpoint endpoint(
+        boost::asio::ip::address::from_string(servAddress), ServPort);
+        boost::system::error_code errorc;
+        ec.snn()->connect(endpoint, errorc);
+        if (errorc) {
+            std::cerr << "An error occurred while connecting to the ech" << std::endl;
+            return;
+        }
+    }
  public:
-  typedef TCPSocket* SNN;
+    typedef boost::asio::ip::tcp::socket *SNN;
+
+    void init(){
+        //static boost::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
+    }
+
+    EventLayerClientStub() {
+        init();
+    }
 
   // announce legt hier nur einen Socket an und meldet sich
   // bei localen EventChannelHandler an
   void announce(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec){
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    ec.snn() = new TCPSocket(); 
-    // Establish connection with the ech
-    ec.snn()->connect(servAddress, ServPort);
+    do_connection_socket(ec);
     uint8_t transferBuffer[9] = {FAMOUSO::ANNOUNCE};
     uint64_t *sub = (uint64_t *) & transferBuffer[1];
     *sub = htonll(ec.subject().value);
     // Send the announcement to the ech
-    ec.snn()->send(transferBuffer, 9);
+    boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
   }
 
   // Publish uebermittelt die Daten
@@ -75,34 +104,25 @@ class EventLayerClientStub {
     uint32_t *len = (uint32_t *) & transferBuffer[9];
     *len = htonl(e.length);
     // Send the announcement to the ech
-    ec.snn()->send(transferBuffer, 13);
-
-    ec.snn()->send(e.data,e.length);
+    boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
+    boost::asio::write(*ec.snn(), boost::asio::buffer(e.data, e.length));
   }
 
-  // Verbindung  zum  ECH oeffnen und Subject subscrebieren
+  // Verbindung  zum  ECH oeffnen und Subject subscribieren
   void subscribe(famouso::mw::api::SubscriberEventChannel<EventLayerClientStub> &ec) {
     DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
-    ec.snn() = new TCPSocket(); 
-
-    // Establish connection with the ech
-    ec.snn()->connect(servAddress, ServPort);
-
+    do_connection_socket(ec);
     // create subscribe message
     uint8_t transferBuffer[9] = {FAMOUSO::SUBSCRIBE};
     uint64_t *sub = (uint64_t *) & transferBuffer[1];
     *sub = htonll(ec.subject().value);
-
-    // Send the subscribe to the ech
-    ec.snn()->send(transferBuffer, 9);
-
+    // Send the announcement to the ech
+    boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
     // create a thread that gets the ec and if a messages arrives at the
     // socket connection the ec is called back
-    /// \todo potentiell ein Speicherleck, Der Thread bzw. die Daten sollten auch wieder zerstoert werden
-    ///       wenn sie nicht mehr benoetigt werden
-	typedef famouso::mw::api::SubscriberEventChannel<EventLayerClientStub> SEC;
-    NotifyWorkerThread<SEC> *nwt = new NotifyWorkerThread<SEC>(ec);
-    nwt->start();
+    // \todo potentiell ein Speicherleck, Der Thread bzw. die Daten sollten auch wieder zerstoert werden
+    //       wenn sie nicht mehr benoetigt werden
+    new boost::thread(boost::bind(&NotifyWorkerThread<SEC>::action, new NotifyWorkerThread<SEC>(ec)));
     DEBUG(("Generate Thread and Connect to local ECH\n"));
   }
 
