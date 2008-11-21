@@ -52,7 +52,7 @@ class Broker {
          *  \param[in] sub the Subject that should be bound
          *  \return the bound etag in case of success else 0
          */
-        uint16_t bind_subject(const Subject &sub) {
+	uint16_t bind_subject(const Subject &sub, uint16_t tx_node, CAN_Driver& canDriver) {
             return bind_subject_to_etag(sub);
         }
 
@@ -70,11 +70,11 @@ class Broker {
             ID *id = &mob.id();
             Subject sub(htonll(*reinterpret_cast<uint64_t*>(mob.data())));
             if ( id->etag() == famouso::mw::nl::CAN::ETAGS::GET_ETAG ) {
-                uint16_t etag = bind_subject(sub);
+                uint16_t etag = bind_subject(sub,constants::Broker_tx_node, canDriver);
                 mob.len(4);
                 mob.data()[0] = id->tx_node();
                 mob.data()[1] = 0x3;
-                mob.data()[2] = etag >> 8;      
+                mob.data()[2] = etag >> 8;
 		mob.data()[3] = static_cast<uint8_t>(etag & 0xff);
                 id->prio(0xFD);
                 id->etag(famouso::mw::nl::CAN::ETAGS::SUPPLY_ETAG);

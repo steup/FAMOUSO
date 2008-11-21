@@ -66,7 +66,7 @@ public:
 //        std::cout<< __PRETTY_FUNCTION__ << std::endl;
 		DEBUG(("%s\n", __PRETTY_FUNCTION__));
         /*! \todo binding integrieren */
-		snn=etagBP.bind_subject(s,tx_node);
+		snn=etagBP.bind_subject(s,tx_node,driver);
     }
 
     void deliver(const Packet_t& p) {
