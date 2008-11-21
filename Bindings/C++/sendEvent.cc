@@ -13,7 +13,6 @@
 #include <sys/time.h>
 
 #include "famouso_bindings.h"
-#include "util/Thread.h"
 
 int done;
 

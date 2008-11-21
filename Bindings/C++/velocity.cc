@@ -12,7 +12,9 @@
 #include <fcntl.h>
 
 #include "famouso_bindings.h"
-#include "util/Thread.h"
+
+#include <boost/thread/thread.hpp>
+#include <boost/thread/xtime.hpp>
 
 int done;
 
@@ -38,6 +40,9 @@ int main(int argc, char **argv) {
 	while(!done) {
         // mam muss nicht unbedingt warten, jedoch entlasstet dies
         // die cpu, weil es sonst busy-waiting ist
-		Thread::sleep(100);
+        boost::xtime time;
+        boost::xtime_get( &time, boost::TIME_UTC );
+        time.sec += 1;
+        boost::thread::sleep( time );
 	}
 }
