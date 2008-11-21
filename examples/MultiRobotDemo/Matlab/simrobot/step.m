@@ -2,7 +2,7 @@ function scenario = step(obj, event, i)
 global scenario
 % robots = ones(1,length(scenario.robots));
 
-handles=guidata(findobj('name','control'));
+handles=guihandles(findobj('name','control'));
 
 if get(scenario.robots(i),'power')==0 && get(scenario.robots(i),'crashed')==0;
     scenario.robots(i)=activate(scenario.robots(i),scenario.mode);

@@ -17,13 +17,11 @@ function start()
 
 clear variables;
 clear scenario;
-delete(timerfind)
+delete(timerfind);
+delete(findobj('name','control'));
 home;
 setpaths;
 disp('Lets go!');
-
-%% Opening control GUI
-aux=control;
 
 %% determine scenario source
 global scenario;
@@ -44,4 +42,4 @@ scenario.FAMOUSO=1;
 % % or 
  scenario.mode='vis+sim';
 % % for simulation and visualisation
-control('go_Callback',aux);
+control();
