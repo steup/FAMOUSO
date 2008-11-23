@@ -8,7 +8,7 @@
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "util/ios.h"
-
+#include "mw/common/Subject.h"
 
 namespace famouso {
 	namespace mw {
@@ -19,7 +19,7 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 
 		struct info{
 			enum {
-				payload=8192-sizeof( Subject),
+				payload=8192-sizeof( famouso::mw::Subject ),
 			};
 		};
 
@@ -37,8 +37,8 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 		 * @param p port (default is 9999)
 		 */
 		UDPMultiCastNL( int p = 9999 )
-		:socket_( famouso::ios::instance() ), port( p ),
-		endpoint_listen( boost::asio::ip::address::from_string("0.0.0.0"), port )
+		:m_socket( famouso::ios::instance() ), port( p ),
+		m_endpoint_listen( boost::asio::ip::address::from_string("0.0.0.0"), port )
 		{
 			init();
 		}
@@ -53,7 +53,7 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 		 *
 		 */
 		~UDPMultiCastNL() {
-			socket_.close( );
+			m_socket.close( );
 		}
 
 		/**
@@ -69,7 +69,7 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 		 * @param s subject
 		 * @param snn bound address
 		 */
-		void bind( const Subject &s, SNN &snn );
+		void bind( const famouso::mw::Subject &s, SNN &snn );
 
 		/**
 		 * @brief called by deliver
@@ -88,6 +88,14 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 		 * @param p packet
 		 */
 		void deliver( const Packet_t& p );
+		
+		/**
+		 * @brief publish
+		 *
+		 * Sends the given packet.
+		 *
+		 * @param p packet
+		 */		
 		void deliver_fragment( const Packet_t& p){ deliver( p ); };
 
 		/**
@@ -96,6 +104,14 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 		 * @param p fetched packet is saved here
 		 */
 		void fetch( Packet_t& p);
+		
+		/**
+		 * @brief get last SSN
+		 *
+		 * Returns the short network name for the last packet.
+		 */
+		SNN lastPacketSNN();
+
 
 		/**
 		 * @brief handle called on receive
@@ -106,12 +122,12 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 		void interrupt( const boost::system::error_code& error, size_t bytes_recvd );
 
 	private:
-		boost::asio::ip::udp::socket socket_;
+		boost::asio::ip::udp::socket m_socket;
 		const int port;
-		boost::asio::ip::udp::endpoint endpoint_listen;
-		boost::asio::ip::udp::endpoint endpoint_from;
-		uint8_t buffer_[sizeof( Subject )+info::payload]; // Subject and Payload have to be sent
-		Packet_t incoming_packet;
+		boost::asio::ip::udp::endpoint m_endpoint_listen;
+		boost::asio::ip::udp::endpoint m_endpoint_from;
+		uint8_t m_buffer[sizeof( famouso::mw::Subject )+info::payload]; // Subject and Payload have to be sent
+		Packet_t m_incoming_packet;
 };
 
 }}} // namespaces
