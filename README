@@ -1,0 +1,7 @@
+How to build FAMOUSO?
+
+1. edit make/config.mk and choose the platform for which FAMOUSO has to be built
+2. type make in the main directory
+3. change to the tools directory and type make "tool" which you want to build
+    -for some tools (ech-can) you have to fulfill prerequisites like an
+     installed pcan-lib if you want to use the peak-CAN library

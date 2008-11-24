@@ -33,9 +33,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) $(LIBFAMOUSO) $(COMMANDS)
-
-tools: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(LIBFAMOUSO) rmbin $(TOOLBIN)
+all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) $(LIBFAMOUSO)
 
 doc:
 	doxygen ./doc/doxygen.conf
@@ -50,7 +48,6 @@ $(BINDIR):
 	@mkdir -p $@
 
 $(DEPENDDIR):
-	echo $(DEPENDDIR)
 	@mkdir -p $@
 
 rmbin:
@@ -67,12 +64,6 @@ $(MODULEDIR)/%.o : %.cc
 $(DEPENDDIR)/%.d : %.cc
 	@$(RULEECHO) ; \
 	$(CXX) -MM $(CXXFLAGS) $< | sed -e "s#.*:#$(MODULEDIR)\/&#" > $@
-
-# --------------------------------------------------------------------------
-# Regeln zur Erzeugung der ausfuehrbaren Tools
-$(BINDIR)/%$(SUFFIX): $(MODULEDIR)/%.o $(TOOLOBJ)
-	@$(RULEECHO) ; \
-	$(CXX) $(CXXOPTION) $(CXXFLAGS) -o $@ $< $(LIB) $(ADDITIONAL_LIBS)
 
 # -------------------------------------------------
 # Bauen der lib
@@ -92,9 +83,9 @@ distclean:
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
 
-ifneq ($(subst dist,,$(MAKECMDGOALS)),clean)
-$(shell mkdir -p $(DEPENDDIR))
--include $(DEPSPRE)
-endif
+depend: $(DEPENDDIR) $(DEPSPRE)
 
+ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
+-include $(DEPENDDIR)/*
+endif
 

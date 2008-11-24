@@ -29,9 +29,6 @@ include $(INSTALLDIR)/make/rules.mk
 
 
 ifeq ($(CONFIG),avr)
-COMMANDS=
 ADDITIONAL_BUILDS=
 ADDITIONAL_LIBS=
-else
-COMMANDS=tools
 endif

@@ -2,6 +2,9 @@
 
 pushd `dirname $0`
 
+[ ! -d Boost ] && sh wget.sh
+if [ -d Boost ]; then
+
 BJAMCONFIG=" gcc --layout=system --with-system --with-thread link=static --user-config=`pwd`/user-config.jam.${3%/*} install "
 PARAMS=" --libdir=$1 --includedir=$2 "
 echo Configure-Parameter $PARAMS
@@ -24,4 +27,8 @@ for file in $1/* ; do
 	mv ${file%.*}.fam ${file%.*}.a
 done
 
+
+fi
+
 popd
+
