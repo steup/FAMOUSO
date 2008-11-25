@@ -16,18 +16,19 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
     persistent data;
     % add the residue of the last cycle to the new values
     input=TCPIP_read(eval(sprintf('get_properties(%s,''connection'');',channel_name)));
+    
     if isempty(data)
         data=input;
     else
-        data=[data input];
+        data=[data input]
     end
     number=max(size(data));
     if number == 0
         return
-    end    
-    k=1;  
+    end
+    k=1;
 
-%% Searching for valid data
+    %% Searching for valid data
     while(true)
         % contains the current data complete header?
         if (number-k)>12
@@ -35,9 +36,9 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
             for i=1:8
                 aux=dec2hex(double(data(k+i)));
                 if max(size(aux))<2
-                    current_subject=[current_subject '0' aux];  
+                    current_subject=[current_subject '0' aux];
                 else
-                    current_subject=[current_subject aux]; 
+                    current_subject=[current_subject aux];
                 end
             end
             current_length=data(k+9)*256^3+data(k+10)*256^2+data(k+11)*256+data(k+12);
@@ -49,33 +50,33 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
                 t=clock;
                 values=char(data(k+12+1:k+12+current_length));
                 eval(sprintf('%s=set_data(%s,t(6),current_length,values);',channel_name,channel_name));
-        
+
                 % k points on the first value of the next message
                 k=k+12+current_length+1;
                 % no valid data any more
                 if number<k
-                    data=data(k:size(data,2));              
+                    data=data(k:size(data,2));
                     break;
                 end
             else
-            % no complete message data
-            break;
+                % no complete message data
+                break;
             end
         else
-        % no complete message header
-        break;
+            % no complete message header
+            break;
         end
         % Reading the rest
     end
- %% Call of the corresponding function
+    %% Call of the corresponding function
     function_name=eval(sprintf('get_properties(%s,''function_name'');',channel_name));
     if ~strcmp(function_name,'-')
         [pathstr, name, ext, versn] = fileparts(function_name);
-        if strcmp(ext,'.m')
-%            eval(sprintf('%s(%s)',function_name,channel_name));
-             ChannelF2(distance);
-        else
-            error(['Wrong callback function name ' function_name])
+        try
+        eval(sprintf('%s(%s)',name,channel_name));
+%             ChannelF2(distance);
+        catch
+            error(['Wrong callback function for FAMOUSO event' function_name])
         end
     end
 end

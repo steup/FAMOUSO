@@ -1,3 +1,3 @@
 function a=connect(a)
-    a.connection=TCPIP_startClient(a.connection);
+    a.connection=TCPIP_startClient(a.connection,1);
 end

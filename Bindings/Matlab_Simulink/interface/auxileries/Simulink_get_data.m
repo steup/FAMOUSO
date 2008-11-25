@@ -28,7 +28,7 @@ function value=Simulink_get_data(subject, method)
                 if strcmp(channel_name,'distance')
                     if ~isempty(data)
                         data=double(data);
-                        a=find(data(:,3)==4);
+                        a=find(data(:,3)==2);
             %             value=[[0 0 0];[0 0 0]];
                         value=[0 0 0];
                         if ~isempty(a)

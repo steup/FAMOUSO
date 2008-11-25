@@ -1,4 +1,5 @@
 function input=TCPIP_read(a)
+   input=[];
    if strcmp(a.interaction_type,'callback')
        if strcmp(a.tcpobj.status,'open')
            aux=get(a.tcpobj, 'BytesAvailable');

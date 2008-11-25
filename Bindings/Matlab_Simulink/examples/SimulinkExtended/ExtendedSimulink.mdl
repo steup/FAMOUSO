@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.323"
+    ComputedModelVersion    "1.324"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -49,9 +49,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "zug"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Oct 12 15:31:32 2008"
+  LastModifiedDate	  "Wed Nov 19 14:51:36 2008"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:323>"
+  ModelVersionFormat	  "1.%<AutoIncrement:324>"
   ConfigurationManager	  "None"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -775,7 +775,7 @@ Model {
 	  System {
 	    Name		    "Application"
 	    Location		    [400, 319, 827, 613]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -829,7 +829,7 @@ Model {
 	      BlockType		      Constant
 	      Name		      "Constant"
 	      Position		      [265, 70, 295, 100]
-	      Value		      "4"
+	      Value		      "2"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -1250,7 +1250,7 @@ Model {
 	  System {
 	    Name		    "Publish Def 1"
 	    Location		    [419, 108, 1115, 308]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1383,7 +1383,7 @@ Model {
 	  System {
 	    Name		    "Subcribe Def 1"
 	    Location		    [251, 201, 947, 428]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1427,7 +1427,7 @@ Model {
 	      System {
 		Name			"Enabled\nSubsystem"
 		Location		[396, 189, 1065, 539]
-		Open			off
+		Open			on
 		ModelBrowserVisibility	off
 		ModelBrowserWidth	200
 		ScreenColor		"white"
@@ -1786,7 +1786,7 @@ Model {
       MaskIconOpaque	      on
       MaskIconRotate	      "none"
       MaskIconUnits	      "autoscale"
-      MaskValueString	      "'192.168.0.1'|5005"
+      MaskValueString	      "'127.0.0.1'|5005"
       MaskTabNameString	      ","
       System {
 	Name			"TCP/IP configuration"

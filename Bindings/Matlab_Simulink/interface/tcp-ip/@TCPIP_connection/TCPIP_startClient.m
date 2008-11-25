@@ -1,7 +1,7 @@
 %% StartTCP Client depending on the channel definition list. 
 % If a callback function ist included the DAQ Toolbox is choosen. Otherwise
 % the pnet library is used.
-function a=TCPIP_startClient(a)
+function a=TCPIP_startClient(a,callback)
 
 % Starting connection
 if strcmp(get_properties(a,'interaction_type'),'callback')
@@ -9,10 +9,12 @@ if strcmp(get_properties(a,'interaction_type'),'callback')
     tcpobj = tcpip(get_properties(a,'host'),...
              get_properties(a,'port'));
 
-    % Activation of the Callback function
-    tcpobj.BytesAvailableFcnCount = get_properties(a,'message_length');
-    tcpobj.BytesAvailableFcnMode = 'byte';
-    tcpobj.BytesAvailableFcn = {@Callback_TCP_BytesAvailableFcn,a};
+    if callback==1
+        % Activation of the Callback function
+        tcpobj.BytesAvailableFcnCount = get_properties(a,'message_length');
+        tcpobj.BytesAvailableFcnMode = 'byte';
+        tcpobj.BytesAvailableFcn = {@Callback_TCP_BytesAvailableFcn,a};
+    end
 
     try
         fopen(tcpobj)

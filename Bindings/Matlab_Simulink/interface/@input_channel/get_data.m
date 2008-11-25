@@ -19,7 +19,7 @@ function [val,a] = get_data(a, propName)
            num=find([a.messages.flag]==1);
            if ~isempty(num)
                for i=1:length(num)
-                  val= [val; a.messages(i).values(1:3)];
+                  val= [val; a.messages(i).values(1:a.messages(i).length)'];
                   a.messages(i).flag=0;
                end
            end
