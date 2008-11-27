@@ -2,8 +2,11 @@
 
 # make Famouso Python Bindings Package available in the path
 # for the package loader
+import pprint
 import sys
-sys.path.append('../../../Bindings/Python/')
+#sys.path.append('..\\..\\..\\Bindings\\Python\\pyFAMOSO\\')
+sys.path.append("C:\\Programme\\")
+pprint.pprint(sys.path)
 
 # load the Famouso Python Bindings
 from pyFAMOUSO.famouso import *
@@ -55,7 +58,7 @@ class DistanceVisualiser:
 
 
 ## Globale Variablen
-RobotID=4
+RobotID=2
 
 ## Asyncore Loop Class
 

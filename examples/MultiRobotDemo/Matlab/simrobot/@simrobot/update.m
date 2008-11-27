@@ -1,35 +1,20 @@
-function [new,newmatrix] = update(simrobot,matrix)
-% UPDATE	(system) updates the simulation.
+function [new,newmatrix] = update(robot,i,matrix,scenario)
+%% UPDATE	(system) updates the simulation.
 
-if (simrobot.power) && (~simrobot.crashed)
-    % ***** Remove robot from matrix *****
-%     profile on
-
-    xd = get(simrobot,'patchXData');
-    yd = get(simrobot,'patchYData');
-    
-    x_window=[floor(min(xd)) ceil(max(xd))];
-    y_window=[floor(min(yd)) ceil(max(yd))];
-
-    [x,y]=find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))==simrobot.number);
-    x=x+x_window(1)-1;
-    y=y+y_window(1)-1;
-    if ~isempty(x)
-        matrix(x,y)=0;
-    end
+if (robot.power) && (~robot.crashed)
 
     %% ***** Move robot and store data  ***** 
-    simrobot.velocity(1) = simrobot.velocity(1) + simrobot.accel(1);
-    simrobot.velocity(2) = simrobot.velocity(2) + simrobot.accel(2);
+    robot.velocity(1) = robot.velocity(1) + robot.accel(1);
+    robot.velocity(2) = robot.velocity(2) + robot.accel(2);
     
     % Model constants, keep consistent with those ones in invmodel.m!
     R = 1;
     la = 3;
     lb = 0;
 
-    v=(R/(2*la))*[[-lb*simrobot.velocity(1)+lb*simrobot.velocity(2)];[-la*simrobot.velocity(1)-la*simrobot.velocity(2)]];
+    v=(R/(2*la))*[[-lb*robot.velocity(1)+lb*robot.velocity(2)];[-la*robot.velocity(1)-la*robot.velocity(2)]];
 
-    heading = pi*simrobot.heading/180;
+    heading = pi*robot.heading/180;
     cosa=cos(heading + pi);
     sina=sin(heading + pi);
 
@@ -39,36 +24,38 @@ if (simrobot.power) && (~simrobot.crashed)
     xs=speed(1);
     ys=speed(2);
 
-    rotspd = ((R/(2*la))*(-simrobot.velocity(1) + simrobot.velocity(2))*180/pi);
+    rotspd = ((R/(2*la))*(-robot.velocity(1) + robot.velocity(2))*180/pi);
            
-    simrobot.position(1) = simrobot.position(1) + xs;	% Update x
-    simrobot.position(2) = simrobot.position(2) + ys;	% Update y
-    simrobot.heading = simrobot.heading + rotspd;		% Update heading
-    if simrobot.heading >= 360
-        simrobot.heading = simrobot.heading - 360;
+    robot.position(1) = robot.position(1) + xs;	% Update x
+    robot.position(2) = robot.position(2) + ys;	% Update y
+    robot.heading = robot.heading + rotspd;		% Update heading
+    if robot.heading >= 360
+        robot.heading = robot.heading - 360;
     end
-    if simrobot.heading < 0
-        simrobot.heading = 360 + simrobot.heading;
+    if robot.heading < 0
+        robot.heading = 360 + robot.heading;
     end
     
     %% Move patch to new location
-    x=[get(simrobot,'xdata') get(simrobot,'ydata')];
+    x=[robot.xdata robot.ydata];
 
-    aux=[[cos(simrobot.heading*pi/180) sin(simrobot.heading*pi/180)]; ...
-        [-sin(simrobot.heading*pi/180) cos(simrobot.heading*pi/180)]];
-    conture=x*simrobot.scale*aux;
-
-    set(simrobot,'patchXData',simrobot.position(1)+conture(:,1),...
-                 'patchYData',simrobot.position(2)+conture(:,2));
+    aux=[[cos(robot.heading*pi/180) sin(robot.heading*pi/180)]; ...
+        [-sin(robot.heading*pi/180) cos(robot.heading*pi/180)]];
+    conture=x*robot.scale*aux;
+    
+    x_cp=robot.position(1)+conture(:,1);
+    y_cp=robot.position(2)+conture(:,2);
+    
+    robot = set(robot,'patchXData',x_cp,'patchYData',y_cp);
 
     %% Visualisation of each sensor detection area
-    sensors=simrobot.sensors;
-    scale=simrobot.scale;
+    sensors=robot.sensors;
+    scale=robot.scale;
     resolution=20;
     x_points=[];
     y_points=[];
     for i=1:max(size(sensors))
-        arcCorner=sensors(i).position*scale*aux+simrobot.position;
+        arcCorner=sensors(i).position*scale*aux+robot.position;
 
         % decomposition of the arc
         angles = sensors(i).axisangle - sensors(i).scanangle/2:resolution:sensors(i).axisangle + sensors(i).scanangle/2;
@@ -79,12 +66,12 @@ if (simrobot.power) && (~simrobot.crashed)
         arcElements(2,:) = sensors(i).position(2) * scale + sensors(i).range * sin(angles);
 
         for j=1:length(arcElements)
-            arcElements(:,j)=arcElements(:,j)'*aux+simrobot.position;
+            arcElements(:,j)=arcElements(:,j)'*aux+robot.position;
         end
-        x_points=[x_points simrobot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
-        y_points=[y_points simrobot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
+        x_points=[x_points robot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
+        y_points=[y_points robot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
     end
-    set(simrobot,'lineXData',x_points,'lineYData',y_points);
+    set(robot,'lineXData',x_points,'lineYData',y_points);
     
     % ****** Place robot to matrix ****** !!!
     % An dieser Stelle muessen crashes untersucht werden und der aktuelle
@@ -97,13 +84,15 @@ if (simrobot.power) && (~simrobot.crashed)
     % da hier xd nicht als "patch" betrachtet wird muss der Polygonzug noch
     % geschlossen werden.
     
-    xd(length(xd)+1)=xd(1);
-    yd(length(yd)+1)=yd(1);
+    %%%%%%%% Crashdetection mit der Karte
     
-    %plot(xd,yd,'-r');
+    x_cp(length(x_cp)+1)=x_cp(1);
+    y_cp(length(y_cp)+1)=y_cp(1);
     
-    x_window=[floor(min(xd)) ceil(max(xd))];
-    y_window=[floor(min(yd)) ceil(max(yd))];
+    %plot(x_cp,y_cp,'-r');
+    
+    x_window=[floor(min(x_cp)) ceil(max(x_cp))];
+    y_window=[floor(min(y_cp)) ceil(max(y_cp))];
 
     if x_window(1)<1
         x_window(1)=1;
@@ -118,27 +107,27 @@ if (simrobot.power) && (~simrobot.crashed)
         y_window(2)=size(matrix,1);
     end
     
-    % ermittle alle nicht leeren Felder das Window of Interest == crash
+    % ermittle alle nicht besetzten Felder des Window of Interest == crash
     % detection
-    [x y] = find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))~=0);
+    [x y] = find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))==1);
     if ~isempty(x)
         x=x+x_window(1)-1;
         y=y+y_window(1)-1;
-        in = myinpolygon(x,y,xd,yd);
+        in = myinpolygon(x,y,x_cp,y_cp);
         if ~isempty(in)
-            simrobot.crashed=1;
-            matrix(x(in),y(in))=simrobot.number;
+            robot.crashed=1;
+%             matrix(x(in),y(in))=robot.number;
         end
     end
-    [x y] = find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))==0);
-    if ~isempty(x)
-        x=x+x_window(1)-1;
-        y=y+y_window(1)-1;
-        in = myinpolygon(x,y,xd,yd);
-        matrix(x(in),y(in))=simrobot.number;
-    end
+
+%     if length(scenario.robots)>1
+%         for i=1:length(scenario.robots)
+%                 
+%         end
+%     end
+    
    
 end
 
-new = simrobot;
+new = robot;
 newmatrix = matrix;

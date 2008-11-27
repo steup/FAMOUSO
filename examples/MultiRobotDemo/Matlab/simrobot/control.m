@@ -217,16 +217,19 @@ start(time_display);
 
 % starting all timers (one for each robot)
 for i=1:length(scenario.robots)
-    if strcmp(get(scenario.robots(i),'trigger_mode'),'timer')
+    if strcmp(scenario.robots(i).trigger.triggerMode,'timer')
         aux = timer('TimerFcn',...
-            {'step' i},...
+            {'step' i handles},...
             'Name',sprintf('Robot_%i',i),...
-            'StartDelay',get(scenario.robots(i),'trigger_delay'),...
+            'StartDelay',scenario.robots(i).trigger.delay,...
             'ExecutionMode','fixedRate',...
-            'Period',get(scenario.robots(i),'trigger_period'));
+            'Period',scenario.robots(i).trigger.period);
         start(aux);
     end
 end
+
+profile on
+profile on
 
 % --- Executes on button press in stop.
 function stop_Callback(hObject, eventdata)
@@ -236,6 +239,7 @@ function stop_Callback(hObject, eventdata)
     global scenario;  
     if scenario.FAMOUSO==1
         FAMOUSOdisconnectAll();
+        disp('Connections all closed')
     end
     out = timerfind;
     if ~isempty(out)
@@ -243,7 +247,7 @@ function stop_Callback(hObject, eventdata)
         delete(out);
     end
     for i=1:length(scenario.robots)
-        scenario.robots(i)=set(scenario.robots(i),'power',0);
+        scenario.robots(i).power=0;
     end
     disp('Simulation stoped');
 

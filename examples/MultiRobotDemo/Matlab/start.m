@@ -38,8 +38,8 @@ scenario.FAMOUSO=0;
 
 %% Start respective environement
 % select for simulation only
-%scenario.mode='sim';
+% scenario.mode='sim';
 % % or 
- scenario.mode='vis+sim';
+scenario.mode='vis+sim';
 % % for simulation and visualisation
 control();
