@@ -2,6 +2,7 @@
 #define __AbstractNetworkLayer_h__
 
 #include "debug.h"
+#include "mw/common/Event.h"
 
 namespace famouso {
 	namespace mw {
