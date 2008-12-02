@@ -12,6 +12,15 @@ all:
 clean:
 	@rm -rf $(filtered)
 
-%:%.cc
+# Regeln zur Erzeugung der Objektdateien
+$(MODULEDIR)/%.o : %.cc
+	@$(RULEECHO) ; \
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+%:$(MODULEDIR)/%.o
 	@$(RULEECHO) ; \
 	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
+
+ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
+-include $(DEPENDDIR)/*
+endif
