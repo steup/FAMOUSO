@@ -1,5 +1,5 @@
 function scenario = step(obj, event, i, handles)
-% tic
+tic
 global scenario
 if scenario.robots(i).power==0 && scenario.robots(i).crashed==0;
     scenario.robots(i)=activate(scenario.robots(i),scenario.mode);
@@ -39,4 +39,4 @@ scenario.robots(i) = evaluate(scenario.robots(i), i ,scenario.matrix);
 %   [scenario.robots(j),matrix,robots] = update(list(j),matrix,robots);	% Update robot
 scenario.robots(i) = update(scenario.robots(i),i,scenario.matrix,scenario);
 % 
-% toc;
+toc;

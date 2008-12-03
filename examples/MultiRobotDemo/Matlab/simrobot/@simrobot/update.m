@@ -46,7 +46,14 @@ if (robot.power) && (~robot.crashed)
     x_cp=robot.position(1)+conture(:,1);
     y_cp=robot.position(2)+conture(:,2);
     
-    robot = set(robot,'patchXData',x_cp,'patchYData',y_cp);
+%     robot = set(robot,'patchXData',x_cp,'patchYData',y_cp);
+
+    if strcmp(scenario.mode,'sim')
+        robot.patch.x=x_cp;
+        robot.patch.y=y_cp;
+    else
+        set(a.patch,'XData',x_cp,'YData',y_cp);% Define the patch
+    end
 
     %% Visualisation of each sensor detection area
     sensors=robot.sensors;
@@ -65,13 +72,25 @@ if (robot.power) && (~robot.crashed)
         arcElements(1,:) = sensors(i).position(1) * scale + sensors(i).range * cos(angles);
         arcElements(2,:) = sensors(i).position(2) * scale + sensors(i).range * sin(angles);
 
-        for j=1:length(arcElements)
-            arcElements(:,j)=arcElements(:,j)'*aux+robot.position;
-        end
+%         for j=1:length(arcElements)
+%             arcElements(:,j)=arcElements(:,j)'*aux+robot.position;
+%         end
+
+        arcElements=arcElements'*aux;
+        arcElements=arcElements(:,1:2)+robot.position;
+            
         x_points=[x_points robot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
         y_points=[y_points robot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
     end
-    set(robot,'lineXData',x_points,'lineYData',y_points);
+%    set(robot,'lineXData',x_points,'lineYData',y_points);  
+    
+    if strcmp(scenario.mode,'sim')
+        robot.line.x=x_points;
+        robot.line.y=y_points;
+    else
+        set(robot.line,'XData',x_points,'YData',y_points,'Color','r');
+    end
+    
     
     % ****** Place robot to matrix ****** !!!
     % An dieser Stelle muessen crashes untersucht werden und der aktuelle
