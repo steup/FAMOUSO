@@ -199,9 +199,13 @@ end
 set(handles.Active,'String','Active');
 if strcmp(scenario.mode,'sim')
     set(handles.Simulation,'Value',1);
-else
     set(handles.Visualisation,'Value',1);
 end
+
+scenario=calculatedPotentialMaps(scenario);
+
+% [x,y]=find(scenario.robots(1).potentialMapPatch);
+% plot(x,y,'.r');
 
 delete(findobj('type','line'));
 delete(findobj('type','patch'));
@@ -239,7 +243,6 @@ for i=1:length(scenario.robots)
     end
 end
 
-profile on
 profile on
 
 % --- Executes on button press in stop.

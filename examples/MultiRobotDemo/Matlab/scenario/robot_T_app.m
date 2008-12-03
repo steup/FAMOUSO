@@ -3,7 +3,7 @@ global scenario
 % your algorithm starts here
 
 % sensor reading
-   [dist,num] = readusonic(simrobot,'sensor_1',matrix);
+   [dist,num] = readusonic(simrobot,id,'sensor_1',matrix);
    
    if scenario.FAMOUSO==1
        global distance;

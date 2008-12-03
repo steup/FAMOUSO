@@ -16,14 +16,17 @@ classdef simrobot
         accel = [];
         sensors = struct('name',[],'position',[],'axisangle',[],'scanangle',[],...
             'range',[],'resolution',[]);
-        history = [];
-        userdata = [];
         power = [];
         crashed = [];
         xdata = [];
         ydata = [];
+
         trigger = struct('tiggerMode',[],'period',[],'delay',[],'timerHandle',[],...
             'TCPHandle',[]);
+        potentialMapPatch=[];
+        patchcircle=[];
+        potentialMapSensor=[];
+        sensorcircle=[];
     end
     methods
         function obj = simrobot(varargin)
@@ -48,17 +51,15 @@ classdef simrobot
                     obj.af = varargin{5};
                     obj.color = varargin{6};
                     obj.scale = varargin{7};
-                    obj.history = [];
-                    obj.userdata = [];
                     % Power switch
                     obj.power = varargin{4};
                     obj.crashed = 0;
                     
-                    obj.patch = [];
+%                     obj.patch = [];
                     obj.xdata = varargin{8}';
                     obj.ydata = varargin{9}';
                     
-                    obj.line = [];
+%                     obj.line = [];
                     
                     % Absolute position
                     obj.position = varargin{11};
@@ -70,6 +71,11 @@ classdef simrobot
                     obj.accel = [0 0];
                     obj.sensors = varargin{10};
                     obj.trigger = varargin{12};
+
+                   obj.patchcircle=max(sqrt(obj.xdata.^2+obj.ydata.^2));
+                    %todo Berechnung einfuegen !!!
+                    obj.sensorcircle=50;
+                    
                 end
             end
         end

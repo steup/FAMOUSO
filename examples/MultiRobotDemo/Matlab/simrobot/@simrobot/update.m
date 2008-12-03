@@ -1,4 +1,4 @@
-function [new,newmatrix] = update(robot,i,matrix,scenario)
+function new = update(robot,robotID,matrix,scenario)
 %% UPDATE	(system) updates the simulation.
 
 if (robot.power) && (~robot.crashed)
@@ -12,7 +12,7 @@ if (robot.power) && (~robot.crashed)
     la = 3;
     lb = 0;
 
-    v=(R/(2*la))*[[-lb*robot.velocity(1)+lb*robot.velocity(2)];[-la*robot.velocity(1)-la*robot.velocity(2)]];
+    v=(R/(2*la))*[-lb*robot.velocity(1)+lb*robot.velocity(2);-la*robot.velocity(1)-la*robot.velocity(2)];
 
     heading = pi*robot.heading/180;
     cosa=cos(heading + pi);
@@ -86,48 +86,79 @@ if (robot.power) && (~robot.crashed)
     
     %%%%%%%% Crashdetection mit der Karte
     
-    x_cp(length(x_cp)+1)=x_cp(1);
-    y_cp(length(y_cp)+1)=y_cp(1);
+%     if robot.potentialMapPatch(round(robot.position(1)),round(robot.position(2)))==1
     
-    %plot(x_cp,y_cp,'-r');
-    
-    x_window=[floor(min(x_cp)) ceil(max(x_cp))];
-    y_window=[floor(min(y_cp)) ceil(max(y_cp))];
+        x_cp(length(x_cp)+1)=x_cp(1);
+        y_cp(length(y_cp)+1)=y_cp(1);
 
-    if x_window(1)<1
-        x_window(1)=1;
-    end
-    if x_window(2)>size(matrix,2)
-        x_window(2)=size(matrix,2);
-    end
-    if y_window(1)<1
-        y_window(1)=1;
-    end
-    if y_window(2)>size(matrix,1)
-        y_window(2)=size(matrix,1);
-    end
-    
-    % ermittle alle nicht besetzten Felder des Window of Interest == crash
-    % detection
-    [x y] = find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))==1);
-    if ~isempty(x)
-        x=x+x_window(1)-1;
-        y=y+y_window(1)-1;
-        in = myinpolygon(x,y,x_cp,y_cp);
-        if ~isempty(in)
-            robot.crashed=1;
-%             matrix(x(in),y(in))=robot.number;
+        %plot(x_cp,y_cp,'-r');
+
+        x_window=[floor(min(x_cp)) ceil(max(x_cp))];
+        y_window=[floor(min(y_cp)) ceil(max(y_cp))];
+
+        if x_window(1)<1
+            x_window(1)=1;
         end
-    end
+        if x_window(2)>size(matrix,2)
+            x_window(2)=size(matrix,2);
+        end
+        if y_window(1)<1
+            y_window(1)=1;
+        end
+        if y_window(2)>size(matrix,1)
+            y_window(2)=size(matrix,1);
+        end
 
-%     if length(scenario.robots)>1
-%         for i=1:length(scenario.robots)
-%                 
-%         end
+        % ermittle alle nicht besetzten Felder des Window of Interest == crash
+        % detection
+        [x y] = find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))==1);
+        if ~isempty(x)
+            x=x+x_window(1)-1;
+            y=y+y_window(1)-1;
+            in = myinpolygon(x,y,x_cp,y_cp);
+            if ~isempty(in)
+                robot.crashed=1;
+                %             matrix(x(in),y(in))=robot.number;
+            end
+        end
 %     end
     
-   
+    %% Collisions of robots
+    if length(scenario.robots)>1
+        for i=1:length(scenario.robots)
+            if (i~=robotID)
+                if sqrt((robot.position(1)-scenario.robots(i).position(1))^2+...
+                        (robot.position(2)-scenario.robots(i).position(2))^2)<...
+                        (scenario.robots(i).patchcircle+robot.patchcircle)
+                    if strcmp(class(scenario.robots(i).patch),'double')
+                        patchXData = get(scenario.robots(i).patch,'XData');
+                    else
+                        patchXData=scenario.robots(i).patch.x;
+                    end
+                    if isempty(patchXData)
+                       break 
+                    end
+                    if strcmp(class(scenario.robots(i).patch),'double')
+                        patchYData = get(scenario.robots(i).patch,'YData');
+                    else
+                        patchYData=scenario.robots(i).patch.y;
+                    end
+                    in=myinpolygon(patchXData,patchYData,x_cp,y_cp);
+                    if sum(in)~=0
+                        scenario.robots(i).crashed=1;
+                        robot.crashed=1;
+                        break
+                    end
+                    in=myinpolygon(x_cp,y_cp,patchXData,patchYData);
+                    if sum(in)~=0
+                        scenario.robots(i).crashed=1;
+                        robot.crashed=1;
+                        break
+                    end
+                end
+            end
+        end
+    end
 end
 
 new = robot;
-newmatrix = matrix;
