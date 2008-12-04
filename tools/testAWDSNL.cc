@@ -36,6 +36,6 @@ int main(int argc, char **argv){
     e.data=(uint8_t*)"Hallo\r\n";
     pec.publish(e);
 
-    pause();
+    famouso::ios::instance().run();
     return 0;
 }

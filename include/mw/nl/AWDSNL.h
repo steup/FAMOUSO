@@ -79,7 +79,6 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		 * Sets the options for the socket and starts receiving.
 		 */
 		void init() {
-//            std::cout<<" Init " << sizeof(AWDS_Packet) << std::endl;
             boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"), Port);
             boost::system::error_code ec;
             m_socket.connect(endpoint, ec);
@@ -88,7 +87,6 @@ class AWDSNL : public BaseNL, boost::noncopyable {
                 std::cerr << "Error connecting to awds-stub" << std::endl;
                 exit(-1);
             }
-//            std::cout<<" Connected " << std::endl;
 
             m_socket.async_receive(
                 boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
@@ -129,7 +127,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
             awds_header.type=type;
             awds_header.size=htons(p.data_length+sizeof( famouso::mw::Subject));
             buffers.push_back(boost::asio::buffer( &awds_header, sizeof(AWDS_Packet::Header)));
-            buffers.push_back(boost::asio::buffer( &p.s.value, sizeof( famouso::mw::Subject)));
+            buffers.push_back(boost::asio::buffer( &p.snn, sizeof( famouso::mw::Subject)));
             buffers.push_back(boost::asio::buffer( p.data, p.data_length ));
 
             m_socket.send( buffers);
@@ -152,7 +150,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		void fetch( Packet_t& p){
             p.s =p.snn= *reinterpret_cast<SNN*>(awds_packet.data);
             p.data =  &awds_packet.data[8];
-            p.data_length = awds_packet.header.size-sizeof(famouso::mw::Subject);
+            p.data_length = ntohs(awds_packet.header.size)-sizeof(famouso::mw::Subject);
         }
 
 		/**
@@ -161,7 +159,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		 * Returns the short network name for the last packet.
 		 */
 		SNN lastPacketSNN(){
-		return *reinterpret_cast<SNN*>(awds_packet.data[0]);
+		    return *reinterpret_cast<SNN*>(awds_packet.data);
         }
 
 
