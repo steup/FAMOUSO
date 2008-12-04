@@ -52,8 +52,8 @@ classdef simrobot
                     obj.color = varargin{6};
                     obj.scale = varargin{7};
                     % Power switch
-                    obj.power = varargin{4};
-                    obj.crashed = 0;
+                    obj.power = logical(varargin{4});
+                    obj.crashed = logical(0);
                     
 %                     obj.patch = [];
                     obj.xdata = varargin{8}';

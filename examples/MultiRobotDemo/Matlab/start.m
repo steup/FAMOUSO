@@ -40,6 +40,6 @@ scenario.FAMOUSO=0;
 % select for simulation only
 scenario.mode='sim';
 % % or 
-scenario.mode='vis+sim';
+%scenario.mode='vis+sim';
 % % for simulation and visualisation
 control();

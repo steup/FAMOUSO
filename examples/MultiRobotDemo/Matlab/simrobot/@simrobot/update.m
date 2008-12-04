@@ -1,7 +1,7 @@
 function new = update(robot,robotID,matrix,scenario)
 %% UPDATE	(system) updates the simulation.
 
-if (robot.power) && (~robot.crashed)
+if robot.power && ~robot.crashed
 
     %% ***** Move robot and store data  ***** 
     robot.velocity(1) = robot.velocity(1) + robot.accel(1);
@@ -52,7 +52,7 @@ if (robot.power) && (~robot.crashed)
         robot.patch.x=x_cp;
         robot.patch.y=y_cp;
     else
-        set(a.patch,'XData',x_cp,'YData',y_cp);% Define the patch
+        set(robot.patch,'XData',x_cp,'YData',y_cp);% Define the patch
     end
 
     %% Visualisation of each sensor detection area
@@ -71,16 +71,20 @@ if (robot.power) && (~robot.crashed)
         arcElements=[];
         arcElements(1,:) = sensors(i).position(1) * scale + sensors(i).range * cos(angles);
         arcElements(2,:) = sensors(i).position(2) * scale + sensors(i).range * sin(angles);
-
+        
+%         a=[];
 %         for j=1:length(arcElements)
-%             arcElements(:,j)=arcElements(:,j)'*aux+robot.position;
+%  %           arcElements(:,j)=arcElements(:,j)'*aux+robot.position;
+%             a=[a; arcElements(:,j)'*aux+robot.position];
 %         end
 
-        arcElements=arcElements'*aux;
-        arcElements=arcElements(:,1:2)+robot.position;
+        arcElements=arcElements'*aux+repmat(robot.position,length(arcElements),1);
             
-        x_points=[x_points robot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
-        y_points=[y_points robot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
+%         x_points=[x_points robot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
+%         y_points=[y_points robot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
+        x_points=[x_points robot.position(1) arcCorner(1) arcElements(:,1)' arcCorner(1)];
+        y_points=[y_points robot.position(2) arcCorner(2) arcElements(:,2)' arcCorner(2)];
+        
     end
 %    set(robot,'lineXData',x_points,'lineYData',y_points);  
     
@@ -165,13 +169,13 @@ if (robot.power) && (~robot.crashed)
                     in=myinpolygon(patchXData,patchYData,x_cp,y_cp);
                     if sum(in)~=0
                         scenario.robots(i).crashed=1;
-                        robot.crashed=1;
+                        robot.crashed=true;
                         break
                     end
                     in=myinpolygon(x_cp,y_cp,patchXData,patchYData);
                     if sum(in)~=0
-                        scenario.robots(i).crashed=1;
-                        robot.crashed=1;
+                        scenario.robots(i).crashed=true;
+                        robot.crashed=true;
                         break
                     end
                 end
