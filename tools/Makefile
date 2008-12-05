@@ -2,7 +2,7 @@ include ../make/Makefile
 
 LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
 
-filtered=$(filter-out %.cc %.h %Makefile,$(shell find . -type f))
+filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
 
 .phony: all clean
 
@@ -18,6 +18,10 @@ $(MODULEDIR)/%.o : %.cc
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 %:$(MODULEDIR)/%.o
+	@$(RULEECHO) ; \
+	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
+
+%:%.cc
 	@$(RULEECHO) ; \
 	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
 

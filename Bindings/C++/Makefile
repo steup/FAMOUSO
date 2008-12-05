@@ -1,17 +1,19 @@
 include ../../make/Makefile
 ADDITIONAL_CFLAGS+= -I../include
 
-TOOLS=$(wildcard *.cc)
+LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
 
-TOOLBIN = $(TOOLS:.cc=.foobar)
-TOOLCLEAR = $(TOOLS:.cc=$(SUFFIX))
+filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
 
-all: $(TOOLBIN)
+.phony: all clean
 
-%.foobar: %.o
-	@echo "$< -> $(basename $@)$(SUFFIX)"; \
-	$(CXX) $(CXXFLAGS) -o $@ $< $(LIB) $(ADDITIONAL_LIBS) && \
-	mv $@ $(basename $@)$(SUFFIX)
+all:
+	@echo usage: \"make programm-to-build\"
+
+%:%.cc
+	@$(RULEECHO) ; \
+	$(CXX) $< -o $@.foobar $(CXXFLAGS) $(LDFLAGS) && \
+	mv $@.foobar $(basename $@)$(SUFFIX)
 
 clean:
-	rm -f *.o *~ $(TOOLCLEAR)
+	echo -f $(filtered)
