@@ -14,7 +14,7 @@ typedef struct {
 } event_t;
 
 class SubscriberEC {
-	SEC *sec;
+	famouso::config::SEC *sec;
 	void cb(famouso::mw::api::SECCallBackData &cb);
 	uint32_t first,last,max;
 	struct Storage {
@@ -34,7 +34,7 @@ public:
 
 
 class PublisherEC {
-	PEC *pec;
+	famouso::config::PEC *pec;
 public:
   PublisherEC (const subject_t&);
   ~PublisherEC ();

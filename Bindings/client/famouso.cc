@@ -5,7 +5,7 @@
 
 // SubscriberEC code
 SubscriberEC::SubscriberEC(const subject_t &sub, uint32_t count) :first(0), last(0), max(count) {
-	sec=new SEC(sub);
+	sec=new famouso::config::SEC(sub);
 	events = new Storage[count];
 }
 SubscriberEC::~SubscriberEC() {
@@ -52,7 +52,7 @@ int SubscriberEC::poll(event_t &e) {
 
 // PublisherEC code
 PublisherEC::PublisherEC (const subject_t &sub){
-	pec=new PEC(sub);
+	pec=new famouso::config::PEC(sub);
 }
 
 PublisherEC::~PublisherEC() {
