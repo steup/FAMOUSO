@@ -109,7 +109,7 @@ if robot.power && ~robot.crashed
     
     %%%%%%%% Crashdetection mit der Karte
     
-%     if robot.potentialMapPatch(round(robot.position(1)),round(robot.position(2)))==1
+    if robot.potentialMapPatch(round(robot.position(1)),round(robot.position(2)))
     
         x_cp(length(x_cp)+1)=x_cp(1);
         y_cp(length(y_cp)+1)=y_cp(1);
@@ -144,7 +144,7 @@ if robot.power && ~robot.crashed
                 %             matrix(x(in),y(in))=robot.number;
             end
         end
-%     end
+     end
     
     %% Collisions of robots
     if length(scenario.robots)>1
