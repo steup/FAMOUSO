@@ -5,5 +5,6 @@
 # -----------------------------------------------------------------------------
 
 SOURCES  += \
-src/mw/nl/UDPMultiCastNL.cc
+src/mw/nl/UDPMultiCastNL.cc \
+src/util/ios.cc
 
