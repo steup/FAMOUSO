@@ -15,6 +15,8 @@
 
 int main(int argc, char **argv) {
 
+    famouso::init<famouso::config::EC>();
+
     // create a PublisherEventChannel
     // with a specific Subject
     famouso::config::PEC pec(0xf100000000000000ull);
