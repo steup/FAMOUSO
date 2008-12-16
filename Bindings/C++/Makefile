@@ -16,4 +16,4 @@ all:
 	mv $@.foobar $(basename $@)$(SUFFIX)
 
 clean:
-	echo -f $(filtered)
+	rm -f $(filtered)
