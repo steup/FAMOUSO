@@ -10,10 +10,15 @@
 #include "famouso.h"
 
 namespace famouso {
-namespace config {
-typedef famouso::mw::el::EventLayerClientStub ECH;
-typedef famouso::mw::api::PublisherEventChannel  < ECH > PEC;
-typedef famouso::mw::api::SubscriberEventChannel < ECH > SEC;
-}}
+    class config {
+      public:
+        typedef famouso::mw::el::EventLayerClientStub ECH;
+        typedef famouso::mw::api::PublisherEventChannel  < ECH > PEC;
+        typedef famouso::mw::api::SubscriberEventChannel < ECH > SEC;
+
+        typedef famouso::mw::api::EventChannel  < ECH > EC;
+    };
+}
+
 
 #endif
