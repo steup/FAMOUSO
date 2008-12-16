@@ -6,5 +6,6 @@
 
 SOURCES  +=\
 src/mw/nl/UDPMultiCastNL.cc \
-src/util/ios.cc
+src/util/ios.cc \
+src/util/Idler.cc
 
