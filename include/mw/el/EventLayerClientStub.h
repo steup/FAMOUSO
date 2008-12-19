@@ -53,7 +53,7 @@ class EventLayerClientStub {
    boost::array<char, 65535> event_data;
 
    void do_connection_socket(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
-        ec.snn()=new boost::asio::ip::tcp::socket(famouso::ios::instance());
+        ec.snn()=new boost::asio::ip::tcp::socket(famouso::util::ios::instance());
         // Establish connection with the ech
         boost::asio::ip::tcp::endpoint endpoint(
         boost::asio::ip::address::from_string(servAddress), ServPort);
@@ -68,7 +68,7 @@ class EventLayerClientStub {
     typedef boost::asio::ip::tcp::socket *SNN;
 
     void init(){
-        //static boost::thread t(boost::bind(&famouso::ios_type::run, &famouso::ios::instance()));
+        famouso::util::impl::start_ios();
     }
 
     EventLayerClientStub() {

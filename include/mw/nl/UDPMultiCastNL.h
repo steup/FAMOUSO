@@ -37,9 +37,10 @@ class UDPMultiCastNL : public BaseNL, boost::noncopyable {
 		 * @param p port (default is 9999)
 		 */
 		UDPMultiCastNL( int p = 9999 )
-		:m_socket( famouso::ios::instance() ), port( p ),
+		:m_socket( famouso::util::ios::instance() ), port( p ),
 		m_endpoint_listen( boost::asio::ip::address::from_string("0.0.0.0"), port )
 		{
+            famouso::util::impl::start_ios();
 			init();
 		}
 

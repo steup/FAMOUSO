@@ -1,6 +1,7 @@
 #ifndef __UDPBroadCastNL_h__
 #define __UDPBroadCastNL_h__
 
+#include "util/ios.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/common/NodeID.h"
@@ -57,6 +58,7 @@ public:
     }
 
     void init() {
+    famouso::util::impl::start_ios();
         DEBUG(("%s\n", __PRETTY_FUNCTION__));
     }
     SNN lastPacketSNN() {

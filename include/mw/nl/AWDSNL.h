@@ -63,7 +63,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		/**
 		 * @brief default constructor
 		 */
-		AWDSNL() :m_socket( famouso::ios::instance() ){}
+		AWDSNL() :m_socket( famouso::util::ios::instance() ){}
 
 		/**
 		 * @brief destructor
@@ -79,6 +79,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		 * Sets the options for the socket and starts receiving.
 		 */
 		void init() {
+            famouso::util::impl::start_ios();
             boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"), Port);
             boost::system::error_code ec;
             m_socket.connect(endpoint, ec);
