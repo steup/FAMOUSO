@@ -9,7 +9,7 @@ scenario.period=0.05;
 
 %% Building the matrix based on a bitmap
 scenario.bmp_name='BMParea.bmp';
-scenario.bmp_name='Buero2.bmp';
+%scenario.bmp_name='Buero2.bmp';
 fprintf('Loading map ...')
 matrix_bmp=imread(scenario.bmp_name,'bmp');
 matrix=ones(size(matrix_bmp,1),size(matrix_bmp,2));

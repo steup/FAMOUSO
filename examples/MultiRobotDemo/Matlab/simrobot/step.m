@@ -1,5 +1,5 @@
 function scenario = step(obj, event, i, handles)
-tic
+
 global scenario
 if ~scenario.robots(i).power && ~scenario.robots(i).crashed;
     scenario.robots(i)=activate(scenario.robots(i),scenario.mode);
@@ -23,19 +23,22 @@ scenario.robots(i) = evaluate(scenario.robots(i), i ,scenario.matrix);
 scenario.robots(i) = update(scenario.robots(i),i,scenario.matrix,scenario);
 
 %% switch off timer objects of crashed robbies
-if scenario.robots(i).power & scenario.robots(i).crashed
-     aux=timerfind;
-     name=sprintf('Robot_%i',i);
-     in=strcmp(aux.Name,name);
-     if sum(in)>0
-         stop(aux(in));
-         delete(aux(in));
-         fprintf('Robot %i crashed - corresponding timer switched off \n',i);
-     else
-         fprintf('Robot %i crashed \n',i);
-     end
-     scenario.robots(i).power=false;
-     set(handles.Active,'String',num2str(str2double(aux)-1));
+if scenario.robots(i).crashed
+    if scenario.robots(i).power
+        aux=timerfind;
+        name=sprintf('Robot_%i',i);
+        in=strcmp(aux.Name,name);
+        if sum(in)>0
+            stop(aux(in));
+            delete(aux(in));
+            % local controlled robot
+            fprintf('Robot %i crashed - corresponding timer switched off \n',i);
+        else
+            % via FAMOUSO controlled robot
+            fprintf('Robot %i crashed \n',i);
+        end
+        scenario.robots(i).power=false;
+        aux=get(handles.Active,'String');
+        set(handles.Active,'String',num2str(str2double(aux)-1));
+    end
 end
-
-toc;

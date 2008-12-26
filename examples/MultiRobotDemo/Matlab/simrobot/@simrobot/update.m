@@ -7,9 +7,8 @@ if robot.power && ~robot.crashed
     robot.velocity(1) = robot.velocity(1) + robot.accel(1);
     robot.velocity(2) = robot.velocity(2) + robot.accel(2);
     
-    % Model constants, keep consistent with those ones in invmodel.m!
-    R = 1;
-    la = 3;
+    R = 2;
+    la = 5;
     lb = 0;
 
     v=(R/(2*la))*[-lb*robot.velocity(1)+lb*robot.velocity(2);-la*robot.velocity(1)-la*robot.velocity(2)];

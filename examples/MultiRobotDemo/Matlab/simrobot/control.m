@@ -222,7 +222,7 @@ end
 scenario.startTime=clock;
 disp('Simulator started ...')
 
-% time trigger for the time display
+time trigger for the time display
 time_display = timer('TimerFcn',...
     {'timerdisplay',handles},...
     'Name','timerdisplay',...
@@ -230,7 +230,7 @@ time_display = timer('TimerFcn',...
     'Period',0.05);
 start(time_display);
 
-% starting all timers (one for each robot)
+starting all timers (one for each robot)
 for i=1:length(scenario.robots)
     if strcmp(scenario.robots(i).trigger.triggerMode,'timer')
         aux = timer('TimerFcn',...
@@ -243,7 +243,16 @@ for i=1:length(scenario.robots)
     end
 end
 
-profile on
+% profile on
+% i=0;
+% while i<50
+%    
+%    step(0,0,1,handles);
+%    
+%    pause(0.1);
+%    i=i+1;
+% end
+% profile viewer
 
 % --- Executes on button press in stop.
 function stop_Callback(hObject, eventdata)
