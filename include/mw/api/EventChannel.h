@@ -30,18 +30,17 @@ namespace famouso {
 template < class ECH >
 class EventChannel : public Chain {
   // definition of the event channel handler
-  static ECH _ech;
+  static uint8_t _ech[sizeof(ECH)];
   // the 64Bit subject
   Subject _subj;
   // definition of the short network names of a subjectes
   typename ECH::SNN _snn;
 
  public:
-  /*! \brief give the Short Network Name representation of
-   *         the subject corresponding to that event channel
+  /*! \brief get the local event channel handler object
    */
   static ECH& ech() {
-    return _ech;
+    return reinterpret_cast<ECH&>(_ech);
   }
 
   /*! \brief give the Short Network Name representation of
@@ -80,7 +79,7 @@ class EventChannel : public Chain {
  *
  * \todo open question, whether the ECH should be static or accessible via a singleton ???
  */
-template < class ECH > ECH EventChannel<ECH>::_ech;
+template < class ECH > uint8_t EventChannel<ECH>::_ech[sizeof(ECH)]={0};
 
 		} // namespace api
 	} // namespace mw

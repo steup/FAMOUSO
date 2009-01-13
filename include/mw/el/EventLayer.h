@@ -25,8 +25,13 @@ class EventLayer : public LL {
         Queue Publisher;
         Queue Subscriber;
 
+        void* operator new(size_t, void* __p) { return __p; }
+
     public:
         void init() {
+            // late/defered Constructor call on pre-allocated memory
+            // using the placement new of C++
+            new (this) EventLayer;
             // initialisierungscode
             // z.B. Callbacks setzen und in allen
             // Netzen registrieren, CCP in unteren Layer, etc.
