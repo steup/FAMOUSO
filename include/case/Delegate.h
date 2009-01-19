@@ -8,7 +8,7 @@ namespace famouso {
  *		\class Delegate
  *		\brief Implements anonymous callback functionality
  */
-template<typename parameter>
+template<typename parameter=void>
 class Delegate {
   typedef void (*invoke_stub)(void const *, parameter);
   void const  *obj_ptr_;
@@ -72,6 +72,72 @@ class Delegate {
     ( *stub_ptr_ )( obj_ptr_, a0 );
   }
 };
+
+template<>
+class Delegate<void> {
+  typedef void (*invoke_stub)(void const *);
+  void const  *obj_ptr_;
+  invoke_stub stub_ptr_;
+
+  template<typename T, void (T::*Fxn)()>
+    struct mem_fn_stub
+    {
+      static void invoke(void const * obj_ptr)
+      {
+	T * obj = static_cast<T *>( const_cast<void *>( obj_ptr ) );
+	(obj->*Fxn)();
+      }
+    };
+
+  template<typename T, void (T::*Fxn)() const>
+    struct mem_fn_const_stub
+    {
+      static void invoke(void const * obj_ptr)
+      {
+	T const * obj = static_cast<T const *>( obj_ptr );
+	(obj->*Fxn)();
+      }
+    };
+
+  template<void (*Fxn)()>
+    struct function_stub
+    {
+      static void invoke(void const *)
+      {
+	(*Fxn)();
+      }
+    };
+
+ public:
+ Delegate() : obj_ptr_( 0 ), stub_ptr_( 0 ) { }
+
+  template<typename T, void (T::*Fxn)()>
+    void bind(T * obj)
+    {
+      obj_ptr_ = const_cast<T const *>( obj );
+      stub_ptr_ = &mem_fn_stub<T, Fxn>::invoke;
+    }
+
+  template<typename T, void (T::*Fxn)() const>
+    void bind(T const * obj)
+    {
+      obj_ptr_ = obj;
+      stub_ptr_ = &mem_fn_const_stub<T, Fxn>::invoke;
+    }
+
+  template<void (*Fxn)()>
+    void bind()
+    {
+      obj_ptr_ = 0;
+      stub_ptr_ = &function_stub<Fxn>::invoke;
+    }
+
+  void operator ()() const
+  {
+    ( *stub_ptr_ )( obj_ptr_);
+  }
+};
+
 	} // namespace util
 } // namespace famouso
 #endif
