@@ -30,7 +30,7 @@ namespace etagBP {
   */
 template < class CAN_Driver, typename ID = famouso::mw::nl::CAN::detail::ID >
 class Client {
-	bool passed;
+	volatile bool passed;
 	uint16_t	etag;
  public:
 
