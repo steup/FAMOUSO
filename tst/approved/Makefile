@@ -1,6 +1,7 @@
 include ../../make/Makefile
 
 LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
+CXXFLAGS+= -O3
 
 filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
 
@@ -12,15 +13,6 @@ all:
 clean:
 	@rm -rf $(filtered)
 
-# Regeln zur Erzeugung der Objektdateien
-$(MODULEDIR)/%.o : %.cc
-	@$(RULEECHO) ; \
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
-
-%:$(MODULEDIR)/%.o
+%:%.cc
 	@$(RULEECHO) ; \
 	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
-
-ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
--include $(DEPENDDIR)/*
-endif
