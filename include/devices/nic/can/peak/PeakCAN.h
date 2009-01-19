@@ -45,6 +45,12 @@ namespace device {
 	class PeakCAN {
       public:
 
+//        struct Interrupt {
+//            enum {
+//                RX
+//            };
+//        };
+//
       /*! \todo die CAN-Message Abstraction ist noch ungluecklich.
        *        Hier muss noch einiges am Konzept einer Nachricht
        *        geaendert werden, um eine allgemeine Nachricht zu
@@ -67,6 +73,7 @@ namespace device {
       PeakCAN() : sbb(elements) {}
       ~PeakCAN() {
           CAN_Close(handle);
+          ints_allowed=false;
       }
 
       bool receive(MOB* mob) {
@@ -153,7 +160,7 @@ namespace device {
            *        in order to avoid inconsistencies in the data-structures
            *        of the event layer
            */
-	      if (rx_Interrupt)
+	      if (rx_Interrupt && ints_allowed)
                 rx_Interrupt();
 	    }
 	  }
@@ -183,8 +190,18 @@ namespace device {
        *
        */
       famouso::util::Delegate<> tx_Interrupt;
-      };
 
+
+        bool ints_allowed;
+        void interrupts_on() {
+            ints_allowed=true;
+        }
+
+        void interrupts_off() {
+            ints_allowed=false;
+        }
+
+      };
     } /* namespace CAN */
   } /* namespace nic */
 } /* namespace device */
