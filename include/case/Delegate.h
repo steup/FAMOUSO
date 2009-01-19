@@ -71,6 +71,11 @@ class Delegate {
   {
     ( *stub_ptr_ )( obj_ptr_, a0 );
   }
+
+  operator bool() const
+  {
+      return stub_ptr_;
+  }
 };
 
 template<>
@@ -135,6 +140,11 @@ class Delegate<void> {
   void operator ()() const
   {
     ( *stub_ptr_ )( obj_ptr_);
+  }
+
+  operator bool() const
+  {
+      return stub_ptr_;
   }
 };
 
