@@ -1,6 +1,7 @@
 #ifndef __CANNL_h__
 #define __CANdNL_h__
 
+#include "case/Delegate.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/common/NodeID.h"
@@ -57,8 +58,10 @@ public:
 		DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
         driver.init();
         tx_node=ccp.ccp_configure_tx_node("Schulze\0", driver);
-        driver.set_rx_Interrupt(boost::bind(&CANNL<CAN_Driver,CCP,BP>::rx_interrupt, this));
-        // driver.interrupts_on(); sowas muss irgendwie noch mit rein
+        famouso::util::Delegate<> dg;
+        dg.bind<CANNL<CAN_Driver,CCP,BP>,&CANNL<CAN_Driver,CCP,BP>::rx_interrupt>(this);
+        driver.set_rx_Interrupt(dg);
+        //driver.interrupts_on(); sowas muss irgendwie noch mit rein
     }
 
     // bind Subject to specific networks name

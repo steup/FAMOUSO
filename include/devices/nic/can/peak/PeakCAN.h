@@ -2,6 +2,7 @@
 #define __PeakCAN_h__
 
 #include "object/SynchronizedBoundedBuffer.h"
+#include "case/Delegate.h"
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -170,8 +171,8 @@ namespace device {
 
       public:
 
-      boost::function<void()> rx_Interrupt;
-      void set_rx_Interrupt(boost::function<void()> f) {
+      famouso::util::Delegate<> rx_Interrupt;
+      void set_rx_Interrupt(famouso::util::Delegate<> f) {
             rx_Interrupt=f;
       }
 
@@ -181,7 +182,7 @@ namespace device {
        * \todo Provide functionality of using tx_interrupt
        *
        */
-      boost::function<void()> tx_Interrupt;
+      famouso::util::Delegate<> tx_Interrupt;
       };
 
     } /* namespace CAN */
