@@ -61,7 +61,7 @@ public:
         famouso::util::Delegate<> dg;
         dg.bind<CANNL<CAN_Driver,CCP,BP>,&CANNL<CAN_Driver,CCP,BP>::rx_interrupt>(this);
         driver.set_rx_Interrupt(dg);
-        //driver.interrupts_on(); sowas muss irgendwie noch mit rein
+        driver.interrupts_on();
     }
 
     // bind Subject to specific networks name
