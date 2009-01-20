@@ -1,6 +1,6 @@
-function scenario = step(obj, event, i, handles)
+function scenario = step(obj, event, i, handles, scenario)
 
-global scenario
+% global scenario
 if ~scenario.robots(i).power && ~scenario.robots(i).crashed;
     scenario.robots(i)=activate(scenario.robots(i),scenario.mode);
     disp(['Robot ' num2str(i) ' activated ...']);
@@ -23,8 +23,7 @@ scenario.robots(i) = evaluate(scenario.robots(i), i ,scenario.matrix);
 scenario.robots(i) = update(scenario.robots(i),i,scenario.matrix,scenario);
 
 %% switch off timer objects of crashed robbies
-if scenario.robots(i).crashed
-    if scenario.robots(i).power
+if scenario.robots(i).crashed && scenario.robots(i).power
         aux=timerfind;
         name=sprintf('Robot_%i',i);
         in=strcmp(aux.Name,name);
@@ -40,5 +39,4 @@ if scenario.robots(i).crashed
         scenario.robots(i).power=false;
         aux=get(handles.Active,'String');
         set(handles.Active,'String',num2str(str2double(aux)-1));
-    end
 end

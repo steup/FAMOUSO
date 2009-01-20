@@ -222,37 +222,37 @@ end
 scenario.startTime=clock;
 disp('Simulator started ...')
 
-time trigger for the time display
-time_display = timer('TimerFcn',...
-    {'timerdisplay',handles},...
-    'Name','timerdisplay',...
-    'ExecutionMode','fixedRate',...
-    'Period',0.05);
-start(time_display);
+%time trigger for the time display
+% time_display = timer('TimerFcn',...
+%     {'timerdisplay',handles},...
+%     'Name','timerdisplay',...
+%     'ExecutionMode','fixedRate',...
+%     'Period',0.05);
+% start(time_display);
 
-starting all timers (one for each robot)
-for i=1:length(scenario.robots)
-    if strcmp(scenario.robots(i).trigger.triggerMode,'timer')
-        aux = timer('TimerFcn',...
-            {'step' i handles},...
-            'Name',sprintf('Robot_%i',i),...
-            'StartDelay',scenario.robots(i).trigger.delay,...
-            'ExecutionMode','fixedRate',...
-            'Period',scenario.robots(i).trigger.period);
-        start(aux);
-    end
-end
-
-% profile on
-% i=0;
-% while i<50
-%    
-%    step(0,0,1,handles);
-%    
-%    pause(0.1);
-%    i=i+1;
+%starting all timers (one for each robot)
+% for i=1:length(scenario.robots)
+%     if strcmp(scenario.robots(i).trigger.triggerMode,'timer')
+%         aux = timer('TimerFcn',...
+%             {'step' i handles},...
+%             'Name',sprintf('Robot_%i',i),...
+%             'StartDelay',scenario.robots(i).trigger.delay,...
+%             'ExecutionMode','fixedRate',...
+%             'Period',scenario.robots(i).trigger.period);
+%         start(aux);
+%     end
 % end
-% profile viewer
+
+profile on
+i=0;
+while i<50
+   tic
+   scenario=step(0,0,1,handles,scenario);
+   toc
+   pause(0.1);
+   i=i+1;
+end
+profile viewer
 
 % --- Executes on button press in stop.
 function stop_Callback(hObject, eventdata)
