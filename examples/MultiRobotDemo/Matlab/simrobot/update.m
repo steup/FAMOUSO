@@ -1,9 +1,10 @@
-function new = update(robot,robotID,matrix,scenario)
 %% UPDATE	(system) updates the simulation.
+function new = update(robotID,scenario)
+
+robot=scenario.robots(robotID);
+matrix=scenario.matrix;
 
 if robot.power && ~robot.crashed
-
-    %% ***** Move robot and store data  ***** 
     robot.velocity(1) = robot.velocity(1) + robot.accel(1);
     robot.velocity(2) = robot.velocity(2) + robot.accel(2);
     

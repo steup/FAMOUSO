@@ -41,4 +41,4 @@ scenario.mode='sim';
 % % or 
 scenario.mode='vis+sim';
 % % for simulation and visualisation
-control();
+GUIcontrol();
