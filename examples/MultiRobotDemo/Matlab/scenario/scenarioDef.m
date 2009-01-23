@@ -42,7 +42,7 @@ sensors.line=0;
 % intern
 trigger(1).triggerMode='timer';
 trigger(1).period=0.1;
-trigger(1).delay=1;
+trigger(1).delay=10;
 trigger(1).timerHandle=[];
 trigger(1).TCPHandle=[];
 
@@ -129,8 +129,9 @@ scenario.robots(i)=simrobot('robot_4',...
     [-4 4 4 -4],...
     [4 4 -4 -4],...
     sensors, ...
-    [220 180], ...
-    trigger(1));
+    [250 180], ...
+    trigger(2));
+
 
 %% Saves
 cd saves
