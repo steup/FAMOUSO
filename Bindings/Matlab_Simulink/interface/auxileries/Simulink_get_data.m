@@ -2,6 +2,7 @@ function value=Simulink_get_data(subject, method)
 	channel_name=id2name('input',subject);
 %     dbstop Simulink_get_data at 4
     eval(sprintf('global %s;',channel_name));
+%     dbstop in Simulink_get_data at 6
     eval(sprintf('[data %s] =get_data(%s, method);',channel_name,channel_name));
     
     switch method
@@ -25,10 +26,11 @@ function value=Simulink_get_data(subject, method)
         case 'all'
             % hier wird jetzt fuer das Szenario geschummelt und der
             % erstbeste Datansatz mit der richtigen Robot ID gesucht
+%                 dbstop in Simulink_get_data at 30
                 if strcmp(channel_name,'distance')
                     if ~isempty(data)
                         data=double(data);
-                        a=find(data(:,3)==2);
+                        a=find(data(:,3)==4);
             %             value=[[0 0 0];[0 0 0]];
                         value=[0 0 0];
                         if ~isempty(a)
