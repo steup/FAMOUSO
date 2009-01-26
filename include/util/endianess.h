@@ -1,7 +1,11 @@
-#ifndef __endianess_h__
-#define __endianess_h__
+#ifndef __endianness_h__
+#define __endianness_h__
 
+#ifndef WIN32
 #include <arpa/inet.h>
+#else
+#include <winsock2.h>
+#endif
 
 /**
  *   byte ordering function for 64bit variable
