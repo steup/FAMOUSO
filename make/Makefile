@@ -15,6 +15,7 @@ endif
 #
 # Definition des Targets und zusaetzlicher Einstellungen lesen
 include $(INSTALLDIR)/make/config.mk
+include $(INSTALLDIR)/make/tags.mk
 
 # einige Definition lesen, die immer gelten
 include $(INSTALLDIR)/make/global.mk

@@ -29,8 +29,8 @@ INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 DEBUG		= -g
 
 #Additional external libs
-LIBBOOST	= $(LIBDIR)/libboost_system-mt.a $(LIBDIR)/libboost_thread-mt.a
-LIBPCAN		= -lpcan
+LIBBOOST	= $(LIBDIR)/libboost_system-mt.a $(LIBDIR)/libboost_thread$(THREADTAG)-mt.a
+#LIBPCAN		= -lpcan
 
 #ADDITIONAL_CFLAGS	+=
 ADDITIONAL_CFLAGS	+= -DNDEBUG
