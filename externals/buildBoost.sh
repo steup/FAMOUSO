@@ -5,8 +5,12 @@ pushd `dirname $0`
 [ ! -d Boost ] && sh wget.sh
 if [ -d Boost ]; then
 
-BJAMCONFIG=" gcc --layout=system --with-system --with-thread link=static --user-config=`pwd`/user-config.jam.${3%/*} install "
+if [ x${3%.*} = xwindows ]; then
+    THREADAPI="threadapi=win32"
+fi
+
 PARAMS=" --libdir=$1 --includedir=$2 "
+BJAMCONFIG=" gcc --layout=system --with-system --with-thread link=static --user-config=`pwd`/user-config.jam.${3%/*} install ${THREADAPI}"
 echo Configure-Parameter $PARAMS
 echo BJAM-Parameter $BJAMCONFIG
 
@@ -15,10 +19,11 @@ pushd Boost
 pushd tools/jam/src
 arch=`./bootstrap/jam0 -d0 -f build.jam --toolset=gcc --show-locate-target`
 popd
+command="./tools/jam/src/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS"
 make clean
 rm -f user-config.*
-echo ./tools/jam/src/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS
-./tools/jam/src/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS
+echo $command
+$command
 #make distclean
 popd
 
