@@ -11,7 +11,7 @@
 #include "mw/api/PublisherEventChannel.h"
 
 #include "famouso.h"
-#include "util/endianess.h"
+#include "util/endianness.h"
 #include "case/Delegate.h"
 #include "util/ios.h"
 

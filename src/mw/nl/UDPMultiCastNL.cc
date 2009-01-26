@@ -1,5 +1,5 @@
 #include "mw/nl/UDPMultiCastNL.h"
-#include "util/endianess.h"
+#include "util/endianness.h"
 
 namespace famouso{
 	namespace mw{

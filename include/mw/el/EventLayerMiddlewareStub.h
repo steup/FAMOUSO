@@ -16,7 +16,7 @@
 #include "mw/api/SubscriberEventChannel.h"
 
 #include "famouso.h"
-#include "util/endianess.h"
+#include "util/endianness.h"
 #include "util/ios.h"
 
 //#include "mw/common/UID.h"

@@ -12,7 +12,7 @@
 #include <fcntl.h>
 
 #include "famouso_bindings.h"
-#include "util/endianess.h"
+#include "util/endianness.h"
 
 #define RobotID 4
 

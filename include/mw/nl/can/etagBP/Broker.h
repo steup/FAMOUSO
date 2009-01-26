@@ -6,7 +6,7 @@
 #include "mw/nl/can/canETAGS.h"
 #include "mw/nl/can/canID.h"
 #include "mw/common/Subject.h"
-#include "util/endianess.h"
+#include "util/endianness.h"
 
 namespace famouso {
 namespace mw {
