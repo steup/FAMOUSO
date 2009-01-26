@@ -83,6 +83,9 @@ distclean:
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
 
+properclean: distclean
+	@rm -rf externals/Boost externals/boost*
+
 depend: $(DEPENDDIR) $(DEPSPRE)
 
 ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
