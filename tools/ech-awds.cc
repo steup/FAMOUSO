@@ -1,13 +1,5 @@
 #include <iostream>
 
-// CAN-NL specific includes
-#include "devices/nic/can/peak/PeakCAN.h"
-#include "mw/nl/can/canETAGS.h"
-#include "mw/nl/can/canID.h"
-#include "mw/nl/can/etagBP/Broker.h"
-#include "mw/nl/can/ccp/Broker.h"
-#include "mw/nl/CANNL.h"
-
 // AWDSNL specific
 #include "mw/nl/AWDSNL.h"
 
