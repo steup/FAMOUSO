@@ -180,6 +180,8 @@ namespace el {
                                                       boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
                                                                                      ServPort)) {
                 start_accept();
+                // start io-service to ensure asynchrone acceptance of connections
+                famouso::util::impl::start_ios();
             }
 
         private:
@@ -195,6 +197,9 @@ namespace el {
                 if (!error) {
                     ecc->start();
                     start_accept();
+                    std::cout << "Accepted:" << std::endl;
+                } else {
+                    std::cout << "Accepted: error" << std::endl;
                 }
             }
             boost::asio::ip::tcp::acceptor acceptor_;
