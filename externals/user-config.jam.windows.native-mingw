@@ -1,1 +1,1 @@
-using gcc : : gcc : <cxxflags>-mthreads ; 
+using gcc : : gcc : <cxxflags>-mthreads <cxxflags>-mno-cygwin ; 
