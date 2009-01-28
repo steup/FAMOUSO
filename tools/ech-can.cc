@@ -54,7 +54,7 @@ namespace famouso {
         };
     }
 
-    typedef UDP::config config;
+    typedef CAN::config config;
 }
 
 int main (int argc, char **argv) {
