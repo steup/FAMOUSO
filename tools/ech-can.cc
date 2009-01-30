@@ -25,7 +25,7 @@
 
 namespace famouso {
     namespace CAN {
-        char *dev = "/dev/pcan32";
+        const char *dev = "/dev/pcan32";
         class config {
                 typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
                 typedef famouso::mw::nl::CAN::ccp::Broker<can> ccpBroker;

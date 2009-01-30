@@ -40,7 +40,7 @@ namespace device {
        *
        */
 
-      template <char *&device, uint16_t wBTR0BTR1, uint32_t elements=1000,
+      template <const char *&device, uint16_t wBTR0BTR1, uint32_t elements=1000,
                 class IDType=famouso::mw::nl::CAN::detail::ID>
 	class PeakCAN {
       public:
