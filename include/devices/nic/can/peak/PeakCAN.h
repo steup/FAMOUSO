@@ -53,7 +53,7 @@ namespace device {
       class MOB : private TPCANMsg {
           friend class PeakCAN<device,wBTR0BTR1,elements> ;
       public:
-        typedef famouso::mw::nl::CAN::detail::ID  IDType;
+        typedef famouso::mw::nl::CAN::PEAK::ID  IDType;
 
         void extended() { MSGTYPE=MSGTYPE_EXTENDED;}
           IDType& id() {
