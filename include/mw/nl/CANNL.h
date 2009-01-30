@@ -11,7 +11,6 @@
 #include "mw/nl/can/canID.h"
 #include "debug.h"
 #include <stdio.h>
-#include "devices/nic/can/peak/PeakCAN.h"
 
 namespace famouso {
 	namespace mw {

@@ -1,7 +1,6 @@
 #ifndef __etagBP_Broker_h__
 #define __etagBP_Broker_h__
 
-#include "devices/nic/can/peak/PeakCAN.h"
 #include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
 #include "mw/common/Subject.h"
