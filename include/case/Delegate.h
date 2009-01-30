@@ -67,7 +67,7 @@ class Delegate {
       stub_ptr_ = &function_stub<Fxn>::invoke;
     }
 
-  void operator ()(parameter a0) const
+  void operator ()(parameter a0) const __attribute__((always_inline))
   {
     ( *stub_ptr_ )( obj_ptr_, a0 );
   }
@@ -137,7 +137,7 @@ class Delegate<void> {
       stub_ptr_ = &function_stub<Fxn>::invoke;
     }
 
-  void operator ()() const
+  void operator ()() const __attribute__((always_inline))
   {
     ( *stub_ptr_ )( obj_ptr_);
   }
