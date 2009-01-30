@@ -67,10 +67,11 @@ namespace device {
 
       };
 
-      PeakCAN() : sbb(elements) {}
+      PeakCAN() : sbb(elements) {
+          ints_allowed=false;
+      }
       ~PeakCAN() {
           CAN_Close(handle);
-          ints_allowed=false;
       }
 
       bool receive(MOB* mob) {
