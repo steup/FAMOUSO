@@ -26,7 +26,7 @@ enum {
 template < class CAN_Driver >
 class Client {
         void debug(char* s) {
-            std::cout << s;
+//            std::cout << s;
         }
         uint8_t compareUID(uint8_t *msg, uint8_t* uid_str, uint8_t stage) {
             register int8_t count;
