@@ -17,8 +17,6 @@ class EventChannel(asyncore.dispatcher):
     def __init__(self,  subject):               # Konstruktor, benötigt subject als String
         # es folgen drei Attribute, welche gemeinsam das Datenpacket bilden, welches direkt an den ECH versendet wird
         self.subject = subject
-        self.size = 0
-        self.data_package = ""
         # Aufruf des Konstruktors vom dispatcher
         asyncore.dispatcher.__init__(self)
         # Erstellen und verbinden des Sockets
@@ -43,47 +41,37 @@ class EventChannel(asyncore.dispatcher):
         self.close()
         print "handle_error() -- Asyncore Exception, socket closed..."
 
-    def announce(self,  subject):                           # Announce Methode benötigt ein subject als String
-        if self.subject == subject:                         # Prüfung ob das angegebene Subject auch zum Subject des Konstruktors passt
-            self.subject = subject.decode("hex")            # Umwandlung des Subject Strings in Hex Code
-            subject_len = len(self.subject)                 # Prüfen der Subjectlänge auf 8 Byte, sollte das Subject kleiner sein,
-            zero_data = struct.pack("!b", 0x00)             # wird es mit 00 aufgefüllt (zeroByte)
+    def encoded_subject(self):
+	# versuche das subject als Hex-Zahl, Fallback zu ASCII
+	try:
+		s = self.subject.decode("hex")
+	except:
+		s = self.subject
+	if len(s) > 8:
+		raise TypeError("subject must be <= 8 chars or <= 16 hex digits!")
+	return struct.pack("8s", s)
 
-            while subject_len < 8:                          # Auffüllen auf 8 Byte
-                subject_len = subject_len + 1
-                self.subject = self.subject + zero_data
+    def announce(self,  subject=None):                    # Announce Methode benötigt ein subject als String
+	if subject and self.subject != subject:
+            raise ValueError("stored subject and announce() subject mismatch!")
 
-            self.data_package = "V" + self.subject          # Anfügen des Op Codes an das Subject, 'V' stellt den Op Code für Announce dar
-            self.socket.send(self.data_package)             # Versenden des Announce Daten Pakets
-        else:
-            print "wrong Subject!"
+	data_package = "V" + self.encoded_subject()         # Anfügen des Op Codes an das Subject, 'V' stellt den Op Code für Announce dar
+	self.socket.send(data_package)                      # Versenden des Announce Daten Pakets
 
     def publish(self, myEvent):                             # Publish Methode, benötigt ein Event
-        self.size = myEvent.size                            # entnehmen der Size aus dem Event
-        self.subject = myEvent.subject.decode("hex")        # Umwandlung des Subject Strings in Hex Code
-        subject_len = len(self.subject)                     # Prüfen der Subjectlänge auf 8 Byte, Verfahren analog der Announce Methode
-        zero_data = struct.pack("!b", 0x00)
-
-        while subject_len < 8:
-            subject_len = subject_len + 1
-            self.subject = self.subject + zero_data
+        if self.subject != myEvent.subject:                 # Prüfung ob das angegebene Subject auch zum Subject des Konstruktors passt
+            raise ValueError("stored subject and announce() subject mismatch!")
 
         # Verpacken des Op Codes 'R' (für Publish), des Subjects, der Umwandlung der Size in einen Netzwerk Integer Wert und anfügen des Content Strings
-
-        self.data_package = "R"+self.subject+struct.pack("!i", self.size)+myEvent.content
-        self.socket.send(self.data_package)                 # Versenden des Daten Packets
+        data_package = "R" + self.encoded_subject() + \
+		struct.pack("!i", myEvent.size) + myEvent.content
+        self.socket.send(data_package)                      # Versenden des Daten Packets
 
     def socket_close(self):                                 # Socket Close Methode, notwendig um einen sauberen unsubscribe oder unannounce durchzuführen
         self.close()
 
-    def subscribe(self,  subject):                          # Subscribe Methode, benötigt Subject als String
-        self.subject = subject.decode("hex")                # Umwandlung des Subject Strings in Hex Code
-        subject_len = len(self.subject)                     # Prüfen der Subjectlänge auf 8 Byte, Verfahren analog der Announce Methode
-        zero_data = struct.pack("!b", 0x00)
-
-        while subject_len < 8:
-            subject_len = subject_len + 1
-            self.subject = self.subject + zero_data
-
-        self.data_package = "P"+self.subject                # Bauen des Daten Packets aus dem Op Code 'P' für Subscribe und dem Subject
+    def subscribe(self,  subject=None):             # Subscribe Methode, benötigt Subject als String
+        if subject and self.subject != subject:
+            raise ValueError("stored subject and announce() subject mismatch!")
+        self.data_package = "P"+self.encoded_subject()      # Bauen des Daten Packets aus dem Op Code 'P' für Subscribe und dem Subject
         self.socket.send(self.data_package)                 # Versenden des Daten Packets

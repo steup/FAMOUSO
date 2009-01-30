@@ -6,10 +6,10 @@ from famouso import *
 
 
 class PublisherEventChannel(EventChannel):      # Ableitung des EventChannel
-        
-    def announce(self, subject):                # Aufruf der Eventchannel Announce Methode   
+
+    def announce(self, subject=None):                # Aufruf der Eventchannel Announce Methode
         EventChannel.announce(self, subject)
-    
+
     def publish(self, myEvent):                 # Aufruf der Eventchannel Publish Methode
         EventChannel.publish(self, myEvent)
 
