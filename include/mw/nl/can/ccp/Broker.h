@@ -4,7 +4,6 @@
 #include "devices/nic/can/peak/PeakCAN.h"
 #include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
-#include "mw/nl/can/canID.h"
 #include "mw/common/UID.h"
 
 
@@ -19,8 +18,10 @@ namespace ccp {
 // Randbedingung, dass die UID = 0x0 von keinem Knoten
 // verwendet wird.
 //
-template < class CAN_Driver, typename ID = famouso::mw::nl::CAN::detail::ID >
+template < class CAN_Driver >
 class Broker {
+
+        typedef typename CAN_Driver::MOB::IDType IDType;
 
         UID knownNodes [constants::ccp::count];
         uint8_t ccp_stage;
@@ -41,7 +42,7 @@ class Broker {
         }
 
         bool handle_ccp_rsi(typename CAN_Driver::MOB &mob) {
-            ID *id = &mob.id();
+            IDType *id = &mob.id();
             // extrahiere zunaechst die wichtigsten Infos
             uint8_t nibble = id->ccp_nibble();
             uint8_t stage = id->ccp_stage();

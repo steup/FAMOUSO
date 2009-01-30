@@ -4,7 +4,6 @@
 #include "devices/nic/can/peak/PeakCAN.h"
 #include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
-#include "mw/nl/can/canID.h"
 #include "mw/common/Subject.h"
 #include "util/endianness.h"
 
@@ -15,7 +14,7 @@ namespace CAN {
 namespace etagBP {
 
 // old ETAG supply protocol
-template < class CAN_Driver, typename ID = famouso::mw::nl::CAN::detail::ID >
+template < class CAN_Driver>
 class Broker {
 
         Subject etags[constants::etagBP::count];
@@ -41,6 +40,8 @@ class Broker {
         }
 
     public:
+         typedef typename CAN_Driver::MOB::IDType IDType;
+
         Broker() {
             for ( uint16_t i = 0; i < constants::etagBP::count; ++i ) {
                 etags[i].value = 0;
@@ -67,7 +68,7 @@ class Broker {
          *          in case the message wasn't a binding request
          */
         bool handle_subject_bind_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
-            ID *id = &mob.id();
+            IDType *id = &mob.id();
             Subject sub(htonll(*reinterpret_cast<uint64_t*>(mob.data())));
             if ( id->etag() == famouso::mw::nl::CAN::ETAGS::GET_ETAG ) {
                 uint16_t etag = bind_subject(sub,constants::Broker_tx_node, canDriver);

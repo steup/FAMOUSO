@@ -45,12 +45,6 @@ namespace device {
 	class PeakCAN {
       public:
 
-//        struct Interrupt {
-//            enum {
-//                RX
-//            };
-//        };
-//
       /*! \todo die CAN-Message Abstraction ist noch ungluecklich.
        *        Hier muss noch einiges am Konzept einer Nachricht
        *        geaendert werden, um eine allgemeine Nachricht zu
@@ -59,6 +53,8 @@ namespace device {
       class MOB : private TPCANMsg {
           friend class PeakCAN<device,wBTR0BTR1,elements> ;
       public:
+        typedef famouso::mw::nl::CAN::detail::ID  IDType;
+
         void extended() { MSGTYPE=MSGTYPE_EXTENDED;}
           IDType& id() {
               return *reinterpret_cast<IDType*>(&ID);
@@ -68,6 +64,7 @@ namespace device {
           uint8_t *data() {return DATA;}
           void data(uint8_t *) {}
           uint8_t &data(uint8_t i) {return &DATA[i];}
+
       };
 
       PeakCAN() : sbb(elements) {}

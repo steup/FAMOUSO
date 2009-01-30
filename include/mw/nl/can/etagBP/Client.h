@@ -4,7 +4,6 @@
 #include "devices/nic/can/peak/PeakCAN.h"
 #include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
-#include "mw/nl/can/canID.h"
 #include "mw/common/Subject.h"
 
 namespace famouso {
@@ -27,12 +26,13 @@ namespace etagBP {
   * \todo at the moment the received broker answer is not checked
   *	  whether the etag corresponds the the subject
   */
-template < class CAN_Driver, typename ID = famouso::mw::nl::CAN::detail::ID >
+template < class CAN_Driver >
 class Client {
 	volatile bool passed;
 	uint16_t	etag;
  public:
 
+    typedef typename CAN_Driver::MOB::IDType IDType;
  Client(): passed(false), etag(0) {}
  /*! \brief Bind a Subject to an etag.
   *
@@ -42,7 +42,7 @@ class Client {
   */
  uint16_t bind_subject(const Subject &sub, uint16_t tx_node, CAN_Driver& canDriver) {
    typename CAN_Driver::MOB mob;
-   ID *id = reinterpret_cast<ID*>(&mob.id());
+   IDType *id = reinterpret_cast<IDType*>(&mob.id());
    mob.len(8);
    for (uint8_t i=0;i<mob.len();++i)
      mob.data()[i] = sub.tab[i];
@@ -71,7 +71,7 @@ class Client {
          *          complete removed.
          */
         bool handle_subject_bind_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
-            ID *id = &mob.id();
+            IDType *id = &mob.id();
             if ( id->etag() == famouso::mw::nl::CAN::ETAGS::SUPPLY_ETAG_NEW_BP ) {
 		etag=mob.data()[3];
 		passed=true;

@@ -4,7 +4,6 @@
 #include "devices/nic/can/peak/PeakCAN.h"
 #include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
-#include "mw/nl/can/canID.h"
 #include "mw/common/UID.h"
 
 
@@ -25,7 +24,7 @@ enum {
 // verwendet wird.
 //
 
-template < class CAN_Driver, typename ID = famouso::mw::nl::CAN::detail::ID >
+template < class CAN_Driver >
 class Client {
         void debug(char* s) {
             std::cout << s;
@@ -46,12 +45,14 @@ class Client {
 
     public:
 
+        typedef typename CAN_Driver::MOB::IDType IDType;
+
         uint8_t ccp_configure_tx_node(const char* uid, CAN_Driver& canDriver) {
             uint8_t *uid_str = (uint8_t*)uid;
             typename CAN_Driver::MOB	msg;
             msg.extended();
 
-            ID *id = &msg.id();
+            IDType *id = &msg.id();
             uint8_t ccp_status;
             uint8_t ccp_stage;
             uint8_t tx_node;
