@@ -2,7 +2,7 @@
 #define __PeakCAN_h__
 
 #include "object/SynchronizedBoundedBuffer.h"
-#include "case/Delegate.h"
+#include "mw/nl/can/GenericReceiveInterrupt.h"
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -158,8 +158,8 @@ namespace device {
            *        in order to avoid inconsistencies in the data-structures
            *        of the event layer
            */
-	      if (rx_Interrupt && ints_allowed)
-                rx_Interrupt();
+	      if (device::nic::CAN::detail::rx_Interrupt && ints_allowed)
+                device::nic::CAN::detail::rx_Interrupt();
 	    }
 	  }
 	}
@@ -176,9 +176,8 @@ namespace device {
 
       public:
 
-      famouso::util::Delegate<> rx_Interrupt;
       void set_rx_Interrupt(famouso::util::Delegate<> f) {
-            rx_Interrupt=f;
+            device::nic::CAN::detail::rx_Interrupt=f;
       }
 
       /*! \brief The tx_interrupt is called if the driver is able to
