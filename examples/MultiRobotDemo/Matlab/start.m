@@ -16,6 +16,7 @@ function start()
 % mode = 'vis+sim'
 
 clear variables;
+clear global scenario;
 delete(timerfind);
 delete(findobj('name','control'));
 home;

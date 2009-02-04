@@ -20,7 +20,19 @@ end
 
 %% Execute robots' algorithms
 % Take robot from the list and execute algorithm
-scenario.robots(i) = evaluate(scenario.robots(i), i ,scenario.matrix);
+if strcmp(scenario.robots(i).trigger.triggerMode,'timer')
+    scenario.robots(i) = evaluate(scenario.robots(i), i ,scenario.matrix);
+else
+    [dist,num] = readusonic(scenario.robots(i),i,'sensor_1',scenario.matrix);
+   if scenario.FAMOUSO==1
+       global distance;
+       aux=dist;
+       if aux>=255
+           aux=255;
+       end
+       publishing(distance,[aux 118 i]);
+   end
+end
 % Update robot
 scenario.robots(i) = update(i,scenario);
 
@@ -34,12 +46,14 @@ if scenario.robots(i).crashed && scenario.robots(i).power
             delete(aux(in));
             % local controlled robot
             fprintf('Robot %i crashed - corresponding timer switched off \n',i);
+            aux=get(handles.Active,'String');
+            set(handles.Active,'String',num2str(str2double(aux)-1));      
         else
             % via FAMOUSO controlled robot
             fprintf('Robot %i crashed \n',i);
+            handles=findobj('Tag','Active');
+            set(handles,'String',num2str(str2double(aux)-1));   
         end
-        scenario.robots(i).power=false;
-        aux=get(handles.Active,'String');
-        set(handles.Active,'String',num2str(str2double(aux)-1));
+         scenario.robots(i).power=false;  
 end
 % toc
