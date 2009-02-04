@@ -20,7 +20,7 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
     if isempty(data)
         data=input;
     else
-        data=[data input]
+        data=[data; input];
     end
     number=max(size(data));
     if number == 0
@@ -73,8 +73,7 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
     if ~strcmp(function_name,'-')
         [pathstr, name, ext, versn] = fileparts(function_name);
         try
-        eval(sprintf('%s(%s)',name,channel_name));
-%             ChannelF2(distance);
+            eval(sprintf('%s(%s)',name,channel_name));
         catch
             error(['Wrong callback function for FAMOUSO event' function_name])
         end
