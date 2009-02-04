@@ -197,9 +197,8 @@ namespace el {
                 if (!error) {
                     ecc->start();
                     start_accept();
-                    std::cout << "Accepted:" << std::endl;
                 } else {
-                    std::cout << "Accepted: error" << std::endl;
+                    std::cerr << "Error in asynchrone acception of an incomming connection" << std::endl;
                 }
             }
             boost::asio::ip::tcp::acceptor acceptor_;
