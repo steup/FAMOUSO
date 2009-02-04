@@ -8,7 +8,6 @@ i = 1;
 while ((i < s) && (~strcmp(robot.sensors(i).name,sensname))),
    i = i + 1;
 end
-
 cosa=cos(robot.heading*pi/180);
 sina=sin(robot.heading*pi/180);
 aux=[[cosa sina]; ...
@@ -29,16 +28,15 @@ y_window=[floor(min(ys)) ceil(max(ys))];
 if x_window(1)<1
     x_window(1)=1;
 end
-if x_window(2)>size(matrix,2)
-    x_window(2)=size(matrix,2);
+if x_window(2)>size(matrix,1)
+    x_window(2)=size(matrix,1);
 end
 if y_window(1)<1
     y_window(1)=1;
 end
-if y_window(2)>size(matrix,1)
-    y_window(2)=size(matrix,1); 
+if y_window(2)>size(matrix,2)
+    y_window(2)=size(matrix,2); 
 end
-
 %  plot([x_window(1) x_window(2) x_window(2) x_window(1) x_window(1)],...
 %       [y_window(1) y_window(1) y_window(2) y_window(2) y_window(1)],'-g');
 
@@ -46,6 +44,7 @@ dists=999999;
 num=1;
 
 [x y] = find(matrix(x_window(1):x_window(2),y_window(1):y_window(2))~=0);
+
 if ~isempty(x)
     x=x+x_window(1)-1;
     y=y+y_window(1)-1;
