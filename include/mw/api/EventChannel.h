@@ -22,10 +22,9 @@ namespace famouso {
  *
  *  The EventChannel encapsulates the needed data structures to handle the
  *  publish/subscribe communication and implements the redirection of the calls
- *  to the EventLayer also.
+ *  to the EventLayer (famouso::mw::el) also.
  *
- * \todo open question, whether the ECH should be static or accessible via a
- * singleton ???
+ * \ra famouso::mw::el::EventLayer
  */
 template < class ECH >
 class EventChannel : public Chain {
@@ -39,7 +38,7 @@ class EventChannel : public Chain {
  public:
   /*! \brief get the local event channel handler object
    */
-  static ECH& ech() {
+  ECH& ech() const {
     return reinterpret_cast<ECH&>(_ech);
   }
 
