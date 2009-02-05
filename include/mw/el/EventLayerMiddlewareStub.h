@@ -198,7 +198,7 @@ namespace el {
                     ecc->start();
                     start_accept();
                 } else {
-                    std::cerr << "Error in asynchrone acception of an incomming connection" << std::endl;
+                    std::cerr << "Error in asynchronous acceptance of an incoming connection" << std::endl;
                 }
             }
             boost::asio::ip::tcp::acceptor acceptor_;
