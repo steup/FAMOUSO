@@ -12,9 +12,16 @@ all:
 clean:
 	@rm -rf $(filtered)
 
-%:%.cc
+# rule for creating the object file
+$(MODULEDIR)/%.o : %.cc
 	@$(RULEECHO) ; \
-	$(CXX) $< -o $@.foobar $(CXXFLAGS) $(LDFLAGS)
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+# rule for linking the application and give it
+# the correct name dependend of the platform
+%:$(MODULEDIR)/%.o
+	@$(RULEECHO) ; \
+	$(CXX) $< -o $@.foobar $(CXXFLAGS) $(LDFLAGS) ; \
 	mv $@.foobar $(basename $@)$(SUFFIX)
 
 ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
