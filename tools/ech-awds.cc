@@ -48,11 +48,10 @@ int main (int argc, char **argv) {
         famouso::config::ELMS localELMS;
         std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
         Idler::idle();
-    } catch (std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        std::cout << "FAMOUSO -- successfully finished" << std::endl;
+    } catch (const char *e) {
+        std::cerr << "Exception: " << e << std::endl;
     }
-
-    std::cout << "FAMOUSO -- successfully finished" << std::endl;
     return 0;
 }
 

@@ -71,7 +71,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		 *  Closes the socket.
 		 *
 		 */
-		~AWDSNL() {
+		~AWDSNL() throw() {
 			m_socket.close( );
 		}
 
@@ -85,8 +85,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
             m_socket.connect(endpoint, ec);
             if (ec) {
                // An error occurred.
-                std::cerr << "Error connecting to awds-stub" << std::endl;
-                exit(-1);
+                throw "could not connect to AWDS-Network";
             }
 
             m_socket.async_receive(
@@ -180,19 +179,17 @@ class AWDSNL : public BaseNL, boost::noncopyable {
             } else {
                 std::cout<<"AWDS_Packet not supported yet"<<std::endl;
             }
+            m_socket.async_receive( boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
+                                    boost::bind( &AWDSNL::interrupt, this,
+                                    boost::asio::placeholders::error,
+                                    boost::asio::placeholders::bytes_transferred));
 		}else{
-			std::cerr << "while receiving : " << error.message() << std::endl;
+			std::cerr << "AWDS-Network : " << error.message() << std::endl;
+            throw "AWDS-Network disconnected likely";
 		}
 
 
-		m_socket.async_receive( boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
-			boost::bind( &AWDSNL::interrupt, this,
-				boost::asio::placeholders::error,
-				boost::asio::placeholders::bytes_transferred
-			)
-		);
-
-            }
+        }
 
 	private:
 		boost::asio::ip::tcp::socket m_socket;

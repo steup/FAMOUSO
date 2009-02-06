@@ -5,10 +5,19 @@
 namespace famouso {
     namespace util {
         namespace impl {
+            namespace detail {
+                void run() {
+                    try {
+                        boost::asio::io_service::work work(famouso::util::ios::instance());
+                       famouso::util::ios::instance().run();
+                    } catch (const char *c ) {
+                        std::cerr << "Exception : " << c << std::endl;
+                        abort();
+                    }
+                }
+            }
             void start_ios(){
-                static boost::asio::io_service::work work(famouso::util::ios::instance());
-                static boost::thread t(boost::bind(&famouso::util::ios_type::run,
-                                                   &famouso::util::ios::instance()));
+                    static boost::thread t(boost::bind(&famouso::util::impl::detail::run));
             }
         }
     }
