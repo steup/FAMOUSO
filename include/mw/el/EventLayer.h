@@ -101,7 +101,7 @@ class EventLayer : public LL {
         // }
 
     public:
-        void fetch(EL_CallBackData bnl) {
+        void fetch(famouso::mw::nl::BaseNL *bnl=0) {
             // Frage: Was muss fetch alles durchfuehren
             //	-unteren Layer fragen, nach einem event
             //	-dazu muss:
@@ -119,7 +119,7 @@ class EventLayer : public LL {
 //            else{
 //                do {
 //                DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value,ec.subject().value));
-                    if (LL::fetch(sec->subject(), sec->snn())) {// vergleich der Subjects
+                    if (LL::fetch(sec->snn(), bnl)) {// vergleich der Subjects
                         // versuchen das Event zu holen
                         // finden wir eins, wird es local gepublished, welches
                         // das verteilen an alle Subscriber bewirkt.
