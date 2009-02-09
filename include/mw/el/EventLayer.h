@@ -131,6 +131,7 @@ class EventLayer : public LL {
                 sec=reinterpret_cast<ec_t*>(sec->select());
 //                } while(sec);
             }
+            LL::event_processed();
         }
 };
 

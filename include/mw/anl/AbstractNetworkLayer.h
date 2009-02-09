@@ -57,6 +57,11 @@ class AbstractNetworkLayer : public NL{
         return true;
     }
 
+    // vorgesehen, um anzuzeigen, dass das Event vollstaendig
+    // propagiert wurde und die moeglicherweise reservierten
+    // Ressouren wiederverwendet werden koennen
+    void event_processed() {}
+
     void init() {
         NL::init();
     }
