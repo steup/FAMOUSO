@@ -14,7 +14,7 @@ public class Subscriber {
 				if (s.poll(event)>0) {
 					System.out.println("Notifyed event");
 					System.out.println("Subject "+event.getSubject()+" Laenge: "
-								+event.getLen()+" Daten: "+event.getData());
+								+event.getLen()+" Daten: "+new String(event.getData()));
 				} else {
 					try{
 						Thread.sleep(100);
