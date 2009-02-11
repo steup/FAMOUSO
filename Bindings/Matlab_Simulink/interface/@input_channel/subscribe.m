@@ -22,5 +22,5 @@ function a=subscribe(a)
         end
         %% Sending
         a.connection=TCPIP_write(a.connection, output);
-        fprintf('Subscribtion for channel %s\n', get_properties(a,'subject'));
+        % fprintf('Subscribtion for channel %s\n', get_properties(a,'subject'));
     end

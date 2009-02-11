@@ -19,8 +19,8 @@ function [val,a] = get_data(a, propName)
            num=find([a.messages.flag]==1);
            if ~isempty(num)
                for i=1:length(num)
-                  val= [val; a.messages(i).timestamp a.messages(i).values(1:a.messages(i).length)];
-                  a.messages(i).flag=0;
+                  val= [val; a.messages(num(i)).timestamp a.messages(num(i)).values(1:a.messages(num(i)).length)'];
+                  a.messages(num(i)).flag=0;
                end
            end
        end

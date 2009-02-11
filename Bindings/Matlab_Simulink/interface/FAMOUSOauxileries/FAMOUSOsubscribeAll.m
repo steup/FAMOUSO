@@ -7,4 +7,3 @@ if get_input_channel_info('size')>0
         eval(sprintf('%s=subscribe(%s);',char(channel_name),char(channel_name)));
     end
 end
-fprintf('\n');

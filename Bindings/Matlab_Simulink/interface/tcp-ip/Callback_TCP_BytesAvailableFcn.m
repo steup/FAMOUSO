@@ -16,12 +16,13 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
     persistent data;
     % add the residue of the last cycle to the new values
     input=TCPIP_read(eval(sprintf('get_properties(%s,''connection'');',channel_name)));
-    
+%     size(input)
     if isempty(data)
         data=input;
     else
         data=[data; input];
     end
+%     size(data)
     number=max(size(data));
     if number == 0
         return
@@ -31,6 +32,7 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
     %% Searching for valid data
     while(true)
         % contains the current data complete header?
+%         fprintf('#')
         if (number-k)>12
             current_subject=[];
             for i=1:8
@@ -68,6 +70,7 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
         end
         % Reading the rest
     end
+%     fprintf('\n')
     %% Call of the corresponding function
     function_name=eval(sprintf('get_properties(%s,''function_name'');',channel_name));
     if ~strcmp(function_name,'-')

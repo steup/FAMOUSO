@@ -8,4 +8,3 @@ if get_output_channel_info('size')>0
         eval(sprintf('%s=announce(%s);',char(channel_name),char(channel_name)));
     end
 end
-fprintf('\n');

@@ -76,6 +76,7 @@ for i=1:size(output_def,1)
         output_channel_IDs(i).subject=char(subject);
     end
 end
+fprintf('\n');
 
 % Initialisation of each TCP/IP channel
 if get_output_channel_info('size')>0

@@ -27,5 +27,5 @@ function a=announce(a)
         end
         %% Sending
         TCPIP_write(a.connection, output);
-        fprintf('Announcement for channel %s\n', a.subject);
+%         fprintf('Announcement for channel %s\n', a.subject);
     end
