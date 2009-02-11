@@ -16,6 +16,9 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
     persistent data;
     % add the residue of the last cycle to the new values
     input=TCPIP_read(eval(sprintf('get_properties(%s,''connection'');',channel_name)));
+    if max(size(input))>256
+        return 
+    end
 %     size(input)
     if isempty(data)
         data=input;
