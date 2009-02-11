@@ -1,4 +1,4 @@
-function new = robot_T_app(simrobot, id, matrix)
+function new = real_robot(simrobot, id, matrix)
 global scenario
 % your algorithm starts here
 
