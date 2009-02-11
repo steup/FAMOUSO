@@ -11,7 +11,7 @@ function val = get_properties(a, propName)
     case 'tcp_active'
        val=0;
        if strcmp(a.interaction_type,'callback')
-           if strcmp(a.tcpobj.status,'open')
+           if strcmp(get(a.tcpobj,'status'),'open')
                val=1;
            end
        else

@@ -17,17 +17,18 @@ function publishing(a,data)
     end
 
 %% Assambling of the header + subject + length + data
-% for publish messages the header is defined to 'ECH_REQ_PUBLISH'=0x52
+% for publish messages the header is defined to 'ECH_REQ_PUBLISH'=0x52='R'
     if size(data,2)>0
         if max(size(data))<9
-            header='52';
-            output=hex2dec(header);
-            aux=get_properties(a,'subject');
-            % distribution of the channel to 8 byte
-            for i=1:8
-                result=hex2dec(aux(2*i-1:2*i));
-                output=[output char(result)];
-            end
+%             header='52';
+%             output=hex2dec(header);
+%             aux=get_properties(a,'subject');
+%             % distribution of the channel to 8 byte
+%             for i=1:8
+%                 result=hex2dec(aux(2*i-1:2*i));
+%                 output=[output char(result)];
+%             end
+            output=['R' a.comment];
             output=[output char(0) char(0) char(0)];
             output=[output char(max(size(data)))];
             %data=int8(data);

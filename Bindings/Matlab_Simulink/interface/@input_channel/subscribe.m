@@ -11,15 +11,16 @@ function a=subscribe(a)
        return; 
     else
         %% Assambling of the header + subject
-        % for subscribe messages the header is defined to 'ECH_REQ_SUBSCRIBE'=0x50 
-        header='50';
-        output=hex2dec(header);
-        aux=a.subject;
-        % distribution of the channel to 8 byte
-        for i=1:8
-            result=hex2dec(aux(2*i-1:2*i));
-            output=[output char(result)];
-        end
+        % for subscribe messages the header is defined to 'ECH_REQ_SUBSCRIBE'=0x50=P 
+%         header='50';
+%         output=hex2dec(header);
+%         aux=a.subject;
+%         % distribution of the channel to 8 byte
+%         for i=1:8
+%             result=hex2dec(aux(2*i-1:2*i));
+%             output=[output char(result)];
+%         end
+        output=['P' a.comment];
         %% Sending
         a.connection=TCPIP_write(a.connection, output);
         % fprintf('Subscribtion for channel %s\n', get_properties(a,'subject'));

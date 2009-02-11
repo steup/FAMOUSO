@@ -12,19 +12,20 @@
 %
 function a=announce(a)
 %% Assambling of the header + subject + length + data
-% for publish messages the header is defined to 'ECH_REQ_ANNOUNCE'=0x56
+% for publish messages the header is defined to 'ECH_REQ_ANNOUNCE'=0x56='V'
     if ~get_properties(a.connection,'tcp_active');
        fprintf('Error - No connection for subscribtion \n');
        return;
     else
-        header='56';
-        output=hex2dec(header);
-        aux=a.subject;
-        % distribution of the channel to 8 byte
-        for i=1:8
-            result=hex2dec(aux(2*i-1:2*i));
-            output=[output char(result)];
-        end
+%         header='56';
+%         output=hex2dec(header);
+%         aux=a.subject;
+%         % distribution of the channel to 8 byte
+%         for i=1:8
+%             result=hex2dec(aux(2*i-1:2*i));
+%             output=[output char(result)];
+%         end
+        output=['V' a.comment];
         %% Sending
         TCPIP_write(a.connection, output);
 %         fprintf('Announcement for channel %s\n', a.subject);

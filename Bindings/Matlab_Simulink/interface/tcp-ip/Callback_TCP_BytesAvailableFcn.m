@@ -16,8 +16,8 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
     persistent data;
     % add the residue of the last cycle to the new values
     input=TCPIP_read(eval(sprintf('get_properties(%s,''connection'');',channel_name)));
-    if max(size(input))>256
-        return 
+    if isempty(input)
+        return
     end
 %     size(input)
     if isempty(data)
@@ -26,27 +26,26 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
         data=[data; input];
     end
 %     size(data)
-    number=max(size(data));
-    if number == 0
-        return
-    end
+    number=length(data);
+ 
     k=1;
 
     %% Searching for valid data
     while(true)
         % contains the current data complete header?
-%         fprintf('#')
+%          fprintf('#')
         if (number-k)>12
-            current_subject=[];
-            for i=1:8
-                aux=dec2hex(double(data(k+i)));
-                if max(size(aux))<2
-                    current_subject=[current_subject '0' aux];
-                else
-                    current_subject=[current_subject aux];
-                end
-            end
-            current_length=data(k+9)*256^3+data(k+10)*256^2+data(k+11)*256+data(k+12);
+%             current_subject=[];
+%             for i=1:8
+%                 aux=dec2hex(double(data(k+i)));
+%                 if max(size(aux))<2
+%                     current_subject=[current_subject '0' aux];
+%                 else
+%                     current_subject=[current_subject aux];
+%                 end
+%             end
+%            current_length=data(k+9)*256^3+data(k+10)*256^2+data(k+11)*256+data(k+12);
+            current_length=bitshift(data(k+9),24)+bitshift(data(k+10),16)+bitshift(data(k+11),8)+data(k+12);
             % is the data message complete?
             if ((number-(k+12))>=current_length)
                 eval(sprintf('%s=inc_index(%s);',channel_name,channel_name));
@@ -54,6 +53,7 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
                 % Copy the data into the global variable
                 t=clock;
                 values=char(data(k+12+1:k+12+current_length));
+%                 double(values)
                 eval(sprintf('%s=set_data(%s,t(6),current_length,values);',channel_name,channel_name));
 
                 % k points on the first value of the next message
@@ -73,7 +73,7 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
         end
         % Reading the rest
     end
-%     fprintf('\n')
+%      fprintf('\n')
     %% Call of the corresponding function
     function_name=eval(sprintf('get_properties(%s,''function_name'');',channel_name));
     if ~strcmp(function_name,'-')
