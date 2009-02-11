@@ -12,7 +12,7 @@ function new = robot_C_app(simrobot, id, matrix)
     else
 %         disp('attention')
     end
-%     dist
+%      dist
     publishing(distance,[aux 118 simrobot.number])
 
 new = simrobot;

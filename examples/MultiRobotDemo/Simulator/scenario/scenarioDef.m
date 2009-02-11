@@ -6,11 +6,11 @@ disp(['Definining scenario and saving in ' scenario.filename]);
 scenario.startTime=[];
 scenario.matrix=[];
 scenario.period=0.05;
-aux=3;
+scale=1;
 
 %% Building the matrix based on a bitmap
-scenario.bmp_name='reference_img.bmp';
-% scenario.bmp_name='Buero2.bmp';
+scenario.bmp_name='reference_img_10_2.bmp';
+%scenario.bmp_name='Buero2.bmp';
 fprintf('Loading map ...')
 matrix_bmp=imread(scenario.bmp_name,'bmp');
 matrix=ones(size(matrix_bmp,1),size(matrix_bmp,2));
@@ -32,12 +32,30 @@ fprintf('                      [ok]\n');
 
 %% Definition of the sensor parameter
 sensors.name='sensor_1';
-sensors.position=aux*[5 0];
+sensors.position=scale*[5 0];
 sensors.axisangle=0;
-sensors.scanangle=120;
-sensors.range=aux*20;
-sensors.resolution=30;
+sensors.scanangle=40;
+sensors.range=scale*20;
+sensors.resolution=20;
 sensors.line=0;
+
+i=length(sensors)+1;
+sensors(i).name='sensor_2';
+sensors(i).position=scale*[0 6];
+sensors(i).axisangle=90;
+sensors(i).scanangle=20;
+sensors(i).range=scale*20;
+sensors(i).resolution=20;
+sensors(i).line=0;
+
+i=length(sensors)+1;
+sensors(i).name='sensor_3';
+sensors(i).position=scale*[0 -6];
+sensors(i).axisangle=-90;
+sensors(i).scanangle=20;
+sensors(i).range=scale*20;
+sensors(i).resolution=20;
+sensors(i).line=0;
 
 %% Trigger modi
 % intern
@@ -65,10 +83,10 @@ scenario.robots=simrobot('robot_1',...
     'robot_T_app',...
     [1 1 0],...
     1,...
-    aux*[-2 0 4 0 -2],...
-    aux*[3 4 0 -4 -3],...
+    scale*[-2 0 4 0 -2],...
+    scale*[3 4 0 -4 -3],...
     sensors, ...
-    [200 350], ...
+    [100 150], ...
     trigger(1));
 
 %% ------> Robot 2
@@ -88,35 +106,17 @@ scenario.robots=simrobot('robot_1',...
 
 %% ------> Robot 3
 % Robot assambling 3
-i=length(sensors)+1;
-sensors(i).name='sensor_2';
-sensors(i).position=aux*[0 6];
-sensors(i).axisangle=90;
-sensors(i).scanangle=20;
-sensors(i).range=aux*20;
-sensors(i).resolution=30;
-sensors(i).line=0;
-
-i=length(sensors)+1;
-sensors(i).name='sensor_3';
-sensors(i).position=aux*[0 -6];
-sensors(i).axisangle=-90;
-sensors(i).scanangle=20;
-sensors(i).range=aux*20;
-sensors(i).resolution=30;
-sensors(i).line=0;
-
 i=length(scenario.robots)+1;
 scenario.robots(i)=simrobot('robot_3',...
-    64,...
+    3,...
     180,...
     'robot_C_app',...
     [1 1 1],...
     1,...
-    aux*[-4 4 4 -4],...
-    aux*[4 4 -4 -4],...
+    scale*[-4 4 4 -4],...
+    scale*[4 4 -4 -4],...
     sensors, ...
-    [380 350], ...
+    [180 150], ...
     trigger(2));
 % 
 % 

@@ -18,8 +18,8 @@ for i=1:size(values,1)
         break
      end
      robotlist=[robotlist id];
-     left=aux(2)/120;
-     right=aux(3)/120;
+     left=aux(2)/120/3;
+     right=aux(3)/120/3;
      scenario.robots(id)=setvel(scenario.robots(id),[left right]);
 end
 % size(values,1)
