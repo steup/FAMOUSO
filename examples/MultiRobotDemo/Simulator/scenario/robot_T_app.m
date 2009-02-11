@@ -1,4 +1,4 @@
-function new = real_robot(simrobot, id, matrix)
+function new = robot_T_app(simrobot, id, matrix)
 global scenario
 % your algorithm starts here
 
@@ -6,12 +6,12 @@ global scenario
    [dist,num] = readusonic(simrobot,id,'sensor_1',matrix);
    
    if scenario.FAMOUSO==1
-       global distance;
+       global Distance;
        aux=dist;
        if aux>=255
            aux=255;
        end
-       publishing(distance,[aux 118 id])
+       publishing(Distance,[aux 118 id])
    end
 
 % num, the nearest obstacle number, is not used    

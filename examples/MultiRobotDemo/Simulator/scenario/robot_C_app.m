@@ -5,14 +5,15 @@ function new = robot_C_app(simrobot, id, matrix)
 % sensor reading
     [dist,num] = readusonic(simrobot,id,'sensor_1',matrix);
    
-    global distance;
+    global Distance;
     aux=dist;
     if aux>=255
         aux=255;
     else
-%         disp('attention')
+%          disp('attention')
+%          dbstop in channel2robot at 7
     end
 %      dist
-    publishing(distance,[aux 118 simrobot.number])
+    publishing(Distance,[aux 118 simrobot.number])
 
 new = simrobot;
