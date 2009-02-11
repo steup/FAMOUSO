@@ -1,0 +1,47 @@
+This document describes the subjects and the formating of the exchanges events.
+
+Event: velocity of the robot
+    Subject:    "Velocity"
+    Length:     3
+    Data[0]     RobotID
+    Data[1]     velocity of the left wheel  Range: -100 -- +100
+    Data[2]     velocity of the right wheel Range: -100 -- +100
+
+Event: absolut position of the robot in the table coordinate system
+    Subject:    "Position"
+    Length:     4
+    Data[0]     RobotID
+    Data[1]     x
+    Data[2]     y
+    Data[3]     phi
+
+Event: distance sensor values
+    Subject:    "Distance"
+    Length:     4
+    Data[0]     RobotID
+    Data[1]     left distance sensor    Range: 0 -- 100
+    Data[2]     front distance sensor   Range: 0 -- 100
+    Data[3]     right distance sensor   Range: 0 -- 100
+
+Event: steering commands from the joystick
+    Subject:    "Steering"
+    Length:     3
+    Data[0]     RobotID
+    Data[1]     velocity of the left wheel  Range: -100 -- +100
+    Data[2]     velocity of the right wheel Range: -100 -- +100
+
+Event: human detection is fired if an human enters or left the robots battle field
+    Subject:    "HumanDet"
+    Length:     2
+    Data[0]     RobotID == all Robots -> Broadcast
+    Data[1]     0 if no human detected else human detected
+
+
+How is the robot id assigned?
+
+RobotID:
+    0   --  50      --> EUK-Robots (VolksBot, ...)
+    51  --  254     --> EOS-Robots (vitual robots, qfix, ...)
+    255             --> identifies all robots  == broadcast to all robots
+
+
