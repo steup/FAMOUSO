@@ -71,7 +71,7 @@ for i=1:3
     end;
     disp(['Newest data: ' double(get_data(distance,'newest'))]);
 end
-%display(distance);
+display(distance);
 
 %% Finish the time objects
 if ~isempty(timerfind)

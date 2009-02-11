@@ -40,12 +40,11 @@ global result;
 FAMOUSOsubscribeAll();
 FAMOUSOannounceAll();
 
-%% Application II - Reading Messages via Callback
-
-% for i=1:10
-%     pause(1);
-%     i
-% end
+%% Application - Reading Messages via Callback
+for i=1:20
+    disp('doing something');
+    pause(1);
+end
 
 %% Disconnection
 % Unsubscibtion/Unannouncement is organised by FAMOUSO ECH
