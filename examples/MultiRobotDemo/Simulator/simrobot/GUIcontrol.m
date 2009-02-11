@@ -211,16 +211,16 @@ delete(findobj('type','line'));
 delete(findobj('type','patch'));
 
 if scenario.FAMOUSO==1
-    FAMOUSOinit(TCPconfiguration());
+    aux=TCPconfiguration();
+    FAMOUSOinit(aux);
     FAMOUSOconnectAll();
     FAMOUSOsubscribeAll();
     FAMOUSOannounceAll();
-    aux=TCPconfiguration();
     set(handles.TCPIP,'String',aux.host);
 end
 
 scenario.startTime=clock;
-disp('Simulator started ...')
+disp('Simulation environment started ...')
 
 % %time trigger for the time display
 time_display = timer('TimerFcn',...
@@ -259,15 +259,15 @@ function stop_Callback(hObject, eventdata)
 % hObject    handle to stop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    global scenario;  
-    if scenario.FAMOUSO==1
-        FAMOUSOdisconnectAll();
-        disp('Connections all closed')
-    end
+    global scenario;
     out = timerfind;
     if ~isempty(out)
         stop(out);
         delete(out);
+    end  
+    if scenario.FAMOUSO==1
+        FAMOUSOdisconnectAll();
+        disp('Connections all closed')
     end
     for i=1:length(scenario.robots)
         scenario.robots(i).power=0;
