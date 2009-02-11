@@ -1,4 +1,5 @@
 import java.math.*;
+import famouso.*;
 
 public class Publisher {
 	public Publisher(){
