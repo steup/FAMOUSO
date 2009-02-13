@@ -6,4 +6,5 @@ RANLIB	= avr-ranlib
 LD		= avr-ld
 AS		= avr-as
 
-ADDITIONAL_CFLAGS += -DAVR -mmcu=at90can128
+MCU=at90can128
+ADDITIONAL_CFLAGS += -DAVR -mmcu=$(MCU)
