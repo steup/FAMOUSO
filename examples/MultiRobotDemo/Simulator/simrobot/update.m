@@ -99,10 +99,10 @@ if robot.power && ~robot.crashed
     
     % ****** Place robot to matrix ****** !!!
     % An dieser Stelle muessen crashes untersucht werden und der aktuelle
-    % Roboter in die Matrix eingefügt
+    % Roboter in die Matrix eingefï¿½gt
     %
     % Dabei werden zunaechst die Punkte in der Matrix bestimmt, auf die die
-    % Roboterkontur abzubilden ist, um danach zu prüfen, ob es dort andere
+    % Roboterkontur abzubilden ist, um danach zu prï¿½fen, ob es dort andere
     % Eintragungen (1,2,3 ...) usw. gibt
     
     % da hier xd nicht als "patch" betrachtet wird muss der Polygonzug noch
@@ -151,11 +151,11 @@ if robot.power && ~robot.crashed
     if length(scenario.robots)>1
         for i=1:length(scenario.robots)
             if (i~=robotID)
-%                 if sqrt((robot.position(1)-scenario.robots(i).position(1))^2+...
-%                         (robot.position(2)-scenario.robots(i).position(2))^2)<...
-%                         (scenario.robots(i).patchcircle+robot.patchcircle)
-                if abs(sum([robot.position -scenario.robots(i).position]))<...
-                        1.4142*(scenario.robots(i).patchcircle+robot.patchcircle)
+                if sqrt((robot.position(1)-scenario.robots(i).position(1))^2+...
+                        (robot.position(2)-scenario.robots(i).position(2))^2)<...
+                        (scenario.robots(i).patchcircle+robot.patchcircle)
+%                 if abs(sum([robot.position -scenario.robots(i).position]))<...
+%                         1.4142*(scenario.robots(i).patchcircle+robot.patchcircle)
                     if strcmp(class(scenario.robots(i).patch),'double')
                         patchXData = get(scenario.robots(i).patch,'XData');
                     else

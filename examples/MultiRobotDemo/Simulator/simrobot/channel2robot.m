@@ -4,7 +4,7 @@ global scenario
 
 robotlist=[];
 
-%% Variable Lösung ...
+%% Variable Lï¿½sung ...
 % aux=get_properties(channel_name,'comment');
 % eval(sprintf('global %s;',aux));
 % eval(sprintf('[values %s]=get_data(%s,''all'');',aux,aux));
@@ -25,6 +25,10 @@ for i=1:size(values,1)
      robotlist=[robotlist id];
      left=aux(2)/120;
      right=aux(3)/120;
+     if left==right
+        left=left/2;
+        right=right/2;
+     end
      scenario.robots(id)=setvel(scenario.robots(id),[left right]);
 end
 % double(values)
