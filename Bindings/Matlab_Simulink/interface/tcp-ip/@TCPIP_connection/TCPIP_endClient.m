@@ -5,7 +5,9 @@ function a=TCPIP_endClient(a)
 
 % Starting connection
 if strcmp(get_properties(a,'interaction_type'),'callback')
-    fclose(get_properties(a,'tcpobj'));  
+    if get_properties(a,'tcp_active');
+        fclose(get_properties(a,'tcpobj'));
+    end
 else
     pnet(get_properties(a,'tcpobj'),'close');
 end

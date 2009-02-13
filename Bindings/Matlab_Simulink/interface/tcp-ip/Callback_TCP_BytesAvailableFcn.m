@@ -26,54 +26,86 @@ function Callback_TCP_BytesAvailableFcn(obj,event,tcpobj)
         data=[data; input];
     end
 %     size(data)
-    number=length(data);
- 
-    k=1;
 
-    %% Searching for valid data
-    while(true)
-        % contains the current data complete header?
-%          fprintf('#')
-        if (number-k)>12
-%             current_subject=[];
-%             for i=1:8
-%                 aux=dec2hex(double(data(k+i)));
-%                 if max(size(aux))<2
-%                     current_subject=[current_subject '0' aux];
-%                 else
-%                     current_subject=[current_subject aux];
-%                 end
-%             end
-%            current_length=data(k+9)*256^3+data(k+10)*256^2+data(k+11)*256+data(k+12);
-            current_length=bitshift(data(k+9),24)+bitshift(data(k+10),16)+bitshift(data(k+11),8)+data(k+12);
-            % is the data message complete?
-            if ((number-(k+12))>=current_length)
-                eval(sprintf('%s=inc_index(%s);',channel_name,channel_name));
-                % a=inc_index(a);
-                % Copy the data into the global variable
-                t=clock;
-                values=char(data(k+12+1:k+12+current_length));
-%                 double(values)
-                eval(sprintf('%s=set_data(%s,t(6),current_length,values);',channel_name,channel_name));
-
-                % k points on the first value of the next message
-                k=k+12+current_length+1;
-                % no valid data any more
-                if number<k
-                    data=data(k:size(data,2));
-                    break;
+    subject_index=strfind(char(data)',channel_name);
+    if ~isempty(subject_index)
+        for i=1:length(subject_index)
+            current_length=data(subject_index(i)+8)*256^3+data(subject_index(i)+9)*256^2+data(subject_index(i)+10)*256+data(subject_index(i)+11);
+            %         data(subject_index(i)+8:subject_index(i)+11)
+            eval(sprintf('%s=inc_index(%s);',channel_name,channel_name));
+            t=clock;
+            if i<length(subject_index)
+                if subject_index(i)+12+current_length<subject_index(i+1)
+                    values=char(data(subject_index(i)+12:subject_index(i)+11+current_length));
+                    eval(sprintf('%s=set_data(%s,t(6),current_length,values);',channel_name,channel_name));
                 end
             else
-                % no complete message data
-                break;
+                if length(data)>=subject_index(i)+11+current_length
+                    values=char(data(subject_index(i)+12:subject_index(i)+11+current_length));
+                    eval(sprintf('%s=set_data(%s,t(6),current_length,values);',channel_name,channel_name));
+                else
+                    data=data(subject_index(i):length(data));
+                end
             end
-        else
-            % no complete message header
-            break;
         end
-        % Reading the rest
+    else
+        % no complete message data
     end
-%      fprintf('\n')
+    
+    
+    
+    
+    
+    
+%     number=length(data);
+%     k=1;
+% 
+%     
+%     
+%     %% Searching for valid data
+%     while(true)
+%         % contains the current data complete header?
+% %          fprintf('#')
+%         if (number-k)>12
+% %             current_subject=[];
+% %             for i=1:8
+% %                 aux=dec2hex(double(data(k+i)));
+% %                 if max(size(aux))<2
+% %                     current_subject=[current_subject '0' aux];
+% %                 else
+% %                     current_subject=[current_subject aux];
+% %                 end
+% %             end
+%             current_length=data(k+9)*256^3+data(k+10)*256^2+data(k+11)*256+data(k+12);
+%             current_length=bitshift(data(k+9),24)+bitshift(data(k+10),16)+bitshift(data(k+11),8)+data(k+12);
+%             % is the data message complete?
+%             if ((number-(k+12))>=current_length)
+%                 eval(sprintf('%s=inc_index(%s);',channel_name,channel_name));
+%                 % a=inc_index(a);
+%                 % Copy the data into the global variable
+%                 t=clock;
+%                 values=char(data(k+12+1:k+12+current_length));
+% %                 double(values)
+%                 eval(sprintf('%s=set_data(%s,t(6),current_length,values);',channel_name,channel_name));
+% 
+%                 % k points on the first value of the next message
+%                 k=k+12+current_length+1;
+%                 % no valid data any more
+%                 if number<k
+%                     data=data(k:size(data,2));
+%                     break;
+%                 end
+%             else
+%                 % no complete message data
+%                 break;
+%             end
+%         else
+%             % no complete message header
+%             break;
+%         end
+%         % Reading the rest
+%     end
+% %      fprintf('\n')
     %% Call of the corresponding function
     function_name=eval(sprintf('get_properties(%s,''function_name'');',channel_name));
     if ~strcmp(function_name,'-')
