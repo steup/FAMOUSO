@@ -12,12 +12,14 @@ all:
 clean:
 	@rm -rf $(filtered)
 
-# cancel implicit rule for .cc->exe to force chain .cc->.o->exe
-%: %.cc
+# rule for creating the object file
+$(MODULEDIR)/%.o : %.cc
+	@$(RULEECHO) ; \
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 # rule for linking the application and give it
 # the correct name dependend of the platform
-%:%.o
+%:$(MODULEDIR)/%.o
 	@$(RULEECHO) ; \
 	$(CXX) $< -o $@.foobar $(CXXFLAGS) $(LDFLAGS) ; \
 	mv $@.foobar $(basename $@)$(SUFFIX)
