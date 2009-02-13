@@ -5,7 +5,7 @@ disp('Loading communication settings ...')
 
 TCPIPsettings.host='127.0.0.1';
 %TCPIPsettings.host='10.68.13.74';
-%TCPIPsettings.host='192.168.0.122';
+%TCPIPsettings.host='192.168.10.245';
 %TCPIPsettings.host='141.44.25.245';
 TCPIPsettings.port=5005;
 

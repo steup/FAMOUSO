@@ -167,6 +167,14 @@ handles=guihandles(hObject);
 set(handles.Time,'String',0);
 global scenario;
 
+% um beim Starten ohne "Stop" keinen Crash zu bauen
+out = timerfind;
+if ~isempty(out)
+    stop(out);
+    delete(out);
+end
+FAMOUSOdisconnectAll();
+
 switch scenario.source
     case 'file'
         cd saves

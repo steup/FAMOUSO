@@ -21,7 +21,6 @@ end
 %% Execute robots' algorithms
 % Take robot from the list and execute algorithm
 scenario.robots(i) = evaluate(scenario.robots(i), i ,scenario.matrix);
-
 % Update robot
 scenario.robots(i) = update(i,scenario);
 

@@ -78,7 +78,8 @@ if robot.power && ~robot.crashed
 %             a=[a; arcElements(:,j)'*aux+robot.position];
 %         end
 
-        arcElements=arcElements'*aux+repmat(robot.position,length(arcElements),1);
+%         arcElements=arcElements'*aux+repmat(robot.position,length(arcElements),1);
+        arcElements=arcElements'*aux+ones(length(arcElements),1)*robot.position;
             
 %         x_points=[x_points robot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
 %         y_points=[y_points robot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
@@ -150,9 +151,11 @@ if robot.power && ~robot.crashed
     if length(scenario.robots)>1
         for i=1:length(scenario.robots)
             if (i~=robotID)
-                if sqrt((robot.position(1)-scenario.robots(i).position(1))^2+...
-                        (robot.position(2)-scenario.robots(i).position(2))^2)<...
-                        (scenario.robots(i).patchcircle+robot.patchcircle)
+%                 if sqrt((robot.position(1)-scenario.robots(i).position(1))^2+...
+%                         (robot.position(2)-scenario.robots(i).position(2))^2)<...
+%                         (scenario.robots(i).patchcircle+robot.patchcircle)
+                if abs(sum([robot.position -scenario.robots(i).position]))<...
+                        1.4142*(scenario.robots(i).patchcircle+robot.patchcircle)
                     if strcmp(class(scenario.robots(i).patch),'double')
                         patchXData = get(scenario.robots(i).patch,'XData');
                     else
