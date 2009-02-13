@@ -33,7 +33,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) $(LIBFAMOUSO)
+all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) depend $(LIBFAMOUSO)
 
 doc:
 	doxygen ./doc/doxygen.conf
