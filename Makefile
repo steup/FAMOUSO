@@ -37,6 +37,7 @@ all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) depend $
 
 doc:
 	doxygen ./doc/doxygen.conf
+	cp ./doc/images/FAMOUSO.png ./doc/html
 
 $(LIBDIR):
 	@mkdir -p $@

@@ -4,7 +4,7 @@
 *
 *	\section FAMOUSO FAMOUSO -- Family of Adaptive Middleware for autonomOUs Sentient Objects
 
-\image html "../images/FAMOUSO.png"
+\image html "FAMOUSO.png"
 \image latex "../images/FAMOUSO.png"
 
 %FAMOUSO is a publish/subscribe middleware that readopts the ideas and
@@ -35,17 +35,4 @@ Key features of %FAMOUSO are:
 	- Adaptability
 	- Configurability
 	- Deployment of modern software technologies
-
-
-\todo
-- NetworkByteOrder beachten bei den Kanaelen
-- Rueckgabewerte wirklich ueberall Testen, um die Qualitaet und Sicherheit zu
-  staerken
-- Rebind des Sockets ermoeglichen
-- Sockets auf boost::asio umstellen, weil dadruch die Portabilitaet steigt und
-  auch das asynchrone Verhalten verbessert wird. Dadurch eigentliche Abkehr von
-  Threads innerhalb der MW. Erhoeht ebenfalls die Portablitaet. boost::asio
-  kann hingegen auf dem AVR nicht genutzt werden. Ist aber auch nicht
-  notwendig, da dort Interrupts zur Verfuegung stehen
-
 */
