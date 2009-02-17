@@ -113,7 +113,7 @@ namespace el {
                 uint8_t preamble[13] = {FAMOUSO::PUBLISH};
                 uint64_t *sub = (uint64_t *) & preamble[1];
                 uint32_t *len = (uint32_t *) & preamble[9];
-                *sub = htonll(cbd.subject.value);
+                *sub = cbd.subject.value;
                 *len = htonl(cbd.length);
                 boost::asio::write(socket(), boost::asio::buffer(preamble, 13),
                                    boost::asio::transfer_all());
@@ -126,7 +126,7 @@ namespace el {
                     switch (event_head[0]) {
                         case FAMOUSO::SUBSCRIBE: {
                                 // allocate a new subscribe event channel
-                                boost::shared_ptr< SEC > sec( new SEC(ntohll(*(uint64_t *) &(event_head[1]))));
+                                boost::shared_ptr< SEC > sec( new SEC( &event_head[1]));
                                 // announce it to FAMOUSO
                                 sec->subscribe ();
                                 // set a specific callback
@@ -144,7 +144,7 @@ namespace el {
                             }
                         case FAMOUSO::ANNOUNCE: {
                                 // allocate a new publish event channel
-                                boost::shared_ptr<PEC> pec( new PEC(ntohll(*(uint64_t *) &(event_head[1]))));
+                                boost::shared_ptr<PEC> pec( new PEC(&event_head[1]));
                                 // announce it to FAMOUSO
                                 pec->announce ();
 
@@ -169,8 +169,8 @@ namespace el {
 
             boost::asio::ip::tcp::socket socket_;
             // Buffer used to store data received from the client.
-            boost::array<char, 13> event_head;
-            boost::array<char, 65535> event_data;
+            boost::array<uint8_t, 13> event_head;
+            boost::array<uint8_t, 65535> event_data;
 
     };
 

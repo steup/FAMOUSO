@@ -82,7 +82,7 @@ class EventLayerClientStub {
     do_connection_socket(ec);
     uint8_t transferBuffer[9] = {FAMOUSO::ANNOUNCE};
     uint64_t *sub = (uint64_t *) & transferBuffer[1];
-    *sub = htonll(ec.subject().value);
+    *sub = ec.subject().value;
     // Send the announcement to the ech
     boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
   }
@@ -100,7 +100,7 @@ class EventLayerClientStub {
     // keine Verbindung zum ech besteht und das send fehlschlaegt
     uint8_t transferBuffer[13] = {FAMOUSO::PUBLISH};
     uint64_t *sub = (uint64_t *) & transferBuffer[1];
-    *sub = htonll(ec.subject().value);
+    *sub = ec.subject().value;
     uint32_t *len = (uint32_t *) & transferBuffer[9];
     *len = htonl(e.length);
     // Send the announcement to the ech
@@ -115,7 +115,7 @@ class EventLayerClientStub {
     // create subscribe message
     uint8_t transferBuffer[9] = {FAMOUSO::SUBSCRIBE};
     uint64_t *sub = (uint64_t *) & transferBuffer[1];
-    *sub = htonll(ec.subject().value);
+    *sub = ec.subject().value;
     // Send the announcement to the ech
     boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
     // create a thread that gets the ec and if a messages arrives at the

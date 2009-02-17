@@ -29,7 +29,7 @@ class Broker {
         uint8_t search_tx_node(UID &uid) {
             uint8_t freeplace = 0xff;
             for (uint8_t i = 0; i < constants::ccp::count; ++i) {
-                if (knownNodes[i] == 0) {
+                if (knownNodes[i] == 0ull) {
                     freeplace = i;
                 } else {
                     if ( knownNodes[i] == uid ) return i;
@@ -89,7 +89,7 @@ class Broker {
                         << "] " << std::endl;
                     }
                     ccp_stage = 15;
-                    uid = 0;
+                    uid = 0ull;
                 }
                 // tx_node ist entweder die des Brokers, wenn noch nicht stage 0 und
                 // sonst die txnode des neuen Knoten
@@ -98,7 +98,7 @@ class Broker {
             return true;
         }
     public:
-        Broker() : ccp_stage(15), uid(0) {
+        Broker() : ccp_stage(15), uid(0ull) {
             for ( uint8_t i = 0; i < constants::ccp::count; ++i ) {
                 knownNodes[i].value = 0;
             }

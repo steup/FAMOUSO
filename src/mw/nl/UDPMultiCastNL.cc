@@ -29,13 +29,12 @@ namespace famouso{
 		//  private Multicast Adressen: 239.0.0.0 - 239.255.255.255
 		// 8 Byte -> 3 Byte
 		 std::stringstream addr;
-		famouso::mw::Subject  s_temp = htonll( s.value );
 
-		uint8_t temp_ = s_temp.tab[5];
+		uint8_t temp_ = s.tab[5];
 		if( temp_ == 0 ) temp_++;
 		if(temp_ == 255) temp_--;
 
-		addr << "239." << static_cast<short>( s_temp.tab[0] ) << "." << static_cast<short>( s_temp.tab[7] )<< "." << static_cast<short>( temp_ );
+		addr << "239." << static_cast<short>( s.tab[0] ) << "." << static_cast<short>( s.tab[7] )<< "." << static_cast<short>( temp_ );
 		snn = boost::asio::ip::address::from_string( addr.str() );
 		m_socket.set_option( boost::asio::ip::multicast::join_group( snn ) );
 	}
@@ -46,7 +45,7 @@ namespace famouso{
 		if (!error)
 		{
 			m_incoming_packet.snn = SNN( m_endpoint_from.address() );
-			m_incoming_packet.s.value = ntohll( *(reinterpret_cast<uint64_t*>( m_buffer ) ) );
+			m_incoming_packet.s.value = *(reinterpret_cast<uint64_t*>( m_buffer ) ) ;
 			m_incoming_packet.data = m_buffer + sizeof( famouso::mw::Subject );
 			m_incoming_packet.data_length = bytes_recvd-sizeof( famouso::mw::Subject );
 			// ready to fetch!
@@ -85,9 +84,7 @@ namespace famouso{
 
 	void UDPMultiCastNL::deliver(const Packet_t& p) {
 		std::vector<boost::asio::const_buffer> buffers;
-		famouso::mw::Subject  s;
-		s.value = htonll( p.s.value );
-		buffers.push_back(boost::asio::buffer( &s, sizeof( famouso::mw::Subject  )));
+		buffers.push_back(boost::asio::buffer( &p.s, sizeof( famouso::mw::Subject  )));
 		buffers.push_back(boost::asio::buffer( p.data, p.data_length ));
 
 		m_socket.async_send_to(

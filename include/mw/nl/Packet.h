@@ -16,11 +16,11 @@ struct Packet {
 	Packet( const Packet<T>& p )
 	: snn( p.snn ), s( p.s ), data( p.data ), data_length( p.data_length ){}
 
-	Packet( T address, famouso::mw::Subject subject, uint8_t d, uint16_t length  )
+	Packet( T address, famouso::mw::Subject subject, uint8_t *d, uint16_t length  )
 	: snn( address ), s( subject ), data( d ), data_length( length ){}
 
 	Packet(T address, uint8_t *d, uint16_t length  )
-	: snn( address ), s(0), data( d ), data_length( length ){}
+	: snn( address ), s(0ull), data( d ), data_length( length ){}
 };
 
 

@@ -192,15 +192,15 @@ int main() {
 
     usart0_transmit_string("FAMOUSO -- Initialization successful.\n");
 
-    famouso::config::SEC sec(*(uint64_t*)distance);
+    famouso::config::SEC sec(distance);
     sec.subscribe();
     sec.callback.bind<&VSensor_CB>();
 
-    famouso::config::SEC hec(*(uint64_t*)HumanDetectionSubject);
+    famouso::config::SEC hec(HumanDetectionSubject);
     hec.subscribe();
     hec.callback.bind<&Human_CB>();
 
-    famouso::config::PEC pec(*(uint64_t*)velocity);
+    famouso::config::PEC pec(velocity);
     pec.announce();
     famouso::mw::Event e(pec.subject());
     uint8_t data[3]={famouso::Robot::ID::value,0,0};

@@ -45,15 +45,15 @@ int main(int argc, char **argv) {
     printf("FAMOUSO -- Initialization started.\n");
     printf("FAMOUSO -- Initialization successful.\n");
 
-    famouso::config::SEC sec(htonll(*(uint64_t*)Distance));
+    famouso::config::SEC sec(Distance);
     sec.subscribe();
     sec.callback.bind<SensorValueCB>();
 
-    famouso::config::SEC H(htonll(*(uint64_t*)HumanDetectionSubject));
+    famouso::config::SEC H(HumanDetectionSubject);
     H.subscribe();
     H.callback.bind<HumanDetectedCB>();
 
-    famouso::config::PEC pec(htonll(*(uint64_t*)Velocity));
+    famouso::config::PEC pec(Velocity);
     famouso::mw::Event e(pec.subject());
 	uint8_t data[3]={120,120,RobotID};
 	e.length = 3;

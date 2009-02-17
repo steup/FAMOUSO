@@ -49,7 +49,7 @@ public:
     CANNL() : tx_node(0) {}
     ~CANNL() {}
 
-    void init() { init(0);}
+    void init() { init(0ull);}
 
     void init(const NodeID &i) {
 		// hier muss das CAN Configuration Protokoll durchlaufen werden.

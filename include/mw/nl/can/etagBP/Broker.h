@@ -27,7 +27,7 @@ class Broker {
             uint16_t etag = constants::etagBP::count;
             while (etag > constants::etagBP::reserved) {
                 --etag;
-                if ( (etags[etag] == 0 ) || ( etags[etag] == sub ) ) {
+                if ( (etags[etag] == 0ull ) || ( etags[etag] == sub ) ) {
                     etags[etag] = sub;
                     std::cout << "Supply etag\t -- Subject [0x" << std::hex << sub.value << "]"
                     << " -> etag [0x" << etag << "]" << std::endl;
@@ -68,14 +68,14 @@ class Broker {
          */
         bool handle_subject_bind_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
             IDType *id = &mob.id();
-            Subject sub(htonll(*reinterpret_cast<uint64_t*>(mob.data())));
+            Subject sub(mob.data());
             if ( id->etag() == famouso::mw::nl::CAN::ETAGS::GET_ETAG ) {
-                uint16_t etag = bind_subject(sub,constants::Broker_tx_node, canDriver);
+                uint16_t etag = bind_subject_to_etag(sub);
                 mob.len(4);
                 mob.data()[0] = id->tx_node();
                 mob.data()[1] = 0x3;
                 mob.data()[2] = etag >> 8;
-		mob.data()[3] = static_cast<uint8_t>(etag & 0xff);
+                mob.data()[3] = static_cast<uint8_t>(etag & 0xff);
                 id->prio(0xFD);
                 id->etag(famouso::mw::nl::CAN::ETAGS::SUPPLY_ETAG);
                 id->tx_node(constants::Broker_tx_node);
