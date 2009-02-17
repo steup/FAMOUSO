@@ -13,7 +13,7 @@
 %typemap(out, noblock=1) char *data {
     if (arg1->data) {
         $result = JCALL1(NewByteArray, jenv, arg1->len);
-        JCALL4(SetByteArrayRegion, jenv, $result, 0, arg1->len, (const jbyte*)arg1->data);
+        JCALL4(SetByteArrayRegion, jenv, $result, 0, arg1->len, (jbyte*)arg1->data);
     }
 }
 #endif
