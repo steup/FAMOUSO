@@ -72,7 +72,7 @@ class Client {
         bool handle_subject_bind_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
             IDType *id = &mob.id();
             if ( id->etag() == famouso::mw::nl::CAN::ETAGS::SUPPLY_ETAG_NEW_BP ) {
-		etag=mob.data()[3];
+		etag=((mob.data()[2] & 0x3f)<<8) + mob.data()[3];
 		passed=true;
 		return true;
 	    } else {

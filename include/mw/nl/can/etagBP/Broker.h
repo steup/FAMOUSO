@@ -94,12 +94,12 @@ class Broker {
                 id->tx_node(constants::Broker_tx_node);
                 canDriver.send(mob);
 
-                mob.data()[4] = sub.tab[4];
-                mob.data()[5] = sub.tab[5];
-                mob.data()[6] = sub.tab[6];
-                mob.data()[7] = sub.tab[7];
-                canDriver.send(mob);
-
+//                mob.data()[4] = sub.tab[4];
+//                mob.data()[5] = sub.tab[5];
+//                mob.data()[6] = sub.tab[6];
+//                mob.data()[7] = sub.tab[7];
+//                canDriver.send(mob);
+//
                 return true;
             }
             return false;
