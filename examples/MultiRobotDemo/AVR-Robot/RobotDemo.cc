@@ -62,6 +62,32 @@ enum LEDCOMBINATIONS {LLLL,
 
 enum DIRECTIONS {LEFT, RIGHT, STRAIGHT, STOP};
 
+volatile uint16_t TicksCounterLeft=0;
+volatile uint16_t TicksCounterRight=0;
+
+ISR (INT2_vect)
+{
+ 	TicksCounterRight++;
+}
+
+ISR (INT3_vect)
+{
+ 	TicksCounterLeft++;
+}
+
+int16_t getTicksCounterLeft(){
+	int16_t aux=TicksCounterLeft;
+	TicksCounterLeft=0;
+    return aux;
+	}
+
+int16_t getTicksCounterRight(){
+	int16_t aux=TicksCounterRight;
+	TicksCounterRight=0;
+    return aux;
+}
+
+
 void init() {
     //--------------------------------------------------- Port A ---------------------------------------------
     // set switches BUTTON_X as inputs
@@ -113,6 +139,11 @@ void init() {
     // 1  0   0 CK / 256
     // 1  0   1 CK / 1024
     TCCR1B |= ((1 << CS10) | (1 << CS11));
+	//-------------------------------------------- Init external Interrups ---------------------------------------
+	// trigger interrupt with rising edge	
+	EICRA|=(1<<ISC21)|(1<<ISC31);
+	// enable interrupts 2 and 3
+	EIMSK|=(1<<2)|(1<<3);
 }
 
 void LedsOnByValue(LEDCOMBINATIONS value) {
@@ -207,26 +238,26 @@ int main() {
     e.length = 3;
     e.data = data;
 
+	int16_t leftTicks, rightTicks=0;
+
     Analog(1);
     ledOn(0);
     while (1) {
         RealSensor = adc_get_value();
+		leftTicks=getTicksCounterLeft();
+		rightTicks=getTicksCounterRight();
         if (Human != 0) {
             drive(STOP);
-            data[1] = 0;
-            data[2] = 0;
         } else {
             if ( (RealSensor > 200) || (VirtualSensor < 60) ) {
                 drive(LEFT);
-                data[1] = 20;
-                data[2] = -20;
                 VirtualSensor = 255;
             } else {
                 drive(STRAIGHT);
-                data[1] = 120;
-                data[2] = 120;
             }
         }
+		data[1]=leftTicks;
+		data[2]=rightTicks;
         pec.publish(e);
         for ( uint32_t o = 100000;o > 0;--o)
             asm volatile ("nop \n\t");
