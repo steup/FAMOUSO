@@ -65,7 +65,7 @@ namespace famouso {
                 } /* namespace detail */
 
                 namespace CANARY {
-                    struct famouso_CAN_ID_LE_CANARY {
+                    struct __attribute__((packed)) famouso_CAN_ID_LE_CANARY {
                         typedef class __attribute__((packed)) {
                             uint8_t  _pad       :  3;
                             public:
@@ -89,7 +89,7 @@ namespace famouso {
 
                 namespace PEAK {
                     // little endian defined ID for CAN on PCs
-                    struct famouso_CAN_ID_LE_PC {
+                    struct __attribute__((packed)) famouso_CAN_ID_LE_PC {
                         typedef class __attribute__((packed)) {
                             public:
                             uint16_t _etag      : 14;
