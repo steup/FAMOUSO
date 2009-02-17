@@ -14,6 +14,7 @@ class AbstractNetworkLayer : public NL{
  public:
 
   typedef typename NL::SNN SNN;
+  SNN   subscribe_SNN;
 
   void announce(const Subject &s, SNN &snn) {
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
@@ -36,6 +37,8 @@ class AbstractNetworkLayer : public NL{
     NL::bind(s, snn);
     // nach dem Bind auch noch bekannt geben,
     // dass dieser Kanal subscribiert wird
+    typename NL::Packet_t p(subscribe_SNN, const_cast<uint8_t*>(&s.tab[0]), 8);
+    NL::deliver(p);
   }
 
 //    bool retrieveSubject(const Subject &s, SNN &snn) {
@@ -64,6 +67,8 @@ class AbstractNetworkLayer : public NL{
 
     void init() {
         NL::init();
+        Subject s("SUBSCRIBE");
+        NL::bind(s,subscribe_SNN);
     }
 
 };
