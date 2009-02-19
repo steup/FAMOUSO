@@ -1,4 +1,4 @@
-function positionCallback(channel_name)
+function HumanDetCallback(channel_name)
 
 global scenario
 
@@ -10,8 +10,14 @@ robotlist=[];
 % interpretation of the IDs and activation of the according step function
 
 global Position
+values=[];
 [values Position]=get_data(Position,'all');
-
+if isempty(values)
+   return; 
+end
+if scenario.HumanDet==1
+   return; 
+end
 for i=1:size(values,1)
     x=bitshift(double(values(i,2)),8)+double(values(i,3));
     y=bitshift(double(values(i,4)),8)+double(values(i,5));
@@ -19,14 +25,20 @@ for i=1:size(values,1)
     id=double(values(i,9));
 end
 robotID=find(scenario.robotIDs==id);
+if isempty(robotID)
+   return 
+end
 robotID = unique(robotID);
 robot=scenario.robots(robotID);
 matrix=scenario.matrix;
 
-robot.position(1) = x/2;
-robot.position(2) = y/2;
-robot.heading = angle;
+robot.position(1) = 640-x;
+robot.position(2) = y;
+robot.heading = 180+angle;
 
+% robot.position
+% robot.heading
+% dbstop in channel2robot.m at 29;
 
 %% Move patch to new location
 x=[robot.xdata robot.ydata];
@@ -177,3 +189,4 @@ if length(scenario.robots)>1
         end
     end
 end
+scenario.robots(robotID)=robot;

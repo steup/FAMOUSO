@@ -10,10 +10,11 @@ function new = robot_C_app(simrobot, id, matrix)
     if aux>=255
         aux=255;
     else
-%          disp('attention')
+ %          disp('attention')
 %          dbstop in channel2robot at 7
+%         dist
     end
 %      dist
-    publishing(Distance,[aux 118 simrobot.number])
+    publishing(Distance,[simrobot.number 0 aux 0])
 
 new = simrobot;

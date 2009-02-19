@@ -1,6 +1,9 @@
 function  step(obj, event, i, handles)
 % tic
 global scenario
+if scenario.HumanDet==1
+   return; 
+end
 robot=scenario.robots(i);
 
 if ~robot.power && ~robot.crashed;

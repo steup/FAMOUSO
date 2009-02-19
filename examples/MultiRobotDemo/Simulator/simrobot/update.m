@@ -9,7 +9,7 @@ if robot.power && ~robot.crashed
     robot.velocity(2) = robot.velocity(2) + robot.accel(2);
     
     R = 2;
-    la = 5;
+    la = 12;
     lb = 0;
 
     v=(R/(2*la))*[-lb*robot.velocity(1)+lb*robot.velocity(2);-la*robot.velocity(1)-la*robot.velocity(2)];

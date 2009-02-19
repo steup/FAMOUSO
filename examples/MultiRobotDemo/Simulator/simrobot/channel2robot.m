@@ -15,21 +15,20 @@ global Velocity
 
 % interpretation of the IDs and activation of the according step function
 for i=1:size(values,1)
-     aux=char2int(values(i,:));
+    
+     aux=char2int(values(i,:));    
      %% Achtung Achtung hier muss noch nachgebessert werden !!!
-     robotid=aux(4);
+     robotid=aux(2);
      id=find(scenario.robotIDs==robotid);
      if isempty(id)
         break
      end
      robotlist=[robotlist id];
-     left=aux(2)/120;
-     right=aux(3)/120;
-     if left==right
-        left=left/2;
-        right=right/2;
-     end
-     scenario.robots(id)=setvel(scenario.robots(id),[left right]);
+     k=1/10;
+         left=double(typecast(uint8(aux(3)), 'int8'))*k;
+         right=double(typecast(uint8(aux(4)), 'int8'))*k;
+         scenario.robots(id)=setvel(scenario.robots(id),[left right]);
+
 end
 % double(values)
 % size(values,1)

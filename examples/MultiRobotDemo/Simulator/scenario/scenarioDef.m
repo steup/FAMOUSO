@@ -6,7 +6,8 @@ disp(['Definining scenario and saving in ' scenario.filename]);
 scenario.startTime=[];
 scenario.matrix=[];
 scenario.period=0.05;
-scale=1;
+scenario.HumanDet=0;
+scale=3;
 
 %% Building the matrix based on a bitmap
 scenario.bmp_name='reference_img_10_2.bmp';
@@ -36,26 +37,27 @@ sensors.position=scale*[5 0];
 sensors.axisangle=0;
 sensors.scanangle=40;
 sensors.range=scale*20;
-sensors.resolution=20;
+sensors.resolution=10;
 sensors.line=0;
 
 i=length(sensors)+1;
 sensors(i).name='sensor_2';
-sensors(i).position=scale*[0 6];
+sensors(i).position=scale*[0 4];
 sensors(i).axisangle=90;
 sensors(i).scanangle=20;
-sensors(i).range=scale*20;
-sensors(i).resolution=20;
+sensors(i).range=30;
+sensors(i).resolution=10;
 sensors(i).line=0;
 
 i=length(sensors)+1;
 sensors(i).name='sensor_3';
-sensors(i).position=scale*[0 -6];
+sensors(i).position=scale*[0 -4];
 sensors(i).axisangle=-90;
 sensors(i).scanangle=20;
-sensors(i).range=scale*20;
-sensors(i).resolution=20;
+sensors(i).range=30;
+sensors(i).resolution=10;
 sensors(i).line=0;
+
 
 %% Trigger modi
 % intern
@@ -80,13 +82,13 @@ i=1;
 scenario.robots=simrobot('robot_1',...
     i,...
     180,...
-    'robot_T_app',...
+    'robot_T2_app',...
     [1 1 0],...
     1,...
     scale*[-2 0 4 0 -2],...
     scale*[3 4 0 -4 -3],...
     sensors, ...
-    [100 150], ...
+    [200 150], ...
     trigger(1));
 
 %% ------> Robot 2
@@ -106,17 +108,26 @@ scenario.robots=simrobot('robot_1',...
 
 %% ------> Robot 3
 % Robot assambling 3
+sensors=[];
+sensors.name='sensor_1';
+sensors.position=scale*[5 0];
+sensors.axisangle=0;
+sensors.scanangle=40;
+sensors.range=scale*20;
+sensors.resolution=10;
+sensors.line=0;
+
 i=length(scenario.robots)+1;
 scenario.robots(i)=simrobot('robot_3',...
-    3,...
-    180,...
+    51,...
+    90,...
     'robot_C_app',...
     [1 1 1],...
     1,...
     scale*[-4 4 4 -4],...
     scale*[4 4 -4 -4],...
     sensors, ...
-    [220 150], ...
+    [240 280], ...
     trigger(2));
 % 
 % 

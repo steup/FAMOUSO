@@ -5,6 +5,7 @@ function [input, output, maxLenght]=FAMOUSOconfig()
 %% Definition of "interesting" FAMOUSO channels
 %       subject                 type       callback_function number  comment          '
 input =[['56656C6F63697479      callback    channel2robot.m     20      Velocity        '],
+        ['48756D616E446574      callback    HumanDetCallback.m  5       HumanDet        ']
         ['506F736974696F6E      callback    positionCallback.m  5       Position        ']];
 
 output=['44697374616E6365                                               Distance'];

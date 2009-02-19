@@ -17,6 +17,7 @@ function start()
 
 clear variables;
 clear global scenario;
+warning off all
 delete(timerfind);
 delete(findobj('name','control'));
 home;
