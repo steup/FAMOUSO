@@ -25,6 +25,8 @@ int main(int argc, char **argv) {
     done = 0;
     signal(SIGINT, siginthandler);
 
+    famouso::init<famouso::config::EC>();
+
 // PEC pec(0xf100000000000000ull);
     famouso::config::PEC pec(0x44697374616e6365ull);
     pec.announce();

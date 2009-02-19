@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
     signal(SIGINT,siginthandler);
 
     printf("FAMOUSO -- Initialization started.\n");
+    famouso::init<famouso::config::EC>();
     printf("FAMOUSO -- Initialization successful.\n");
 
     famouso::config::SEC sec(Distance);
