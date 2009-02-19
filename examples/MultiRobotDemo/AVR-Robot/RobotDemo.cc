@@ -62,8 +62,8 @@ enum LEDCOMBINATIONS {LLLL,
 
 enum DIRECTIONS {LEFT, RIGHT, STRAIGHT, STOP};
 
-volatile uint16_t TicksCounterLeft=0;
-volatile uint16_t TicksCounterRight=0;
+volatile uint8_t TicksCounterLeft=0;
+volatile uint8_t TicksCounterRight=0;
 
 ISR (INT2_vect)
 {
@@ -75,14 +75,14 @@ ISR (INT3_vect)
  	TicksCounterLeft++;
 }
 
-int16_t getTicksCounterLeft(){
-	int16_t aux=TicksCounterLeft;
+uint8_t getTicksCounterLeft(){
+	uint8_t aux=TicksCounterLeft;
 	TicksCounterLeft=0;
     return aux;
 	}
 
-int16_t getTicksCounterRight(){
-	int16_t aux=TicksCounterRight;
+uint8_t getTicksCounterRight(){
+	uint8_t aux=TicksCounterRight;
 	TicksCounterRight=0;
     return aux;
 }
@@ -119,25 +119,23 @@ void init() {
     //--------------------------------------------------- Port G ---------------------------------------------
     // direction pins for second motor as output
     DDRG |= (1 << MOTOR2A_DIR) | (1 << MOTOR2B_DIR);
-
-
     //--------------------------------------------------- PWM Generation -------------------------------------
     // PWM phase correct mode (10bit)
     TCCR1A |= (1 << WGM10) | (1 << WGM11);
     //  COM1A1 COM1A0
-    // 0    0 Normal port operation, OCnA/OCnB/OCnC disconnected
-    // 0    1
-    // 1    0 Clear OCnA/OCnB/OCnC on compare match when up-counting.
+    //  0    0 Normal port operation, OCnA/OCnB/OCnC disconnected
+    //  0    1
+    //  1    0 Clear OCnA/OCnB/OCnC on compare match when up-counting.
     //  1    1 Set OCnA/OCnB/OCnC on compare match when up-counting.
     TCCR1A |= ((1 << COM1A1) | (1 << COM1B1));
     // enable the timer with prescaler of 1024
-    //  CS12 CS11 CS10
-    // 0  0   0 Stop
-    // 0  0   1 CK
-    // 0  1   0 CK / 8
-    // 0  1   1 CK / 64
-    // 1  0   0 CK / 256
-    // 1  0   1 CK / 1024
+    // CS12 CS11 CS10
+    // 0    0    0    Stop
+    // 0    0    1    CK
+    // 0    1    0    CK / 8
+    // 0    1    1    CK / 64
+    // 1    0    0    CK / 256
+    // 1    0    1    CK / 1024
     TCCR1B |= ((1 << CS10) | (1 << CS11));
 	//-------------------------------------------- Init external Interrups ---------------------------------------
 	// trigger interrupt with rising edge	
@@ -192,7 +190,8 @@ void drive(DIRECTIONS dir) {
 volatile uint8_t VirtualSensor = 255;
 volatile uint8_t Human = 0;
 
-uint16_t RealSensor = 0;
+uint16_t RealSensorFront = 0;
+uint16_t RealSensorRight = 0;
 char *HumanDetectionSubject = "HumanDet";
 char *distance = "Distance";
 char *velocity = "Velocity";
@@ -201,7 +200,7 @@ void VSensor_CB(famouso::mw::api::SECCallBackData& e) {
         if ((e.data[0] == famouso::Robot::ID::value)
 //            && (e.data[2] == 'v')
             )
-        VirtualSensor=e.data[1];
+        VirtualSensor=e.data[2];
 }
 
 void Human_CB(famouso::mw::api::SECCallBackData& e) {
@@ -234,30 +233,40 @@ int main() {
     famouso::config::PEC pec(velocity);
     pec.announce();
     famouso::mw::Event e(pec.subject());
-    uint8_t data[3]={famouso::Robot::ID::value,0,0};
-    e.length = 3;
+    uint8_t data[4]={famouso::Robot::ID::value,0,0};
+    e.length = 4;
     e.data = data;
 
-	int16_t leftTicks, rightTicks=0;
+	uint8_t leftTicks, rightTicks=0;
 
-    Analog(1);
+    
     ledOn(0);
     while (1) {
-        RealSensor = adc_get_value();
+	    Analog(1);
+        RealSensorFront = adc_get_value();
+	    Analog(3);
+        RealSensorRight = adc_get_value();
 		leftTicks=getTicksCounterLeft();
 		rightTicks=getTicksCounterRight();
         if (Human != 0) {
             drive(STOP);
         } else {
-            if ( (RealSensor > 200) || (VirtualSensor < 60) ) {
+ 			if ( (RealSensorFront > 200) || (RealSensorRight > 220) || (VirtualSensor < 60) ) {
                 drive(LEFT);
                 VirtualSensor = 255;
+				if (leftTicks==0)
+					data[1]=0;
+				else{
+		        	data[1]=256-leftTicks;
+				}
+		        data[2]=rightTicks;
             } else {
                 drive(STRAIGHT);
+		        data[1]=leftTicks;
+		        data[2]=rightTicks;
             }
         }
-		data[1]=leftTicks;
-		data[2]=rightTicks;
+
         pec.publish(e);
         for ( uint32_t o = 100000;o > 0;--o)
             asm volatile ("nop \n\t");
