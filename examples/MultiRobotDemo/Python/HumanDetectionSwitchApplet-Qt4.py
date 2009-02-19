@@ -53,13 +53,12 @@ class StartQT4(QtGui.QMainWindow):
 
         def sig_handler(signum, frame):
             sys.exit(1)
-
         def PublishHumanDetection(self):
             self.state = ~self.state
             if (self.state == 0):
                 e=event.Event(self.subject,str('\0\0B'))
             else:
-                e=event.Event(self.subject,str('H\0B'))
+                e=event.Event(self.subject,str('\0\1B'))
             self.pub.publish(e)
 
         def exit_dialog(self):
