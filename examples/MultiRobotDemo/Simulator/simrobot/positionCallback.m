@@ -1,4 +1,4 @@
-function HumanDetCallback(channel_name)
+function positionCallback(channel_name)
 
 global scenario
 
@@ -28,13 +28,19 @@ robotID=find(scenario.robotIDs==id);
 if isempty(robotID)
    return 
 end
+
 robotID = unique(robotID);
 robot=scenario.robots(robotID);
 matrix=scenario.matrix;
 
-robot.position(1) = 640-x;
-robot.position(2) = y;
-robot.heading = 180+angle;
+if robot.crashed==1
+   return 
+end
+
+robot.position(1) = x;
+robot.position(2) = 480-y;
+robot.heading = angle;
+
 
 % robot.position
 % robot.heading

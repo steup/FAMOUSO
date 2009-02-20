@@ -46,5 +46,7 @@ if scenario.robots(i).crashed && scenario.robots(i).power
             set(handles,'String',num2str(str2double(aux)-1));   
         end
          scenario.robots(i).power=false;  
+         global Crashed_
+         publishing(Crashed_,[scenario.robots(i).number]);
 end
 % toc
