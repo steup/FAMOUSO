@@ -189,10 +189,12 @@ void drive(DIRECTIONS dir) {
 
 volatile uint8_t VirtualSensor = 255;
 volatile uint8_t Human = 0;
+volatile uint8_t Crash = 0;
 
 uint16_t RealSensorFront = 0;
 uint16_t RealSensorRight = 0;
 char *HumanDetectionSubject = "HumanDet";
+char *CrashSubject = "Crashed_";
 char *distance = "Distance";
 char *velocity = "Velocity";
 
@@ -205,6 +207,10 @@ void VSensor_CB(famouso::mw::api::SECCallBackData& e) {
 
 void Human_CB(famouso::mw::api::SECCallBackData& e) {
     Human=e.data[1];
+}
+
+void Crash_CB(famouso::mw::api::SECCallBackData& e) {
+    Crash=1;
 }
 
 int main() {
@@ -226,6 +232,10 @@ int main() {
     sec.subscribe();
     sec.callback.bind<&VSensor_CB>();
 
+    famouso::config::SEC cec(CrashSubject);
+    cec.subscribe();
+    cec.callback.bind<&Crash_CB>();
+
     famouso::config::SEC hec(HumanDetectionSubject);
     hec.subscribe();
     hec.callback.bind<&Human_CB>();
@@ -239,7 +249,7 @@ int main() {
 
 	uint8_t leftTicks, rightTicks=0;
 
-    
+    Crash=0;
     ledOn(0);
     while (1) {
 	    Analog(1);
@@ -248,7 +258,7 @@ int main() {
         RealSensorRight = adc_get_value();
 		leftTicks=getTicksCounterLeft();
 		rightTicks=getTicksCounterRight();
-        if (Human != 0) {
+        if ((Human != 0) || (Crash==1)){
             drive(STOP);
         } else {
  			if ( (RealSensorFront > 200) || (RealSensorRight > 220) || (VirtualSensor < 60) ) {
