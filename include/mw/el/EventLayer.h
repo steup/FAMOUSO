@@ -113,6 +113,7 @@ class EventLayer : public LL {
             DEBUG(("%s\n", __PRETTY_FUNCTION__));
             typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
             ec_t* sec= reinterpret_cast<ec_t*>(Subscriber.select());
+            LL::event_process_request(bnl);
             while(sec) {
 //            if (!sec)
 //                DEBUG(("No Subscribers\n"));

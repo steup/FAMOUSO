@@ -43,7 +43,7 @@ class AbstractNetworkLayer : public NL{
 
 //    bool retrieveSubject(const Subject &s, SNN &snn) {
 
-  bool fetch(const SNN &snn, famouso::mw::nl::BaseNL *bnl) {
+  bool fetch(const SNN &snn, const famouso::mw::nl::BaseNL *bnl) {
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
     if ( snn == NL::lastPacketSNN() ) {
         return true;
@@ -60,10 +60,15 @@ class AbstractNetworkLayer : public NL{
         return true;
     }
 
+    // vorgesehen, um anzuzeigen, dass das Event fetch request
+    // vorliegt
+    void event_process_request(const famouso::mw::nl::BaseNL * const bnl) const {}
+
     // vorgesehen, um anzuzeigen, dass das Event vollstaendig
     // propagiert wurde und die moeglicherweise reservierten
     // Ressouren wiederverwendet werden koennen
-    void event_processed() {}
+    void event_processed() const {}
+
 
     void init() {
         NL::init();
