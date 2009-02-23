@@ -43,7 +43,7 @@ class AbstractNetworkLayer : public NL{
 
 //    bool retrieveSubject(const Subject &s, SNN &snn) {
 
-  bool fetch(SNN &snn, famouso::mw::nl::BaseNL *bnl) {
+  bool fetch(const SNN &snn, famouso::mw::nl::BaseNL *bnl) {
     DEBUG(("%s\n", __PRETTY_FUNCTION__));
     if ( snn == NL::lastPacketSNN() ) {
         return true;
