@@ -119,6 +119,9 @@ class EventLayer : public LL {
 //            else{
 //                do {
 //                DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value,ec.subject().value));
+
+                    /*! \todo The fetch and the getEvent method should be pooled
+                     */
                     if (LL::fetch(sec->snn(), bnl)) {// vergleich der Subjects
                         // versuchen das Event zu holen
                         // finden wir eins, wird es local gepublished, welches
