@@ -24,7 +24,13 @@ namespace famouso {
                     };
 
                     // type of an address
-                    typedef boost::asio::ip::address SNN;
+                    struct SNN{ 
+			boost::asio::ip::address snn;
+			famouso::mw::Subject s;
+			bool operator == (const SNN &s1) const{
+				return s == s1.s;
+			}
+		    };
 
                     // type of a packet
                     typedef Packet<SNN> Packet_t;

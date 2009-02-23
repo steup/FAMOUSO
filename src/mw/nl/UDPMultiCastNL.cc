@@ -11,7 +11,7 @@ namespace famouso {
                 m_socket.set_option( boost::asio::ip::udp::socket::reuse_address(true) );
                 // m_socket.set_option( boost::boost::asio::ip::multicast::hops( 3 ) );
                 // m_socket.set_option( boost::boost::asio::ip::multicast::enable_loopback(false) );
-                m_socket.set_option( boost::asio::ip::multicast::enable_loopback( true ) );
+                m_socket.set_option( boost::asio::ip::multicast::enable_loopback( false ) );
 
                 m_socket.bind( m_endpoint_listen );
 
@@ -29,21 +29,27 @@ namespace famouso {
                 // 8 Byte -> 3 Byte
                 std::stringstream addr;
 
+		snn.s=s;
                 uint8_t temp_ = s.tab[5];
                 if ( temp_ == 0 ) temp_++;
                 if (temp_ == 255) temp_--;
 
                 addr << "239." << static_cast<short>( s.tab[0] ) << "." << static_cast<short>( s.tab[7] ) << "." << static_cast<short>( temp_ );
-                snn = boost::asio::ip::address::from_string( addr.str() );
-                m_socket.set_option( boost::asio::ip::multicast::join_group( snn ) );
+                snn.snn = boost::asio::ip::address::from_string( addr.str() );
+		try {
+               		m_socket.set_option( boost::asio::ip::multicast::join_group( snn.snn ) );
+		} catch (...) {
+			std::cerr << "Already Bound" << std::endl;
+		}
             }
 
             void UDPMultiCastNL::interrupt( const boost::system::error_code& error, size_t bytes_recvd ) {
                 if (!error) {
-                    m_incoming_packet.snn = SNN( m_endpoint_from.address() );
-                    m_incoming_packet.s.value = *(reinterpret_cast<uint64_t*>( m_buffer ) ) ;
+                    m_incoming_packet.snn.snn = boost::asio::ip::address(m_endpoint_from.address());
+                    m_incoming_packet.snn.s = m_buffer ;
                     m_incoming_packet.data = m_buffer + sizeof( famouso::mw::Subject );
                     m_incoming_packet.data_length = bytes_recvd - sizeof( famouso::mw::Subject );
+
                     famouso::mw::el::IncommingEventFromNL(this);
                 } else {
                     std::cerr << "while receiving : " << error.message() << std::endl;
@@ -61,20 +67,17 @@ namespace famouso {
             }
 
             void UDPMultiCastNL::fetch(Packet_t& p) {
-                p.s = m_incoming_packet.s;
-                p.snn = m_incoming_packet.snn;
-                p.data = m_incoming_packet.data;
-                p.data_length = m_incoming_packet.data_length;
+                p = m_incoming_packet;
             }
 
             void UDPMultiCastNL::deliver(const Packet_t& p) {
                 std::vector<boost::asio::const_buffer> buffers;
-                buffers.push_back(boost::asio::buffer( &p.s, sizeof( famouso::mw::Subject  )));
+                buffers.push_back(boost::asio::buffer( &p.snn.s, sizeof( famouso::mw::Subject  )));
                 buffers.push_back(boost::asio::buffer( p.data, p.data_length ));
 
                 m_socket.async_send_to(
                     buffers,
-                    boost::asio::ip::udp::endpoint( p.snn, port ),
+                    boost::asio::ip::udp::endpoint( p.snn.snn, port ),
                     boost::bind(
                         &UDPMultiCastNL::handle_send_to,
                         this,
