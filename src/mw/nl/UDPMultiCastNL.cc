@@ -29,18 +29,21 @@ namespace famouso {
                 // 8 Byte -> 3 Byte
                 std::stringstream addr;
 
-		snn.s=s;
+                snn.s = s;
                 uint8_t temp_ = s.tab[5];
                 if ( temp_ == 0 ) temp_++;
                 if (temp_ == 255) temp_--;
 
                 addr << "239." << static_cast<short>( s.tab[0] ) << "." << static_cast<short>( s.tab[7] ) << "." << static_cast<short>( temp_ );
                 snn.snn = boost::asio::ip::address::from_string( addr.str() );
-		try {
-               		m_socket.set_option( boost::asio::ip::multicast::join_group( snn.snn ) );
-		} catch (...) {
-			std::cerr << "Already Bound" << std::endl;
-		}
+                try {
+                    // try to bind the socket on an UDP-MultiCast address
+                    m_socket.set_option( boost::asio::ip::multicast::join_group( snn.snn ) );
+                } catch (...) {
+                    // this address is already bound which is not an error
+                    // that only means that another event channel with the same
+                    // subject was bound beforehand
+                }
             }
 
             void UDPMultiCastNL::interrupt( const boost::system::error_code& error, size_t bytes_recvd ) {
