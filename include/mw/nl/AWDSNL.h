@@ -148,7 +148,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		 * @param p fetched packet is saved here
 		 */
 		void fetch( Packet_t& p){
-            p.s =p.snn= *reinterpret_cast<SNN*>(awds_packet.data);
+            p.snn= awds_packet.data;
             p.data =  &awds_packet.data[8];
             p.data_length = ntohs(awds_packet.header.size)-sizeof(famouso::mw::Subject);
         }
