@@ -9,7 +9,7 @@ namespace famouso {
                 void run() {
                     try {
                         boost::asio::io_service::work work(famouso::util::ios::instance());
-                       famouso::util::ios::instance().run();
+                        famouso::util::ios::instance().run();
                     } catch (const char *c ) {
                         std::cerr << "Exception : " << c << std::endl;
                         abort();
