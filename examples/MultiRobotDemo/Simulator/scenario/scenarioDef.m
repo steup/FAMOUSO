@@ -10,7 +10,7 @@ scenario.HumanDet=0;
 scale=3;
 
 %% Building the matrix based on a bitmap
-scenario.bmp_name='reference_img.bmp';
+scenario.bmp_name='reference_img_10_2.bmp';
 %scenario.bmp_name='Buero2.bmp';
 fprintf('Loading map ...')
 matrix_bmp=imread(scenario.bmp_name,'bmp');
@@ -33,27 +33,27 @@ fprintf('                      [ok]\n');
 
 %% Definition of the sensor parameter
 sensors.name='sensor_1';
-sensors.position=scale*[5 0];
+sensors.position=scale*[4 0];
 sensors.axisangle=0;
-sensors.scanangle=40;
-sensors.range=scale*20;
-sensors.resolution=10;
+sensors.scanangle=20;
+sensors.range=scale*30;
+sensors.resolution=5;
 sensors.line=0;
 
 i=length(sensors)+1;
 sensors(i).name='sensor_2';
-sensors(i).position=scale*[0 4];
-sensors(i).axisangle=90;
-sensors(i).scanangle=20;
+sensors(i).position=scale*[2 2];
+sensors(i).axisangle=55;
+sensors(i).scanangle=100;
 sensors(i).range=30;
 sensors(i).resolution=10;
 sensors(i).line=0;
 
 i=length(sensors)+1;
 sensors(i).name='sensor_3';
-sensors(i).position=scale*[0 -4];
-sensors(i).axisangle=-90;
-sensors(i).scanangle=20;
+sensors(i).position=scale*[2 -2];
+sensors(i).axisangle=-50;
+sensors(i).scanangle=110;
 sensors(i).range=30;
 sensors(i).resolution=10;
 sensors(i).line=0;
