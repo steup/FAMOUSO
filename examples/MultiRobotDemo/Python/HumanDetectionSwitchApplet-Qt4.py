@@ -2,8 +2,11 @@
 
 # make Famouso Python Bindings Package available in the path
 # for the package loader
-import sys
-sys.path.append('../../../Bindings/Python/')
+import sys, os
+if sys.platform == 'win32':
+	sys.path.append('..\\..\\..\\Bindings\\Python')
+else:
+	sys.path.append('../../../Bindings/Python/')
 
 # load the Famouso Python Bindings
 from pyFAMOUSO.famouso import *
