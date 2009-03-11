@@ -25,8 +25,8 @@ for i=1:size(values,1)
      end
      robotlist=[robotlist id];
      k=1/10;
-         left=double(typecast(uint8(aux(3)), 'int8'))*k;
-         right=double(typecast(uint8(aux(4)), 'int8'))*k;
+         left=double(typecast(int8(aux(3)), 'int8'))*k;
+         right=double(typecast(int8(aux(4)), 'int8'))*k;
          scenario.robots(id)=setvel(scenario.robots(id),[left right]);
 
 end

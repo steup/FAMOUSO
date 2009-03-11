@@ -9,16 +9,16 @@ global scenario
    
 % num, the nearest obstacle number, is not used    
 
-if left<30
+if left<50
     simrobot = setvel(simrobot,[0.5 -0.5]);
 end
-if right<30
+if right<50
     simrobot = setvel(simrobot,[-0.5 0.5]);
 else
     if dist<80
         simrobot = setvel(simrobot,[-0.5 0.5]);  % turn left
     else
-        simrobot = setvel(simrobot,[0.7 0.7]); % go straight on
+        simrobot = setvel(simrobot,[1 1]); % go straight on
     end
 end
 
