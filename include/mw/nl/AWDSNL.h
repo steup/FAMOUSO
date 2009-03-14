@@ -4,7 +4,12 @@
 #include <stdio.h>
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include <string>
+#include <vector>
+#include <iterator>
+
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "util/ios.h"
@@ -44,7 +49,7 @@ struct __attribute__((packed)) AWDS_Packet {
     uint8_t  data[constants::packet_size::payload];
 };
 
-template<uint16_t Port=8555>
+template<uint16_t Port=8555, uint16_t interval=60>
 class AWDSNL : public BaseNL, boost::noncopyable {
 	public:
 
@@ -63,7 +68,9 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		/**
 		 * @brief default constructor
 		 */
-		AWDSNL() :m_socket( famouso::util::ios::instance() ){}
+		AWDSNL() : m_socket( famouso::util::ios::instance() ),
+                   timer_( famouso::util::ios::instance(),
+                           boost::posix_time::seconds(interval)) {}
 
 		/**
 		 * @brief destructor
@@ -94,6 +101,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 				boost::asio::placeholders::error,
 				boost::asio::placeholders::bytes_transferred)
 		);
+
       }
 
 		/**
@@ -116,6 +124,16 @@ class AWDSNL : public BaseNL, boost::noncopyable {
          * \todo momentan nur broadcast. siehe spezification fuer andere Verfahren unter doc/psawds/ipc-protocol.txt
 		 */
 		void deliver( const Packet_t& p, uint8_t type= AWDS_Packet::constants::packet_type::publish){
+            // try to detect subscription channel because in AWDS its get special treatment
+            // this test works only due to the fact that the SNN is equal to the famouso::mw::Subjcet
+            if (p.snn == "SUBSCRIBE") {
+                subscriptions.push_front(p.data);
+                subscriptions.sort();
+                subscriptions.unique();
+
+                timer_.cancel();
+                announce_subscriptions(boost::system::error_code());
+            } else {
             std::vector<boost::asio::const_buffer> buffers;
             AWDS_Packet::Header awds_header;
             awds_header.addr[0]=0xff;
@@ -131,6 +149,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
             buffers.push_back(boost::asio::buffer( p.data, p.data_length ));
 
             m_socket.send( buffers);
+            }
         }
 
 		/**
@@ -174,15 +193,24 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		void interrupt( const boost::system::error_code& error, size_t bytes_recvd ){
         if (!error)
 		{
-            if (awds_packet.header.type == AWDS_Packet::constants::packet_type::publish) {
-                famouso::mw::el::IncommingEventFromNL(this);
-            } else {
-                std::cout<<"AWDS_Packet not supported yet"<<std::endl;
+            switch (awds_packet.header.type) {
+                case AWDS_Packet::constants::packet_type::publish :
+                case AWDS_Packet::constants::packet_type::publish_fragment : {
+                        famouso::mw::el::IncommingEventFromNL(this);
+                        break;
+                }
+                case AWDS_Packet::constants::packet_type::subscribe : {
+                    /*! \todo implement subscription announcement see protocol specification in doc */
+                    break;
+                }
+                default: std::cout<<"AWDS_Packet not supported yet"<<std::endl;
             }
+
             m_socket.async_receive( boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
                                     boost::bind( &AWDSNL::interrupt, this,
                                     boost::asio::placeholders::error,
                                     boost::asio::placeholders::bytes_transferred));
+
 		}else{
 			std::cerr << "AWDS-Network : " << error.message() << std::endl;
             throw "AWDS-Network disconnected likely";
@@ -192,8 +220,41 @@ class AWDSNL : public BaseNL, boost::noncopyable {
         }
 
 	private:
+        void announce_subscriptions(const boost::system::error_code& error){
+            if (!error) {// != boost::asio::error::operation_aborted)
+
+            if (subscriptions.size()) {
+            uint16_t count_subj=htons(subscriptions.size());
+            std::vector<boost::asio::const_buffer> buffers;
+            uint32_t reserved=htonl(20);
+            AWDS_Packet::Header awds_header;
+            awds_header.addr[0]=0xff;
+            awds_header.addr[1]=0xff;
+            awds_header.addr[2]=0xff;
+            awds_header.addr[3]=0xff;
+            awds_header.addr[4]=0xff;
+            awds_header.addr[5]=0xff;
+            awds_header.type=AWDS_Packet::constants::packet_type::subscribe;
+            awds_header.size=htons(sizeof(uint32_t)+2+htons(count_subj)*sizeof(famouso::mw::Subject));
+            buffers.push_back(boost::asio::buffer( &awds_header, sizeof(AWDS_Packet::Header)));
+            buffers.push_back(boost::asio::buffer( &reserved, sizeof( uint32_t)));
+            buffers.push_back(boost::asio::buffer( &count_subj, sizeof( uint16_t)));
+
+            for(std::list<SNN>::const_iterator i=subscriptions.begin(); i!=subscriptions.end(); ++i) {
+                buffers.push_back(boost::asio::buffer( &(*i), sizeof( famouso::mw::Subject)));
+            }
+
+            m_socket.send( buffers);
+            }
+
+            timer_.expires_at(timer_.expires_at() + boost::posix_time::seconds(interval));
+            timer_.async_wait(boost::bind(&AWDSNL::announce_subscriptions, this, boost::asio::placeholders::error));
+       }
+        }
 		boost::asio::ip::tcp::socket m_socket;
+        boost::asio::deadline_timer timer_;
 		AWDS_Packet awds_packet;
+        std::list<SNN> subscriptions;
 };
 
 }}} // namespaces

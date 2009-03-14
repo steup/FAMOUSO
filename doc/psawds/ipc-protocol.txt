@@ -1,5 +1,5 @@
-Rollen: 
-Famouso = client 
+Rollen:
+Famouso = client
 AWDS    = server
 
 Verbindung ueber TCP/IP(v6), lokal.
@@ -13,7 +13,7 @@ Ablauf:
 (1) Client connected.
 (2) Server sendet MAC-Adresse
 
-Austauschformat: 
+Austauschformat:
 client->server
 
 structur {
@@ -26,14 +26,14 @@ structur {
 
 /* in C immer __packed__ structs verwenden! */
 
-dest: 
+dest:
       FFFFFFFFFFFF : Broadcast
       andere       : unicast adresse
 
 mit type:
     0x7C: Publish von Daten.
     0x7D: announce von Subscriptions
-    
+
 
 server->client
 
@@ -45,7 +45,7 @@ stuctur {
 	data: /size/ bytes
 }
 
-Eigene Flutpakete werden nicht hochgereicht. 
+Eigene Flutpakete werden nicht hochgereicht.
 
 
 Publishing per Fluten:

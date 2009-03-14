@@ -34,6 +34,10 @@ struct UID {
         do_init(reinterpret_cast<const uint8_t*>(uid));
     }
 
+    bool operator < (const UID &a) const{
+        return value < a.value;
+    }
+
     bool operator == (const UID &a) const{
         return value==a.value;
     }
