@@ -25,7 +25,7 @@ class SubscriberEventChannel(EventChannel):     # Abgeleitet vom EventChannel
 
     def handle_read(self):
         head = self.socket.recv(13)                         # 13 Byte für Kopf eines Events
-        self.myEvent = event.Event(head[1:8], self.socket.recv(int(ord(head[12]))))  # Generieren eines 'dummy' Events um den Content aufzunehmen
+        self.myEvent = event.Event(head[1:9], self.socket.recv(int(ord(head[12]))))  # Generieren eines 'dummy' Events um den Content aufzunehmen
 #        time.sleep(0.1)                                     # Performance Puffer
         #self.myEvent.content = self.socket.recv(int(ord(head[12]))) # Lesen des Contents
         self.callback(self.myEvent)                         # Aurufen des Callbacks mit Event als Übergabe

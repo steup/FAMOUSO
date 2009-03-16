@@ -34,7 +34,7 @@ class StorageSubscriberEventChannel(SubscriberEventChannel):    # direkte Ableit
     def handle_read(self):
         if not self.__myQueue.full():
             head = self.socket.recv(13)
-            self.myEvent = event.Event(head[1:8], "1,1,1,1,1")
+            self.myEvent = event.Event(head[1:9], "1,1,1,1,1")
             time.sleep(0.1)
             self.myEvent.content = self.socket.recv(int(ord(head[12])))
             self.__myQueue.put(self.myEvent)
@@ -46,7 +46,7 @@ class StorageSubscriberEventChannel(SubscriberEventChannel):    # direkte Ableit
             self.callback(self)
             print "Queue wurde geleert"
             head = self.socket.recv(13)
-            self.myEvent = event.Event(head[1:8], "1,1,1,1,1")
+            self.myEvent = event.Event(head[1:9], "1,1,1,1,1")
             time.sleep(0.1)
             self.myEvent.content = self.socket.recv(int(ord(head[12])))
             self.__myQueue.put(self.myEvent)
