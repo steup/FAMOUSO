@@ -34,10 +34,10 @@ fprintf('                      [ok]\n');
 %% Definition of the sensor parameter
 sensors.name='sensor_1';
 sensors.position=scale*[4 0];
-sensors.axisangle=0;
-sensors.scanangle=20;
+sensors.axisangle=5;
+sensors.scanangle=10;
 sensors.range=scale*30;
-sensors.resolution=5;
+sensors.resolution=1;
 sensors.line=0;
 
 i=length(sensors)+1;

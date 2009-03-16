@@ -39,5 +39,6 @@ switch aux
         obj.patchcircle=max(sqrt(obj.xdata.^2+obj.ydata.^2));
         %todo Berechnung einfuegen !!!
         obj.sensorcircle=50;
+        obj.panelControled=false;
         
 end

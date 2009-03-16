@@ -65,29 +65,19 @@ if robot.power && ~robot.crashed
         arcCorner=sensors(i).position*scale*aux+robot.position;
 
         % decomposition of the arc
-        angles = sensors(i).axisangle - sensors(i).scanangle/2:resolution:sensors(i).axisangle + sensors(i).scanangle/2;
+        angles = sensors(i).axisangle - sensors(i).scanangle/2:sensors(i).resolution:sensors(i).axisangle + sensors(i).scanangle/2;
         angles = angles*pi/180;
 
         arcElements=[];
         arcElements(1,:) = sensors(i).position(1) * scale + sensors(i).range * cos(angles);
         arcElements(2,:) = sensors(i).position(2) * scale + sensors(i).range * sin(angles);
         
-%         a=[];
-%         for j=1:length(arcElements)
-%  %           arcElements(:,j)=arcElements(:,j)'*aux+robot.position;
-%             a=[a; arcElements(:,j)'*aux+robot.position];
-%         end
-
-%         arcElements=arcElements'*aux+repmat(robot.position,length(arcElements),1);
         arcElements=arcElements'*aux+ones(length(arcElements),1)*robot.position;
             
-%         x_points=[x_points robot.position(1) arcCorner(1) arcElements(1,:) arcCorner(1)];
-%         y_points=[y_points robot.position(2) arcCorner(2) arcElements(2,:) arcCorner(2)];
         x_points=[x_points robot.position(1) arcCorner(1) arcElements(:,1)' arcCorner(1)];
         y_points=[y_points robot.position(2) arcCorner(2) arcElements(:,2)' arcCorner(2)];
         
     end
-%    set(robot,'lineXData',x_points,'lineYData',y_points);  
     
     if strcmp(scenario.mode,'sim')
         robot.line.x=x_points;
