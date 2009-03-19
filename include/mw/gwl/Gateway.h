@@ -35,7 +35,7 @@ namespace famouso {
 
                     /*! \brief Initalizes the the gateway and activates a subscription channel.
                      */
-                    Gateway() : famouso::mw::api::SubscriberEventChannel< ECH > ("SUBSCRIBE") {}
+                    Gateway() : famouso::mw::api::SubscriberEventChannel< ECH > (famouso::mw::Subject("SUBSCRIBE")) {}
 
                     void start () {
                         this->subscribe();
@@ -52,13 +52,13 @@ namespace famouso {
                         if (this->ech().get_network_id() == 0 ) {
                             std::cout<< "Lokal Subscription" << std::endl;
                         } else {
-                            if ( this->subject() == cbd.data) {
+                            if ( this->subject() == famouso::mw::Subject(cbd.data)) {
                                 std::cout << "Subscribe Message of another gateway" << std::endl;
                             } else {
                                 uint32_t ii=0;
                                 while ( ii < gecs.size()) {
                                     // todo base network noch ueberpruefen
-                                    if ( gecs[ii]->subject() == cbd.data ) {
+                                    if ( gecs[ii]->subject() == famouso::mw::Subject(cbd.data) ) {
                                         std::cout << "forward channel exits" << std::endl;
                                          return;
                                     }
@@ -66,7 +66,7 @@ namespace famouso {
                                 }
                                 std::string str(reinterpret_cast<const char*>(cbd.data),0,8);
                                 std::cout << "Generate a new proxy channel for forwarding events of Subject " << str << std::endl;
-                                const GEC *g=new GEC(cbd.data, this->ech().get_network_id());
+                                const GEC *g=new GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
                                 gecs.push_back(g);
                             }
                         }

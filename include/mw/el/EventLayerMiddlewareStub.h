@@ -59,6 +59,18 @@ namespace el {
             }
         private:
 
+            void report(const famouso::mw::Subject &s, const char *const str) {
+                std::cout << "Channel\t\t -- Subject [";
+                for (uint8_t i=0;i<8;++i) {
+                    uint8_t c=s.tab()[i];
+                    if ( (c < 32) || (c > 126) ) c=32; // only printable characters
+                    std::cout<< c ;
+                }
+                std::cout << "] -> " << str << "\t0x" << std::hex;
+                std::cout.fill('0');
+                std::cout.width(16);
+                std::cout << s.value() << std::endl;
+            }
             void get_event_head(boost::shared_ptr<PEC> pec,
                                 const boost::system::error_code& error,
                                 size_t bytes_transferred) {
@@ -74,9 +86,7 @@ namespace el {
                         return;
                     }
                 }
-                std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                << pec->subject().value << "] -> Unannouncement"
-                << std::endl;
+                report( pec->subject(), "Unannouncement");
             }
 
             void get_event_data(boost::shared_ptr<PEC> pec,
@@ -97,23 +107,19 @@ namespace el {
                                                         boost::asio::placeholders::bytes_transferred));
                     return;
                 }
-                std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                << pec->subject().value << "] -> Unannouncement"
-                << std::endl;
+                report( pec->subject(), "Unannouncement");
             }
 
             void unsubscribe(boost::shared_ptr<SEC> sec,
                              const boost::system::error_code& error) {
-                std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                << sec->subject().value << "] -> Unsubscription"
-                << std::endl;
+                report( sec->subject(), "Unsubscription");
             }
 
             void cb (famouso::mw::api::SECCallBackData & cbd) {
                 uint8_t preamble[13] = {FAMOUSO::PUBLISH};
                 uint64_t *sub = (uint64_t *) & preamble[1];
                 uint32_t *len = (uint32_t *) & preamble[9];
-                *sub = cbd.subject.value;
+                *sub = cbd.subject.value();
                 *len = htonl(cbd.length);
                 boost::asio::write(socket(), boost::asio::buffer(preamble, 13),
                                    boost::asio::transfer_all());
@@ -126,7 +132,7 @@ namespace el {
                     switch (event_head[0]) {
                         case FAMOUSO::SUBSCRIBE: {
                                 // allocate a new subscribe event channel
-                                boost::shared_ptr< SEC > sec( new SEC( &event_head[1]));
+                                boost::shared_ptr< SEC > sec( new SEC(famouso::mw::Subject(&event_head[1])));
                                 // announce it to FAMOUSO
                                 sec->subscribe ();
                                 // set a specific callback
@@ -137,14 +143,12 @@ namespace el {
                                                         boost::bind(&EventChannelConnection::unsubscribe, this->shared_from_this(),
                                                                     sec, boost::asio::placeholders::error));
 
-                                std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                                << sec->subject().value << "] -> Subscription"
-                                << std::endl;
+                                report( sec->subject(), "Subscription  ");
                                 break;
                             }
                         case FAMOUSO::ANNOUNCE: {
                                 // allocate a new publish event channel
-                                boost::shared_ptr<PEC> pec( new PEC(&event_head[1]));
+                                boost::shared_ptr<PEC> pec( new PEC(famouso::mw::Subject(&event_head[1])));
                                 // announce it to FAMOUSO
                                 pec->announce ();
 
@@ -154,9 +158,7 @@ namespace el {
                                                                     pec, boost::asio::placeholders::error,
                                                                     boost::asio::placeholders::bytes_transferred));
 
-                                std::cout << "Channel\t\t -- Subject [0x" << std::hex
-                                << pec->subject().value << "] -> Announcement"
-                                << std::endl;
+                                report( pec->subject(), "Announcement  ");
                                 break;
                             }
                         default:

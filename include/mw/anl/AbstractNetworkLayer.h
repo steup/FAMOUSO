@@ -37,7 +37,7 @@ class AbstractNetworkLayer : public NL{
     NL::bind(s, snn);
     // nach dem Bind auch noch bekannt geben,
     // dass dieser Kanal subscribiert wird
-    typename NL::Packet_t p(subscribe_SNN, const_cast<uint8_t*>(&s.tab[0]), 8);
+    typename NL::Packet_t p(subscribe_SNN, const_cast<uint8_t*>(s.tab()), 8);
     NL::deliver(p);
   }
 

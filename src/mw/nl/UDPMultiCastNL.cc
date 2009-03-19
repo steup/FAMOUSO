@@ -30,11 +30,15 @@ namespace famouso {
                 std::stringstream addr;
 
                 snn.s = s;
-                uint8_t temp_ = s.tab[5];
+                uint8_t temp_ = s.tab()[5];
                 if ( temp_ == 0 ) temp_++;
                 if (temp_ == 255) temp_--;
 
-                addr << "239." << static_cast<short>( s.tab[0] ) << "." << static_cast<short>( s.tab[7] ) << "." << static_cast<short>( temp_ );
+                addr << "239."
+                     << static_cast<short>( s.tab()[0] ) << "."
+                     << static_cast<short>( s.tab()[7] ) << "."
+                     << static_cast<short>( temp_ );
+
                 snn.snn = boost::asio::ip::address::from_string( addr.str() );
                 try {
                     // try to bind the socket on an UDP-MultiCast address
@@ -49,7 +53,7 @@ namespace famouso {
             void UDPMultiCastNL::interrupt( const boost::system::error_code& error, size_t bytes_recvd ) {
                 if (!error) {
                     m_incoming_packet.snn.snn = boost::asio::ip::address(m_endpoint_from.address());
-                    m_incoming_packet.snn.s = m_buffer ;
+                    m_incoming_packet.snn.s = famouso::mw::Subject(m_buffer) ;
                     m_incoming_packet.data = m_buffer + sizeof( famouso::mw::Subject );
                     m_incoming_packet.data_length = bytes_recvd - sizeof( famouso::mw::Subject );
 

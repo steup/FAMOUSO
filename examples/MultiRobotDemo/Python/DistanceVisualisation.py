@@ -97,7 +97,7 @@ signal.signal(signal.SIGINT, sig_handler)
 displayDistance=DistanceVisualiser()
 
 myCallBack=CallBack()
-LogChannel = "44697374616e6365"
+LogChannel = "Distance"
 LogSubscriber = subscriber.SubscriberEventChannel(LogChannel)
 LogSubscriber.subscribe(LogChannel, myCallBack.LogCallback)
 

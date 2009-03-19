@@ -28,7 +28,8 @@ int main(int argc, char **argv) {
 
     // create a SubscriberEventChannel
     // with a specific Subject
-    famouso::config::SEC sec(0xf100000000000000ull);
+    famouso::config::SEC sec(famouso::mw::Subject(0xf100000000000000ull));
+//    famouso::config::SEC sec(famouso::mw::Subject("Velocity"));
     // subscribe and register the respective
     // callback that is called if an event
     // occurs

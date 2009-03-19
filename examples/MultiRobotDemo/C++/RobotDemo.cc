@@ -17,9 +17,9 @@
 #define RobotID 4
 
 int done;
-char *HumanDetectionSubject="HumanDet";
-char *Distance="Distance";
-char *Velocity="Velocity";
+char HumanDetectionSubject[]="HumanDet";
+char Distance[]="Distance";
+char Velocity[]="Velocity";
 
 volatile uint8_t DistanceSensorValue=200;
 

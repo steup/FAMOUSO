@@ -28,8 +28,7 @@ void siginthandler(int egal) {
 
 int main(int argc, char **argv) {
     famouso::init<famouso::config::EC>();
-// SEC sec(0xf100000000000000ll);
-    famouso::config::SEC sec(0x44697374616e6365ull);
+    famouso::config::SEC sec(famouso::mw::Subject(0x44697374616e6365ull));
     famouso::mw::Event m(sec.subject());
 
     done = 0;

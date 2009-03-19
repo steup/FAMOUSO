@@ -5,7 +5,7 @@
 
 // SubscriberEC code
 SubscriberEC::SubscriberEC(const subject_t &sub, uint32_t count) :first(0), last(0), max(count) {
-	sec=new famouso::config::SEC(sub);
+	sec=new famouso::config::SEC(famouso::mw::Subject(sub));
 	events = new Storage[count];
 }
 SubscriberEC::~SubscriberEC() {
@@ -16,7 +16,7 @@ SubscriberEC::~SubscriberEC() {
 void SubscriberEC::cb(famouso::mw::api::SECCallBackData &cb) {
 	if (!events[first].used) {
 		events[first].used=1;
-		events[first].event.subject=cb.subject.value;
+		events[first].event.subject=cb.subject.value();
 		events[first].event.len=cb.length;
 		memcpy(events[first].event.data,cb.data,cb.length);
 		first=(first+1)%max;
@@ -52,7 +52,7 @@ int SubscriberEC::poll(event_t &e) {
 
 // PublisherEC code
 PublisherEC::PublisherEC (const subject_t &sub){
-	pec=new famouso::config::PEC(sub);
+	pec=new famouso::config::PEC(famouso::mw::Subject(sub));
 }
 
 PublisherEC::~PublisherEC() {
@@ -71,7 +71,7 @@ int PublisherEC::unannounce(){
 }
 
 int PublisherEC::publish(const event_t &event){
-	famouso::mw::Event e(event.subject);
+	famouso::mw::Event e(famouso::mw::Subject(event.subject));
 	e.length=event.len;
 	e.data=reinterpret_cast<uint8_t *>(event.data);
 	pec->publish(e);

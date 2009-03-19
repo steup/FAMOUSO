@@ -29,7 +29,7 @@ class Broker {
         uint8_t search_tx_node(UID &uid) {
             uint8_t freeplace = 0xff;
             for (uint8_t i = 0; i < constants::ccp::count; ++i) {
-                if (knownNodes[i] == 0ull) {
+                if (knownNodes[i] == UID(0ull) ) {
                     freeplace = i;
                 } else {
                     if ( knownNodes[i] == uid ) return i;
@@ -61,9 +61,9 @@ class Broker {
                 // Immer den StageZaehler im letzten nibble im letzten
                 // Datenbyte mitschicken. Wenn stage == 0 dann wird es
                 // durch den richtigen Inhalt spaeter ueberschrieben
-                uid.tab[7] = (uid.tab[7] & 0xF0) | stage;
+                uid.tab()[7] = (uid.tab()[7] & 0xF0) | stage;
                 // die UID zusammenfassen
-                uid.tab[7-(stage>>1)] |= (stage & 0x1) ? (nibble << 4) : nibble;
+                uid.tab()[7-(stage>>1)] |= (stage & 0x1) ? (nibble << 4) : nibble;
                 // 0xFD is non-real-time
                 // \todo RealTimeClasses for the CAN-Bus needs to be defined somewhere
                 id->prio(0xFD);
@@ -72,7 +72,7 @@ class Broker {
                 // kopieren des uid in die Nachricht um auf ClientSeite die Arbitrierung
                 // durchfuehren zu koennen.
                 for (uint8_t i = 0; i < 8; ++i) {
-                    mob.data()[i] = uid.tab[i];
+                    mob.data()[i] = uid.tab()[i];
                 }
                 // wenn wir im letzten Stage sind, weisen wir eine KnotenID zu
                 if (!stage) {
@@ -83,13 +83,13 @@ class Broker {
                         << " nodes configured that means something went wrong" << std::endl;
                         return false;
                     } else {
-                        std::cout << std::hex << "CCP\t\t -- NodeID  [0x" << uid.value
+                        std::cout << std::hex << "CCP\t\t -- NodeID  [0x" << uid.value()
                         << "] -> tx_node [0x" << static_cast<uint32_t>(tx_node)
-                        << "] Name=[" << reinterpret_cast<char*>(&uid.value)
+                        << "] Name=[" << reinterpret_cast<char*>(uid.tab())
                         << "] " << std::endl;
                     }
                     ccp_stage = 15;
-                    uid = 0ull;
+                    uid = UID(0ull);
                 }
                 // tx_node ist entweder die des Brokers, wenn noch nicht stage 0 und
                 // sonst die txnode des neuen Knoten
@@ -98,11 +98,7 @@ class Broker {
             return true;
         }
     public:
-        Broker() : ccp_stage(15), uid(0ull) {
-            for ( uint8_t i = 0; i < constants::ccp::count; ++i ) {
-                knownNodes[i].value = 0;
-            }
-        }
+        Broker() : ccp_stage(15), uid(0ull) {}
 
         bool handle_ccp_configure_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
             if ( mob.id().etag() == famouso::mw::nl::CAN::ETAGS::CCP_RSI) {

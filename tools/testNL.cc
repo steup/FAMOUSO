@@ -15,7 +15,7 @@
 #include "mw/common/UID.h"
 #include "famouso.h"
 
-char *dev = "/dev/pcan0";
+const char *dev = "/dev/pcan0";
 
 typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
 //typedef famouso::mw::nl::CAN::detail::ID ID;
@@ -44,7 +44,7 @@ void cb(famouso::mw::api::SECCallBackData& cbd) {
 int main(int argc, char **argv){
 
   famouso::init<EC>();
-  SEC sec((uint8_t)0xf1);
+  SEC sec(famouso::mw::Subject(0xf1));
   sec.subscribe();
   sec.callback.bind<&cb>();
 

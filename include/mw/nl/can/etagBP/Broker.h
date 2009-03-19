@@ -27,9 +27,9 @@ class Broker {
             uint16_t etag = constants::etagBP::count;
             while (etag > constants::etagBP::reserved) {
                 --etag;
-                if ( (etags[etag] == 0ull ) || ( etags[etag] == sub ) ) {
+                if ( (etags[etag] == UID(0ull) ) || ( etags[etag] == sub ) ) {
                     etags[etag] = sub;
-                    std::cout << "Supply etag\t -- Subject [0x" << std::hex << sub.value << "]"
+                    std::cout << "Supply etag\t -- Subject [0x" << std::hex << sub.value() << "]"
                     << " -> etag [0x" << etag << "]" << std::endl;
                     return etag;
                 }
@@ -40,12 +40,6 @@ class Broker {
 
     public:
          typedef typename CAN_Driver::MOB::IDType IDType;
-
-        Broker() {
-            for ( uint16_t i = 0; i < constants::etagBP::count; ++i ) {
-                etags[i].value = 0;
-            }
-        }
 
         /*! \brief Bind a Subject to an etag.
          *
@@ -86,18 +80,18 @@ class Broker {
                 mob.data()[1] = 0x3;
                 mob.data()[2] = etag >> 8;
                 mob.data()[3] = static_cast<uint8_t>(etag & 0xff);
-                mob.data()[4] = sub.tab[0];
-                mob.data()[5] = sub.tab[1];
-                mob.data()[6] = sub.tab[2];
-                mob.data()[7] = sub.tab[3];
+                mob.data()[4] = sub.tab()[0];
+                mob.data()[5] = sub.tab()[1];
+                mob.data()[6] = sub.tab()[2];
+                mob.data()[7] = sub.tab()[3];
                 id->etag(famouso::mw::nl::CAN::ETAGS::SUPPLY_ETAG_NEW_BP);
                 id->tx_node(constants::Broker_tx_node);
                 canDriver.send(mob);
 
-//                mob.data()[4] = sub.tab[4];
-//                mob.data()[5] = sub.tab[5];
-//                mob.data()[6] = sub.tab[6];
-//                mob.data()[7] = sub.tab[7];
+//                mob.data()[4] = sub.tab()[4];
+//                mob.data()[5] = sub.tab()[5];
+//                mob.data()[6] = sub.tab()[6];
+//                mob.data()[7] = sub.tab()[7];
 //                canDriver.send(mob);
 //
                 return true;

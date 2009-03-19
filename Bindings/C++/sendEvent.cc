@@ -27,8 +27,7 @@ int main(int argc, char **argv) {
 
     famouso::init<famouso::config::EC>();
 
-// PEC pec(0xf100000000000000ull);
-    famouso::config::PEC pec(0x44697374616e6365ull);
+    famouso::config::PEC pec(famouso::mw::Subject(0x44697374616e6365ull));
     pec.announce();
 
     famouso::mw::Event e(pec.subject());

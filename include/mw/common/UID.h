@@ -2,6 +2,7 @@
 #define __UID_h__
 
 #include <stdint.h>
+#include "util/endianness.h"
 
 /*! \file uid.h
  *  \class UID
@@ -16,17 +17,18 @@
  *
  */
 struct UID {
-
+private:
     union {
-        uint64_t value;
-        uint8_t tab[8];
+        uint64_t _value;
+        uint8_t _tab[8];
     };
 
-    UID() : value(0) {}
+    public:
+    explicit UID() : _value(0) {}
 
-    UID(uint64_t uid) : value(uid) {}
+    explicit UID(uint64_t uid) : _value(htonll(uid)) {}
 
-    UID(const uint8_t *uid) {
+    explicit UID(const uint8_t *uid) {
         do_init(reinterpret_cast<const uint8_t*>(uid));
     }
 
@@ -35,16 +37,26 @@ struct UID {
     }
 
     bool operator < (const UID &a) const{
-        return value < a.value;
+        return _value < a.value();
     }
 
     bool operator == (const UID &a) const{
-        return value==a.value;
+        return _value == a.value();
     }
 
+    uint8_t* tab() {
+        return _tab;
+    }
+    const uint8_t* tab() const {
+        return _tab;
+    }
+
+    const uint64_t value() const {
+        return ntohll(_value);
+    }
 private:
     void do_init(const uint8_t *uid) {
-            value= *reinterpret_cast<const uint64_t*>(uid);
+            _value= *reinterpret_cast<const uint64_t*>(uid);
     }
 
 };

@@ -44,7 +44,7 @@ class Client {
    IDType *id = reinterpret_cast<IDType*>(&mob.id());
    mob.len(8);
    for (uint8_t i=0;i<mob.len();++i)
-     mob.data()[i] = sub.tab[i];
+     mob.data()[i] = sub.tab()[i];
 
    id->prio(0xFD);
    id->etag(famouso::mw::nl::CAN::ETAGS::GET_ETAG);

@@ -29,7 +29,7 @@ public:
     voidNL() {}
     ~voidNL() {}
 
-    void init() { init(0ull);}
+    void init() { init(UID(0ull));}
     void init(const NodeID &i) {
 	DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
     }

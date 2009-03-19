@@ -49,7 +49,7 @@ class StartQT4(QtGui.QMainWindow):
             self.ui.setupUi(self)
             QtCore.QObject.connect(self.ui.pushButton,QtCore.SIGNAL("clicked()"), self.PublishHumanDetection)
             QtCore.QObject.connect(self.ui.pushButton_2,QtCore.SIGNAL("clicked()"), self.exit_dialog)
-            self.subject = "48756D616E446574"
+            self.subject = "HumanDet"
             self.pub = publisher.PublisherEventChannel(self.subject)
             self.pub.announce(self.subject)
             self.state=0;

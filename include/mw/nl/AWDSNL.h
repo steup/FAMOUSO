@@ -126,8 +126,8 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		void deliver( const Packet_t& p, uint8_t type= AWDS_Packet::constants::packet_type::publish){
             // try to detect subscription channel because in AWDS its get special treatment
             // this test works only due to the fact that the SNN is equal to the famouso::mw::Subjcet
-            if (p.snn == "SUBSCRIBE") {
-                subscriptions.push_front(p.data);
+            if (p.snn == famouso::mw::Subject("SUBSCRIBE")) {
+                subscriptions.push_front(famouso::mw::Subject(p.data));
                 subscriptions.sort();
                 subscriptions.unique();
 
@@ -167,7 +167,7 @@ class AWDSNL : public BaseNL, boost::noncopyable {
 		 * @param p fetched packet is saved here
 		 */
 		void fetch( Packet_t& p){
-            p.snn= awds_packet.data;
+            p.snn= famouso::mw::Subject(awds_packet.data);
             p.data =  &awds_packet.data[8];
             p.data_length = ntohs(awds_packet.header.size)-sizeof(famouso::mw::Subject);
         }
