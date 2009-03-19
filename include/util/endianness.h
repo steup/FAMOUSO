@@ -17,26 +17,9 @@
     #define htons(x) __swap_endianness_16(x)
 
 #else
-#error "It seems to be compiling for an unsupported platform\n and it needs to be defined the endianness of that system."
+#error "It seems to be compiling for an unsupported platform and it needs to be defined the endianness of that system."
 
 #endif
-/**
- *   byte ordering function for 64bit variable
- *
- */
-//inline uint64_t htonll(uint64_t host_longlong)
-//{
-//    int x = 1;
-//
-//	/* little endian */
-//    if(*(char *)&x == 1)
-//        return ((((uint64_t)htonl(host_longlong)) << 32) + htonl(host_longlong >> 32));
-//
-//    /* big endian */
-//    else
-//        return host_longlong;
-//}
-//
 
 #if __BYTE_ORDER == __BIG_ENDIAN
 ///* The host byte order is the same as network byte order,
