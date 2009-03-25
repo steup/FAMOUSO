@@ -51,15 +51,23 @@ class EmergencyDialog(QtGui.QDialog, Dlg):
         self.connect(self.pushButtonQuit, QtCore.SIGNAL("clicked()"), self.onQuit)
         self.connect(self.pushButtonEmergency, QtCore.SIGNAL("clicked()"), self.onEmergency)
         self.connect(self.pushButtonTerminate, QtCore.SIGNAL("clicked()"), self.onTerminate)
-        
+        self.subject = "48756D616E446574"
+	self.pub = publisher.PublisherEventChannel(self.subject)
+	self.pub.announce(self.subject)
+	
     def onQuit(self): 
         print "Aus Maus" 
         LogSubscriber.unsubscribe()
+	e=event.Event(self.subject,str('\0\0B'))
+        self.pub.publish(e)
+        self.pub.close()
         self.close()
         
     def onTerminate(self):
 	self.labelOutput.setText("Alles ok!") 
 	self.EmergencySituation=False
+	e=event.Event(self.subject,str('\0\0B'))
+	self.pub.publish(e)
         
     def onEmergency(self): 
         if  self.EmergencySituation==True:
@@ -67,8 +75,9 @@ class EmergencyDialog(QtGui.QDialog, Dlg):
         if  self.EmergencySituation==False:
             print "Emergency situation !" 
             self.labelOutput.setText("STOP !!!")     
-            self.EmergencySituation=True     
-
+            self.EmergencySituation=True 
+	    e=event.Event(self.subject,str('\0\1B'))	    
+	    self.pub.publish(e)
 
 # Main
 app = QtGui.QApplication(sys.argv) 
