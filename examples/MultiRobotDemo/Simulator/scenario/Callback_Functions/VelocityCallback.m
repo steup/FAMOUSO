@@ -1,4 +1,4 @@
-function channel2robot(channel_name)
+function VelocityCallback(channel_name)
 
 global scenario
 
