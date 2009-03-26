@@ -5,6 +5,7 @@
 from famouso import *
 
 class SubscriberEventChannel(EventChannel):     # Abgeleitet vom EventChannel
+    read_buffer = ''				##< buffer to store incoming data from ech
 
     def __init__(self,  subject):               # Konstruktor benötigt subject
         EventChannel.__init__(self, subject)    # Konstruktor vom Eventchannel aufrufen
@@ -24,11 +25,15 @@ class SubscriberEventChannel(EventChannel):     # Abgeleitet vom EventChannel
 # diese bilden dann den Content des Events
 
     def handle_read(self):
-        head = self.socket.recv(13)                         # 13 Byte für Kopf eines Events
-        self.myEvent = event.Event(head[1:9], self.socket.recv(int(ord(head[12]))))  # Generieren eines 'dummy' Events um den Content aufzunehmen
-#        time.sleep(0.1)                                     # Performance Puffer
-        #self.myEvent.content = self.socket.recv(int(ord(head[12]))) # Lesen des Contents
-        self.callback(self.myEvent)                         # Aurufen des Callbacks mit Event als Übergabe
+	self.read_buffer += self.socket.recv(8192)		# try to read as much as possible
+	while len(self.read_buffer) > 13:			# header = 13 bytes
+		subject = self.read_buffer[1:9]
+		length = struct.unpack('!I', self.read_buffer[9:13])[0]
+		if (len(self.read_buffer) < 13 + length):		# must wait for incoming data
+			return
+		content = self.read_buffer[13:13 + length]
+		self.callback(event.Event(subject, content))	# report event to callback
+		self.read_buffer = self.read_buffer[13 + length:]	# shift data buffer
 
 # Zusätzliches Überschreiben der nicht verwendeten Methoden
 # damit sie von einem Publisher Objekt aus nicht verwendet werden können
