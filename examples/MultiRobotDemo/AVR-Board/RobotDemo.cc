@@ -193,14 +193,15 @@ int main() {
     Crash=0;
     ledOn(0);
     while (1) {
-	    Analog(0);
+	    Analog(1);
         RealSensorFront = adc_get_value();
         if ((Human != 0) || (Crash==1)){
             data[1]=0;
 		    data[2]=0;
 			ledOn(1);
         } else {
- 			if ( (RealSensorFront > 200) || (RealSensorRight > 220) || (VirtualSensor < 60) ) {
+ 		//	if ( (RealSensorFront > 200) || (VirtualSensor < 60) ) {
+			if ( (RealSensorFront > 200) || (VirtualSensor < 60) ) {
                 VirtualSensor = 255;
 		        data[1]=10;
 		        data[2]=256-10;
@@ -210,7 +211,6 @@ int main() {
             }
         }
         pec.publish(e);
-        for ( uint32_t o = 200000;o > 0;--o)
-            asm volatile ("nop \n\t");
+        wait_ms(80);
     }
 }

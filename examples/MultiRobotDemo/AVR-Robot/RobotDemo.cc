@@ -278,7 +278,6 @@ int main() {
         }
 
         pec.publish(e);
-        for ( uint32_t o = 100000;o > 0;--o)
-            asm volatile ("nop \n\t");
+        wait_ms(70);
     }
 }
