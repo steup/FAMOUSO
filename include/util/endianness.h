@@ -8,7 +8,9 @@
 
 #elif defined(WIN32)
     #include <winsock2.h>
-    #define __BYTE_ORDER __LITTLE_ENDIAN
+// local definition explanation see below
+#   define htonll(x)    __swap_endianness_64(x)
+#   define ntohll(x)    __swap_endianness_64(x)
 
 #elif defined(AVR)
     #define __BYTE_ORDER __LITTLE_ENDIAN
@@ -21,6 +23,13 @@
 #error "It seems to be compiling for an unsupported platform and it needs to be defined the endianness of that system."
 
 #endif
+
+
+// excluding WIN-Compiler from doing the following
+// is reasoned by the fact that the preprocessor
+// executes the wrong statement or misinterpretes 
+// the defines if we use the -mno-cygwin option. 
+#ifndef WIN32
 
 #if __BYTE_ORDER == __BIG_ENDIAN
 ///* The host byte order is the same as network byte order,
@@ -35,5 +44,7 @@
 #   error "BYTE_ORDER is not defined"
 #  endif
 # endif
+
+#endif
 
 #endif
