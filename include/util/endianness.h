@@ -8,6 +8,7 @@
 
 #elif defined(WIN32)
     #include <winsock2.h>
+    #define __BYTE_ORDER __LITTLE_ENDIAN
 
 #elif defined(AVR)
     #define __BYTE_ORDER __LITTLE_ENDIAN
