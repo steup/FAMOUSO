@@ -11,6 +11,7 @@
 #define STD_VELOCITY 350
 
 volatile char input[5];
+volatile uint8_t VirtualSensor = 255;
 
 ISR (USART0_RX_vect)
 {
@@ -18,6 +19,7 @@ ISR (USART0_RX_vect)
 		for (char i= 0;i<5;i++){
 		input[i]=usart0_receive();
 		}
+		VirtualSensor=input[0];
 	}
 }
 
@@ -160,7 +162,7 @@ void drive(DIRECTIONS dir) {
     }
 }
 
-volatile uint8_t VirtualSensor = 255;
+
 volatile uint8_t Human = 0;
 volatile uint8_t Crash = 0;
 
@@ -198,6 +200,7 @@ int main() {
 
 		Human=input[2];
 		Crash=input[1];
+
 
         if ((Human != 0) || (Crash==1)){
             drive(STOP);
