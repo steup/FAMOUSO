@@ -37,11 +37,11 @@ private:
     }
 
     bool operator < (const UID &a) const{
-        return _value < a.value();
+        return _value < a._value;
     }
 
     bool operator == (const UID &a) const{
-        return _value == a.value();
+        return _value == a._value;
     }
 
     uint8_t* tab() {
@@ -58,7 +58,6 @@ private:
     void do_init(const uint8_t *uid) {
             _value= *reinterpret_cast<const uint64_t*>(uid);
     }
-
 };
 
 #endif /* __UID_h__ */
