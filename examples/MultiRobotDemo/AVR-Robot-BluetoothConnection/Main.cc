@@ -8,18 +8,23 @@
 #include "defRobby.h"
 
 // standard velocity
-#define STD_VELOCITY 350
+#define STD_VELOCITY 300
 
 volatile char input[5];
-volatile uint8_t VirtualSensor = 255;
+volatile char VirtualSensor = 255;
+volatile char Human = 0;
+volatile char Crash = 0;
+volatile char SteeringLeft = 0;
+volatile char SteeringRight = 0;
 
 ISR (USART0_RX_vect)
 {
 	if (UDR0==65){
-		for (char i= 0;i<5;i++){
-		input[i]=usart0_receive();
-		}
-		VirtualSensor=input[0];
+		VirtualSensor=usart0_receive();
+		Human=usart0_receive();
+		Crash=usart0_receive();
+		SteeringLeft=usart0_receive();
+		SteeringRight=usart0_receive();
 	}
 }
 
@@ -163,8 +168,6 @@ void drive(DIRECTIONS dir) {
 }
 
 
-volatile uint8_t Human = 0;
-volatile uint8_t Crash = 0;
 
 // -> Distance, Crashed_, HumanDet
 // <- Velocity
@@ -191,7 +194,7 @@ int main() {
     Crash=0;
     ledOn(0);
     while (1) {
-	    Analog(1);
+	    Analog(0);
         RealSensorFront = adc_get_value();
 	    Analog(3);
         RealSensorRight = adc_get_value();
@@ -209,7 +212,7 @@ int main() {
         } else {
  			if ( (RealSensorFront > 200) || (RealSensorRight > 220) || (VirtualSensor < 60) ) {
                 drive(LEFT);
-                VirtualSensor = 255;
+                //VirtualSensor = 255;
 				if (leftTicks==0)
 					data[1]=0;
 				else{
@@ -223,7 +226,7 @@ int main() {
             }
         }
 //		sprintf(output,"B %c %c %c B\n\r",data[1],data[2],RealSensorFront);
-		sprintf(output,"B %i %i %i\n\r",data[1],data[2],RealSensorFront);
+		sprintf(output,"B %i %i %i\n\r",data[1],data[2],255);
 		usart0_transmit_string(output);
 
         wait_ms(20);
