@@ -13,12 +13,21 @@ from pyFAMOUSO.famouso import *
 import signal
 
 # serial port communication
-import serial
+# import serial
 
 RobotID=51
 
+# ----- Definition -----------------------------------
+#~ Human=input[2];
+#~ Crash=input[1];
+#~ VirtualSensor=input[0];
+
 def DistanceCallBack(myEvent):
+	# [ID, leftDistance, centerDistance, rightDistance]
 		[ID, Dl, Dc, Dr]=struct.unpack('BBBB',myEvent.content)
+		if ID==RobotID:
+			ser.send ?
+			print int(Dc)
 		
 def CrashCallback(myEvent):
 		print "Crash !!"
@@ -48,28 +57,32 @@ DistanceSubject = "Distance"
 LogSubscriber = subscriber.SubscriberEventChannel(DistanceSubject)
 LogSubscriber.subscribe(DistanceSubject, DistanceCallBack)
 
-ser=serial.Serial()
-ser.baudrate=19200
-ser.port='COM1'
-ser.timeout=0.05
-ser.open()
-if ser.isOpen():
-	print "Serielle Verbindung geoeffnet"
+#~ ser=serial.Serial()
+#~ ser.baudrate=19200
+#~ ser.port='COM1'
+#~ ser.timeout=0.05
+#~ ser.open()
+#~ if ser.isOpen():
+	#~ print "Serielle Verbindung geoeffnet"
 while 1:
 	asyncore.poll(timeout=0.01)
-	line=ser.readline()
-	if len(line)>1:
-		if line.find("B")==1:
-			list=line[2:-1].split(' ')
-			if len(list) >= 2:
-				velocity_left=list[1]
-			if len(list) >= 3:
-				velocity_right=list[2]
-				output=struct.pack('BBB',RobotID,int(velocity_left),int(velocity_right))
-				e=event.Event(VelocitySubject,output)
-				VelocityPub.publish(e)
-			if len(list) >= 4:
-				sensor=list[3]
-				if robotActive==False:
-					print "Roboter wurde aktivert"
-					robotActive=True
+	output=struct.pack('BBB',RobotID,10,10)
+	e=event.Event(VelocitySubject,output)
+	VelocityPub.publish(e)
+	time.sleep(0.2)
+	#~ line=ser.readline()
+	#~ if len(line)>1:
+		#~ if line.find("B")==1:
+			#~ list=line[2:-1].split(' ')
+			#~ if len(list) >= 2:
+				#~ velocity_left=list[1]
+			#~ if len(list) >= 3:
+				#~ velocity_right=list[2]
+				#~ output=struct.pack('BBB',RobotID,int(velocity_left),int(velocity_right))
+				#~ e=event.Event(VelocitySubject,output)
+				#~ VelocityPub.publish(e)
+			#~ if len(list) >= 4:
+				#~ sensor=list[3]
+				#~ if robotActive==False:
+					#~ print "Roboter wurde aktivert"
+					#~ robotActive=True
