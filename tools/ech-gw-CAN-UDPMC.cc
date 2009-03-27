@@ -56,11 +56,12 @@ namespace famouso {
 
     template <class config>
     class Configurator : public config {
-            typename config::ELMS   localELMS;
+            typedef typename config::ELMS   localELMS;
             typename config::GW     GW;
         public:
             Configurator() {
                 famouso::init<typename config::EC>();
+                static localELMS elms;
                 GW.start();
             }
     };
