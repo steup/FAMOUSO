@@ -117,9 +117,9 @@ namespace el {
 
             void cb (famouso::mw::api::SECCallBackData & cbd) {
                 uint8_t preamble[13] = {FAMOUSO::PUBLISH};
-                uint64_t *sub = (uint64_t *) & preamble[1];
                 uint32_t *len = (uint32_t *) & preamble[9];
-                *sub = cbd.subject.value();
+                for (uint8_t i=0;i<8;++i)
+                    preamble[i+1]=cbd.subject.tab()[i];
                 *len = htonl(cbd.length);
                 boost::asio::write(socket(), boost::asio::buffer(preamble, 13),
                                    boost::asio::transfer_all());
