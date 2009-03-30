@@ -7,7 +7,7 @@ from threading import Thread
 
 ## Globale Variablen
 
-LogChannel = "f2"
+LogChannel = "Velocity"
 LogSubscriber = subscriber.SubscriberEventChannel(LogChannel)
 
 ## Asyncore Loop Class
@@ -29,6 +29,7 @@ class LoggerCallback:
     def LogCallback(self, myEvent):
         #self.receivedString = myEvent.content
         print "recv: " + str(myEvent.content)
+        print str(myEvent.subject)
 
 
 ## Singal Handler

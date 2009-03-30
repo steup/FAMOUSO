@@ -19,7 +19,8 @@ int main(int argc, char **argv) {
 
     // create a PublisherEventChannel
     // with a specific Subject
-    famouso::config::PEC pec(famouso::mw::Subject(0xf100000000000000ull));
+    //famouso::config::PEC pec(famouso::mw::Subject(0xf100000000000000ull));
+   famouso::config::PEC pec(famouso::mw::Subject("Velocity"));
     // announce the channel
     pec.announce();
 
