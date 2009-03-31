@@ -1,9 +1,9 @@
 # include additional paths 
 import sys, os
 if sys.platform == 'win32':
-	sys.path.append('..\\..\\..\\Bindings\\Python')
+    sys.path.append('..\\..\\..\\Bindings\\Python')
 else:
-	sys.path.append('../../../Bindings/Python/')
+    sys.path.append('../../../Bindings/Python/')
 
 from threading import Thread
 # load the Famouso Python Bindings
@@ -13,7 +13,7 @@ from pyFAMOUSO.famouso import *
 import signal
 
 # serial port communication
-#import serial
+import serial
 
 RobotID=51
 
@@ -41,10 +41,10 @@ def DistanceCallBack(myEvent):
 def Crashed_CallBack(myEvent):
     global crash
     crash=1
-	print "Crash !!"
-		
+    print "Crash !!"
+        
 def HumanDetCallback(myEvent):
-	print "Human !!!"
+    print "Human !!!"
 
 def sig_handler(signum, frame):
         DistanceSub.unsubscribe()
@@ -83,14 +83,13 @@ Crashed_Sub.subscribe(Crashed_Subject, Crashed_CallBack)
 while 1:
     asyncore.poll(timeout=0.01)
 # this is only for test purposes !!!!
-    print centerDistance
     if centerDistance>60:
         velocity_right=10
         velocity_left=10
     else:
         velocity_right=246
         velocity_left=10
-    if crash==1
+    if crash==1:
         velocity_right=0
         velocity_left=0
     output=struct.pack('BBB',RobotID,int(velocity_left),int(velocity_right))
@@ -98,21 +97,21 @@ while 1:
     VelocityPub.publish(e)
     time.sleep(0.1)
 # ----------------------------------
-	#~ line=ser.readline()
-	#~ if len(line)>1:
-		#~ if line.find("B")==1:
-			#~ list=line[2:-1].split(' ')
-			#~ if len(list) >= 2:
-				#~ velocity_left=list[1]
-			#~ if len(list) >= 3:
-				#~ velocity_right=list[2]
-				#~ output=struct.pack('BBB',RobotID,int(velocity_left),int(velocity_right))
-				#~ e=event.Event(VelocitySubject,output)
-				#~ VelocityPub.publish(e)
-				#~ print "here"
-			#~ if len(list) >= 4:
-				#~ sensor=list[3]
-				#~ #print sensor
-				#~ if robotActive==False:
-					#~ print "Roboter wurde aktivert"
-					#~ robotActive=True
+    #~ line=ser.readline()
+    #~ if len(line)>1:
+        #~ if line.find("B")==1:
+            #~ list=line[2:-1].split(' ')
+            #~ if len(list) >= 2:
+                #~ velocity_left=list[1]
+            #~ if len(list) >= 3:
+                #~ velocity_right=list[2]
+                #~ output=struct.pack('BBB',RobotID,int(velocity_left),int(velocity_right))
+                #~ e=event.Event(VelocitySubject,output)
+                #~ VelocityPub.publish(e)
+                #~ print "here"
+            #~ if len(list) >= 4:
+                #~ sensor=list[3]
+                #~ #print sensor
+                #~ if robotActive==False:
+                    #~ print "Roboter wurde aktivert"
+                    #~ robotActive=True
