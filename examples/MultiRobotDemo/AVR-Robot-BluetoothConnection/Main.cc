@@ -8,10 +8,11 @@
 #include "defRobby.h"
 
 // standard velocity
-#define STD_VELOCITY 300
+#define STD_VELOCITY 600
+#define DISTANCE_LIMIT 200
 
 volatile char input[5];
-volatile char VirtualSensor = 255;
+volatile uint8_t VirtualSensor = 255;
 volatile char Human = 0;
 volatile char Crash = 0;
 volatile char SteeringLeft = 0;
@@ -19,6 +20,7 @@ volatile char SteeringRight = 0;
 
 ISR (USART0_RX_vect)
 {
+	
 	if (UDR0==65){
 		VirtualSensor=usart0_receive();
 		Human=usart0_receive();
@@ -174,6 +176,7 @@ void drive(DIRECTIONS dir) {
 
 int RealSensorFront = 0;
 int RealSensorRight = 0;
+int RealSensorLeft = 0;
 
 
 int main() {
@@ -193,11 +196,29 @@ int main() {
 
     Crash=0;
     ledOn(0);
+    
+	while (!BUTTONpressed(2));
+  
     while (1) {
 	    Analog(0);
         RealSensorFront = adc_get_value();
+		if (RealSensorFront > DISTANCE_LIMIT)
+			ledOn(1);
+		else
+			ledOff(1);
 	    Analog(3);
         RealSensorRight = adc_get_value();
+		if (RealSensorRight > DISTANCE_LIMIT)
+			ledOn(2);
+		else
+			ledOff(2);
+		Analog(4);
+		RealSensorLeft = adc_get_value();
+		if (RealSensorLeft > DISTANCE_LIMIT)
+			ledOn(3);
+		else
+			ledOff(3);
+
 		leftTicks=getTicksCounterLeft();
 		rightTicks=getTicksCounterRight();
 
@@ -210,9 +231,10 @@ int main() {
 			data[1]=0;
 			data[2]=0;
         } else {
- 			if ( (RealSensorFront > 200) || (RealSensorRight > 220) || (VirtualSensor < 60) ) {
+
+			if ( (RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 60) ) {
                 drive(LEFT);
-                //VirtualSensor = 255;
+                VirtualSensor = 255;
 				if (leftTicks==0)
 					data[1]=0;
 				else{
