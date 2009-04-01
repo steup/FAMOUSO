@@ -10,7 +10,7 @@ for i=1:length(scenario.robots)
 end
 
 % hold on
-% [x,y]=find(scenario.robots(4).potentialMapPatch);
+% [x,y]=find(scenario.robots(1).potentialMapPatch);
 % plot(x,y,'.r')
 % disp(ready')
     

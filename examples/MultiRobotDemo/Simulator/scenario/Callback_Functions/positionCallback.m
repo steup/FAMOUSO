@@ -41,6 +41,23 @@ robot.position(1) = x;
 robot.position(2) = 480-y;
 robot.heading = angle;
 
+i=robotID;
+handles=[];
+
+if ~robot.power && ~robot.crashed;
+    robot=activate(robot,scenario.mode);
+    disp(['Robot ' num2str(robot.number) ' activated ...']);
+    robot.power=true;
+    if isempty(handles)
+        handles=guihandles(findobj('name','control'));
+    end
+    aux=get(handles.Active,'String');
+    if ~strcmp(aux,'Active')
+        set(handles.Active,'String',num2str(str2double(aux)+1));
+    else
+        set(handles.Active,'String',num2str(1));
+    end
+end
 
 % robot.position
 % robot.heading
