@@ -208,6 +208,31 @@ set(handles.Active,'String','Active');
 if strcmp(scenario.mode,'sim')
     set(handles.Simulation,'Value',1);
     set(handles.Visualisation,'Value',1);
+else
+   
+    delete(findobj('type','line'));
+    delete(findobj('type','patch'));
+    
+    offset_x=100;
+    offset_y=500;
+    dist_y=30;
+    dist_x=30;
+    for i=1:length(scenario.robots)
+        patch(scenario.robots(i).xdata+offset_x,scenario.robots(i).ydata+offset_y+i*dist_y,scenario.robots(i).color)
+    switch i
+        case 1
+            output='Simulierter Roboter'
+        case 2
+            output='Hardware in the Loop System'
+        case 3
+            output='Echter Roboter'
+        otherwise
+            output='?'
+    end
+    text(offset_x+dist_x,...
+         offset_y+i*dist_y,...
+         output);  
+    end
 end
 
 scenario=calculatedPotentialMaps(scenario);
@@ -215,8 +240,6 @@ scenario=calculatedPotentialMaps(scenario);
 % [x,y]=find(scenario.robots(1).potentialMapPatch);
 % plot(x,y,'.r');
 
-delete(findobj('type','line'));
-delete(findobj('type','patch'));
 
 if scenario.FAMOUSO==1
     aux=TCPconfiguration();

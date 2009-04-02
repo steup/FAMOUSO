@@ -11,7 +11,7 @@ scale=3;
 
 %% Building the matrix based on a bitmap
 scenario.bmp_name='reference_img_10_2.bmp';
-scenario.bmp_name='referenceBildchen.bmp';
+%scenario.bmp_name='referenceBildchen.bmp';
 
 %scenario.bmp_name='Buero2.bmp';
 fprintf('Loading map ...')
