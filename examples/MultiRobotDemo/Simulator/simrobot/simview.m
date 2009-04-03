@@ -19,6 +19,35 @@ set(gh.figNumber, ...
     'Backingstore','off',...
     'Tag','SimWindow');
 
+%% add legend
+offset_x=100;
+offset_y=-200;
+dist_y=30;
+dist_x=30;
+for i=1:length(scenario.robots)
+    patch(scenario.robots(i).xdata+offset_x,scenario.robots(i).ydata+offset_y+i*dist_y,scenario.robots(i).color)
+    switch i
+        case 1
+            output='Simulierter Roboter';
+        case 2
+            output='Hardware in the Loop System';
+        case 3
+            output='Echter Roboter';
+        otherwise
+            output='?';
+    end
+    text(offset_x+dist_x,...
+        offset_y+i*dist_y,...
+        output);
+end
+
+
+%% add logo
+logo_handle=axes('position',[.3  .89  .5  .08])
+logo=imread('OvGU_Logo_Fak_INF.jpg');
+image(logo);
+axis off
+
 %% add the background picture
 gh.axHndl=gca;
 hold on;

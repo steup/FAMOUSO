@@ -10,7 +10,7 @@ function a = activate( a, mode )
         conture = a.scale*x*transM;
   
         if strfind(mode, 'vis')
-            handle=findobj('Tag','SimWindow');
+            handle=findobj('Tag','SimAxes');
             figure(handle);
             a.patch = patch('XData',a.position(1)+conture(:,1), ...
                 'YData',a.position(2)+conture(:,2), ...
