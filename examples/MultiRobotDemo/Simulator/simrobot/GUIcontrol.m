@@ -193,7 +193,7 @@ cd ..
 switch scenario.mode
     % start simulation and visualisation mode
     case 'vis+sim'
-        disp('Starting simulation environment ...');
+        disp('Starting simulation environment ...');    
         gh=simview();
     % simulation only mode    
     case 'sim'
@@ -208,16 +208,12 @@ set(handles.Active,'String','Active');
 if strcmp(scenario.mode,'sim')
     set(handles.Simulation,'Value',1);
     set(handles.Visualisation,'Value',1);
-else
-    delete(findobj('type','line'));
-    delete(findobj('type','patch'));
 end
 
 scenario=calculatedPotentialMaps(scenario);
 
 % [x,y]=find(scenario.robots(1).potentialMapPatch);
 % plot(x,y,'.r');
-
 
 if scenario.FAMOUSO==1
     aux=TCPconfiguration();

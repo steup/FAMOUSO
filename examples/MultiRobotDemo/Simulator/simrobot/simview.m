@@ -19,6 +19,24 @@ set(gh.figNumber, ...
     'Backingstore','off',...
     'Tag','SimWindow');
 
+
+%% add the background picture
+gh.oldaxHndl=gca;
+hold on;
+axis equal;
+axis off;
+color = get(gh.figNumber,'Color');
+matrix=imread(scenario.bmp_name,'bmp');
+for j=1:3
+    matrix_aux(:,:,j) = flipud(matrix(:,:,j));
+end
+[xmax, ymax] = size(matrix_aux);
+gh.axHndl=image(matrix_aux,'Parent',gh.oldaxHndl);
+set(gh.axHndl, 'Tag','SimAxes');
+
+delete(findobj('type','line'));
+delete(findobj('type','patch'));
+
 %% add legend
 offset_x=100;
 offset_y=-200;
@@ -41,27 +59,13 @@ for i=1:length(scenario.robots)
         output);
 end
 
-
 %% add logo
-logo_handle=axes('position',[.3  .89  .5  .08])
+logo_handle=axes('position',[.3  .89  .5  .08]);
 logo=imread('OvGU_Logo_Fak_INF.jpg');
 image(logo);
 axis off
 
-%% add the background picture
-gh.axHndl=gca;
-hold on;
-axis equal;
-axis off;
-color = get(gh.figNumber,'Color');
-matrix=imread(scenario.bmp_name,'bmp');
-for j=1:3
-    matrix_aux(:,:,j) = flipud(matrix(:,:,j));
-end
-[xmax, ymax] = size(matrix_aux);
-gh.axHndl=image(matrix_aux,'Parent',gh.axHndl);
-set(gh.axHndl, 'Tag','SimAxes');
-
+set(gcf,'CurrentAxes',gh.oldaxHndl);
 cd saves
 save gh;
 cd ..
