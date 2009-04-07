@@ -1,11 +1,11 @@
 /**	\mainpage
 *	\author Michael Schulze, Uni Magdeburg, IVS/EOS
-*	\date 02.09.2008
+*	\date 07.04.2009
 *
 *	\section FAMOUSO FAMOUSO -- Family of Adaptive Middleware for autonomOUs Sentient Objects
 
 \image html "FAMOUSO.png"
-\image latex "../images/FAMOUSO.png"
+\image latex "../images/FAMOUSO.png" "" width=0.9\textwidth
 
 %FAMOUSO is a publish/subscribe middleware that readopts the ideas and
 concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art
