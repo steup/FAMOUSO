@@ -30,7 +30,7 @@ def DistanceCallBack(myEvent):
     [ID, Dl, Dc, Dr]=struct.unpack('BBBB',myEvent.content)
     if ID==RobotID:
         centerDistance=int(Dc)
-        if int(Dc)>60:
+        if int(Dc)>75:
             output=struct.pack('BBBBBB',65,100,0,0,0,0)
         else:
             output=struct.pack('BBBBBB',65,20,0,0,0,0)
@@ -40,11 +40,18 @@ def Crashed_CallBack(myEvent):
     global crash
     crash=1
     print "Crash !!"
-    output=struct.pack('BBBBBB',65,0,1,0,0,0)
+    output=struct.pack('BBBBBB',65,0,0,1,0,0)
     ser.write(output)
         
-def HumanDetCallback(myEvent):
+def HumanDetCallBack(myEvent):
     print "Human !!!"
+    [ID, human]=struct.unpack('BB',myEvent.content)
+    if int(human)==1:
+        output=struct.pack('BBBBBB',65,0,1,0,0,0)
+    else:
+        output=struct.pack('BBBBBB',65,0,2,0,0,0)
+    ser.write(output)
+    
 
 def sig_handler(signum, frame):
         DistanceSub.unsubscribe()
@@ -73,6 +80,10 @@ Crashed_Subject = "Crashed_"
 Crashed_Sub = subscriber.SubscriberEventChannel(Crashed_Subject)
 Crashed_Sub.subscribe(Crashed_Subject, Crashed_CallBack)
 
+HumanDetSubject = "HumanDet"
+HumanDetSub = subscriber.SubscriberEventChannel(HumanDetSubject)
+HumanDetSub.subscribe(HumanDetSubject, HumanDetCallBack)
+
 ser=serial.Serial()
 ser.baudrate=19200
 ser.port='COM1'
@@ -84,21 +95,6 @@ else:
     print "Fehler mit der seriellen Verbindung"
 while 1:
     asyncore.poll(timeout=0.01)
-# this is only for test purposes !!!!
-#    if centerDistance>60:
-#        velocity_right=10
-#        velocity_left=10
-#    else:
-#        velocity_right=246
-#        velocity_left=10
-#    if crash==1:
-#        velocity_right=0
-#        velocity_left=0
-#    output=struct.pack('BBB',RobotID,int(velocity_left),int(velocity_right))
-#    e=event.Event(VelocitySubject,output)
-#    VelocityPub.publish(e)
-#    time.sleep(0.1)
-# ----------------------------------
     line=ser.readline()
     if len(line)>1:
         if line.find("B")==1:

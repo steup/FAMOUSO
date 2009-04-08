@@ -9,12 +9,13 @@
 
 // standard velocity
 #define STD_VELOCITY 600
-#define DISTANCE_LIMIT 200
+#define DISTANCE_LIMIT 160
 
 volatile char input[5];
 volatile uint8_t VirtualSensor = 255;
-volatile char Human = 0;
-volatile char Crash = 0;
+volatile unsigned char Human = 0;
+volatile unsigned char Crash = 0;
+bool fahr_nich = false;
 volatile char SteeringLeft = 0;
 volatile char SteeringRight = 0;
 
@@ -191,11 +192,11 @@ int main() {
 
   	uint8_t leftTicks, rightTicks=0;
 	uint8_t data[4];
+	int8_t delay=0;
 
 	char output[50]; 
 
-    Crash=0;
-    ledOn(0);
+    ledOn(2);
     
 	while (!BUTTONpressed(2));
   
@@ -221,20 +222,19 @@ int main() {
 
 		leftTicks=getTicksCounterLeft();
 		rightTicks=getTicksCounterRight();
+		
+		if (Human==2) fahr_nich=false;
 
-		Human=input[2];
-		Crash=input[1];
-
-
-        if ((Human != 0) || (Crash==1)){
+        if ((Human ==1) || (Crash ==1)){
             drive(STOP);
 			data[1]=0;
 			data[2]=0;
-        } else {
+			fahr_nich=true;
 
-			if ( (RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 60) ) {
-                drive(LEFT);
-                VirtualSensor = 255;
+        } 
+		if (  (RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 60)) {
+            if (!fahr_nich) drive(LEFT);
+			delay=0;
 				if (leftTicks==0)
 					data[1]=0;
 				else{
@@ -242,15 +242,15 @@ int main() {
 				}
 		        data[2]=rightTicks;
             } else {
-                drive(STRAIGHT);
+                if (!fahr_nich) drive(STRAIGHT);
 		        data[1]=leftTicks;
 		        data[2]=rightTicks;
-            }
         }
+        
 //		sprintf(output,"B %c %c %c B\n\r",data[1],data[2],RealSensorFront);
 		sprintf(output,"B %i %i %i\n\r",data[1],data[2],255);
 		usart0_transmit_string(output);
 
-        wait_ms(20);
+        wait_ms(50);
     }
 }

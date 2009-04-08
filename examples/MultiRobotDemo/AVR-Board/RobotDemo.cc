@@ -186,8 +186,8 @@ int main() {
     famouso::config::PEC pec(velocity);
     pec.announce();
     famouso::mw::Event e(pec.subject());
-    uint8_t data[4]={famouso::Robot::ID::value,0,0};
-    e.length = 4;
+    uint8_t data[3]={famouso::Robot::ID::value,0,0};
+    e.length = 3;
     e.data = data;
 
     Crash=0;
@@ -203,14 +203,14 @@ int main() {
  		//	if ( (RealSensorFront > 200) || (VirtualSensor < 60) ) {
 			if ( (RealSensorFront > 200) || (VirtualSensor < 60) ) {
                 VirtualSensor = 255;
-		        data[1]=10;
-		        data[2]=256-10;
+		        data[1]=5;
+		        data[2]=256-5;
             } else {
 		        data[1]=10;
 		        data[2]=10;
             }
         }
         pec.publish(e);
-        wait_ms(80);
+        wait_ms(40);
     }
 }

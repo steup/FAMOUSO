@@ -278,6 +278,6 @@ int main() {
         }
 
         pec.publish(e);
-        wait_ms(70);
+        wait_ms(50);
     }
 }
