@@ -10,10 +10,10 @@ global scenario
 % num, the nearest obstacle number, is not used
 
 if simrobot.panelControled==false
-    if left<50
+    if left<60
         simrobot = setvel(simrobot,[0.5 -0.5]);
     end
-    if right<50
+    if right<60
         simrobot = setvel(simrobot,[-0.5 0.5]);
     else
         if dist<80

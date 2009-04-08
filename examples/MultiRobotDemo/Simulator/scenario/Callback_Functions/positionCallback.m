@@ -37,8 +37,8 @@ if robot.crashed==1
    return 
 end
 
-robot.position(1) = x;
-robot.position(2) = 480-y;
+robot.position(1) = x*0.5+robot.position(1)*0.5;
+robot.position(2) = (480-y)*0.5+robot.position(2)*0.5;
 robot.heading = angle;
 
 i=robotID;

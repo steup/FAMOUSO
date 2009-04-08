@@ -10,9 +10,7 @@ scenario.HumanDet=0;
 scale=3;
 
 %% Building the matrix based on a bitmap
-scenario.bmp_name='reference_img_10_2.bmp';
-%scenario.bmp_name='referenceBildchen.bmp';
-
+scenario.bmp_name='LetzterTestlauf.bmp';
 %scenario.bmp_name='Buero2.bmp';
 fprintf('Loading map ...')
 matrix_bmp=imread(scenario.bmp_name,'bmp');
@@ -129,12 +127,21 @@ scenario.robots(i)=simrobot('robot_3',...
     scale*[-4 4 4 -4],...
     scale*[4 4 -4 -4],...
     sensors, ...
-    [290 150], ...
+    [310 150], ...
     trigger(2));
 
 
 % ------> Robot 4
 % Robot assambling 4
+sensors=[];
+sensors.name='sensor_1';
+sensors.position=scale*[5 0];
+sensors.axisangle=0;
+sensors.scanangle=150;
+sensors.range=scale*25;
+sensors.resolution=10;
+sensors.line=0;
+
 i=length(scenario.robots)+1;
 scenario.robots(i)=simrobot('robot_4',...
     51,...
