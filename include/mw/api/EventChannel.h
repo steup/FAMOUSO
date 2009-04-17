@@ -38,7 +38,7 @@ class EventChannel : public Chain {
  public:
   /*! \brief get the local event channel handler object
    */
-  ECH& ech() const {
+  static inline ECH& ech() {
     return reinterpret_cast<ECH&>(_ech);
   }
 
