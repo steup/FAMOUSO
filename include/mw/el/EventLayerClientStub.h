@@ -10,7 +10,7 @@
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/PublisherEventChannel.h"
 
-#include "famouso.h"
+#include "mw/el/LocalConnectionParameters.h"
 #include "util/endianness.h"
 #include "case/Delegate.h"
 #include "util/ios.h"

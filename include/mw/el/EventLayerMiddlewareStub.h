@@ -15,7 +15,7 @@
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
 
-#include "famouso.h"
+#include "mw/el/LocalConnectionParameters.h"
 #include "util/endianness.h"
 #include "util/ios.h"
 
