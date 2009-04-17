@@ -19,7 +19,7 @@ const char *dev = "/dev/pcan0";
 
 typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
 //typedef famouso::mw::nl::CAN::detail::ID ID;
-typedef can::MOB	mob;
+typedef can::MOB mob;
 
 typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
 typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
@@ -36,18 +36,18 @@ typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
 // }
 
 void cb(famouso::mw::api::SECCallBackData& cbd) {
-  printf("Michaels CallBack %s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
+    printf("Michaels CallBack %s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
 }
 
 
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
-  famouso::init<EC>();
-  SEC sec(famouso::mw::Subject(0xf1));
-  sec.subscribe();
-  sec.callback.bind<&cb>();
+    famouso::init<EC>();
+    SEC sec(famouso::mw::Subject(0xf1));
+    sec.subscribe();
+    sec.callback.bind<&cb>();
 
-  pause();
-  return 0;
+    pause();
+    return 0;
 }

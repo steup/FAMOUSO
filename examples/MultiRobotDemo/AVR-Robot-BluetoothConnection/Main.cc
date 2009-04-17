@@ -19,20 +19,19 @@ bool fahr_nich = false;
 volatile char SteeringLeft = 0;
 volatile char SteeringRight = 0;
 
-ISR (USART0_RX_vect)
-{
-	
-	if (UDR0==65){
-		VirtualSensor=usart0_receive();
-		Human=usart0_receive();
-		Crash=usart0_receive();
-		SteeringLeft=usart0_receive();
-		SteeringRight=usart0_receive();
-	}
+ISR(USART0_RX_vect) {
+
+    if (UDR0 == 65) {
+        VirtualSensor = usart0_receive();
+        Human = usart0_receive();
+        Crash = usart0_receive();
+        SteeringLeft = usart0_receive();
+        SteeringRight = usart0_receive();
+    }
 }
 
 static inline uint8_t get_own_ID() {
-    DDRG &= ~( (1 << PG0) | (1 << PG1) );
+    DDRG &= ~((1 << PG0) | (1 << PG1));
     PORTG = (1 << PG0) | (1 << PG1);
     return (PING & 0x3);
 }
@@ -45,28 +44,26 @@ enum LEDCOMBINATIONS {LLLL,
 
 enum DIRECTIONS {LEFT, RIGHT, STRAIGHT, STOP};
 
-volatile uint8_t TicksCounterLeft=0;
-volatile uint8_t TicksCounterRight=0;
+volatile uint8_t TicksCounterLeft = 0;
+volatile uint8_t TicksCounterRight = 0;
 
-ISR (INT2_vect)
-{
- 	TicksCounterRight++;
+ISR(INT2_vect) {
+    TicksCounterRight++;
 }
 
-ISR (INT3_vect)
-{
- 	TicksCounterLeft++;
+ISR(INT3_vect) {
+    TicksCounterLeft++;
 }
 
-uint8_t getTicksCounterLeft(){
-	uint8_t aux=TicksCounterLeft;
-	TicksCounterLeft=0;
+uint8_t getTicksCounterLeft() {
+    uint8_t aux = TicksCounterLeft;
+    TicksCounterLeft = 0;
     return aux;
-	}
+}
 
-uint8_t getTicksCounterRight(){
-	uint8_t aux=TicksCounterRight;
-	TicksCounterRight=0;
+uint8_t getTicksCounterRight() {
+    uint8_t aux = TicksCounterRight;
+    TicksCounterRight = 0;
     return aux;
 }
 
@@ -83,7 +80,7 @@ void init() {
     // set PWMX_OUT pins as outputs
     DDRB |= (1 << PWM1_OUT) | (1 << PWM2_OUT) | (1 << PWM3_OUT);
     // switch off motor driver (L293E)
-    PORTB &= ~ (1 << PWM1_OUT) | (1 << PWM2_OUT);
+    PORTB &= ~(1 << PWM1_OUT) | (1 << PWM2_OUT);
     //--------------------------------------------------- Port C ---------------------------------------------
     // set pins for supply voltage as outputs
     DDRC |= ((1 << VSS_0) | (1 << VSS_1) | (1 << VSS_2) | (1 << VSS_3) | (1 << VSS_4) | (1 << VSS_5) | (1 << VSS_6) | (1 << VSS_7));
@@ -120,11 +117,11 @@ void init() {
     // 1    0    0    CK / 256
     // 1    0    1    CK / 1024
     TCCR1B |= ((1 << CS10) | (1 << CS11));
-	//-------------------------------------------- Init external Interrups ---------------------------------------
-	// trigger interrupt with rising edge	
-	EICRA|=(1<<ISC21)|(1<<ISC31);
-	// enable interrupts 2 and 3
-	EIMSK|=(1<<2)|(1<<3);
+    //-------------------------------------------- Init external Interrups ---------------------------------------
+    // trigger interrupt with rising edge
+    EICRA |= (1 << ISC21) | (1 << ISC31);
+    // enable interrupts 2 and 3
+    EIMSK |= (1 << 2) | (1 << 3);
 }
 
 void LedsOnByValue(LEDCOMBINATIONS value) {
@@ -150,7 +147,7 @@ void drive(DIRECTIONS dir) {
                 PORTG &= ~(1 << MOTOR2A_DIR);
                 PORTG |= (1 << MOTOR2B_DIR);
                 PORTE |= (1 << MOTOR1A_DIR);
-                PORTE &= ~ (1 << MOTOR1B_DIR);
+                PORTE &= ~(1 << MOTOR1B_DIR);
                 break;
             }
         case RIGHT : {
@@ -190,66 +187,66 @@ int main() {
     // Interrupts erlauben
     sei();    // global enable interrupts
 
-  	uint8_t leftTicks, rightTicks=0;
-	uint8_t data[4];
-	int8_t delay=0;
+    uint8_t leftTicks, rightTicks = 0;
+    uint8_t data[4];
+    int8_t delay = 0;
 
-	char output[50]; 
+    char output[50];
 
     ledOn(2);
-    
-	while (!BUTTONpressed(2));
-  
+
+    while (!BUTTONpressed(2));
+
     while (1) {
-	    Analog(0);
+        Analog(0);
         RealSensorFront = adc_get_value();
-		if (RealSensorFront > DISTANCE_LIMIT)
-			ledOn(1);
-		else
-			ledOff(1);
-	    Analog(3);
+        if (RealSensorFront > DISTANCE_LIMIT)
+            ledOn(1);
+        else
+            ledOff(1);
+        Analog(3);
         RealSensorRight = adc_get_value();
-		if (RealSensorRight > DISTANCE_LIMIT)
-			ledOn(2);
-		else
-			ledOff(2);
-		Analog(4);
-		RealSensorLeft = adc_get_value();
-		if (RealSensorLeft > DISTANCE_LIMIT)
-			ledOn(3);
-		else
-			ledOff(3);
+        if (RealSensorRight > DISTANCE_LIMIT)
+            ledOn(2);
+        else
+            ledOff(2);
+        Analog(4);
+        RealSensorLeft = adc_get_value();
+        if (RealSensorLeft > DISTANCE_LIMIT)
+            ledOn(3);
+        else
+            ledOff(3);
 
-		leftTicks=getTicksCounterLeft();
-		rightTicks=getTicksCounterRight();
-		
-		if (Human==2) fahr_nich=false;
+        leftTicks = getTicksCounterLeft();
+        rightTicks = getTicksCounterRight();
 
-        if ((Human ==1) || (Crash ==1)){
+        if (Human == 2) fahr_nich = false;
+
+        if ((Human == 1) || (Crash == 1)) {
             drive(STOP);
-			data[1]=0;
-			data[2]=0;
-			fahr_nich=true;
+            data[1] = 0;
+            data[2] = 0;
+            fahr_nich = true;
 
-        } 
-		if (  (RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 60)) {
-            if (!fahr_nich) drive(LEFT);
-			delay=0;
-				if (leftTicks==0)
-					data[1]=0;
-				else{
-		        	data[1]=256-leftTicks;
-				}
-		        data[2]=rightTicks;
-            } else {
-                if (!fahr_nich) drive(STRAIGHT);
-		        data[1]=leftTicks;
-		        data[2]=rightTicks;
         }
-        
-//		sprintf(output,"B %c %c %c B\n\r",data[1],data[2],RealSensorFront);
-		sprintf(output,"B %i %i %i\n\r",data[1],data[2],255);
-		usart0_transmit_string(output);
+        if ((RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 60)) {
+            if (!fahr_nich) drive(LEFT);
+            delay = 0;
+            if (leftTicks == 0)
+                data[1] = 0;
+            else {
+                data[1] = 256 - leftTicks;
+            }
+            data[2] = rightTicks;
+        } else {
+            if (!fahr_nich) drive(STRAIGHT);
+            data[1] = leftTicks;
+            data[2] = rightTicks;
+        }
+
+//  sprintf(output,"B %c %c %c B\n\r",data[1],data[2],RealSensorFront);
+        sprintf(output, "B %i %i %i\n\r", data[1], data[2], 255);
+        usart0_transmit_string(output);
 
         wait_ms(50);
     }

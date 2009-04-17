@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     // create a PublisherEventChannel
     // with a specific Subject
     //famouso::config::PEC pec(famouso::mw::Subject(0xf100000000000000ull));
-   famouso::config::PEC pec(famouso::mw::Subject("Velocity"));
+    famouso::config::PEC pec(famouso::mw::Subject("Velocity"));
     // announce the channel
     pec.announce();
 
@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
     while (1) {
         pec.publish(e);
         boost::xtime time;
-        boost::xtime_get( &time, boost::TIME_UTC );
+        boost::xtime_get(&time, boost::TIME_UTC);
         time.sec += 1;
-        boost::thread::sleep( time );
+        boost::thread::sleep(time);
     }
 }

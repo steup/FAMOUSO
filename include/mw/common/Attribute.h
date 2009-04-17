@@ -2,9 +2,9 @@
 #define __Attribute_h__
 
 class Attribute {
- public:
-	Attribute();
-	~Attribute();
+    public:
+        Attribute();
+        ~Attribute();
 };
 
 #endif /* __Attribute_h__ */

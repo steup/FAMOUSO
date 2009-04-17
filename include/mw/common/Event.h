@@ -5,26 +5,26 @@
 #include "mw/common/Subject.h"
 
 namespace famouso {
-	namespace mw {
+    namespace mw {
 
-struct Event {
-  typedef uint16_t Type;
-  const Subject &subject;
-  Type length;
-  uint8_t *data;
+        struct Event {
+            typedef uint16_t Type;
+            const Subject &subject;
+            Type length;
+            uint8_t *data;
 
-  Event (const Subject &s): subject(s), length(0), data(0) {}
+            Event(const Subject &s): subject(s), length(0), data(0) {}
 
-  uint8_t & operator[](uint8_t i) {
-    return data[i];
-  }
+            uint8_t & operator[](uint8_t i) {
+                return data[i];
+            }
 
-  uint8_t & operator[](uint8_t i) const {
-    return data[i];
-  }
-};
+            uint8_t & operator[](uint8_t i) const {
+                return data[i];
+            }
+        };
 
-	} // namespace mw
+    } // namespace mw
 } // namespace famouso
 
 #endif /* __Event_h__ */

@@ -7,13 +7,13 @@
  *         correct steps while processing them.
  */
 struct FAMOUSO {
-  enum {
-    SUBSCRIBE=0x50,
-    UNSUBSCRIBE,
-    PUBLISH=0x52,
+    enum {
+        SUBSCRIBE = 0x50,
+        UNSUBSCRIBE,
+        PUBLISH = 0x52,
 
-    ANNOUNCE=0x56
-  };
+        ANNOUNCE = 0x56
+    };
 };
 
 /*! \brief  definition of the local port, at which

@@ -4,40 +4,40 @@
 #include "util/swap_endianness.h"
 
 #if defined(LINUX)
-    #include <arpa/inet.h>
-    #if __BYTE_ORDER == __BIG_ENDIAN
-    // The host byte order is the same as network byte order,
-    // so these functions are all just identity.
-        # define htonll(x)  (x)
-        # define ntohll(x)  (x)
-    #else
-        #if __BYTE_ORDER == __LITTLE_ENDIAN
-            #define htonll(x)    __swap_endianness_64(x)
-            #define ntohll(x)    __swap_endianness_64(x)
-        #else
-            #error "BYTE_ORDER is not defined"
-        #endif
-    #endif
+#include <arpa/inet.h>
+#if __BYTE_ORDER == __BIG_ENDIAN
+// The host byte order is the same as network byte order,
+// so these functions are all just identity.
+# define htonll(x)  (x)
+# define ntohll(x)  (x)
+#else
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define htonll(x)    __swap_endianness_64(x)
+#define ntohll(x)    __swap_endianness_64(x)
+#else
+#error "BYTE_ORDER is not defined"
+#endif
+#endif
 
 
 #elif defined(WIN32) || defined(AVR)
-    // Windows and AVR are both little endian
-    #if defined(WIN32)
-        #include <winsock2.h>
-    #endif
+// Windows and AVR are both little endian
+#if defined(WIN32)
+#include <winsock2.h>
+#endif
 
-    #if defined(AVR)
-        #define ntohl(x) __swap_endianness_32(x)
-        #define ntohs(x) __swap_endianness_16(x)
-        #define htonl(x) __swap_endianness_32(x)
-        #define htons(x) __swap_endianness_16(x)
-    #endif
+#if defined(AVR)
+#define ntohl(x) __swap_endianness_32(x)
+#define ntohs(x) __swap_endianness_16(x)
+#define htonl(x) __swap_endianness_32(x)
+#define htons(x) __swap_endianness_16(x)
+#endif
 
-    #define htonll(x)    __swap_endianness_64(x)
-    #define ntohll(x)    __swap_endianness_64(x)
+#define htonll(x)    __swap_endianness_64(x)
+#define ntohll(x)    __swap_endianness_64(x)
 
 #else
-    #error "It seems to be compiling for an unsupported platform and it needs to be defined the endianness of that system."
+#error "It seems to be compiling for an unsupported platform and it needs to be defined the endianness of that system."
 #endif
 
 #endif

@@ -42,8 +42,8 @@ int main(int argc, char **argv) {
         // mam muss nicht unbedingt warten, jedoch entlasstet dies
         // die cpu, weil es sonst busy-waiting ist
         boost::xtime time;
-        boost::xtime_get( &time, boost::TIME_UTC );
+        boost::xtime_get(&time, boost::TIME_UTC);
         time.sec += 1;
-        boost::thread::sleep( time );
+        boost::thread::sleep(time);
     }
 }

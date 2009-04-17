@@ -8,7 +8,7 @@ namespace famouso {
      *          run.
      */
     template <class T>
-    inline void init () {
+    inline void init() {
         T::ech().init();
     }
 }

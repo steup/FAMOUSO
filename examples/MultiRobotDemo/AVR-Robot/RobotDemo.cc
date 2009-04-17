@@ -49,7 +49,7 @@ namespace famouso {
 #define STD_VELOCITY 350
 
 static inline uint8_t get_own_ID() {
-    DDRG &= ~( (1 << PG0) | (1 << PG1) );
+    DDRG &= ~((1 << PG0) | (1 << PG1));
     PORTG = (1 << PG0) | (1 << PG1);
     return (PING & 0x3);
 }
@@ -62,28 +62,26 @@ enum LEDCOMBINATIONS {LLLL,
 
 enum DIRECTIONS {LEFT, RIGHT, STRAIGHT, STOP};
 
-volatile uint8_t TicksCounterLeft=0;
-volatile uint8_t TicksCounterRight=0;
+volatile uint8_t TicksCounterLeft = 0;
+volatile uint8_t TicksCounterRight = 0;
 
-ISR (INT2_vect)
-{
- 	TicksCounterRight++;
+ISR(INT2_vect) {
+    TicksCounterRight++;
 }
 
-ISR (INT3_vect)
-{
- 	TicksCounterLeft++;
+ISR(INT3_vect) {
+    TicksCounterLeft++;
 }
 
-uint8_t getTicksCounterLeft(){
-	uint8_t aux=TicksCounterLeft;
-	TicksCounterLeft=0;
+uint8_t getTicksCounterLeft() {
+    uint8_t aux = TicksCounterLeft;
+    TicksCounterLeft = 0;
     return aux;
-	}
+}
 
-uint8_t getTicksCounterRight(){
-	uint8_t aux=TicksCounterRight;
-	TicksCounterRight=0;
+uint8_t getTicksCounterRight() {
+    uint8_t aux = TicksCounterRight;
+    TicksCounterRight = 0;
     return aux;
 }
 
@@ -100,7 +98,7 @@ void init() {
     // set PWMX_OUT pins as outputs
     DDRB |= (1 << PWM1_OUT) | (1 << PWM2_OUT) | (1 << PWM3_OUT);
     // switch off motor driver (L293E)
-    PORTB &= ~ (1 << PWM1_OUT) | (1 << PWM2_OUT);
+    PORTB &= ~(1 << PWM1_OUT) | (1 << PWM2_OUT);
     //--------------------------------------------------- Port C ---------------------------------------------
     // set pins for supply voltage as outputs
     DDRC |= ((1 << VSS_0) | (1 << VSS_1) | (1 << VSS_2) | (1 << VSS_3) | (1 << VSS_4) | (1 << VSS_5) | (1 << VSS_6) | (1 << VSS_7));
@@ -137,11 +135,11 @@ void init() {
     // 1    0    0    CK / 256
     // 1    0    1    CK / 1024
     TCCR1B |= ((1 << CS10) | (1 << CS11));
-	//-------------------------------------------- Init external Interrups ---------------------------------------
-	// trigger interrupt with rising edge	
-	EICRA|=(1<<ISC21)|(1<<ISC31);
-	// enable interrupts 2 and 3
-	EIMSK|=(1<<2)|(1<<3);
+    //-------------------------------------------- Init external Interrups ---------------------------------------
+    // trigger interrupt with rising edge
+    EICRA |= (1 << ISC21) | (1 << ISC31);
+    // enable interrupts 2 and 3
+    EIMSK |= (1 << 2) | (1 << 3);
 }
 
 void LedsOnByValue(LEDCOMBINATIONS value) {
@@ -167,7 +165,7 @@ void drive(DIRECTIONS dir) {
                 PORTG &= ~(1 << MOTOR2A_DIR);
                 PORTG |= (1 << MOTOR2B_DIR);
                 PORTE |= (1 << MOTOR1A_DIR);
-                PORTE &= ~ (1 << MOTOR1B_DIR);
+                PORTE &= ~(1 << MOTOR1B_DIR);
                 break;
             }
         case RIGHT : {
@@ -199,18 +197,18 @@ char *distance = "Distance";
 char *velocity = "Velocity";
 
 void VSensor_CB(famouso::mw::api::SECCallBackData& e) {
-        if ((e.data[0] == famouso::Robot::ID::value)
+    if ((e.data[0] == famouso::Robot::ID::value)
 //            && (e.data[2] == 'v')
-            )
-        VirtualSensor=e.data[2];
+       )
+        VirtualSensor = e.data[2];
 }
 
 void Human_CB(famouso::mw::api::SECCallBackData& e) {
-    Human=e.data[1];
+    Human = e.data[1];
 }
 
 void Crash_CB(famouso::mw::api::SECCallBackData& e) {
-    Crash=1;
+    Crash = 1;
 }
 
 int main() {
@@ -243,37 +241,37 @@ int main() {
     famouso::config::PEC pec(velocity);
     pec.announce();
     famouso::mw::Event e(pec.subject());
-    uint8_t data[4]={famouso::Robot::ID::value,0,0};
+    uint8_t data[4] = {famouso::Robot::ID::value, 0, 0};
     e.length = 4;
     e.data = data;
 
-	uint8_t leftTicks, rightTicks=0;
+    uint8_t leftTicks, rightTicks = 0;
 
-    Crash=0;
+    Crash = 0;
     ledOn(0);
     while (1) {
-	    Analog(1);
+        Analog(1);
         RealSensorFront = adc_get_value();
-	    Analog(3);
+        Analog(3);
         RealSensorRight = adc_get_value();
-		leftTicks=getTicksCounterLeft();
-		rightTicks=getTicksCounterRight();
-        if ((Human != 0) || (Crash==1)){
+        leftTicks = getTicksCounterLeft();
+        rightTicks = getTicksCounterRight();
+        if ((Human != 0) || (Crash == 1)) {
             drive(STOP);
         } else {
- 			if ( (RealSensorFront > 200) || (RealSensorRight > 220) || (VirtualSensor < 60) ) {
+            if ((RealSensorFront > 200) || (RealSensorRight > 220) || (VirtualSensor < 60)) {
                 drive(LEFT);
                 VirtualSensor = 255;
-				if (leftTicks==0)
-					data[1]=0;
-				else{
-		        	data[1]=256-leftTicks;
-				}
-		        data[2]=rightTicks;
+                if (leftTicks == 0)
+                    data[1] = 0;
+                else {
+                    data[1] = 256 - leftTicks;
+                }
+                data[2] = rightTicks;
             } else {
                 drive(STRAIGHT);
-		        data[1]=leftTicks;
-		        data[2]=rightTicks;
+                data[1] = leftTicks;
+                data[2] = rightTicks;
             }
         }
 

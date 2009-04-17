@@ -18,8 +18,8 @@
 // prints the received event data out
 void cb(famouso::mw::api::SECCallBackData& cbd) {
     std::cout << __PRETTY_FUNCTION__ << " Length="
-              << cbd.length << " Event data="
-              << cbd.data << std::endl;
+    << cbd.length << " Event data="
+    << cbd.data << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
     // that have something to do
     while (1) {
         boost::xtime time;
-        boost::xtime_get( &time, boost::TIME_UTC );
+        boost::xtime_get(&time, boost::TIME_UTC);
         time.sec += 100;
-        boost::thread::sleep( time );
+        boost::thread::sleep(time);
     }
 }

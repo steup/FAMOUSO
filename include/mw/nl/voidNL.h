@@ -10,58 +10,60 @@
 #include <stdio.h>
 
 namespace famouso {
-	namespace mw {
-		namespace nl {
+    namespace mw {
+        namespace nl {
 
-class voidNL : public BaseNL {
-public:
-    struct info{
-	enum {
-	    payload=8
-	};
-    };
+            class voidNL : public BaseNL {
+                public:
+                    struct info {
+                        enum {
+                            payload = 8
+                        };
+                    };
 
-    typedef uint16_t SNN;
+                    typedef uint16_t SNN;
 
-    typedef Packet<SNN> Packet_t;
+                    typedef Packet<SNN> Packet_t;
 
 
-    voidNL() {}
-    ~voidNL() {}
+                    voidNL() {}
+                    ~voidNL() {}
 
-    void init() { init(UID(0ull));}
-    void init(const NodeID &i) {
-	DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
-    }
+                    void init() {
+                        init(UID(0ull));
+                    }
+                    void init(const NodeID &i) {
+                        DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
+                    }
 
-    // bind Subject to specific networks name
-    void bind(const Subject &s, SNN &snn) {
-	DEBUG(("%s\n", __PRETTY_FUNCTION__));
-	snn=0x1;
-    }
+                    // bind Subject to specific networks name
+                    void bind(const Subject &s, SNN &snn) {
+                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        snn = 0x1;
+                    }
 
-    void deliver(const Packet_t& p) {
-	DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    }
+                    void deliver(const Packet_t& p) {
+                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                    }
 
-    void deliver_fragment(const Packet_t& p) {
-	DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    }
+                    void deliver_fragment(const Packet_t& p) {
+                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                    }
 
-    void fetch(Packet_t& p) {
-	DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    }
+                    void fetch(Packet_t& p) {
+                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                    }
 
-    void interrupt() {
-	DEBUG(("%s\n", __PRETTY_FUNCTION__));
-    }
+                    void interrupt() {
+                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                    }
 
-    SNN lastPacketSNN() {
-        return 0xff;
-    }
-};
-		} // namespace nl
-	} // namespace mw
+                    SNN lastPacketSNN() {
+                        return 0xff;
+                    }
+            };
+        } // namespace nl
+    } // namespace mw
 } //namespace famouso
 
 #endif /* __voidNL_h__ */

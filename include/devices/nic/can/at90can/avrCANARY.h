@@ -128,7 +128,7 @@ namespace device {
 
                         // put data in mailbox
                         for (unsigned char i = 0; i < mob.len(); i++)
-                            CANMSG = mob.data() [i];
+                            CANMSG = mob.data()[i];
 
                         // enable transmission
                         CANCDMOB |= (1 << CONMOB0);
@@ -231,7 +231,7 @@ namespace device {
     } /* namespace nic */
 } /* namespace device */
 
-SIGNAL (SIG_CAN_INTERRUPT1) {
+SIGNAL(SIG_CAN_INTERRUPT1) {
     device::nic::CAN::detail::rx_Interrupt();
 }
 

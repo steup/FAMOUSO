@@ -62,7 +62,7 @@ namespace famouso {
                         // If the event is from the another network as the subscription it will
                         // be published, otherwise it would an reflection in the same network
                         // the event would arise twice at the subscribers.
-                        if ( ! this->ech().event_from_network_with_id(_bnl) )
+                        if (! this->ech().event_from_network_with_id(_bnl))
                             this->ech().publish_to_network_with_id(this->snn(), cbd, _bnl);
                     }
 

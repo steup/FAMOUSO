@@ -5,10 +5,10 @@
 #include <stdint.h>
 
 namespace famouso {
-	namespace mw {
+    namespace mw {
 
-typedef UID Subject;
+        typedef UID Subject;
 
-	}
+    }
 }
 #endif /* __Subject_h__ */

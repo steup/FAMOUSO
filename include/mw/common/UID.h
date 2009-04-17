@@ -23,7 +23,7 @@ private:
         uint8_t _tab[8];
     };
 
-    public:
+public:
     explicit UID() : _value(0) {}
 
     explicit UID(uint64_t uid) : _value(htonll(uid)) {}
@@ -36,11 +36,11 @@ private:
         do_init(reinterpret_cast<const uint8_t*>(uid));
     }
 
-    bool operator < (const UID &a) const{
+    bool operator < (const UID &a) const {
         return _value < a._value;
     }
 
-    bool operator == (const UID &a) const{
+    bool operator == (const UID &a) const {
         return _value == a._value;
     }
 
@@ -56,7 +56,7 @@ private:
     }
 private:
     void do_init(const uint8_t *uid) {
-            _value= *reinterpret_cast<const uint64_t*>(uid);
+        _value = *reinterpret_cast<const uint64_t*>(uid);
     }
 };
 

@@ -53,7 +53,7 @@ namespace famouso {
 #define STD_VELOCITY 350
 
 static inline uint8_t get_own_ID() {
-    DDRG &= ~( (1 << PG0) | (1 << PG1) );
+    DDRG &= ~((1 << PG0) | (1 << PG1));
     PORTG = (1 << PG0) | (1 << PG1);
     return (PING & 0x3);
 }
@@ -79,7 +79,7 @@ void init() {
     // set PWMX_OUT pins as outputs
     DDRB |= (1 << PWM1_OUT) | (1 << PWM2_OUT) | (1 << PWM3_OUT);
     // switch off motor driver (L293E)
-    PORTB &= ~ (1 << PWM1_OUT) | (1 << PWM2_OUT);
+    PORTB &= ~(1 << PWM1_OUT) | (1 << PWM2_OUT);
     //--------------------------------------------------- Port C ---------------------------------------------
     // set pins for supply voltage as outputs
     DDRC |= ((1 << VSS_0) | (1 << VSS_1) | (1 << VSS_2) | (1 << VSS_3) | (1 << VSS_4) | (1 << VSS_5) | (1 << VSS_6) | (1 << VSS_7));
@@ -116,11 +116,11 @@ void init() {
     // 1    0    0    CK / 256
     // 1    0    1    CK / 1024
     TCCR1B |= ((1 << CS10) | (1 << CS11));
-	//-------------------------------------------- Init external Interrups ---------------------------------------
-	// trigger interrupt with rising edge	
-	EICRA|=(1<<ISC21)|(1<<ISC31);
-	// enable interrupts 2 and 3
-	EIMSK|=(1<<2)|(1<<3);
+    //-------------------------------------------- Init external Interrups ---------------------------------------
+    // trigger interrupt with rising edge
+    EICRA |= (1 << ISC21) | (1 << ISC31);
+    // enable interrupts 2 and 3
+    EIMSK |= (1 << 2) | (1 << 3);
 }
 
 void LedsOnByValue(LEDCOMBINATIONS value) {
@@ -142,18 +142,18 @@ char *distance = "Distance";
 char *velocity = "Velocity";
 
 void VSensor_CB(famouso::mw::api::SECCallBackData& e) {
-        if ((e.data[0] == famouso::Robot::ID::value)
+    if ((e.data[0] == famouso::Robot::ID::value)
 //            && (e.data[2] == 'v')
-            )
-        VirtualSensor=e.data[2];
+       )
+        VirtualSensor = e.data[2];
 }
 
 void Human_CB(famouso::mw::api::SECCallBackData& e) {
-    Human=e.data[1];
+    Human = e.data[1];
 }
 
 void Crash_CB(famouso::mw::api::SECCallBackData& e) {
-    Crash=1;
+    Crash = 1;
 }
 
 int main() {
@@ -186,28 +186,28 @@ int main() {
     famouso::config::PEC pec(velocity);
     pec.announce();
     famouso::mw::Event e(pec.subject());
-    uint8_t data[3]={famouso::Robot::ID::value,0,0};
+    uint8_t data[3] = {famouso::Robot::ID::value, 0, 0};
     e.length = 3;
     e.data = data;
 
-    Crash=0;
+    Crash = 0;
     ledOn(0);
     while (1) {
-	    Analog(1);
+        Analog(1);
         RealSensorFront = adc_get_value();
-        if ((Human != 0) || (Crash==1)){
-            data[1]=0;
-		    data[2]=0;
-			ledOn(1);
+        if ((Human != 0) || (Crash == 1)) {
+            data[1] = 0;
+            data[2] = 0;
+            ledOn(1);
         } else {
- 		//	if ( (RealSensorFront > 200) || (VirtualSensor < 60) ) {
-			if ( (RealSensorFront > 200) || (VirtualSensor < 60) ) {
+            // if ( (RealSensorFront > 200) || (VirtualSensor < 60) ) {
+            if ((RealSensorFront > 200) || (VirtualSensor < 60)) {
                 VirtualSensor = 255;
-		        data[1]=5;
-		        data[2]=256-5;
+                data[1] = 5;
+                data[2] = 256 - 5;
             } else {
-		        data[1]=10;
-		        data[2]=10;
+                data[1] = 10;
+                data[2] = 10;
             }
         }
         pec.publish(e);

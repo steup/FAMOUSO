@@ -37,36 +37,36 @@ namespace famouso {
                      */
                     Gateway() : famouso::mw::api::SubscriberEventChannel< ECH > (famouso::mw::Subject("SUBSCRIBE")) {}
 
-                    void start () {
+                    void start() {
                         this->subscribe();
                         this->callback.template bind<Gateway, &Gateway::subscribe_from_network>(this);
                     }
 
-                    void stop () {
+                    void stop() {
                         this->unsubscribe();
                     }
 
                 private:
 
                     void subscribe_from_network(famouso::mw::api::SECCallBackData& cbd) {
-                        if (this->ech().get_network_id() == 0 ) {
-                            std::cout<< "Lokal Subscription" << std::endl;
+                        if (this->ech().get_network_id() == 0) {
+                            std::cout << "Lokal Subscription" << std::endl;
                         } else {
-                            if ( this->subject() == famouso::mw::Subject(cbd.data)) {
+                            if (this->subject() == famouso::mw::Subject(cbd.data)) {
                                 std::cout << "Subscribe Message of another gateway" << std::endl;
                             } else {
-                                uint32_t ii=0;
-                                while ( ii < gecs.size()) {
+                                uint32_t ii = 0;
+                                while (ii < gecs.size()) {
                                     // todo base network noch ueberpruefen
-                                    if ( gecs[ii]->subject() == famouso::mw::Subject(cbd.data) ) {
+                                    if (gecs[ii]->subject() == famouso::mw::Subject(cbd.data)) {
                                         std::cout << "forward channel exits" << std::endl;
-                                         return;
+                                        return;
                                     }
                                     ii++;
                                 }
-                                std::string str(reinterpret_cast<const char*>(cbd.data),0,8);
+                                std::string str(reinterpret_cast<const char*>(cbd.data), 0, 8);
                                 std::cout << "Generate a new proxy channel for forwarding events of Subject " << str << std::endl;
-                                const GEC *g=new GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
+                                const GEC *g = new GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
                                 gecs.push_back(g);
                             }
                         }

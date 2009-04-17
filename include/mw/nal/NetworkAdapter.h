@@ -56,10 +56,10 @@ namespace famouso {
                      *  \param[in] bnl the sub network in that the event \e e will be published.
                      */
                     void publish_to_network_with_id(const SNN &snn, const Event &e, const famouso::mw::nl::BaseNL *bnl) {
-                        if (_ANL_A.id() == bnl )
-                            _ANL_A.publish (snn.SNN_A , e);
+                        if (_ANL_A.id() == bnl)
+                            _ANL_A.publish(snn.SNN_A , e);
                         else
-                            _ANL_B.publish (snn.SNN_B , e);
+                            _ANL_B.publish(snn.SNN_B , e);
                     }
 
                     /*! \brief Allows for checking if source of event and subscription network matches.
@@ -74,7 +74,7 @@ namespace famouso {
                      *          \li \b false otherwise
                      */
                     const bool event_from_network_with_id(const famouso::mw::nl::BaseNL *b) const {
-                        if ( (!_bnl)  || (_bnl == b) )
+                        if ((!_bnl)  || (_bnl == b))
                             return true;
                         else
                             return false;
@@ -101,8 +101,8 @@ namespace famouso {
                      *              subject.
                      */
                     void announce(const Subject &s, SNN &snn) {
-                        _ANL_A.announce (s, snn.SNN_A);
-                        _ANL_B.announce (s, snn.SNN_B);
+                        _ANL_A.announce(s, snn.SNN_A);
+                        _ANL_B.announce(s, snn.SNN_B);
                     }
 
                     /*! \brief Publishes an event on all sub networks.
@@ -113,8 +113,8 @@ namespace famouso {
                      *  \param[in]  e the event that is published.
                      */
                     void publish(const SNN &snn, const Event &e) {
-                        _ANL_A.publish (snn.SNN_A , e);
-                        _ANL_B.publish (snn.SNN_B , e);
+                        _ANL_A.publish(snn.SNN_A , e);
+                        _ANL_B.publish(snn.SNN_B , e);
                     }
 
                     /*! \brief Subscribes a subject on all sub networks.
@@ -125,8 +125,8 @@ namespace famouso {
                      *              subject.
                      */
                     void subscribe(const Subject &s, SNN &snn) {
-                        _ANL_A.subscribe (s, snn.SNN_A);
-                        _ANL_B.subscribe (s, snn.SNN_B);
+                        _ANL_A.subscribe(s, snn.SNN_A);
+                        _ANL_B.subscribe(s, snn.SNN_B);
                     }
 
                     /*! \brief Traverses a specific sub network for a short network name.
@@ -139,10 +139,10 @@ namespace famouso {
                     bool fetch(const SNN &snn, const famouso::mw::nl::BaseNL *bnl) {
                         /*! \todo fetching of stacked gateway are not implemented at this stage and
                          *        time triggered fetching is also not supported. */
-                        if (_ANL_A.id() == bnl )
-                            return _ANL_A.fetch (snn.SNN_A , bnl);
+                        if (_ANL_A.id() == bnl)
+                            return _ANL_A.fetch(snn.SNN_A , bnl);
                         else
-                            return _ANL_B.fetch (snn.SNN_B , bnl);
+                            return _ANL_B.fetch(snn.SNN_B , bnl);
                     }
 
                     /*! \brief Receives an event from a specific subnetwork.
@@ -150,10 +150,10 @@ namespace famouso {
                      *  \param[out] e the event that is filled with the received event
                      */
                     bool getEvent(Event &e) {
-                        if (_ANL_A.id() == _bnl )
-                            return _ANL_A.getEvent (e);
+                        if (_ANL_A.id() == _bnl)
+                            return _ANL_A.getEvent(e);
                         else
-                            return _ANL_B.getEvent (e);
+                            return _ANL_B.getEvent(e);
                     }
 
                     /*! \brief Is called by the higher layer to signalise that

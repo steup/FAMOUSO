@@ -56,7 +56,7 @@ namespace famouso {
     typedef Configurator<GW_AWDS_UDPMC::config> config;
 }
 
-int main (int argc, char **argv) {
+int main(int argc, char **argv) {
     std::cout << "Project: FAMOUSO" << std::endl;
     std::cout << "local Event Channel Handler" << std::endl << std::endl;
     std::cout << "Author: Michael Schulze" << std::endl;
