@@ -1,0 +1,253 @@
+html, body {
+    margin : 0;
+    padding : 0;
+}
+
+body {
+    color: black;
+    width: 100%;
+    background: #ccc;
+}
+
+/*WRAP*/
+#container {
+    width: 98%;
+    margin : 1%;
+    padding: 0;
+    position: relative;
+    clear: both;
+    float: left;
+    overflow: hidden;
+    line-height : 2em;
+    background: #f2f2f2;
+/*    background-image: url(images/bg-ng.jpg);
+    background-repeat: repeat;*/
+}
+
+/*TOP BANNER*/
+#banner {
+    padding: 0%;
+    margin: 0;
+    background: #3f3f3f;
+    background-image: url(images/bg-new.jpg);
+    background-repeat: repeat-x;
+    background-position: top;
+    background-attachment: scroll;
+    color: #Ff7800;
+    border-bottom : 0.25em solid #fb8d2d;
+    height: 7.5em;
+    overflow: hidden;
+}
+
+#banner h1 {
+    margin : 0;
+    padding-top: 1em;
+    padding-right: 0.15em;
+    font-size : 300%;
+    letter-spacing : 0.25em;
+    text-align : right;
+}
+.slogan {
+    margin : 0;
+    padding-right: 1em;
+    font-size : 150%;
+    text-align : right;
+}
+
+/*TOP NAVIGATION*/
+#navcontainer {
+    border-bottom : 0.25em solid #fb8d2d;
+}
+#navcontainer ul {
+    text-align : center;
+    padding-bottom : 0.25em;
+    padding-top : 0.25em;
+    padding-right : 0;
+    padding-left : 0;
+    margin : 0;
+    background : #036;
+    color : white;
+    width : 100%;
+    line-height : 1em;
+}
+#navcontainer ul li {
+    padding-right: 0.25em;
+    padding-left: 0.25em;
+    display : inline;
+    border-right : 0.1em solid #fb8d2d;
+    border-left : 0.1em solid #fb8d2d;
+}
+
+#navcontainer ul li a {
+    color : white;
+    text-decoration : none;
+}
+
+#navcontainer ul li a:hover {
+    background : #369;
+    color : white;
+}
+
+/*LEFT SIDEBAR*/
+#leftnav {
+    float : left;
+    width: 22%;
+    margin: 0;
+    padding : 0 1% 0 1%;
+}
+
+#leftnav p {
+    margin : 0 0 1em 0;
+}
+
+#leftnavmenu {
+    list-style : none;
+    float : left;
+    width: 95%;
+    padding : 0;
+}
+
+#leftnavmenu ul {
+    list-style : none;
+    margin : 0;
+    padding : 0;
+}
+
+#leftnavmenu li {
+    overflow: hidden;
+    margin-bottom: 0.3em;
+}
+
+#leftnavmenu li a {
+    font-weight : bold;
+    text-decoration : none;
+    color : black; 
+    background : #ddd url(images/up.gif) no-repeat left center;
+    display : block;
+    padding-left : 2em;
+    letter-spacing : 0.15em;
+}
+
+#leftnavmenu li a:hover {
+    background : #666 url(images/right.gif) no-repeat left center;
+    color: #FB8D2D;
+}
+
+/*MAIN CONTENT*/
+#content {
+    float: left;
+    margin: 0;
+    padding : 0 1% 0 1%;
+    width: 70%;
+    border-left: thick solid #fb8d2d;
+    min-height: 25em;
+}
+
+#content p {
+    padding : 0.5em 0em 0em 0em;
+}
+
+/*FOOTER*/
+#footer {
+    clear : both;
+    margin : 0;
+    padding : 0;
+    font-size : 0.9em;
+    border-top: 0.25em solid #fb8d2d;
+}
+
+* > html #footer img {
+    margin : 0;
+}
+
+#footer p {
+    padding : 0 0 0 0.2em;
+}
+
+/*TYPOGRAPHY*/
+h2 {
+    margin : 1em 0 0.5em 0;
+    font-size : 130%;
+    letter-spacing : 0.2em;
+}
+
+blockquote {
+    padding : 0.2em;
+    font-style : italic;
+    color : #b29b35;
+}
+
+.quote {
+    border-top : 0.1em solid #8fb8cc;
+    padding : 0.25em;
+    color : #036;
+}
+
+/*LINKS*/
+a:link, a:visited {
+    color: #Ff7800;
+    background : transparent;
+    text-decoration : none;
+}
+
+a:hover {
+    color: #FB8D2D;
+    background: #666;
+    text-decoration : none;
+}
+
+a img {
+    border : none;
+}
+
+/*IMAGESS*/
+.imgleft {
+    float : left;
+    padding : 0.2em;
+    margin-right : 0.3em;
+}
+
+/*CLASS*/
+.post {
+    background-color : #eee;
+    padding : 0.1em;
+    margin : 0.25em 0.2em 0 0.1em;
+    border : 0 dashed #8a795d;
+    font-size : 80%;
+}
+
+.post .date {
+    background : url(images/clock.gif) no-repeat left center;
+    padding-left : 0.15em;
+    margin : 0 0.15em 0 0.1em;
+}
+
+.post .comments {
+    background : url(images/comment.gif) no-repeat left center;
+    padding-left : 0.15em;
+    margin : 0 0.15em 0 0.1em;
+}
+
+.post .readmore {
+    background : url(images/document.gif) no-repeat left center;
+    padding-left : 0.15em;
+    margin : 0 0.15em 0 0.1em;
+}
+
+/* ###### copyright ###### */
+
+#copyright {
+    padding: 0.25em 0.25em 0.25em 0.25em;
+}
+
+#copyright .left {
+    line-height: 1.45em;
+    float: left;
+    clear: left;
+}
+
+#copyright .right {
+    text-align: right;
+    line-height: 1.45em;
+}
+

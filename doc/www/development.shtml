@@ -1,0 +1,16 @@
+    <!--#include virtual="./header.shtml" -->
+
+    <!-- ##### Main Content ##### -->
+
+    <h2>Development</h2>
+    <p>
+    FAMOUSO is under active development and every are welcome to participate.
+    If you would like to be a part of the FAMOUSO community feel free to contact
+    one of the authors for detailed instructions or go to our <a
+    href="https://pm.cs.uni-magdeburg.de:4430/redmine/projects/show/famouso">web-based
+    system</a> that we use for bug-tracking, feature requests, wiki, documentation, news,
+    forum and version control and register yourself.
+    </p>
+
+    <!-- ##### Footer ##### -->
+    <!--#include virtual="./footer.shtml" -->

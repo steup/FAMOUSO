@@ -1,0 +1,16 @@
+    <!--#include virtual="./header.shtml" -->
+
+    <!-- ##### Main Content ##### -->
+
+    <h2>Documentation</h2>
+    <p>
+    <ul>
+    <!-- li><a href="https://pm.cs.uni-magdeburg.de:4430/redmine/embedded/famouso/index.html">online documentation</a></li -->
+    <li><a href="<!--#echo var="base" -->/docu/online/">online documentation</a></li>
+    <li><a href="<!--#echo var="base" -->/docu/refman.pdf">pdf</a></li>
+
+    </ul>
+    </p>
+
+    <!-- ##### Footer ##### -->
+    <!--#include virtual="./footer.shtml" -->

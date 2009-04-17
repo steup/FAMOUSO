@@ -1,0 +1,45 @@
+    <!-- ##### Header ##### -->
+    <!--#include virtual="./header.shtml" -->
+
+<h2>Frequently Asked Questions</h2>
+<p>Frequently Asked Questions (FAQ) about <a href="http://famouso.sourceforge.net">FAMOUSO</a>. If you have more detailed questions and/or search for technical answers, read the <a href="<!--#echo var="base" -->/documentation.shtml">Documentation</a>, go to the <a href="<!--#echo var="base" -->/development.shtml">Development</a> page or contact the authors.</p>
+
+<ul>
+    <li><a href="#whatis">What is FAMOUSO?</a> </li>
+    <li><a href="#whichcpu">On which platforms will FAMOUSO run?</a> </li>
+    <li><a href="#wheredownload">Where can I download FAMOUSO?</a> </li>
+    <li><a href="#howcontribute">How can I contribute to FAMOUSO?</a> </li>
+    <li><a href="#whendone">When will FAMOUSO be done?</a> </li>
+    <li><a href="#isroslegal">How is FAMOUSO licensed?</a> </li>
+</ul>
+
+<a name="whatis"></a>
+<h3>What is FAMOUSO?</h3>
+<p>FAMOUSO (short for <b>F</b>amily of <b>A</b>daptive <b>M</b>iddleware for autonom<b>OUs</b> <b>S</b>entient <b>O</b>bjects) is an <a href="http://www.opensource.org/docs/definition.php">open-source</a> effort to develop a quality event-based publish/subscribe communication middleware written in C++ that is able to run on a broad variaty of platforms ranging from 8Bit micro-controllers up to 32Bit PC/Workstations.</a></p>
+
+<a name="whichcpu"></a>
+<h3>On which platforms will FAMOUSO run?</h3>
+<p>FAMOUSO currently runs on all flavors of *nix and Windows and on at90can128 AVR from <a href="http://www.atmel.com">ATMEL</a>.
+</p>
+
+<a name="wheredownload"></a>
+<h3>Where can I download FAMOUSO?</h3>
+<p>Please visit the <a href="<!--#echo var="base" -->/download.shtml">download page.</a></p>
+
+<a name="howcontribute"></a>
+<h3>How can I contribute to FAMOUSO?</h3>
+<p>Please visit the <a href="<!--#echo var="base" -->/development.shtml">development page.</a></p>
+
+<a name="whendone"></a>
+<h3>When will FAMOUSO be done?</h3>
+<p>First you need to define what FAMOUSO should be capable of when it is to be considered done. Since this definition may vary greatly between people, this question cannot be completely answered. One thing is for sure: FAMOUSO is under active development and it will continue to be developed, as there will always be a need for improvements. For more information, visit the <a href="<!--#echo var="base" -->/development.shtml">development page</a> and further pages for open issues and feature requests.</p>
+
+<a name="isroslegal"></a>
+<h3>How is FAMOUSO licensed?</h3>
+<p>FAMOUSO is licensed under a single unified <a href="<!--#echo var="base" -->/LICENSE.txt">license</a>. This so-called modified Berkeley license is intented to be compatible with most Free Software licenses like the GPL, yet impose as little restrictions for the use of the library in closed-source commercial applications as possible.
+</p>
+
+
+    <!-- ##### Footer ##### -->
+    <!--#include virtual="./footer.shtml" -->
+

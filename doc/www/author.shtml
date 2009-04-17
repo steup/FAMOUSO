@@ -1,0 +1,50 @@
+    <!--#include virtual="./header.shtml" -->
+
+    <!-- ##### Main Content ##### -->
+    <h2>Authors of the FAMOUSO Project</h2>
+    <strong>Project maintainer: Michael Schulze</strong>
+    <p>
+    A big project like FAMOUSO is not realised by one person only. The following list counts only the main people that have merits on the project.
+    </p>
+    <ul>
+    <li><strong>Main Developer: Michael Schulze</strong></li>
+    <ul>
+    <li>Concepts</li>
+    <li>Middleware core</li>
+    <li>Generic gateway architecture</li>
+    <li>CAN-Network Layer and Protocols</li>
+    <li>AWDS-Network Layer</li>
+    <li>Languages Bindings (SWIG -- Python, Java, C#)</li>
+    <li>...</li>
+    </ul>
+    <br>
+    <li><strong>Developer: Sebastian Zug</strong></li>
+    <ul>
+    <li>Matlab/Simulink Binding</li>
+    <li>MultiRobot Simulator/Demo</li>
+    </ul>
+    <br>
+    <li><strong>Developer: Georg Lukas</strong></li>
+    <ul>
+    <li>native Python Binding</li>
+    </ul>
+    <br>
+    <li><strong>Developer: Felix Penzlin</strong></li>
+    <ul>
+    <li>UDP-MultiCast Network Layer</li>
+    </ul>
+    <br>
+    <li><strong>Developer: Timo Lindhorst</strong></li>
+    <ul>
+    <li>Some bug fixes</li>
+    </ul>
+    <br>
+    <br>
+    <li><strong>Bug Reporter</strong></li>
+    <ul>
+    <li>Andr&eacute; Herms</li>
+    <li>Thomas Kiebel</li>
+    </ul>
+    </ul>
+    <!-- ##### Footer ##### -->
+    <!--#include virtual="./footer.shtml" -->

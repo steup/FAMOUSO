@@ -1,0 +1,43 @@
+    <!-- ##### Header ##### -->
+    <!--#include virtual="./header.shtml" -->
+
+    <!-- ##### Main Content ##### -->
+    <h2>Overview</h2>
+	<p>
+    FAMOUSO is a publish/subscribe middleware that readopts, substantiates and
+    refines the ideas and concepts of its predecessor COSMIC
+    (<b>CO</b>operating <b>SM</b>art dev<b>IC</b>es). Additionally, FAMOUSO
+    provides much more features like adaptation to a specific platform or the
+    generic gateway architecture.</p>
+
+    <p>
+    As communication model, the middleware supports event-based communication according to the
+    publisher/subscriber concept. FAMOUSO is especially designed to allow
+    cooperation between smart sensors and actuators on different hardware
+    platforms ranging from 8-bit micro-controllers up to 32-bit PC/Workstations. It supports
+    interaction over a broad variety of communication media like 
+	<a href="http://www.semiconductors.bosch.de/pdf/can2spec.pdf">Controller Area Network</a>,
+	<a href="http://standards.ieee.org/getieee802/802.15.html">802.15.4</a>,
+	<a href="http://awds.berlios.de/">AWDS</a>,
+	<a href="http://www.ietf.org/rfc/rfc3170.txt">UDP-MultiCast</a>. 
+	On application level, it offers a unique API that is easy to use from different programming
+	languages (C/C++, Python, Java, .NET) as well as from engineering tools
+	(<a href="http://www.mathworks.com/">Matlab/Simulink</a>, 
+	<a href="http://www.ni.com/labview/">Labview</a>).
+	</p>
+	Key features of FAMOUSO are:
+    <ul>
+	    <li> Publish/Subscribe middleware</li>
+	    <li> Uniform addressing of topics </li>
+	    <li> No control flow dependancies between Publisher and Subscriber </li>
+	    <li> Abstraction of the concrete underlying communiction media </li>
+	    <li> Hides heterogeneity </li>
+	    <li> Portability </li>
+	    <li> Adaptability </li>
+	    <li> Configurability </li>
+	    <li> Deployment of modern software technologies </li>
+	</ul>
+
+
+    <!-- ##### Footer ##### -->
+    <!--#include virtual="./footer.shtml" -->

@@ -1,0 +1,53 @@
+<!--#include virtual="./base.shtml" -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+       "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<title>FAMOUSO -- Family of Adaptive Middleware for autonomOUs Sentient Objects</title>
+<link href="<!--#echo var="base" -->/css/doxygen.css" rel="stylesheet" type="text/css">
+<link href="<!--#echo var="base" -->/css/tabs.css" rel="stylesheet" type="text/css">
+<link href="<!--#echo var="base" -->/css/famouso.css" rel="stylesheet" type="text/css">
+</head>
+
+<!--#config timefmt="%0e.%m.%Y" -->
+<!--#set var="modified" value="$LAST_MODIFIED" -->
+
+<body>
+
+<div id="container">
+
+<div id="banner"><h1>FAMOUSO</h1><p class="slogan">Family of Adaptive Middleware for autonomOUs Sentient Objects</p></div>
+
+<!--
+<div id="navcontainer">
+<ul id="navlist">
+<li id="active"><a href="#" id="current">Item one</a></li>
+<li><a href="#">Item two</a></li>
+<li><a href="#">Item three</a></li>
+<li><a href="#">Item four</a></li>
+<li><a href="#">Item five</a></li>
+</ul>
+</div>
+-->
+
+<div id="leftnav">
+
+<h2>Menu</h2>
+
+<ul id="leftnavmenu">
+<li><a href="<!--#echo var="base" -->/">Overview</a></li>
+<!-- li><a href="./introduction.shtml">Introduction</a></li -->
+<li><a href="<!--#echo var="base" -->/publication.shtml">Publications</a></li>
+<li><a href="<!--#echo var="base" -->/documentation.shtml">Documentation</a></li>
+<li><a href="<!--#echo var="base" -->/download.shtml">Download</a></li>
+<li><a href="<!--#echo var="base" -->/faq.shtml">FAQ</a></li>
+<li><a href="<!--#echo var="base" -->/development.shtml">Development</a></li>
+<li><a href="<!--#echo var="base" -->/author.shtml">Authors</a></li>
+</ul> 
+
+
+<!-- p class="quote">Happiness is a journey, not a destination.</p -->
+</div>
+
+<div id="content">

@@ -1,0 +1,32 @@
+    <!--#include virtual="./header.shtml" -->
+
+    <!-- ##### Main Content ##### -->
+
+    <h2>Download Page</h2>
+    <p>
+
+    You have two options:
+    <ol>
+
+    <li> you can download an official release from the FAMOUSO download page at
+    <a href="https://sourceforge.net/project/showfiles.php?group_id=237922">Sourceforge</a></li>
+    <br>
+
+    <li>or you can checkout the last state of the development from the FAMOUSO
+    subversion repository.<br><br>
+    Use the following command
+    <blockquote>
+        svn co https://svn-eos.cs.uni-magdeburg.de/repos/staff/mschulze/Research/MIKRO/famouso
+    </blockquote>
+
+    This grants only read access to the repository and it is not always
+    warranted that all sources will compile or work. This is due to the fact,
+    that the system is under active development.
+
+    </li>
+
+    </ol>
+    </p>
+
+    <!-- ##### Footer ##### -->
+    <!--#include virtual="./footer.shtml" -->

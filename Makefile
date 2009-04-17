@@ -36,8 +36,17 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) depend $(LIBFAMOUSO)
 
 doc:
-	doxygen ./doc/doxygen.conf
+	doxygen doc/doxygen.conf
 	cp ./doc/images/FAMOUSO.png ./doc/html
+
+website:
+	mkdir -p ./doc/www/docu
+	doxygen ./doc/doxygen-website.conf
+	cp ./doc/images/FAMOUSO.png ./doc/www/docu/online
+	@echo "<!--#set var=\"base\" value=\"./../..\" -->" > ./doc/www/docu/online/base.shtml
+	make -C ./doc/latex all
+	cp ./doc/latex/refman.pdf ./doc/www/docu
+
 
 $(LIBDIR):
 	@mkdir -p $@
@@ -79,8 +88,11 @@ clean:
 	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR) $(BINDIR)
 
 distclean:
-	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE) ./doc/html ./doc/latex
+	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE)
 	@rm -rf ./include/boost
+	@rm -rf ./doc/html
+	@rm -rf ./doc/www/docu
+	@rm -rf ./doc/latex
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
 

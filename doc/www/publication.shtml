@@ -1,0 +1,27 @@
+<!-- ##### Header ##### -->
+<!--#include virtual="./header.shtml" -->
+
+<!-- ##### Main Content ##### -->
+
+    <h2>Publications</h2>
+
+	<p><a href="./publications/2009/WowKiVS09Schulze-final.pdf"><b>FAMOUSO -- Eine adaptierbare Publish/Subscribe Middleware f&uuml;r ressourcenbeschr&auml;nkte Systeme</b></a><br>
+		Schulze Michael, In Electronic Communications of the EASST (ISSN 1863-2122), Volume 17: Kommunikation in Verteilten Sytemen 2009</p>
+
+<p><a href="./publications/2008/Middleware08-SchulzeZug-final.pdf"><b>Exploiting the FAMOUSO Middleware in Multi-Robot Application Development with Matlab/Simulink</b></a><br>
+		Schulze Michael and Zug Sebastian, In Proceedings of the ACM/IFIP/USENIX 9th Internatinal Middleware Conference (Middleware2008), 
+		Leuven, Belgium, 1-5 December, 2008</p>
+
+    <p><a href="./publications/2008/euroSSC08-final.pdf"><b>A Middleware based Framework for Multi-Robot Development</b></a><br>
+		Schulze Michael and Zug Sebastian, In Proceedings of the 3rd. IEEE European Conference on Smart Sensing and Context (EuroSSC), 
+		Zurich, Switzerland, 29-31 October, 2008</p>
+
+	<p><a href="./publications/2008/etfa08HermsSchulzeKaiserNett-final.pdf"><b>Exploiting Publish/Subscribe Communication in Wireless Mesh Networks for Industrial Scenarios</b></a><br>
+	    Herms Andr&eacute;, Schulze Michael, Kaiser J&ouml;rg and Nett Edgar, In Proceedings of the 13th. IEEE Internatinal Conference on Emerging Technologies and Factory Automation (ETFA), Hamburg, Germany, 15-18 September, 2008</p>
+
+    <p><a href="./publications/2008/ifac08-final.pdf"><b>Sentient Objects for Designing and Controlling Service Robots</b></a><br>
+        Kaiser J&ouml;rg, Schulze Michael, Zug Sebastian, Cardeira Carlos and Carreira Fernando, In Proceedings of the 17th. International Federation of Automatic Control World Congress, Seoul, Korea, 6-11 July, 2008</p>
+
+
+    <!-- ##### Footer ##### -->
+    <!--#include virtual="./footer.shtml" -->

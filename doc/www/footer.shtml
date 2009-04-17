@@ -1,0 +1,18 @@
+<!-- closes the main content -->
+</div>
+
+<div id="footer">
+    <div id="copyright">
+      <div class="left">
+        Copyright &copy; 2009, Michael Schulze, <strong>URL: </strong><a href="http://famouso.sourceforge.net" style="color: #fb8d2d;">http://famouso.sf.net</a>
+      </div>
+
+      <div class="right">
+        Last modified: <!--#echo var="modified" -->
+      </div>
+    </div>
+</div>
+
+</div>
+</body>
+</html>
