@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-// $Author$
-// $Id$
 
 #define DEBUG(X) printf X
 

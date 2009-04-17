@@ -1,4 +1,3 @@
-/* $Id$ */
 #ifndef __Chain_h__
 #define __Chain_h__
 
