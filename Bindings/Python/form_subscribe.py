@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 ##
 ## Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
@@ -37,7 +38,6 @@
 ##
 ################################################################################
 
-# -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'sub.ui'
 #

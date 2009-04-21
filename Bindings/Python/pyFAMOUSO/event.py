@@ -1,3 +1,4 @@
+# -*- coding: cp1252 -*-
 ################################################################################
 ##
 ## Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
@@ -37,7 +38,6 @@
 ##
 ################################################################################
 
-# -*- coding: cp1252 -*-
 # Event Klasse
 # jedes Event besitzt ein feste Format:
 # 1. Byte: Op - Code, er signalisiert, um welche Art von Event es sich handelt,

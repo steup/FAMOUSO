@@ -1,3 +1,4 @@
+# -*- coding: cp1252 -*-
 ################################################################################
 ##
 ## Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
@@ -37,7 +38,6 @@
 ##
 ################################################################################
 
-# -*- coding: cp1252 -*-
 import socket           # für Socket und Netzwerkbehandlung erforderlich
 import struct           # zum Verpacken der Events in ein Netzwerkformat
 import asyncore         # zum Verwalten von asynchronen Socket Threads
