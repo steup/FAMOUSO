@@ -120,16 +120,7 @@ namespace famouso {
                 buffers.push_back(boost::asio::buffer(&p.snn.s, sizeof(famouso::mw::Subject)));
                 buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
-                m_socket.async_send_to(
-                    buffers,
-                    boost::asio::ip::udp::endpoint(p.snn.snn, port),
-                    boost::bind(
-                        &UDPMultiCastNL::handle_send_to,
-                        this,
-                        boost::asio::placeholders::error,
-                        boost::asio::placeholders::bytes_transferred
-                    )
-                );
+                m_socket.send_to(buffers, boost::asio::ip::udp::endpoint(p.snn.snn, port));
             }
 
             void UDPMultiCastNL::handle_send_to(const boost::system::error_code& error, size_t bytes_recvd) {
