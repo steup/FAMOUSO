@@ -267,8 +267,7 @@ int main() {
             data[2] = 0;
             fahr_nich = true;
 
-        }
-        if ((RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 60)) {
+		if (  (RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 75)) {
             if (!fahr_nich) drive(LEFT);
             delay = 0;
             if (leftTicks == 0)
