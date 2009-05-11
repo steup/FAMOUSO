@@ -83,12 +83,13 @@ def Crashed_CallBack(myEvent):
     ser.write(output)
         
 def HumanDetCallBack(myEvent):
-    print "Human !!!"
     [ID, human]=struct.unpack('BB',myEvent.content)
     if int(human)==1:
         output=struct.pack('BBBBBB',65,0,1,0,0,0)
+        print "Emergency situation !!!"
     else:
         output=struct.pack('BBBBBB',65,0,2,0,0,0)
+        print "Emergency situation terminated !!!"
     ser.write(output)
     
 
