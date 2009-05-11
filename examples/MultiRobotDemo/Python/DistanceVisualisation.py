@@ -41,8 +41,11 @@
 
 # make Famouso Python Bindings Package available in the path
 # for the package loader
-import sys
-sys.path.append('../../../Bindings/Python/')
+import sys, os
+if sys.platform == 'win32':
+	sys.path.append('..\\..\\..\\Bindings\\Python')
+else:
+	sys.path.append('../../../Bindings/Python/')
 
 # load the Famouso Python Bindings
 from pyFAMOUSO.famouso import *
@@ -56,6 +59,9 @@ from random import randint
 import pygame
 
 from array import array
+
+global old
+old = 60
 
 class DistanceVisualiser:
     def __init__(self):
@@ -94,7 +100,7 @@ class DistanceVisualiser:
 
 
 ## Globale Variablen
-RobotID=4
+RobotID=1
 
 ## Asyncore Loop Class
 
@@ -111,13 +117,23 @@ class LoopThread(Thread):
 ## Callback Klasse
 
 class CallBack:
+	
     def LogCallback(self, myEvent):
-        e=struct.unpack("BcB",myEvent.content)
-        if e[2] == RobotID:
-            if e[0] < 60:
-                displayDistance.update(e[0])
+        global old
+        if len(myEvent.content)==4:
+            e=struct.unpack("BBBB",myEvent.content)
+            if e[2] < 60:
+                displayDistance.update(e[2])
+                old = e[2]
             else:
-                displayDistance.update(60)
+                displayDistance.update(old)
+#      e=struct.unpack("BBB",myEvent.content)
+ #       print e
+ #       if e[0] == RobotID:
+ #           if e[0] < 60:
+ #               displayDistance.update(e[0])
+ #           else:
+ #               displayDistance.update(60)
 
 
 ## Singal Handler
