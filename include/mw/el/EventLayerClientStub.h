@@ -96,11 +96,12 @@ namespace famouso {
                         // Establish connection with the ech
                         boost::asio::ip::tcp::endpoint endpoint(
                             boost::asio::ip::address::from_string(servAddress), ServPort);
-                        boost::system::error_code errorc;
-                        ec.snn()->connect(endpoint, errorc);
-                        if (errorc) {
+
+                        try {
+                            ec.snn()->connect(endpoint);
+                        } catch (...) {
                             std::cerr << "An error occurred while connecting to the ech" << std::endl;
-                            return;
+                            abort();
                         }
                     }
                 public:
