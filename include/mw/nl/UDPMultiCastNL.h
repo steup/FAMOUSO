@@ -112,15 +112,6 @@ namespace famouso {
                     void bind(const famouso::mw::Subject &s, SNN &snn);
 
                     /**
-                     * @brief called by deliver
-                     *
-                     * Is called when sending is finished.
-                     * @param error tells if sending was successful
-                     * @param bytes_recvd the amount of bytes that were sent
-                     */
-                    void handle_send_to(const boost::system::error_code& error, size_t bytes_recvd);
-
-                    /**
                      * @brief Sends the given packet.
                      *
                      * @param p packet

@@ -96,18 +96,17 @@ namespace famouso {
                     m_incoming_packet.data_length = bytes_recvd - sizeof(famouso::mw::Subject);
 
                     famouso::mw::el::IncommingEventFromNL(this);
+
+                    m_socket.async_receive_from(
+                        boost::asio::buffer(m_buffer, info::payload), m_endpoint_from,
+                        boost::bind(&UDPMultiCastNL::interrupt, this,
+                                    boost::asio::placeholders::error,
+                                    boost::asio::placeholders::bytes_transferred
+                                   ));
                 } else {
                     std::cerr << "while receiving : " << error.message() << std::endl;
+                    throw "Error in UDPMultiCastNL::interrupt";
                 }
-
-
-                m_socket.async_receive_from(
-                    boost::asio::buffer(m_buffer, info::payload), m_endpoint_from,
-                    boost::bind(&UDPMultiCastNL::interrupt, this,
-                                boost::asio::placeholders::error,
-                                boost::asio::placeholders::bytes_transferred
-                               )
-                );
 
             }
 
@@ -121,14 +120,6 @@ namespace famouso {
                 buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
                 m_socket.send_to(buffers, boost::asio::ip::udp::endpoint(p.snn.snn, port));
-            }
-
-            void UDPMultiCastNL::handle_send_to(const boost::system::error_code& error, size_t bytes_recvd) {
-                if (!error) {
-
-                } else {
-                    std::cerr << "while sending : " << error.message() << std::endl;
-                }
             }
 
             UDPMultiCastNL::SNN UDPMultiCastNL::lastPacketSNN() {
