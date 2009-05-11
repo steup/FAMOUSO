@@ -56,31 +56,19 @@ end
 
 for i=1:size(values,1)
     %% Achtung Achtung hier muss noch nachgebessert werden !!!
-    robotid=double(typecast(int8(aux(1)), 'int8'));
+    aux=values(i,:);
+    robotid=double(typecast(uint8(aux(2)), 'uint8'));
     id=find(scenario.robotIDs==robotid);
-    if robotid==255
-        id=255; 
-    end
-    if isempty(id)
+    if robotid~=255
+        scenario.robots(1).panelControled=false;
         break
     end
     robotlist=[robotlist id];
     k=1/10;
     left=double(typecast(int8(aux(3)), 'int8'))*k;
     right=double(typecast(int8(aux(4)), 'int8'))*k;
-    if id~=255
-        scenario.robots(id)=setvel(scenario.robots(id),[left right]);
-        for i=1:length(scenario.robots)
-            scenario.robots(i).panelControled=false;
-        end
-        scenario.robots(id).panelControled=true;
-    else
-        for i=1:length(scenario.robots)
-        scenario.robots(i)=setvel(scenario.robots(i),[left right]);
-        scenario.robots(i).panelControled=false;
-        end
-        scenario.robots(id).panelControled=true;
-    end
+    scenario.robots(1)=setvel(scenario.robots(i),[left right]);
+    scenario.robots(1).panelControled=true;
 end
 
 robotlist = unique(robotlist);

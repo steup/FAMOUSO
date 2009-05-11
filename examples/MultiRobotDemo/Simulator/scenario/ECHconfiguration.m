@@ -49,8 +49,8 @@ function [input, output, maxLenght]=FAMOUSOconfig()
 input =[['56656C6F63697479      callback    VelocityCallback.m  20      Velocity'],
         ['48756D616E446574      callback    HumanDetCallback.m  5       HumanDet'],
         ['506F736974696F6E      callback    PositionCallback.m  5       Position']];
-%         ['5374656572696E67      callback    SteeringCallback.m  5       Steering']];
-
+      %  ['5374656572696E67      callback    SteeringCallback.m  5       Steering']];
+,
 output=[['44697374616E6365                                              Distance'],
         ['437261736865645F                                              Crashed_']];
 

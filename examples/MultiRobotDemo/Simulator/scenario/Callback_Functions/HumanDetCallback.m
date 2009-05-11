@@ -47,7 +47,7 @@ values=[];
 if isempty(values)
    return; 
 end
-if double(values(2))~=1
+if double(values(2))==1
     scenario.HumanDet=1;
     disp('Human detected !!!')
 end;

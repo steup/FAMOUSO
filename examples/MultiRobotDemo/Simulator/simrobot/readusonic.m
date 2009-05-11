@@ -107,18 +107,20 @@ if length(scenario.robots)>1
                 else
                     patchXData=scenario.robots(i).patch.x;
                 end
-                if isempty(patchXData)
-                    break
-                end
-                if strcmp(class(scenario.robots(i).patch),'double')
-                    patchYData = get(scenario.robots(i).patch,'YData');
-                else
-                    patchYData=scenario.robots(i).patch.y;
-                end
-                in=myinpolygon(patchXData,patchYData,xs,ys);
-                if sum(in)~=0
-                    dists =  min(sqrt((patchXData(in)-pos(1)).^2+(patchYData(in)-pos(2)).^2));
-                    num=i;
+%                 if ~isempty(patchXData)
+%                     break
+%                 end
+                if ~isempty(patchXData)
+                    if strcmp(class(scenario.robots(i).patch),'double')
+                        patchYData = get(scenario.robots(i).patch,'YData');
+                    else
+                        patchYData=scenario.robots(i).patch.y;
+                    end
+                    in=myinpolygon(patchXData,patchYData,xs,ys);
+                    if sum(in)~=0
+                        dists =  min(sqrt((patchXData(in)-pos(1)).^2+(patchYData(in)-pos(2)).^2));
+                        num=i;
+                    end
                 end
             end
         end
