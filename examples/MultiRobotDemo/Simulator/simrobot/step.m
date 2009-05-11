@@ -61,10 +61,13 @@ if ~robot.power && ~robot.crashed;
 end
 
 %% Execute robots' algorithms
+if scenario.HumanDet~=1;
+
 % Take robot from the list and execute algorithm
 scenario.robots(i) = evaluate(scenario.robots(i), i ,scenario.matrix);
 % Update robot
 scenario.robots(i) = update(i,scenario);
+end
 
 %% switch off timer objects of crashed robbies
 if scenario.robots(i).crashed && scenario.robots(i).power
