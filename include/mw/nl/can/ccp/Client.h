@@ -67,7 +67,7 @@ namespace famouso {
                             void debug(char* s) {
                             }
 
-                            uint8_t compareUID(uint8_t *msg, uint8_t* uid_str, uint8_t stage) {
+                            uint8_t compareUID(const uint8_t *msg, const uint8_t* uid_str, uint8_t stage) {
                                 register int8_t count;
 
                                 for (count = constants::ccp::ccp_stages;count >= stage;--count) {
@@ -85,8 +85,8 @@ namespace famouso {
 
                             typedef typename CAN_Driver::MOB::IDType IDType;
 
-                            uint8_t ccp_configure_tx_node(const char* uid, CAN_Driver& canDriver) {
-                                uint8_t *uid_str = (uint8_t*)uid;
+                            uint8_t ccp_configure_tx_node(const UID &uid, CAN_Driver& canDriver) {
+                                const uint8_t *uid_str = uid.tab();
                                 typename CAN_Driver::MOB msg;
                                 msg.extended();
 

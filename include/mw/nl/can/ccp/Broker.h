@@ -65,7 +65,7 @@ namespace famouso {
                             uint8_t ccp_stage;
                             UID uid;
 
-                            uint8_t search_tx_node(UID &uid) {
+                            uint8_t search_tx_node(const UID &uid) {
                                 uint8_t freeplace = 0xff;
                                 for (uint8_t i = 0; i < constants::ccp::count; ++i) {
                                     if (knownNodes[i] == UID(0ull)) {

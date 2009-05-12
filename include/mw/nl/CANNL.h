@@ -97,7 +97,7 @@ namespace famouso {
                         // vorher darf man aus dieser Funktion nicht zurueck kommen
                         DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
                         driver.init();
-                        tx_node = ccp.ccp_configure_tx_node("Schulze\0", driver);
+                        tx_node = ccp.ccp_configure_tx_node(UID("Schulze\0"), driver);
                         famouso::util::Delegate<> dg;
                         dg.bind<CANNL<CAN_Driver, CCP, BP>, &CANNL<CAN_Driver, CCP, BP>::rx_interrupt>(this);
                         driver.set_rx_Interrupt(dg);
