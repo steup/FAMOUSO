@@ -93,7 +93,7 @@ inline Chain* Chain::unlink() {
 // pointer to the container instance is returned. Otherwise, null
 // will be delivered.
 //
-inline Chain* Chain::search(register const Chain* item) const {
+inline Chain* Chain::search(const Chain* item) const {
     register Chain* wrap = (Chain*)this;
 
     while (wrap && (wrap->select() != item)) {
