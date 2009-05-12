@@ -68,6 +68,7 @@ namespace famouso {
              */
             template< class CAN_Driver, class CCP, class BP >
             class CANNL : public BaseNL {
+                    typedef CANNL   type;
                     uint16_t tx_node;
                     CAN_Driver driver;
                     CCP ccp;
@@ -99,7 +100,7 @@ namespace famouso {
                         driver.init();
                         tx_node = ccp.ccp_configure_tx_node(UID("Schulze\0"), driver);
                         famouso::util::Delegate<> dg;
-                        dg.bind<CANNL<CAN_Driver, CCP, BP>, &CANNL<CAN_Driver, CCP, BP>::rx_interrupt>(this);
+                        dg.bind<type, &type::rx_interrupt>(this);
                         driver.set_rx_Interrupt(dg);
                         driver.interrupts_on();
                     }
