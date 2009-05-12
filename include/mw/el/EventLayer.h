@@ -134,12 +134,6 @@ namespace famouso {
                         }
                     }
 
-                    // hier muss die Funktion hin, die von unten aufgerufen wird
-                    // und die entscheidet, ob das event angenommen wird und
-                    // welches subject dazu gehoert
-                    // const subject & find_subject_to_snn(snn) const {
-                    // }
-
                 public:
                     void fetch(famouso::mw::nl::BaseNL *bnl = 0) {
                         // Frage: Was muss fetch alles durchfuehren
