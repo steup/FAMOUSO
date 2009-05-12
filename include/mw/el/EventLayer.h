@@ -125,43 +125,52 @@ namespace famouso {
                     void publish_local(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e) {
 
                         typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
-                        ec_t* sec = reinterpret_cast<ec_t*>(Subscriber.select());
+                        ec_t* sec = static_cast<ec_t*>(Subscriber.select());
                         while (sec) {
                             DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value, ec.subject().value));
                             if (sec->subject() == ec.subject())
                                 sec->callback(e);
-                            sec = reinterpret_cast<ec_t*>(sec->select());
+                            sec = static_cast<ec_t*>(sec->select());
                         }
                     }
 
                 public:
+
+                    /*! \brief Fetches an event from a specific sub network.
+                     *
+                     *  \param[in]  bnl the network from where an event fetching was requested.
+                     *
+                     *  \todo       The default value of zero describes that we have no fetching
+                     *              request from a lower layer. This is for further enhancements
+                     *              like fetching in a time-triggered system, where we fetch
+                     *              periodically without interrupt support from lower network
+                     *              layer.
+                     */
                     void fetch(famouso::mw::nl::BaseNL *bnl = 0) {
-                        // Frage: Was muss fetch alles durchfuehren
-                        // -unteren Layer fragen, nach einem event
-                        // -dazu muss:
-                        //  a) der richtige Layer gefunden werden
-                        //  b) die SubscriberListe mit durchgereicht werden, um
-                        //     matching zwischen SNN und Subject zu ermoeglichen
-                        //  c) Referenz oder Pointer auf ein Event gegeben werden
-                        //
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
+
+                        // give start of the SubsriberList
                         typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
-                        ec_t* sec = reinterpret_cast<ec_t*>(Subscriber.select());
+                        ec_t* sec = static_cast<ec_t*>(Subscriber.select());
+
+                        // inform low layer about fetching starts
                         LL::event_process_request(bnl);
+
+                        // traverse the list and try to find the correct subject,
+                        // corresponding to the arised event.
                         while (sec) {
-                            /*! \todo The fetch and the getEvent method should be pooled
-                             */
-                            if (LL::fetch(sec->snn(), bnl)) {// vergleich der Subjects
-                                // versuchen das Event zu holen
-                                // finden wir eins, wird es local gepublished, welches
-                                // das verteilen an alle Subscriber bewirkt.
-                                Event e(sec->subject());
-                                LL::getEvent(e);
+                            Event e(sec->subject());
+                            // fetches an event from a specific subnet
+                            if (LL::fetch(sec->snn(), e, bnl)) {
+                                // if event was fetched, meaning we have a matching
+                                // of subjects, publish it locally to the respective
+                                // subscribers and then we are done.
                                 publish_local(*sec, e);
                                 return;
                             }
-                            sec = reinterpret_cast<ec_t*>(sec->select());
+                            sec = static_cast<ec_t*>(sec->select());
                         }
+                        // inform lower layer that we are done
                         LL::event_processed();
                     }
             };

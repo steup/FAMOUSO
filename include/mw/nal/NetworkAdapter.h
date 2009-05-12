@@ -68,7 +68,7 @@ namespace famouso {
                     ANL_B  _ANL_B;
                     famouso::mw::nl::BaseNL *_bnl;
 
-                public:
+                protected:
 
                     /*! \brief The struct contains the short network name representation of the subject
                      *         of an event for both sub networks.
@@ -85,6 +85,7 @@ namespace famouso {
                         _ANL_B.init();
                     }
 
+                public:
                     /*! \brief Publish to a specific network is a support functionality for
                      *         higher layer e.g the famouso::mw::gwl::Gateway.
                      *
@@ -168,31 +169,23 @@ namespace famouso {
                         _ANL_B.subscribe(s, snn.SNN_B);
                     }
 
-                    /*! \brief Traverses a specific sub network for a short network name.
+                    /*! \brief Traverses a specific sub network for a short
+                     *         network name and receives an event from thta
+                     *         specific subnetwork.
                      *
                      *  \param[in]  snn is the specific short network name that is in this case the struct SNN.
                      *              The struct contains the short network name representation of the subject
                      *              of the event for both sub networks.
+                     *  \param[out] e the event that is filled with the received event
                      *  \param[in]  bnl the network from where an event fetching was requested.
                      */
-                    bool fetch(const SNN &snn, const famouso::mw::nl::BaseNL *bnl) {
+                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::BaseNL *bnl) {
                         /*! \todo fetching of stacked gateway are not implemented at this stage and
                          *        time triggered fetching is also not supported. */
                         if (_ANL_A.id() == bnl)
-                            return _ANL_A.fetch(snn.SNN_A , bnl);
+                            return _ANL_A.fetch(snn.SNN_A, e, bnl);
                         else
-                            return _ANL_B.fetch(snn.SNN_B , bnl);
-                    }
-
-                    /*! \brief Receives an event from a specific subnetwork.
-                     *
-                     *  \param[out] e the event that is filled with the received event
-                     */
-                    bool getEvent(Event &e) {
-                        if (_ANL_A.id() == _bnl)
-                            return _ANL_A.getEvent(e);
-                        else
-                            return _ANL_B.getEvent(e);
+                            return _ANL_B.fetch(snn.SNN_B, e, bnl);
                     }
 
                     /*! \brief Is called by the higher layer to signalise that

@@ -79,21 +79,17 @@ namespace famouso {
                         NL::deliver(p);
                     }
 
-                    bool fetch(const SNN &snn, const famouso::mw::nl::BaseNL *bnl) {
+                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::BaseNL *bnl) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         if (snn == NL::lastPacketSNN()) {
+                            typename NL::Packet_t p;
+                            NL::fetch(p);
+                            e.length = p.data_length;
+                            e.data = p.data;
                             return true;
                         } else {
                             return false;
                         }
-                    }
-
-                    bool getEvent(Event &e) {
-                        typename NL::Packet_t p;
-                        NL::fetch(p);
-                        e.length = p.data_length;
-                        e.data = p.data;
-                        return true;
                     }
 
                     // vorgesehen, um anzuzeigen, dass das Event fetch request
