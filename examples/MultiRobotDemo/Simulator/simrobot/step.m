@@ -38,7 +38,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function  step(obj, event, i, handles)
-tic
+%tic
 global scenario
 if scenario.HumanDet==1
    return; 
@@ -91,4 +91,4 @@ if scenario.robots(i).crashed && scenario.robots(i).power
          global Crashed_
          publishing(Crashed_,[scenario.robots(i).number]);
 end
-toc
+%toc

@@ -29,7 +29,7 @@ sensors(i).range=scale*20;
 sensors(i).resolution=10;
 sensors(i).line=0;
 
-%% Sensor für die Simulierten Roboter
+%% Sensor fï¿½r die Simulierten Roboter
 i=length(sensors)+1;
 sensors(i).name='sensor_4';
 % sensors(i).position=scale*[3 -7];
@@ -40,7 +40,7 @@ sensors(i).range=scale*20;
 sensors(i).resolution=10;
 sensors(i).line=0;
 
-%% Sensoren für die Positionsschätzung ...
+%% Sensoren fï¿½r die Positionsschï¿½tzung ...
 i=length(sensors)+1;
 sensors(i).name='sensor_1';
 sensors(i).position=scale*[4 0];
@@ -66,4 +66,14 @@ sensors(i).axisangle=-90;
 sensors(i).scanangle=5;
 sensors(i).range=scale*30;
 sensors(i).resolution=5;
+sensors(i).line=0;
+
+%% Sensor fÃ¼r reale Roboter
+i=length(sensors)+1;
+sensors(i).name='sensor_1';
+sensors(i).position=scale*[5 0];
+sensors(i).axisangle=0;
+sensors(i).scanangle=110;
+sensors(i).range=scale*20;
+sensors(i).resolution=10;
 sensors(i).line=0;

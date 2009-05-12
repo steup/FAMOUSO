@@ -85,8 +85,13 @@ if robot.power && ~robot.crashed
     x_cp=robot.position(1)+conture(:,1);
     y_cp=robot.position(2)+conture(:,2);
     
-    set(robot.patch,'XData',x_cp,'YData',y_cp);% Define the patch
-
+    try
+        set(robot.patch,'XData',x_cp,'YData',y_cp);% Define the patch
+    catch
+        disp('Robot isnt active yet')
+        return
+    end
+    
     %% Visualisation of each sensor detection area
     sensors=robot.sensors;
     scale=robot.scale;

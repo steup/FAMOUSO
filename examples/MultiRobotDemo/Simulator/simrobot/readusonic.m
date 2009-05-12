@@ -102,20 +102,20 @@ if length(scenario.robots)>1
 %                     (scenario.robots(i).sensorcircle+robot.sensorcircle)
             if abs(sum([robot.position -scenario.robots(i).position]))<...
                1.4142*(scenario.robots(i).sensorcircle+robot.sensorcircle)                    
-                if strcmp(class(scenario.robots(i).patch),'double')
+%                if strcmp(class(scenario.robots(i).patch),'double')
                     patchXData = get(scenario.robots(i).patch,'XData');
-                else
-                    patchXData=scenario.robots(i).patch.x;
-                end
+ %               else
+  %                  patchXData=scenario.robots(i).patch.x;
+%                end
 %                 if ~isempty(patchXData)
 %                     break
 %                 end
                 if ~isempty(patchXData)
-                    if strcmp(class(scenario.robots(i).patch),'double')
+%                     if strcmp(class(scenario.robots(i).patch),'double')
                         patchYData = get(scenario.robots(i).patch,'YData');
-                    else
-                        patchYData=scenario.robots(i).patch.y;
-                    end
+%                     else
+%                         patchYData=scenario.robots(i).patch.y;
+%                     end
                     in=myinpolygon(patchXData,patchYData,xs,ys);
                     if sum(in)~=0
                         dists =  min(sqrt((patchXData(in)-pos(1)).^2+(patchYData(in)-pos(2)).^2));
