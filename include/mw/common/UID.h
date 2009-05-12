@@ -43,7 +43,7 @@
 #include <stdint.h>
 #include "util/endianness.h"
 
-/*! \file uid.h
+/*!
  *  \class UID
  *  \brief The uid describes an unique identifier.
  *

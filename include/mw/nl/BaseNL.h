@@ -44,8 +44,25 @@ namespace famouso {
     namespace mw {
         namespace nl {
 
+            /*! \brief The base network layer provides functionality for identifying a
+             *         specific network layer at run-time.
+             *
+             *          For example this functionality is needed for the
+             *          famouso::mw::nal::NetworkAdatpter and for the
+             *          realisation of Gateways (famouso::mw::gwl::Gateway).
+             */
             class BaseNL {
                 public:
+                    /*! \brief get the id of the specific network layer
+                     *
+                     *         The functionality is realised by returning the
+                     *         this pointer of the network layer that is always
+                     *         unique within a system, and therefore no additional
+                     *         identification facilities or resources have to be
+                     *         wasted.
+                     *
+                     *  \return a pointer on "this"
+                     */
                     const BaseNL* id() {
                         return this;
                     }

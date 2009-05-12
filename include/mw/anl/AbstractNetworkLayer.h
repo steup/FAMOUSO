@@ -47,13 +47,47 @@ namespace famouso {
     namespace mw {
         namespace anl {
 
+            /*! \brief The abstract network layer provides functionality that is not
+             *         specific to a concrete network layer.
+             *
+             *          It has the ability to get different lower layer plugs and supports
+             *          functionality like fragmentation, or in later versions, it handles
+             *          also the aspects of quality of service or attribute management.
+             *
+             *  \tparam NL the network layer see prerequisites.
+             *
+             *  \pre    The type of template parameters can be an famouso::mw::nl::CANNL,
+             *          famouso::mw::nl::AWDSNL, famouso::mw::nl::UDPMultiCastNL,
+             *          famouso::mw::nl::UDPBroadCastNL or an famouso::mw::nl::VoidNL dependent
+             *          on the configuration of the middleware stack
+             */
             template < class NL >
             class AbstractNetworkLayer : public NL {
                 public:
 
+                    /*! \brief  short network representation of the subject
+                     */
                     typedef typename NL::SNN SNN;
+
+                    /*! \brief  short network representation of the subscribe subject
+                     *          that is used for announcing subscribtion network-wide
+                     */
                     SNN   subscribe_SNN;
 
+                    /*! \brief Initalizes the sub networks and bind the subscription
+                     *         management channel.
+                     */
+                    void init() {
+                        NL::init();
+                        Subject s("SUBSCRIBE");
+                        NL::bind(s, subscribe_SNN);
+                    }
+
+                    /*! \brief  announce a subject and get its short network representation
+                     *
+                     *  \param[in]   s the subject that is announced
+                     *  \param[out]  snn the short network name of the subject
+                     */
                     void announce(const Subject &s, SNN &snn) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         NL::bind(s, snn);
@@ -61,6 +95,11 @@ namespace famouso {
                         // das dieser Kanal publiziert wird
                     }
 
+                    /*! \brief   publish an event on the pluged lower network
+                     *
+                     *  \param[in]  snn the short network name of the subject
+                     *  \param[in]  e the event that has to be published
+                     */
                     void publish(const SNN &snn, const Event &e) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         typename NL::Packet_t p(snn, &e[0], e.length);
@@ -70,6 +109,16 @@ namespace famouso {
                             DEBUG(("Event is to big to deliver at once and fragmentation is not supported at the moment\n"));
                     }
 
+                    /*! \brief  subscribe a subject and get its short network representation
+                     *
+                     *          The subscribtion contains out of two parts. First it binds
+                     *          the subject to its short network name, and second it announces
+                     *          the subscription to allow gateways the establishing of forwarding
+                     *          channels.
+                     *
+                     *  \param[in]   s the subject that is announced
+                     *  \param[out]  snn the short network name of the subject
+                     */
                     void subscribe(const Subject &s, SNN &snn) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         NL::bind(s, snn);
@@ -79,6 +128,17 @@ namespace famouso {
                         NL::deliver(p);
                     }
 
+
+                    /*! \brief  fetches an event from the network layer if the short network
+                     *          name is equal to the short network name of the arosen packet.
+                     *
+                     *  \param[in]  snn the short network name of the subject
+                     *  \param[out] e the event that has to be published
+                     *  \param[in]  bnl the sub network in that the event \e e will be published.
+                     *
+                     *  \return \li \b true if \e snn and the snn of the last arosen packet are equal
+                     *          \li \b false otherwise
+                     */
                     bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::BaseNL *bnl) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         if (snn == NL::lastPacketSNN()) {
@@ -92,20 +152,18 @@ namespace famouso {
                         }
                     }
 
-                    // vorgesehen, um anzuzeigen, dass das Event fetch request
-                    // vorliegt
-                    void event_process_request(const famouso::mw::nl::BaseNL * const bnl) const {}
+                    /*! \brief Is called by the higher layer to signalise that
+                     *         an event processing request was arised.
+                     *
+                     *  \param[in]  bnl the sub network-ID from where the request came.
+                     */
+                    void event_process_request(famouso::mw::nl::BaseNL * const bnl) {
+                    }
 
-                    // vorgesehen, um anzuzeigen, dass das Event vollstaendig
-                    // propagiert wurde und die moeglicherweise reservierten
-                    // Ressouren wiederverwendet werden koennen
-                    void event_processed() const {}
-
-
-                    void init() {
-                        NL::init();
-                        Subject s("SUBSCRIBE");
-                        NL::bind(s, subscribe_SNN);
+                    /*! \brief Is called by the higher layer to signalise that
+                     *         the event is processed now.
+                     */
+                    void event_processed() {
                     }
 
             };

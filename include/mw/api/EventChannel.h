@@ -63,7 +63,7 @@ namespace famouso {
              *  publish/subscribe communication and implements the redirection of the calls
              *  to the EventLayer (famouso::mw::el) also.
              *
-             * \ra famouso::mw::el::EventLayer
+             * \sa famouso::mw::el::EventLayer
              */
             template < class ECH >
             class EventChannel : public Chain {

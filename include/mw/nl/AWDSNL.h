@@ -105,14 +105,14 @@ namespace famouso {
                     typedef Packet<SNN> Packet_t;
 
                     /**
-                     * @brief default constructor
+                     * \brief default constructor
                      */
                     AWDSNL() : m_socket(famouso::util::ios::instance()),
                             timer_(famouso::util::ios::instance(),
                                    boost::posix_time::seconds(interval)) {}
 
                     /**
-                     * @brief destructor
+                     * \brief destructor
                      *
                      *  Closes the socket.
                      *
@@ -144,23 +144,25 @@ namespace famouso {
                     }
 
                     /**
-                     * @brief subscribe a subject
+                     * \brief bind a subject
                      *
-                     * @param s subject
-                     * @param snn bound address
+                     * \param s subject
+                     * \param snn bound address
                      */
                     void bind(const famouso::mw::Subject &s, SNN &snn) {
                         snn = s;
                     }
 
                     /**
-                     * @brief publish
+                     * \brief deliver
                      *
                      * Sends the given packet.
                      *
-                     * @param p packet
-                           *
-                           * \todo momentan nur broadcast. siehe spezification fuer andere Verfahren unter doc/psawds/ipc-protocol.txt
+                     * \param[in] p packet
+                     * \param[in] type describes the packet type and is used for specifying
+                     *            a fragmented or normal published packet.
+                     *
+                     * \todo momentan nur broadcast. siehe spezification fuer andere Verfahren unter doc/psawds/ipc-protocol.txt
                      */
                     void deliver(const Packet_t& p, uint8_t type = AWDS_Packet::constants::packet_type::publish) {
                         // try to detect subscription channel because in AWDS its get special treatment
@@ -192,20 +194,20 @@ namespace famouso {
                     }
 
                     /**
-                     * @brief publish
+                     * \brief publish
                      *
                      * Sends the given packet.
                      *
-                     * @param p packet
+                     * \param p packet
                      */
                     void deliver_fragment(const Packet_t& p) {
                         deliver(p, AWDS_Packet::constants::packet_type::publish_fragment);
                     };
 
                     /**
-                     * @brief processes incoming packets
+                     * \brief processes incoming packets
                      *
-                     * @param p fetched packet is saved here
+                     * \param p fetched packet is saved here
                      */
                     void fetch(Packet_t& p) {
                         p.snn = famouso::mw::Subject(awds_packet.data);
@@ -214,7 +216,7 @@ namespace famouso {
                     }
 
                     /**
-                     * @brief get last SSN
+                     * \brief get last SSN
                      *
                      * Returns the short network name for the last packet.
                      */
@@ -224,12 +226,12 @@ namespace famouso {
 
 
                     /**
-                     * @brief handle called on receive
+                     * \brief handle called on receive
                      *
                      * Will be called, whenever a packet was received.
                      *
-                           * \todo noch pruefen, ob auch wirklich das ganze paket da ist,
-                           *       ansonsten noch mal asynchron warten, bis alles da ist.
+                     * \todo noch pruefen, ob auch wirklich das ganze paket da ist,
+                     *       ansonsten noch mal asynchron warten, bis alles da ist.
                      */
                     void interrupt(const boost::system::error_code& error, size_t bytes_recvd) {
                         if (!error) {
