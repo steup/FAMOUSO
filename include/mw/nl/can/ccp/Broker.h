@@ -149,8 +149,8 @@ namespace famouso {
                                 }
                             }
 
-                            uint8_t ccp_configure_tx_node(const char* uid, CAN_Driver& canDriver) {
-                                return constants::Broker_tx_node;
+                            uint8_t ccp_configure_tx_node(const UID &uid, CAN_Driver& canDriver) {
+                                return search_tx_node(uid);
                             }
                     };
 
