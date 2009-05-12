@@ -38,7 +38,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function  step(obj, event, i, handles)
-% tic
+tic
 global scenario
 if scenario.HumanDet==1
    return; 
@@ -46,7 +46,7 @@ end
 robot=scenario.robots(i);
 
 if ~robot.power && ~robot.crashed;
-    scenario.robots(i)=activate(scenario.robots(i),scenario.mode);
+    scenario.robots(i)=activate(scenario.robots(i));
     disp(['Robot ' num2str(scenario.robots(i).number) ' activated ...']);
     scenario.robots(i).power=true;
     if isempty(handles)
@@ -91,4 +91,4 @@ if scenario.robots(i).crashed && scenario.robots(i).power
          global Crashed_
          publishing(Crashed_,[scenario.robots(i).number]);
 end
-% toc
+toc

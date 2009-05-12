@@ -38,9 +38,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function VelocityCallback(channel_name)
-
+tic
 global scenario
-
 robotlist=[];
 
 %% Variable L�sung ...
@@ -69,8 +68,7 @@ for i=1:size(values,1)
          scenario.robots(id)=setvel(scenario.robots(id),[left right]);
 
 end
-% double(values)
-% size(values,1)
+
 robotlist = unique(robotlist);
 for i=1:length(robotlist)
     if ~scenario.robots(i).crashed

@@ -63,5 +63,8 @@ if simrobot.panelControled==false
     end
 end
 % end of your algorithm
+% 
+% global Distance
+% publishing(Distance,[simrobot.number 0 uint8(dist) 0])
 
 new = simrobot;

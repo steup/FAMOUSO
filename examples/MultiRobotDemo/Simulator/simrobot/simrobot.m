@@ -45,8 +45,8 @@ else
 end
 switch aux
     case 0
-        error('Constructor needs parameter for instances !!!')
-    case 11
+        error('Simrobot needs parameter for instances !!!')
+    case 12
         obj.name = varargin{1};
         obj.number =  varargin{2}; 
         % In degrees, 0 = facing east [°]
@@ -64,6 +64,11 @@ switch aux
         % Absolute position
         obj.trigger = varargin{11};
         
+        aux=varargin{12};
+        obj.R=aux(1);
+        obj.la=aux(2); 
+        obj.lb=aux(3);
+        
         obj.power = false;
         obj.crashed = false;
         
@@ -79,5 +84,6 @@ switch aux
         %todo Berechnung einfuegen !!!
         obj.sensorcircle=50;
         obj.panelControled=false;
-        
+    otherwise
+        disp('Wrong number of input arguments for simrobot contructor')
 end

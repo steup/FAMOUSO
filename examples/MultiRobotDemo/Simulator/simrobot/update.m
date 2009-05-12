@@ -47,9 +47,9 @@ if robot.power && ~robot.crashed
     robot.velocity(1) = robot.velocity(1) + robot.accel(1);
     robot.velocity(2) = robot.velocity(2) + robot.accel(2);
     
-    R = 2;
-    la = 12;
-    lb = 0;
+    R=robot.R;
+    la=robot.la;
+    lb=robot.lb;
 
     v=(R/(2*la))*[-lb*robot.velocity(1)+lb*robot.velocity(2);-la*robot.velocity(1)-la*robot.velocity(2)];
 
@@ -85,14 +85,7 @@ if robot.power && ~robot.crashed
     x_cp=robot.position(1)+conture(:,1);
     y_cp=robot.position(2)+conture(:,2);
     
-%     robot = set(robot,'patchXData',x_cp,'patchYData',y_cp);
-
-    if strcmp(scenario.mode,'sim')
-        robot.patch.x=x_cp;
-        robot.patch.y=y_cp;
-    else
-        set(robot.patch,'XData',x_cp,'YData',y_cp);% Define the patch
-    end
+    set(robot.patch,'XData',x_cp,'YData',y_cp);% Define the patch
 
     %% Visualisation of each sensor detection area
     sensors=robot.sensors;
@@ -118,13 +111,8 @@ if robot.power && ~robot.crashed
         
     end
     
-    if strcmp(scenario.mode,'sim')
-        robot.line.x=x_points;
-        robot.line.y=y_points;
-    else
         set(robot.line,'XData',x_points,'YData',y_points,'Color','r');
-    end
-    
+   
     
     % ****** Place robot to matrix ****** !!!
     % An dieser Stelle muessen crashes untersucht werden und der aktuelle
