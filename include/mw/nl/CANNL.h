@@ -108,7 +108,6 @@ namespace famouso {
                     // bind Subject to specific networks name
                     void bind(const Subject &s, SNN &snn) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
-                        /*! \todo binding integrieren */
                         snn = etagBP.bind_subject(s, tx_node, driver);
                     }
 
@@ -118,7 +117,6 @@ namespace famouso {
                         typename CAN_Driver::MOB m;
 
                         m.extended();
-                        /*! \todo genID function bauen, die vielleicht dann einige Setzungen auf dem AVR vermeidet */
                         m.id().prio(0xfd);
                         m.id().tx_node(tx_node);
                         m.id().etag(p.snn);
