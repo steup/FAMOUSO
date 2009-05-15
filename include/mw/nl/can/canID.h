@@ -123,10 +123,12 @@ namespace famouso {
                             uint8_t  _stage     :  4;
                         } parts_ccp;
                     };
-                    typedef famouso::mw::nl::CAN::detail::ID<famouso_CAN_ID_LE_CANARY> ID;
+                    typedef famouso::mw::nl::CAN::detail::ID<
+                                famouso_CAN_ID_LE_CANARY
+                            > ID;
                 }
 
-                namespace PEAK {
+                namespace detail {
                     // little endian defined ID for CAN on PCs
                     struct __attribute__((packed)) famouso_CAN_ID_LE_PC {
                         typedef class __attribute__((packed)) {
@@ -145,7 +147,12 @@ namespace famouso {
                             uint8_t  _stage     :  4;
                         } parts_ccp;
                     };
-                    typedef famouso::mw::nl::CAN::detail::ID<famouso_CAN_ID_LE_PC> ID;
+                }
+
+                namespace PEAK {
+                    typedef famouso::mw::nl::CAN::detail::ID<
+                                famouso::mw::nl::CAN::detail::famouso_CAN_ID_LE_PC
+                            > ID;
                 }
 
             } /* namespace CAN */
