@@ -83,11 +83,6 @@ namespace device {
             class PeakCAN {
                 public:
 
-                    /*! \todo die CAN-Message Abstraction ist noch ungluecklich.
-                     *        Hier muss noch einiges am Konzept einer Nachricht
-                     *        geaendert werden, um eine allgemeine Nachricht zu
-                     *        haben. Es bedarf eines einheitlichen Interfaces.
-                     */
                 class MOB : private TPCANMsg {
                             friend class PeakCAN<device, wBTR0BTR1, elements> ;
                         public:

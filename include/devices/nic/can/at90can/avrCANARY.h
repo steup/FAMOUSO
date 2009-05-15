@@ -78,11 +78,6 @@ namespace device {
                     /*! \class MOB
                      *
                      * \brief Generic CAN message object
-                     *
-                     * \todo needs unification with the MOB of the peak CAN driver
-                     *       and further development to cover the SocketCAN driver
-                     *       as well. Maybe is a comman base class or a template
-                     *       specializeble class possible.
                      */
                     class MOB {
                         public:
