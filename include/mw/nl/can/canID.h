@@ -46,6 +46,26 @@ namespace famouso {
             namespace CAN {
                 namespace detail {
 
+                    /*! \brief The union defines the CAN-ID and getter/setter
+                     *         methods.
+                     *
+                     *         In the FAMOUSO middleware the canID has a clear
+                     *         structure and it is devided into three parts:
+                     *         \li 8 bit priority
+                     *         \li 7 bit node identifier
+                     *         \li 14 bit etag that is the short network
+                     *             representation of the subject of an
+                     *             event.
+                     *
+                     *         However, the CAN-Configuration-Protocol
+                     *         (famouso::mw::nl::CAN::ccp) uses the ID
+                     *         in a slightly different way. For that
+                     *         purpose, IDStruct contains also the
+                     *         description of the CCP-parts. The union itself
+                     *         provides methods for accessing these parts too.
+                     *
+                     *  \tparam IDStruct defines the bit-postions of the parts
+                     */
                     template <typename IDStruct>
                     union __attribute__((packed)) ID {
                         uint32_t _value;
@@ -53,57 +73,88 @@ namespace famouso {
                         typename IDStruct::parts parts;
                         typename IDStruct::parts_ccp parts_ccp;
 
+                        /*! \brief get etag of the CAN-ID */
                         uint16_t etag() {
                             return parts._etag;
                         }
 
+                        /*! \brief set etag of the CAN-ID */
                         void etag(uint16_t e) {
                             parts._etag = e;
                         }
 
+                        /*! \brief get the node-ID out of CAN-ID */
                         uint8_t tx_node() {
                             return parts._tx_nodelo | (parts._tx_nodehi << 2) ;
                         }
 
+                        /*! \brief set the node-ID on the CAN-ID */
                         void tx_node(uint8_t t) {
                             parts._tx_nodelo = t & 0x3;
                             parts._tx_nodehi = t >> 2 ;
                         }
 
+                        /*! \brief get priority of the CAN message */
                         uint8_t prio() {
                             return parts._priolo | (parts._priohi << 3) ;
                         }
 
+                        /*! \brief set priority of the CAN message */
                         void prio(uint8_t p) {
                             parts._priolo = p & 0x7;
                             parts._priohi = p >> 3;
                         }
 
+                        /*! \brief determines the current CCP stage */
                         uint8_t ccp_stage() {
                             return parts_ccp._stage;
                         }
 
+                        /*! \brief set the current CCP stage */
                         void ccp_stage(uint8_t stage) {
                             parts_ccp._stage = stage;
                         }
 
+                        /*! \brief get the node-ID nibble for the CCP stage */
                         uint8_t ccp_nibble() {
                             return parts_ccp._nibblelo | (parts_ccp._nibblehi << 2) ;
                         }
 
+                        /*! \brief get the node-ID nibble for the CCP stage */
                         void ccp_nibble(uint8_t nibble) {
                             parts_ccp._nibblelo = nibble;
                             parts_ccp._nibblehi = nibble >> 2;
                         }
 
+                        /*! \brief operator provides a byte-wise access to the CAN-ID */
                         uint8_t & operator[](uint8_t i) {
                             return _v[i];
                         }
                     };
 
-                } /* namespace detail */
+                    /*! \brief CAN-ID parts description for little endian machines
+                     */
+                    struct __attribute__((packed)) famouso_CAN_ID_LE_PC {
+                        typedef class __attribute__((packed)) {
+                            public:
+                            uint16_t _etag      : 14;
+                            uint8_t  _tx_nodelo :  2;
+                            uint8_t  _tx_nodehi :  5;
+                            int8_t   _priolo    :  3;
+                            int8_t   _priohi    :  5;
+                        } parts;
+                        typedef class __attribute__((packed)) {
+                            public:
+                            uint16_t _etag      : 14;
+                            uint8_t  _nibblelo  :  2;
+                            uint8_t  _nibblehi  :  2;
+                            uint8_t  _stage     :  4;
+                        } parts_ccp;
+                    };
 
-                namespace CANARY {
+                    /*! \brief CAN-ID parts description for avr that is also
+                     *         little endian, but has additional padding.
+                     */
                     struct __attribute__((packed)) famouso_CAN_ID_LE_CANARY {
                         typedef class __attribute__((packed)) {
                             uint8_t  _pad       :  3;
@@ -123,37 +174,8 @@ namespace famouso {
                             uint8_t  _stage     :  4;
                         } parts_ccp;
                     };
-                    typedef famouso::mw::nl::CAN::detail::ID<
-                                famouso_CAN_ID_LE_CANARY
-                            > ID;
-                }
 
-                namespace detail {
-                    // little endian defined ID for CAN on PCs
-                    struct __attribute__((packed)) famouso_CAN_ID_LE_PC {
-                        typedef class __attribute__((packed)) {
-                            public:
-                            uint16_t _etag      : 14;
-                            uint8_t  _tx_nodelo :  2;
-                            uint8_t  _tx_nodehi :  5;
-                            int8_t   _priolo    :  3;
-                            int8_t   _priohi    :  5;
-                        } parts;
-                        typedef class __attribute__((packed)) {
-                            public:
-                            uint16_t _etag      : 14;
-                            uint8_t  _nibblelo  :  2;
-                            uint8_t  _nibblehi  :  2;
-                            uint8_t  _stage     :  4;
-                        } parts_ccp;
-                    };
-                }
-
-                namespace PEAK {
-                    typedef famouso::mw::nl::CAN::detail::ID<
-                                famouso::mw::nl::CAN::detail::famouso_CAN_ID_LE_PC
-                            > ID;
-                }
+                 } /* namespace detail */
 
             } /* namespace CAN */
         } /* namespace nl */

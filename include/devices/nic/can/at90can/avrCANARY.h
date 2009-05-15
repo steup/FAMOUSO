@@ -86,7 +86,9 @@ namespace device {
                      */
                     class MOB {
                         public:
-                            typedef famouso::mw::nl::CAN::CANARY::ID  IDType;
+                            typedef famouso::mw::nl::CAN::detail::ID<
+                                        famouso::mw::nl::CAN::detail::famouso_CAN_ID_LE_CANARY
+                                    > IDType;
                             IDType  _id;
                             uint8_t _data[8];
                             uint8_t _len;
@@ -116,7 +118,7 @@ namespace device {
                             }
                     };
 
-                    avrCANARY() {}
+                    explicit avrCANARY() {}
 
                     bool receive(MOB* mob) {
                         // save CANPAGE
