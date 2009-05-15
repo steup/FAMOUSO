@@ -83,6 +83,11 @@ namespace famouso {
                             /*! \brief Bind a Subject to an etag.
                              *
                              *  \param[in] sub the Subject that should be bound
+                             *  \param[in] tx_node the node-id of the node that
+                             *             requests a subject to etag binding
+                             *  \param[in] canDriver the driver which is used to
+                             *             deliver the request
+                             *
                              *  \return the bound etag in case of success else 0
                              */
                             uint16_t bind_subject(const Subject &sub, uint16_t tx_node, CAN_Driver& canDriver) {
@@ -116,7 +121,7 @@ namespace famouso {
 
                                     mob.len(8);
                                     mob.data()[0] = id->tx_node();
-                                    mob.data()[1] = 0x3;
+                                    mob.data()[1] = 0x0;
                                     mob.data()[2] = etag >> 8;
                                     mob.data()[3] = static_cast<uint8_t>(etag & 0xff);
                                     mob.data()[4] = sub.tab()[0];
@@ -127,12 +132,13 @@ namespace famouso {
                                     id->tx_node(constants::Broker_tx_node);
                                     canDriver.send(mob);
 
-//                mob.data()[4] = sub.tab()[4];
-//                mob.data()[5] = sub.tab()[5];
-//                mob.data()[6] = sub.tab()[6];
-//                mob.data()[7] = sub.tab()[7];
-//                canDriver.send(mob);
-//
+                                    mob.data()[1] = 0x1;
+                                    mob.data()[4] = sub.tab()[4];
+                                    mob.data()[5] = sub.tab()[5];
+                                    mob.data()[6] = sub.tab()[6];
+                                    mob.data()[7] = sub.tab()[7];
+                                    canDriver.send(mob);
+
                                     return true;
                                 }
                                 return false;

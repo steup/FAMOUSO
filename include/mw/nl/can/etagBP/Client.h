@@ -53,46 +53,78 @@ namespace famouso {
                     /*!
                     * \brief new ETAG binding protocol
                     *
-                    * \todo busy waiting in the bind_subject method at the moment
-                    *   but we have to block until the subject is bound. That
-                    *   could lead to a problem in case of using the client on
-                    *   a gateway node, because the waiting will be done within
-                    *   a asynchrone function call and it blocks the rest of the
-                    *   system (asio) till it is finished. For that purpose it
-                    *   needs a better solution.
+                    * \todo busy waiting in the bind_subject method at the
+                    * moment but we have to block until the subject is bound.
+                    * That could lead to a problem in case of using the client
+                    * on a gateway node, because the waiting will be done
+                    * within a asynchronous function call and it blocks the
+                    * rest of the system (asio) till it is finished. For that
+                    * purpose it needs a better solution.
+                    * \n\n
+                    * This is only a problem in case of using asio. A solution
+                    * could be to create a thread within the
+                    * famouso::mw::el::EventLayerMiddlewareStub that does the
+                    * subscription and announcement of event channels that can
+                    * lead to blocking in the bind function, however the
+                    * asynchronous function call can return after the creation
+                    * of the thread. The system is not stalled then. However,
+                    * this leads to the next problem within the client, because
+                    * the clients data structure are not thread safe at the
+                    * moment.
+                    * \n\n
+                    * Furthermore, we have to find all places where event
+                    * channels are created in order to workaround the described
+                    * problem. -- famouso::mw::gwl::Gateway is also a
+                    * candidate.
+                    * \n\n
+                    * A general workaround is always using a broker on
+                    * gateways, and enabling synchronised brokers through
+                    * replicating their data structures.
                     *
-                    * \todo at the moment the received broker answer is not checked
-                    *   whether the etag corresponds the the subject
                     */
                     template < class CAN_Driver >
                     class Client {
-                            volatile bool passed;
-                            uint16_t etag;
-                        public:
+                            struct BindSubjectInfo {
+                                typename CAN_Driver::MOB mob;
+                                uint16_t etag;
+                                uint8_t round;
+                                BindSubjectInfo () : etag(0), round(0){}
+                            };
+
+                            volatile BindSubjectInfo *_bsi;
+                            public:
 
                             typedef typename CAN_Driver::MOB::IDType IDType;
-                            Client(): passed(false), etag(0) {}
+
+                            Client(): _bsi(0) {}
                             /*! \brief Bind a Subject to an etag.
                              *
                              *  \param[in] sub the Subject that should be bound
-                             *  \return the bound etag in case of success else 0
+                             *  \param[in] tx_node the node-id of the node that
+                             *             requests a subject to etag binding
+                             *  \param[in] canDriver the driver which is used to
+                             *             deliver the request
+                             *
+                             *  \return    the bound etag
                              *
                              */
                             uint16_t bind_subject(const Subject &sub, uint16_t tx_node, CAN_Driver& canDriver) {
-                                typename CAN_Driver::MOB mob;
-                                IDType *id = reinterpret_cast<IDType*>(&mob.id());
-                                mob.len(8);
-                                for (uint8_t i = 0;i < mob.len();++i)
-                                    mob.data()[i] = sub.tab()[i];
+                                BindSubjectInfo bsi;
+                                IDType *id = reinterpret_cast<IDType*>(&(bsi.mob.id()));
+                                bsi.mob.len(8);
+                                bsi.mob.extended();
+                                for (uint8_t i = 0;i < bsi.mob.len();++i)
+                                    bsi.mob.data()[i] = sub.tab()[i];
+
+                                _bsi=&bsi;
 
                                 id->prio(0xFD);
                                 id->etag(famouso::mw::nl::CAN::ETAGS::GET_ETAG);
                                 id->tx_node(tx_node);
-                                canDriver.send(mob);
+                                canDriver.send(bsi.mob);
 
-                                while (!passed);
-                                passed = false;
-                                return etag;
+                                while (_bsi);
+                                return bsi.etag;
 
                             }
 
@@ -103,16 +135,37 @@ namespace famouso {
                              *  \param[in] canDriver the driver which is used to
                              *             deliver answer to the request
                              *
-                             *  \return always false, because the client can not handle
-                             *          such requests. This allows the compiler further
-                             *          optimizations and in the best case the code is
-                             *          complete removed.
+                             *  \return true if it was a binding message else false.
                              */
                             bool handle_subject_bind_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
                                 IDType *id = &mob.id();
                                 if (id->etag() == famouso::mw::nl::CAN::ETAGS::SUPPLY_ETAG_NEW_BP) {
-                                    etag = ((mob.data()[2] & 0x3f) << 8) + mob.data()[3];
-                                    passed = true;
+                                    if (_bsi){
+                                        // index describes which part of the subject is in the message
+                                        uint8_t index=mob.data()[1]<<2;
+                                        // check if we are in the correct round
+                                        if ((_bsi->round<<2) == index) {
+                                            typename CAN_Driver::MOB &request_mob=const_cast<typename CAN_Driver::MOB &>(_bsi->mob);
+                                            // test if the got half subject matches with the subject of the request
+                                            // if not then the answer of the broker was not for us.
+                                            for (uint8_t count=0;count<4;++count)
+                                                if (request_mob.data()[index+count] != mob.data()[4+count]) {
+                                                    _bsi->round=0;
+                                                    return true;
+                                                }
+                                            // if the half subject matches then process further
+                                            _bsi->round++;
+                                        }
+                                        // Do we have two correct half subject matches?
+                                        // if yes then the broker answer was for us and we
+                                        // got the etag
+                                        if (_bsi->round == 2 ) {
+                                            // read the etag
+                                            _bsi->etag = ((mob.data()[2] & 0x3f) << 8) + mob.data()[3];
+                                            // signalise the blocked binding method that the request is fulfilled
+                                            _bsi=NULL;
+                                        }
+                                    }
                                     return true;
                                 } else {
                                     return false;
