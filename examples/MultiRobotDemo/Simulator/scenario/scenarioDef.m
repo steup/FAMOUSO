@@ -44,10 +44,10 @@ global scenario;
 scenario.startTime=[];
 scenario.matrix=[];
 scenario.HumanDet=0;
-scale=3.5;
+scale=1;
 
 %% Building the matrix based on a bitmap
-scenario.bmp_name='reference_img_10_2.bmp';
+scenario.bmp_name='schema.bmp';
 
 % -------------------------------------------------------------------------
 %% Robot construction site
@@ -55,10 +55,12 @@ scenario.bmp_name='reference_img_10_2.bmp';
 
 %% Definition of the sensor parameter
 all_sensors=sensor_pool(scale);
-sensors=all_sensors(1:3);
-sensors(1).position=scale*[4 0];
-sensors(2).position=scale*[2 2];
-sensors(3).position=scale*[2 -2];
+sensors=all_sensors(5:7);
+sensors(1).position=scale*[0 0];
+sensors(2).position=scale*[0 0];
+sensors(3).position=scale*[0 0];
+sensors(4)=all_sensors(9);
+sensors(4).position=scale*[0 0];
 
 trigger=trigger_pool();
 
@@ -69,14 +71,14 @@ RobotIndexOffset=50;
 i=RobotIndexOffset;
 scenario.robots=simrobot('robot_1',...
     i,...
-    180,...
-    'robot_T2_app',...
+    90,...
+    'robot_P_app',...
     [1 1 0],...
     1,...
     scale*[-2 0 4 0 -2],...
     scale*[3 4 0 -4 -3],...
     sensors, ...
-    [250 150], ...
+    [35 75], ...
     trigger(1),...
     [2 12 0]);
 

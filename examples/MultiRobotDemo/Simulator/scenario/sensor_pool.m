@@ -44,9 +44,9 @@ sensors(i).line=0;
 i=length(sensors)+1;
 sensors(i).name='sensor_1';
 sensors(i).position=scale*[4 0];
-sensors(i).axisangle=5;
+sensors(i).axisangle=0;
 sensors(i).scanangle=5;
-sensors(i).range=scale*30;
+sensors(i).range=scale*200;
 sensors(i).resolution=1;
 sensors(i).line=0;
 
@@ -55,8 +55,8 @@ sensors(i).name='sensor_2';
 sensors(i).position=scale*[2 2];
 sensors(i).axisangle=90;
 sensors(i).scanangle=5;
-sensors(i).range=scale*30;
-sensors(i).resolution=5;
+sensors(i).range=scale*200;
+sensors(i).resolution=1;
 sensors(i).line=0;
 
 i=length(sensors)+1;
@@ -64,16 +64,26 @@ sensors(i).name='sensor_3';
 sensors(i).position=scale*[2 -2];
 sensors(i).axisangle=-90;
 sensors(i).scanangle=5;
-sensors(i).range=scale*30;
-sensors(i).resolution=5;
+sensors(i).range=scale*200;
+sensors(i).resolution=1;
 sensors(i).line=0;
 
-%% Sensor für reale Roboter
+%% Sensor fuer reale Roboter
 i=length(sensors)+1;
 sensors(i).name='sensor_1';
 sensors(i).position=scale*[5 0];
 sensors(i).axisangle=0;
 sensors(i).scanangle=110;
 sensors(i).range=scale*20;
+sensors(i).resolution=10;
+sensors(i).line=0;
+
+%% Bumper Rundum
+i=length(sensors)+1;
+sensors(i).name='sensor_40';
+sensors(i).position=scale*[0 0];
+sensors(i).axisangle=0;
+sensors(i).scanangle=120;
+sensors(i).range=scale*15;
 sensors(i).resolution=10;
 sensors(i).line=0;

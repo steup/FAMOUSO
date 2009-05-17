@@ -37,7 +37,9 @@
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function scenario=calculatedPotentialMaps(scenario)
+function calculatedPotentialMaps()
+
+global scenario;
 %% Calculate the potential map for the patch
 % according to the patch size the potentialMapPatch defines for each point
 % the collision possibility 

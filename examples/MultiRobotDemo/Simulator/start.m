@@ -54,7 +54,7 @@ disp('Lets go!');
 
 %% FAMOUSO integration?
 global scenario;
-scenario.FAMOUSO=1;
+scenario.FAMOUSO=0;
 
 %% Start respective environement
 SimControl();
