@@ -3,7 +3,7 @@ function trigger=trigger_pool()
 % intern
 trigger(1).triggerMode='timer';
 trigger(1).period=0.075;
-trigger(1).delay=2;
+trigger(1).delay=0;
 trigger(1).timerHandle=[];
 trigger(1).TCPHandle=[];
 

@@ -69,13 +69,10 @@ if ~isempty(handle)
        
    end
 end
-window_handle=findobj('Tag','SimulationWindow');
-set(gcf,'CurrentAxes',window_handle)
-xlim('manual')
-ylim('manual')
-% xlim=[1 size(matrix,2)];
-% ylim=[1 size(matrix,1)];
-handle=plot(x,y,'.m','MarkerSize',10);
+% xlim('manual')
+% ylim('manual')
+gca=findobj('Tag','SimAxes');
+handle=plot(gca,x,y,'.m','MarkerSize',10);
 
 if dist<15
     simrobot = setvel(simrobot,[-0.3 0.3]);  % turn left

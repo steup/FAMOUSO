@@ -47,7 +47,6 @@ axis off
 
 % Choose default command line output for SimControl
 handles.output = hObject;
-
 % Update handles structure
 guidata(hObject, handles);
 
@@ -88,14 +87,24 @@ delete(findobj('type','line'));
 delete(findobj('type','patch'));
 
 %% Load Background Picture
-set(gcf,'CurrentAxes',handles.SimulationWindow)
+aux=findobj('Tag','SimFigure');
+if ~isempty(aux)
+    delete(aux);
+end
+
+handles.SimFigure =  figure('Name','SimFigure','Tag','SimFigure');
+handles.SimAxes   =  gca;
+set(gca,'Tag','SimAxes');
 hold on;
 axis off;
 matrix=imread(scenario.bmp_name,'bmp');
 for j=1:3
     matrix_aux(:,:,j) = flipud(matrix(:,:,j));
 end
-image(matrix_aux,'Parent',gca);
+axis equal
+handles.SimAxes=image(matrix_aux,'Parent',handles.SimAxes);
+set(gca,'XLim',[1 size(matrix_aux,2)],'YLim',[1 size(matrix_aux,1)]);
+
 
 %% Starting FAMOUSO Middleware
 if scenario.FAMOUSO==1

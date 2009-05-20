@@ -46,8 +46,8 @@ transM = [[cosa -sina];[sina cosa]];
 x=[a.xdata a.ydata];
 conture = a.scale*x*transM;
 
-handle=findobj('Tag','SimulationWindow');
-set(gcf,'CurrentAxes',handle)
+handle=findobj('Tag','SimFigure');
+figure(handle);
 a.patch = patch('XData',a.position(1)+conture(:,1), ...
     'YData',a.position(2)+conture(:,2), ...
     'FaceColor',a.color, ...
