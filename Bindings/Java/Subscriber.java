@@ -38,17 +38,18 @@
  ******************************************************************************/
 
 import java.math.*;
-import famouso.*;
 
 public class Subscriber {
     public static void main(String argv[]) {
         System.loadLibrary("famouso");
 
+        new famouso.init();
+
         System.out.println("Erzeuge Event");
-        event_t event = new event_t();
+        famouso.event_t event = new famouso.event_t();
         event.setSubject(new BigInteger("f100000000000000", 16));
         System.out.println("Subscribe subject");
-        SubscriberEC s = new SubscriberEC(event.getSubject());
+        famouso.SubscriberEC s = new famouso.SubscriberEC(event.getSubject());
         if (s.subscribe() > 0)
             while (true) {
                 if (s.poll(event) > 0) {

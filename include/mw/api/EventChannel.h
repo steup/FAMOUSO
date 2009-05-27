@@ -44,6 +44,7 @@
 #include "mw/common/Event.h"
 #include "mw/common/AttributeList.h"
 #include "mw/common/CallBack.h"
+#include "mw/el/EventChannelHandler.h"
 
 #include "debug.h"
 #include "object/Chain.h"
@@ -67,8 +68,6 @@ namespace famouso {
              */
             template < class ECH >
             class EventChannel : public Chain {
-                    // definition of the event channel handler
-                    static uint8_t _ech[sizeof(ECH)];
                     // the 64Bit subject
                     Subject _subj;
                     // definition of the short network names of a subjectes
@@ -77,8 +76,8 @@ namespace famouso {
                 public:
                     /*! \brief get the local event channel handler object
                      */
-                    static inline ECH& ech() {
-                        return reinterpret_cast<ECH&>(_ech);
+                    ECH& ech() const {
+                        return famouso::mw::el::EventChannelHandler<ECH>::ech();
                     }
 
                     /*! \brief give the Short Network Name representation of
@@ -102,7 +101,6 @@ namespace famouso {
                         return _subj;
                     }
 
-
                 protected:
                     /*! \brief Constructor of the class is protected to avoid
                      *         instanciating objects.
@@ -112,12 +110,6 @@ namespace famouso {
                     }
 
             };
-
-            /*! \brief The local event channel handler object.
-             *
-             * \todo open question, whether the ECH should be static or accessible via a singleton ???
-             */
-            template < class ECH > uint8_t EventChannel<ECH>::_ech[sizeof(ECH)] = {0};
 
         } // namespace api
     } // namespace mw

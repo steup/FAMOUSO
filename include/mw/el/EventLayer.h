@@ -76,16 +76,10 @@ namespace famouso {
                     /*! \brief data structure for managing publisher event channels
                      */
                     Queue Publisher;
+
                     /*! \brief data structure for managing subscriber event channels
                      */
                     Queue Subscriber;
-
-                    /*! \brief  placement new operator is used to allow constructor call
-                     *          on pre-allocated memory.
-                     */
-                    void* operator new(size_t, void* __p) {
-                        return __p;
-                    }
 
                 public:
 
@@ -96,9 +90,6 @@ namespace famouso {
                     /*! \brief  initialize the middleware core
                      */
                     void init() {
-                        // late/defered Constructor call on pre-allocated memory
-                        // using the placement new of C++
-                        new(this) EventLayer;
                         // initialization code
                         // e.g. set callbacks and initalize all lower layers too
                         IncommingEventFromNL.bind<EventLayer<LL>, &EventLayer<LL>::fetch >(this);

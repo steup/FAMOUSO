@@ -43,6 +43,7 @@ using System.Threading;
 public class Subscriber {
     public static void Main(string[] args) {
         Console.WriteLine("FAMOUSO C# Subscriber");
+        new famouso.init();
         famouso.event_t e = new famouso.event_t();
         e.subject = 0xf100000000000000;
         Console.WriteLine("Subject 0x{0:X}", e.subject);

@@ -117,3 +117,8 @@ int PublisherEC::publish(const event_t &event) {
     return 1;
 }
 
+init::init(){
+    famouso::init<famouso::config>();
+}
+init::~init(){}
+

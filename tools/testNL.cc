@@ -60,15 +60,15 @@ typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
 //typedef famouso::mw::nl::CAN::detail::ID ID;
 typedef can::MOB mob;
 
+struct config {
 typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
 typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
 typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
 typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-typedef famouso::mw::el::EventLayer< anl > el;
-typedef famouso::mw::api::EventChannel< el > EC;
-typedef famouso::mw::api::PublisherEventChannel<el> PEC;
-typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
-
+typedef famouso::mw::el::EventLayer< anl > EL;
+typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
+};
 
 // void cb(const EventChannel<EL>& m){
 //   printf("%s Parameter=%d\n", __PRETTY_FUNCTION__, m.snn());
@@ -82,7 +82,7 @@ void cb(famouso::mw::api::SECCallBackData& cbd) {
 
 int main(int argc, char **argv) {
 
-    famouso::init<EC>();
+    famouso::init<config>();
     SEC sec(famouso::mw::Subject(0xf1));
     sec.subscribe();
     sec.callback.bind<&cb>();

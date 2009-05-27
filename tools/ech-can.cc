@@ -71,12 +71,13 @@ namespace famouso {
                 typedef famouso::mw::nl::CAN::etagBP::Broker<can> etagBroker;
                 typedef famouso::mw::nl::CANNL<can, ccpBroker, etagBroker> nl;
                 typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-                typedef famouso::mw::el::EventLayer< anl > el;
             public:
-                typedef famouso::mw::el::EventLayerMiddlewareStub< el > ELMS;
-                typedef famouso::mw::api::EventChannel< el > EC;
-                typedef famouso::mw::api::PublisherEventChannel<el> PEC;
-                typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
+                typedef famouso::mw::el::EventLayer< anl > EL;
+
+                typedef famouso::mw::el::EventLayerMiddlewareStub< EL > ELMS;
+
+                typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+                typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
         };
     }
 
@@ -84,12 +85,12 @@ namespace famouso {
         class config {
                 typedef famouso::mw::nl::UDPBroadCastNL nl;
                 typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-                typedef famouso::mw::el::EventLayer< anl > el;
             public:
-                typedef famouso::mw::el::EventLayerMiddlewareStub< el > ELMS;
-                typedef famouso::mw::api::EventChannel< el > EC;
-                typedef famouso::mw::api::PublisherEventChannel<el> PEC;
-                typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
+                typedef famouso::mw::el::EventLayer< anl > EL;
+
+                typedef famouso::mw::el::EventLayerMiddlewareStub< EL > ELMS;
+                typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+                typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
         };
     }
 
@@ -107,7 +108,7 @@ int main(int argc, char **argv) {
     std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
 
     try {
-        famouso::init<famouso::config::EC>();
+        famouso::init<famouso::config>();
         famouso::config::ELMS localELMS;
         std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
         Idler::idle();

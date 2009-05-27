@@ -70,13 +70,15 @@ namespace famouso {
                 typedef famouso::mw::anl::AbstractNetworkLayer< nlUDP > anlUDP;
 
                 typedef famouso::mw::nal::NetworkAdapter< anlAWDS, anlUDP > na;
-                typedef famouso::mw::el::EventLayer< na > el;
+
             public:
-                typedef famouso::mw::gwl::Gateway<el> GW;
-                typedef famouso::mw::el::EventLayerMiddlewareStub< el > ELMS;
-                typedef famouso::mw::api::EventChannel< el > EC;
-                typedef famouso::mw::api::PublisherEventChannel<el> PEC;
-                typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
+                typedef famouso::mw::el::EventLayer< na > EL;
+
+                typedef famouso::mw::gwl::Gateway<EL> GW;
+                typedef famouso::mw::el::EventLayerMiddlewareStub< EL > ELMS;
+
+                typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+                typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
         };
     }
 
@@ -86,7 +88,7 @@ namespace famouso {
             typename config::GW     GW;
         public:
             Configurator() {
-                famouso::init<typename config::EC>();
+                famouso::init<config>();
                 static localELMS elms;
                 GW.start();
             }

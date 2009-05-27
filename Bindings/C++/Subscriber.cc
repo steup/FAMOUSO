@@ -63,7 +63,7 @@ void cb(famouso::mw::api::SECCallBackData& cbd) {
 
 int main(int argc, char **argv) {
 
-    famouso::init<famouso::config::EC>();
+    famouso::init<famouso::config>();
 
     // create a SubscriberEventChannel
     // with a specific Subject

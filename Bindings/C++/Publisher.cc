@@ -54,7 +54,7 @@
 
 int main(int argc, char **argv) {
 
-    famouso::init<famouso::config::EC>();
+    famouso::init<famouso::config>();
 
     // create a PublisherEventChannel
     // with a specific Subject

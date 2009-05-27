@@ -43,6 +43,7 @@ using System.Threading;
 public class Publisher {
     public static void Main(string[] args) {
         Console.WriteLine("FAMOUSO C# Publisher");
+        new famouso.init();
         famouso.event_t e = new famouso.event_t();
         e.subject = 0xf100000000000000;
         e.data = "P/S-C# Michael";

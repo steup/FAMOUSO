@@ -1,3 +1,4 @@
+#!/usr/bin/python
 ################################################################################
 ##
 ## Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
@@ -37,7 +38,6 @@
 ##
 ################################################################################
 
-#!/usr/bin/python
 # Importiere die FAMOUSO-Bindings in Python
 from generated import famouso
 # some additional imports needed for that demo
@@ -51,6 +51,7 @@ def sigint_handler(signum, frame):
 
 signal.signal(signal.SIGINT, sigint_handler)
 
+famouso.init()
 
 print "Erzeuge ein Event von einer C-Struktur und trage alles wesentliche ein"
 P=famouso.PublisherEC(0xf100000000000000L)

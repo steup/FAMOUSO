@@ -261,7 +261,7 @@ int main() {
     sei();    // global enable interrupts
 
     usart0_transmit_string("FAMOUSO -- Initialization started.\n");
-    famouso::init<famouso::config::EC>();
+    famouso::init<famouso::config>();
 
     usart0_transmit_string("FAMOUSO -- Initialization successful.\n");
 

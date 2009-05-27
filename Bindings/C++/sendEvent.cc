@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     done = 0;
     signal(SIGINT, siginthandler);
 
-    famouso::init<famouso::config::EC>();
+    famouso::init<famouso::config>();
 
     famouso::config::PEC pec(famouso::mw::Subject(0x44697374616e6365ull));
     pec.announce();

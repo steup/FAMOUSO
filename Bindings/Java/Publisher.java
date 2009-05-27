@@ -38,7 +38,6 @@
  ******************************************************************************/
 
 import java.math.*;
-import famouso.*;
 
 public class Publisher {
     public Publisher() {
@@ -48,13 +47,15 @@ public class Publisher {
     public static void main(String argv[]) {
         System.loadLibrary("famouso");
 
+        new famouso.init();
+
         System.out.println("Erzeuge Event");
-        event_t event = new event_t();
+        famouso.event_t event = new famouso.event_t();
         event.setSubject(new BigInteger("f100000000000000", 16));
         event.setLen(16);
         event.setData("P/S-Java Michael".getBytes());
         System.out.println("Announce subject");
-        PublisherEC p = new PublisherEC(event.getSubject());
+        famouso.PublisherEC p = new famouso.PublisherEC(event.getSubject());
         if (p.announce() > 0)
             while (true) {
                 System.out.println("Publish event " + event.getSubject());

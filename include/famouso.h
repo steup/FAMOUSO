@@ -40,6 +40,8 @@
 #ifndef __famouso_h__
 #define __famouso_h__
 
+#include "mw/el/EventChannelHandler.h"
+
 namespace famouso {
 
     /*! \brief  The init function of FAMOUSO initialize the Event Channel
@@ -48,7 +50,8 @@ namespace famouso {
      */
     template <class T>
     inline void init() {
-        T::ech().init();
+        famouso::mw::el::EventChannelHandler<typename T::EL>::create();
+        famouso::mw::el::EventChannelHandler<typename T::EL>::init();
     }
 }
 

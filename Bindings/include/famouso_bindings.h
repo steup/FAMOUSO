@@ -84,4 +84,10 @@ class PublisherEC {
         int publish(const event_t&);
 };
 
+class init {
+    public:
+        init();
+        ~init();
+};
+
 #endif
