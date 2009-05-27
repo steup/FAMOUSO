@@ -1,31 +1,12 @@
 Verschiedene zu erledigende Sachen
 --------------------
-astyle auf alle Dateien anwenden mit Parameter -aCNopKSV
---------------------
-Copyright Hinweis in allen Dateien vermerken. Vielleicht in einer Art release
-Script mit einbauen, welches nur auf einem extra-pfad ausgefuehrt wird und
-dann die entsprechenden Hinweise hinzufuegt und dann wars dies ohne svn und
-dann noch in ein tar.gz oder tar.bz2 zusammenpacken
-
--------------------
--Webseite FAMOUSO auf sourcefore umziehen lassen von unserem System
- und ueberarbeiten
-
--------------------
-
 Programmiertechnisches:
--fetching von events realisieren (prototypisch momentan)
--gateway-klasse bauen, welche interne Subscriber und Publisher ECs benutzt, um
- forwarding entsprechend zu realisieren. Der Callback des Subscriber wird fuer
- das Publishing ins jeweilige Netz verwendet (Proxy-Funktionalitaet)
--CAN-NL + new Binding Protocoll (prototypisch momentan)
 -RT-Channels
 -adaptive attributes
 -adaptive fragmentation protocol
 
 Offene Fragen:
 	-Wie gross darf ein Event ueberhaupt sein??? Systemsicht
-
 
 Diss-Technisches:
 	-Problem genau herausarbeiten, warum adaptierbare Ausfuehrungsumgebung
@@ -34,7 +15,6 @@ Diss-Technisches:
 
 
 -Zu lesen (NDDS, Corba Notification Services)
-
 _____________________________________________________
 
 Erledigte Sachen:
@@ -53,4 +33,21 @@ Erledigte Sachen:
 	    "libs\system\src\error_code.cpp"
 	-einziger Unterschied zu linux ist -mthreads und -pthreads
 -CAN-NL CCP
+--------------------
+astyle auf alle Dateien anwenden mit Parameter -aCNopKSV
+--------------------
+Copyright Hinweis in allen Dateien vermerken. Vielleicht in einer Art release
+Script mit einbauen, welches nur auf einem extra-pfad ausgefuehrt wird und
+dann die entsprechenden Hinweise hinzufuegt und dann wars dies ohne svn und
+dann noch in ein tar.gz oder tar.bz2 zusammenpacken
+-------------------
+-Webseite FAMOUSO auf sourcefore umziehen lassen von unserem System
+ und ueberarbeiten
+-------------------
+-fetching von events realisieren
+-gateway-klasse bauen, welche interne Subscriber und Publisher ECs benutzt, um
+ forwarding entsprechend zu realisieren. Der Callback des Subscriber wird fuer
+ das Publishing ins jeweilige Netz verwendet (Proxy-Funktionalitaet)
+-CAN-NL + new Binding Protocoll
+
 
