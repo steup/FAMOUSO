@@ -49,7 +49,7 @@ namespace famouso {
              *  \tparam EL the event layer is a configurable component see prerequisites.
              *
              *  \pre    The type of template parameters have to be
-             *          an configured famouso::mw::el:EventLayer
+             *          an configured famouso::mw::el::EventLayer
              */
             template < class EL >
             class EventChannelHandler {
