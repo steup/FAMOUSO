@@ -63,7 +63,7 @@ namespace famouso {
 
     namespace GW_AWDS_UDPMC {
         class config {
-                typedef famouso::mw::nl::AWDSNL<> nlAWDS;
+                typedef famouso::mw::nl::AWDSNL nlAWDS;
                 typedef famouso::mw::anl::AbstractNetworkLayer< nlAWDS > anlAWDS;
 
                 typedef famouso::mw::nl::UDPMultiCastNL nlUDP;
@@ -87,8 +87,8 @@ namespace famouso {
             typedef typename config::ELMS   localELMS;
             typename config::GW     GW;
         public:
-            Configurator() {
-                famouso::init<config>();
+            Configurator(int argc, char **argv) {
+                famouso::init<config>(argc, argv);
                 static localELMS elms;
                 GW.start();
             }
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
 
     try {
-        famouso::config _famouso;
+        famouso::config _famouso(argc,argv);
         std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
         Idler::idle();
         std::cout << "FAMOUSO -- successfully finished" << std::endl;

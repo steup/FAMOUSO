@@ -58,7 +58,7 @@ namespace famouso {
 
     namespace AWDS {
         class config {
-                typedef famouso::mw::nl::AWDSNL<> nl;
+                typedef famouso::mw::nl::AWDSNL nl;
                 typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
             public:
                 typedef famouso::mw::el::EventLayer< anl > EL;
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
 
     try {
-        famouso::init<famouso::config>();
+        famouso::init<famouso::config>(argc, argv);
         famouso::config::ELMS localELMS;
         std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
         Idler::idle();
