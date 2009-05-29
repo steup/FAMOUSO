@@ -40,15 +40,40 @@
 #include "mw/nl/UDPMultiCastNL.h"
 #include "mw/el/EventLayerCallBack.h"
 
+#include <vector>
+#include <boost/tokenizer.hpp>
+#include "util/CommandLineParameterGenerator.h"
+
 namespace famouso {
     namespace mw {
         namespace nl {
 
+            CLP2( UDPMultiCast,
+                  "UDP-MultiCastNL",
+                  "multicast-ip,m",
+                  "multicast ip addresse and port\n(e.g. 127.0.0.1:9999 (default))",
+                  std::string, ip ,"127.0.0.1",
+                  int, port, 9999
+            )
+
+            UDPMultiCastNL::UDPMultiCastNL(): m_socket(famouso::util::ios::instance()) {
+                famouso::util::impl::start_ios();
+            }
+
+            UDPMultiCastNL::~UDPMultiCastNL() {
+                m_socket.close();
+            }
+
             void UDPMultiCastNL::init() {
+                UDPMultiCast::config::Parameter param;
+                UDPMultiCast::config::clp.getParameter(param);
+
+                m_endpoint_listen.address(boost::asio::ip::address::from_string(param.ip));
+                m_endpoint_listen.port(param.port);
+
                 m_socket.open(m_endpoint_listen.protocol());
                 m_socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
                 // m_socket.set_option( boost::boost::asio::ip::multicast::hops( 3 ) );
-                // m_socket.set_option( boost::boost::asio::ip::multicast::enable_loopback(false) );
                 m_socket.set_option(boost::asio::ip::multicast::enable_loopback(false));
 
                 m_socket.bind(m_endpoint_listen);
@@ -73,9 +98,9 @@ namespace famouso {
                 if (temp_ == 255) temp_--;
 
                 addr << "239."
-                << static_cast<short>(s.tab()[0]) << "."
-                << static_cast<short>(s.tab()[7]) << "."
-                << static_cast<short>(temp_);
+                     << static_cast<short>(s.tab()[0]) << "."
+                     << static_cast<short>(s.tab()[7]) << "."
+                     << static_cast<short>(temp_);
 
                 snn.snn = boost::asio::ip::address::from_string(addr.str());
                 try {
@@ -119,7 +144,7 @@ namespace famouso {
                 buffers.push_back(boost::asio::buffer(&p.snn.s, sizeof(famouso::mw::Subject)));
                 buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
-                m_socket.send_to(buffers, boost::asio::ip::udp::endpoint(p.snn.snn, port));
+                m_socket.send_to(buffers, boost::asio::ip::udp::endpoint(p.snn.snn, m_endpoint_listen.port()));
             }
 
             UDPMultiCastNL::SNN UDPMultiCastNL::lastPacketSNN() {

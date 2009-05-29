@@ -82,15 +82,16 @@ int main(int argc, char **argv) {
     std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
 
     try {
-        famouso::init<famouso::config>();
+        famouso::init<famouso::config>(argc,argv);
         famouso::config::ELMS localELMS;
         std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
         Idler::idle();
+        std::cout << "FAMOUSO -- successfully finished" << std::endl;
     } catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
+    } catch (const char *c) {
+        std::cerr << "Exception: " << c << std::endl;
     }
-
-    std::cout << "FAMOUSO -- successfully finished" << std::endl;
     return 0;
 }
 

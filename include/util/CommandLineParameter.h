@@ -37,61 +37,36 @@
  *
  ******************************************************************************/
 
+#ifndef __CommandLineParameter_h__
+#define __CommandLineParameter_h__
+
+#include <boost/pool/detail/singleton.hpp>
+#include <boost/program_options.hpp>
+
 #include <iostream>
-
-// voidNL specific only local communication supported
-#include "mw/nl/voidNL.h"
-
-// common famouso middlware includes
-#include "mw/anl/AbstractNetworkLayer.h"
-#include "mw/el/EventLayer.h"
-#include "mw/el/EventLayerMiddlewareStub.h"
-#include "mw/api/PublisherEventChannel.h"
-#include "mw/api/SubscriberEventChannel.h"
-#include "mw/common/Event.h"
-
-#include "famouso.h"
-
-#include "util/Idler.h"
 
 namespace famouso {
 
-    namespace Local {
-        class config {
-                typedef famouso::mw::nl::voidNL nl;
-                typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-            public:
-                typedef famouso::mw::el::EventLayer< anl > EL;
+    namespace util {
 
-                typedef famouso::mw::el::EventLayerMiddlewareStub< EL > ELMS;
-                typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
-                typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
-        };
+        typedef boost::program_options::options_description CommandLineParameter_type;
+        typedef boost::details::pool::singleton_default<CommandLineParameter_type> cmdline_options;
+        typedef boost::program_options::variables_map vm_type;
+        typedef boost::details::pool::singleton_default<vm_type> vm;
+
+        inline void clp(int ac, char **av) {
+            boost::program_options::options_description generic("Generic options");
+            generic.add_options()
+                ("help,h", "produce help message");
+            cmdline_options::instance().add(generic);
+            boost::program_options::store(boost::program_options::parse_command_line(ac, av, cmdline_options::instance()), vm::instance());
+            boost::program_options::notify(vm::instance());
+            if (vm::instance().count("help")) {
+                std::cout << cmdline_options::instance() << "\n";
+                exit(0);
+            }
+        }
     }
-
-    typedef Local::config config;
 }
 
-int main(int argc, char **argv) {
-    std::cout << "Project: FAMOUSO" << std::endl;
-    std::cout << "local Event Channel Handler" << std::endl << std::endl;
-    std::cout << "Author: Michael Schulze" << std::endl;
-    std::cout << "Revision: $Rev$" << std::endl;
-    std::cout << "$Date$" << std::endl;
-    std::cout << "last changed by $Author$" << std::endl << std::endl;
-    std::cout << "build Time: " << __TIME__ << std::endl;
-    std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
-
-    try {
-        famouso::init<famouso::config>(argc, argv);
-        famouso::config::ELMS localELMS;
-        std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
-        Idler::idle();
-    } catch (std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
-    }
-
-    std::cout << "FAMOUSO -- successfully finished" << std::endl;
-    return 0;
-}
-
+#endif

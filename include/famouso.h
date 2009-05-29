@@ -41,6 +41,7 @@
 #define __famouso_h__
 
 #include "mw/el/EventChannelHandler.h"
+#include "util/CommandLineParameter.h"
 
 namespace famouso {
 
@@ -52,6 +53,12 @@ namespace famouso {
     inline void init() {
         famouso::mw::el::EventChannelHandler<typename T::EL>::create();
         famouso::mw::el::EventChannelHandler<typename T::EL>::init();
+    }
+
+    template<class T>
+    inline void init(int argc, char** argv) {
+        famouso::util::clp(argc,argv);
+        init<T>();
     }
 }
 

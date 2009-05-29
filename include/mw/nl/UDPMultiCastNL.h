@@ -44,6 +44,7 @@
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
 #include <string>
+
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "util/ios.h"
@@ -78,23 +79,15 @@ namespace famouso {
                      * @brief default constructor
                      *
                      * Sets local variables and calls init.
-                     *
-                     * @param p port (default is 9999)
                      */
-                    UDPMultiCastNL(int p = 9999)
-                            : m_socket(famouso::util::ios::instance()), port(p),
-                            m_endpoint_listen(boost::asio::ip::address::from_string("0.0.0.0"), port) {
-                        famouso::util::impl::start_ios();
-                    }
+                    UDPMultiCastNL();
 
                     /**
                      * @brief destructor
                      *
                      *  Closes the socket.
                      */
-                    ~UDPMultiCastNL() {
-                        m_socket.close();
-                    }
+                    ~UDPMultiCastNL();
 
                     /**
                      * Sets the options for the socket and starts receiving.
@@ -152,7 +145,6 @@ namespace famouso {
 
                 private:
                     boost::asio::ip::udp::socket m_socket;
-                    const int port;
                     boost::asio::ip::udp::endpoint m_endpoint_listen;
                     boost::asio::ip::udp::endpoint m_endpoint_from;
                     uint8_t m_buffer[sizeof(famouso::mw::Subject)+info::payload];   // Subject and Payload have to be sent

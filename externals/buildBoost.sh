@@ -49,7 +49,7 @@ if [ x${3%.*} = xwindows ]; then
 fi
 
 PARAMS=" --libdir=$1 --includedir=$2 "
-BJAMCONFIG=" gcc --layout=system --with-system --with-thread link=static --user-config=`pwd`/user-config.jam.${3%/*} install ${THREADAPI}"
+BJAMCONFIG=" gcc --layout=system --with-system --with-thread --with-program_options link=static --user-config=`pwd`/user-config.jam.${3%/*} install ${THREADAPI}"
 echo Configure-Parameter $PARAMS
 echo BJAM-Parameter $BJAMCONFIG
 
