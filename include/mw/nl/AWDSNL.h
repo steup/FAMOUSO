@@ -52,6 +52,7 @@
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "util/ios.h"
+#include "util/CommandLineParameterGenerator.h"
 #include "mw/common/Subject.h"
 
 #include "mw/el/EventLayerCallBack.h"
@@ -59,6 +60,20 @@
 namespace famouso {
     namespace mw {
         namespace nl {
+
+            // define command line parameter and default values
+            CLP3(AWDS,
+                "AWDS Network Layer",
+                "awds,a",
+                "connection and config parameter for the awds-network in the form of IP:PORT:INTERVAL\n"
+                "Values:\n"
+                "  IP:       \tThe ip-addresse of the ps-awds-deamon\n"
+                "  PORT:     \tThe port on which the deamon listen\n"
+                "  INTERVAL: \tThe renew-interval of subsciptions\n"
+                "(default 127.0.0.1:8555:60)",
+                std::string, ip, "127.0.0.1",
+                int, port, 8555,
+                int, interval, 60)
 
             struct __attribute__((packed)) AWDS_Packet {
                 struct constants {
@@ -88,7 +103,6 @@ namespace famouso {
                 uint8_t  data[constants::packet_size::payload];
             };
 
-            template < uint16_t Port = 8555, uint16_t interval = 60 >
             class AWDSNL : public BaseNL, boost::noncopyable {
                 public:
 
@@ -108,8 +122,7 @@ namespace famouso {
                      * \brief default constructor
                      */
                     AWDSNL() : m_socket(famouso::util::ios::instance()),
-                            timer_(famouso::util::ios::instance(),
-                                   boost::posix_time::seconds(interval)) {}
+                            timer_(famouso::util::ios::instance()) {}
 
                     /**
                      * \brief destructor
@@ -126,7 +139,10 @@ namespace famouso {
                      */
                     void init() {
                         famouso::util::impl::start_ios();
-                        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"), Port);
+                        // get command line parameter
+                        AWDS::config::clp.getParameter(param);
+
+                        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
                         boost::system::error_code ec;
                         m_socket.connect(endpoint, ec);
                         if (ec) {
@@ -289,7 +305,7 @@ namespace famouso {
                                 m_socket.send(buffers);
                             }
 
-                            timer_.expires_at(timer_.expires_at() + boost::posix_time::seconds(interval));
+                            timer_.expires_from_now(boost::posix_time::seconds(param.interval));
                             timer_.async_wait(boost::bind(&AWDSNL::announce_subscriptions, this, boost::asio::placeholders::error));
                         }
                     }
@@ -297,6 +313,7 @@ namespace famouso {
                     boost::asio::deadline_timer timer_;
                     AWDS_Packet awds_packet;
                     std::list<SNN> subscriptions;
+                    AWDS::config::Parameter param;
             };
 
         }
