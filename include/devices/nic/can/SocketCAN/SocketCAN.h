@@ -50,6 +50,7 @@
 
 #include "object/SynchronizedBoundedBuffer.h"
 #include "case/Delegate.h"
+#include "util/CommandLineParameterGenerator.h"
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -74,6 +75,13 @@ namespace device {
     namespace nic {
         namespace CAN {
 
+             CLP1(SocketCANOptions,
+                "Socket CAN Driver",
+                "scan,s",
+                "The device that is used"
+                "(e.g. can0 (default))",
+                std::string, device, "can0")
+
             /*!\file SocketCAN.h
              * \class SocketCAN
              *
@@ -82,21 +90,12 @@ namespace device {
              * This generic driver for the SocketCAN hardware allows synchronous
              * and asynchronous use. The driver has the possibility to store
              * messages to a configurable level.
-             *
-             * \param[in] device defines the %device on a linux system where
-             *            the CAN hardware is pluged
-             * \param[in] wBTR0BTR1 -- the baudrate that is set, however not implemented yet,
-             *            to missing interfaces from the SocketCAN base layers that support
-             *            this functionality.
-             * \param[in] elements describe the count messages that are stored at
-             *            maximum
              */
-            template < const char *&device, uint16_t wBTR0BTR1, uint32_t elements = 1000 >
             class SocketCAN {
                 public:
 
                     class MOB : private can_frame {
-                            friend class SocketCAN<device, wBTR0BTR1, elements> ;
+                            friend class SocketCAN;
                         public:
                             typedef famouso::mw::nl::CAN::detail::ID<
                                         famouso::mw::nl::CAN::detail::famouso_CAN_ID_LE_PC
@@ -119,12 +118,12 @@ namespace device {
                             }
                             void data(uint8_t *) {}
                             uint8_t &data(uint8_t i) {
-                                return &can_frame::data[i];
+                                return can_frame::data[i];
                             }
 
                     };
 
-                    explicit SocketCAN() : _can_socket(0), sbb(elements), ints_allowed(false) {
+                    explicit SocketCAN() : _can_socket(0), sbb(1000), ints_allowed(false) {
                     }
 
                     ~SocketCAN() {
@@ -163,22 +162,24 @@ namespace device {
 
                     /*! \brief initalize the driver by trying to open and bind a socket */
                     void init() {
+                        CLP::config::SocketCANOptions::Parameter param;
+                        CLP::config::SocketCANOptions::instance().getParameter(param);
                         /* open CAN port */
                         struct sockaddr_can addr;
                         struct ifreq ifr;
                         if ((_can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-                            std::cerr << "can't create SocketCAN socket" << device << std::endl;
+                            std::cerr << "can't create SocketCAN socket" << std::endl;
                             exit(errno);
                         }
-                        strcpy(ifr.ifr_name, device);
+                        strcpy(ifr.ifr_name, param.device.c_str());
                         if (ioctl(_can_socket, SIOCGIFINDEX, &ifr) < 0) {
-                            std::cerr << "SIOCGIFINDEX" << device << std::endl;
+                            std::cerr << "SIOCGIFINDEX " << param.device << "no such CAN device found." << std::endl;
                             exit(errno);
                         }
                         addr.can_ifindex = ifr.ifr_ifindex;
 
                         if (bind(_can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-                            std::cerr << "can't bind CAN device " << device << std::endl;
+                            std::cerr << "can't bind CAN device " << param.device << std::endl;
                             exit(errno);
                         }
 
@@ -191,7 +192,7 @@ namespace device {
                         // the memory of the whole program and therewith ends the thread
                         // as well
                         can_reader = new boost::thread(
-                            boost::bind(&SocketCAN< device, wBTR0BTR1, elements>::CAN_Message_Reader_Thread,
+                            boost::bind(&SocketCAN::CAN_Message_Reader_Thread,
                                         this));
                     }
 
