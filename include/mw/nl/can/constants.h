@@ -48,7 +48,7 @@ namespace famouso {
                 /*! \brief some constants that are used in the CCP */
                 struct constants {
                     enum {
-                        Broker_tx_node = 0x7f,
+                        Broker_tx_node = 0x7f
                     };
                     // needed constants for the CAN Configuration Protocol
                     struct ccp {
