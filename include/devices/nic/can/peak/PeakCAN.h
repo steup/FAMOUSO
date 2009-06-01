@@ -52,10 +52,42 @@
 #include <libpcan.h>
 
 #include "mw/nl/can/canID.h"
+#include "util/CommandLineParameterGenerator.h"
 
 namespace device {
     namespace nic {
         namespace CAN {
+
+             const uint16_t baudrates[]={ CAN_BAUD_1M,
+                                          CAN_BAUD_500K,
+                                          CAN_BAUD_250K,
+                                          CAN_BAUD_125K,
+                                          CAN_BAUD_100K,
+                                          CAN_BAUD_50K,
+                                          CAN_BAUD_20K,
+                                          CAN_BAUD_10K,
+                                          CAN_BAUD_5K
+                                        };
+
+             CLP2(PEAKOptions,
+                "Peak CAN Driver",
+                "pcan,p",
+                "The device that is used and the baudrate in the form of device:baudrate"
+                "Values:\n"
+                "  Device:   \tdevice that has to be used\n"
+                "  Baudrate: \tlegal values are\n"
+                "               0 =   1 MBit/s\n"
+                "               1 = 500 kBit/s\n"
+                "               2 = 250 kBit/s\n"
+                "               3 = 125 kBit/s\n"
+                "               4 = 100 kBit/s\n"
+                "               5 =  50 kBit/s\n"
+                "               6 =  20 kBit/s\n"
+                "               7 =  10 kBit/s\n"
+                "               8 =   5 kBit/s\n"
+                "(e.g. /dev/pcan32:2 (default))",
+                std::string, device, "/dev/pcan32",
+                int, baudrate, 2)
 
             /*! \file PeakCAN.h
              *
@@ -67,24 +99,16 @@ namespace device {
              * and asynchronous use. The driver has the possibility to store
              * messages to a configurable level.
              *
-             * \param[in] device defines the %device on a linux system where
-             * the CAN hardware is pluged
-             * \param[in] wBTR0BTR1 -- the baudrate that is set (see libpcan.h)
-             * \param[in] elements describe the count messages that are stored at
-             * maximum
-             *
              * \todo develop a trait that allows using that interface on linux
              * as well as windows. Especially the CAN_OPEN function differs
              * between the platforms.
              *
              */
-
-            template < const char *&device, uint16_t wBTR0BTR1, uint32_t elements = 1000 >
             class PeakCAN {
-                public:
+               public:
 
                 class MOB : private TPCANMsg {
-                            friend class PeakCAN<device, wBTR0BTR1, elements> ;
+                            friend class PeakCAN;
                         public:
                             typedef famouso::mw::nl::CAN::detail::ID<
                                         famouso::mw::nl::CAN::detail::famouso_CAN_ID_LE_PC
@@ -106,13 +130,13 @@ namespace device {
                                 return DATA;
                             }
                             void data(uint8_t *) {}
-                            uint8_t &data(uint8_t i) {
-                                return &DATA[i];
+                            uint8_t& data(uint8_t i) {
+                                return DATA[i];
                             }
 
                     };
 
-                    explicit PeakCAN() : sbb(elements) {
+                    explicit PeakCAN() : sbb(1000) {
                         ints_allowed = false;
                     }
                     ~PeakCAN() {
@@ -141,17 +165,24 @@ namespace device {
                     }
 
                     void init() {
+                        CLP::config::PEAKOptions::Parameter param;
+                        CLP::config::PEAKOptions::instance().getParameter(param);
+                        if ( (param.baudrate < 0) || (param.baudrate > 8) ) {
+                            std::cerr << "Error: parameter baudrate out of Range" << std::endl;
+                            exit(0);
+                        }
+
                         errno = 0;
                         /* open CAN port */
                         // this needs to be variable to allow using the interface
                         //  on linux and windows in the same way
-                        handle = LINUX_CAN_Open(device, O_RDWR);
+                        handle = LINUX_CAN_Open(param.device.c_str(), O_RDWR);
                         if (!handle) {
-                            std::cerr << "can't open CAN device " << device << std::endl;
+                            std::cerr << "can't open CAN device " << param.device << std::endl;
                             exit(errno);
                         }
 
-                        errno = CAN_Init(handle, wBTR0BTR1, CAN_INIT_TYPE_EX);
+                        errno = CAN_Init(handle, baudrates[param.baudrate], CAN_INIT_TYPE_EX);
                         if (errno) {
                             std::cerr << "CAN_Init() fails" << std::endl;
                             exit(errno);
@@ -165,15 +196,15 @@ namespace device {
                         // the memory of the whole program and therewith ends the thread
                         // as well
                         can_reader = new boost::thread(
-                            boost::bind(&PeakCAN< device, wBTR0BTR1, elements>::CAN_Message_Reader_Thread,
+                            boost::bind(&PeakCAN::CAN_Message_Reader_Thread,
                                         this));
                     }
 
                 private:
 
                     /*! \brief the thread for receiving messages this allows asynchonity
-                        *         and callbacking for simulating receive interrupts
-                        */
+                     *         and callbacking for simulating receive interrupts
+                     */
                     void CAN_Message_Reader_Thread() {
                         MOB mob;
                         while (1) {

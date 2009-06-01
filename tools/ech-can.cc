@@ -64,9 +64,8 @@
 
 namespace famouso {
     namespace CAN {
-        const char *dev = "/dev/pcan32";
         class config {
-                typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
+                typedef device::nic::CAN::PeakCAN can;
                 typedef famouso::mw::nl::CAN::ccp::Broker<can> ccpBroker;
                 typedef famouso::mw::nl::CAN::etagBP::Broker<can> etagBroker;
                 typedef famouso::mw::nl::CANNL<can, ccpBroker, etagBroker> nl;
@@ -108,7 +107,7 @@ int main(int argc, char **argv) {
     std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
 
     try {
-        famouso::init<famouso::config>();
+        famouso::init<famouso::config>(argc, argv);
         famouso::config::ELMS localELMS;
         std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
         Idler::idle();
