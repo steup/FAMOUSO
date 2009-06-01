@@ -48,7 +48,7 @@ namespace famouso {
     namespace mw {
         namespace nl {
 
-            CLP2( UDPMultiCast,
+            CLP2( UDPOptions,
                   "UDP-MultiCastNL",
                   "multicast-ip,m",
                   "multicast ip addresse and port\n(e.g. 127.0.0.1:9999 (default))",
@@ -65,8 +65,8 @@ namespace famouso {
             }
 
             void UDPMultiCastNL::init() {
-                UDPMultiCast::config::Parameter param;
-                UDPMultiCast::config::clp.getParameter(param);
+                CLP::config::UDPOptions::Parameter param;
+                CLP::config::UDPOptions::instance().getParameter(param);
 
                 m_endpoint_listen.address(boost::asio::ip::address::from_string(param.ip));
                 m_endpoint_listen.port(param.port);

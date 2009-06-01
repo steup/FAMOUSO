@@ -62,7 +62,7 @@ namespace famouso {
         namespace nl {
 
             // define command line parameter and default values
-            CLP3(AWDS,
+            CLP3(AWDSOptions,
                 "AWDS Network Layer",
                 "awds,a",
                 "connection and config parameter for the awds-network in the form of IP:PORT:INTERVAL\n"
@@ -140,7 +140,7 @@ namespace famouso {
                     void init() {
                         famouso::util::impl::start_ios();
                         // get command line parameter
-                        AWDS::config::clp.getParameter(param);
+                        CLP::config::AWDSOptions::instance().getParameter(param);
 
                         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
                         boost::system::error_code ec;
@@ -313,7 +313,7 @@ namespace famouso {
                     boost::asio::deadline_timer timer_;
                     AWDS_Packet awds_packet;
                     std::list<SNN> subscriptions;
-                    AWDS::config::Parameter param;
+                    CLP::config::AWDSOptions::Parameter param;
             };
 
         }
