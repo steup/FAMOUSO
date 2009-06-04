@@ -54,7 +54,7 @@ namespace famouso {
                   "multicast ip addresse and port\n(e.g. 127.0.0.1:9999 (default))",
                   std::string, ip ,"127.0.0.1",
                   int, port, 9999
-            )
+            );
 
             UDPMultiCastNL::UDPMultiCastNL(): m_socket(famouso::util::ios::instance()) {
                 famouso::util::impl::start_ios();

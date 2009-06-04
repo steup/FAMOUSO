@@ -73,7 +73,7 @@ namespace famouso {
                 "(default 127.0.0.1:8555:60)",
                 std::string, ip, "127.0.0.1",
                 int, port, 8555,
-                int, interval, 60)
+                int, interval, 60);
 
             struct __attribute__((packed)) AWDS_Packet {
                 struct constants {

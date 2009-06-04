@@ -50,9 +50,8 @@
 #define GENERATE_STRUCT_PARAMETER_TAIL };
 
 #define CLP_CLASS_START(class_name, desc, option_name, option_desc, pd1, pd2, pd3, pd4, pd5) \
-            class class_name;\
-            typedef boost::details::pool::singleton_default<class_name> class_name##__;\
-            class class_name {\
+            class CLP::config::class_name {\
+                typedef boost::details::pool::singleton_default<class_name> class_name##__;\
                 bool _used;\
                 std::vector<std::string> ips;\
                 boost::program_options::options_description options;\
@@ -109,102 +108,104 @@
                         exit(0);\
                     }\
                 }\
-           };\
-        }\
+           }
+
+#define NAMESPACE(class_name) \
+    namespace CLP { \
+        namespace config { \
+            class class_name; \
+        } \
     }
 
 #define CLP1(class_name, desc, option_name, option_desc, pt1, pv1, pd1) \
-    namespace CLP { \
-        namespace config { \
-            CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, "", "", "", "") \
-            GENERATE_STRUCT_PARAMETER_HEAD \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
-            GENERATE_STRUCT_PARAMETER_TAIL \
-            CLP_CLASS_TRANSFORM_START \
-                param.pv1=pd1;\
-            CLP_CLASS_TRANSFORM_MIDDLE \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
-            CLP_CLASS_TRANSFORM_END(desc)
+    NAMESPACE(class_name) \
+    CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, "", "", "", "") \
+    GENERATE_STRUCT_PARAMETER_HEAD \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
+    GENERATE_STRUCT_PARAMETER_TAIL \
+    CLP_CLASS_TRANSFORM_START \
+        param.pv1=pd1;\
+    CLP_CLASS_TRANSFORM_MIDDLE \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
+    CLP_CLASS_TRANSFORM_END(desc) \
 
 #define CLP2(class_name, desc, option_name, option_desc, pt1, pv1, pd1, pt2, pv2, pd2) \
-    namespace CLP { \
-        namespace config { \
-            CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, "", "", "") \
-            GENERATE_STRUCT_PARAMETER_HEAD \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
-            GENERATE_STRUCT_PARAMETER_TAIL \
-            CLP_CLASS_TRANSFORM_START \
-                    param.pv1=pd1;\
-                    param.pv2=pd2;\
-            CLP_CLASS_TRANSFORM_MIDDLE \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
-            CLP_CLASS_TRANSFORM_END(desc)
+    NAMESPACE(class_name) \
+    CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, "", "", "") \
+    GENERATE_STRUCT_PARAMETER_HEAD \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
+    GENERATE_STRUCT_PARAMETER_TAIL \
+    CLP_CLASS_TRANSFORM_START \
+            param.pv1=pd1;\
+            param.pv2=pd2;\
+    CLP_CLASS_TRANSFORM_MIDDLE \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
+    CLP_CLASS_TRANSFORM_END(desc)
 
 #define CLP3(class_name, desc, option_name, option_desc, pt1, pv1, pd1, pt2, pv2, pd2, pt3, pv3, pd3) \
-    namespace CLP { \
-        namespace config { \
-            CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, pd3, "", "") \
-            GENERATE_STRUCT_PARAMETER_HEAD \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt3, pv3) \
-            GENERATE_STRUCT_PARAMETER_TAIL \
-            CLP_CLASS_TRANSFORM_START \
-                    param.pv1=pd1;\
-                    param.pv2=pd2;\
-                    param.pv3=pd3;\
-            CLP_CLASS_TRANSFORM_MIDDLE \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt3, pv3) \
-            CLP_CLASS_TRANSFORM_END(desc)
+    NAMESPACE(class_name) \
+    CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, pd3, "", "") \
+    GENERATE_STRUCT_PARAMETER_HEAD \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt3, pv3) \
+    GENERATE_STRUCT_PARAMETER_TAIL \
+    CLP_CLASS_TRANSFORM_START \
+            param.pv1=pd1;\
+            param.pv2=pd2;\
+            param.pv3=pd3;\
+    CLP_CLASS_TRANSFORM_MIDDLE \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt3, pv3) \
+    CLP_CLASS_TRANSFORM_END(desc)
 
 #define CLP4(class_name, desc, option_name, option_desc, pt1, pv1, pd1, pt2, pv2, pd2, pt3, pv3, pd3, pt4, pv4, pd4) \
-    namespace CLP { \
-        namespace config { \
-            CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, pd3, pd4, "") \
-            GENERATE_STRUCT_PARAMETER_HEAD \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt3, pv3) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt4, pv4) \
-            GENERATE_STRUCT_PARAMETER_TAIL \
-            CLP_CLASS_TRANSFORM_START \
-                    param.pv1=pd1;\
-                    param.pv2=pd2;\
-                    param.pv3=pd3;\
-                    param.pv4=pd4;\
-            CLP_CLASS_TRANSFORM_MIDDLE \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt3, pv3) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt4, pv4) \
-            CLP_CLASS_TRANSFORM_END(desc)
+    NAMESPACE(class_name) \
+    CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, pd3, pd4, "") \
+    GENERATE_STRUCT_PARAMETER_HEAD \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt3, pv3) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt4, pv4) \
+    GENERATE_STRUCT_PARAMETER_TAIL \
+    CLP_CLASS_TRANSFORM_START \
+            param.pv1=pd1;\
+            param.pv2=pd2;\
+            param.pv3=pd3;\
+            param.pv4=pd4;\
+    CLP_CLASS_TRANSFORM_MIDDLE \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt3, pv3) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt4, pv4) \
+    CLP_CLASS_TRANSFORM_END(desc)
 
 #define CLP5(class_name, desc, option_name, option_desc, pt1, pv1, pd1, pt2, pv2, pd2, pt3, pv3, pd3, pt4, pv4, pd4, pt5, pv5, pd5) \
-    namespace CLP { \
-        namespace config { \
-            CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, pd3, pd4, pd5) \
-            GENERATE_STRUCT_PARAMETER_HEAD \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt3, pv3) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt4, pv4) \
-            GENERATE_STRUCT_PARAMETER_PARAM(pt5, pv5) \
-            GENERATE_STRUCT_PARAMETER_TAIL \
-            CLP_CLASS_TRANSFORM_START \
-                    param.pv1=pd1;\
-                    param.pv2=pd2;\
-                    param.pv3=pd3;\
-                    param.pv4=pd4;\
-                    param.pv5=pd5;\
-            CLP_CLASS_TRANSFORM_MIDDLE \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt3, pv3) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt4, pv4) \
-                    CLP_CLASS_TRANSFORM_OPTION(desc, pt5, pv5) \
-            CLP_CLASS_TRANSFORM_END(desc)
+    NAMESPACE(class_name) \
+    CLP_CLASS_START(class_name,desc,option_name,option_desc, pd1, pd2, pd3, pd4, pd5) \
+    GENERATE_STRUCT_PARAMETER_HEAD \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt1, pv1) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt2, pv2) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt3, pv3) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt4, pv4) \
+    GENERATE_STRUCT_PARAMETER_PARAM(pt5, pv5) \
+    GENERATE_STRUCT_PARAMETER_TAIL \
+    CLP_CLASS_TRANSFORM_START \
+            param.pv1=pd1;\
+            param.pv2=pd2;\
+            param.pv3=pd3;\
+            param.pv4=pd4;\
+            param.pv5=pd5;\
+    CLP_CLASS_TRANSFORM_MIDDLE \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt1, pv1) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt2, pv2) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt3, pv3) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt4, pv4) \
+            CLP_CLASS_TRANSFORM_OPTION(desc, pt5, pv5) \
+    CLP_CLASS_TRANSFORM_END(desc)
+
 #endif
+

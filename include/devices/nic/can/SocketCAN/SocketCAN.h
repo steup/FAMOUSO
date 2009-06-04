@@ -78,11 +78,12 @@ namespace device {
              CLP1(SocketCANOptions,
                 "Socket CAN Driver",
                 "scan,s",
-                "The device that is used"
+                "The device that is used\n"
                 "(e.g. can0 (default))",
-                std::string, device, "can0")
+                std::string, device, "can0");
 
             /*!\file SocketCAN.h
+             *
              * \class SocketCAN
              *
              * \brief The generic driver interface to the SocketCAN hardware.

@@ -87,7 +87,7 @@ namespace device {
                 "               8 =   5 kBit/s\n"
                 "(e.g. /dev/pcan32:2 (default))",
                 std::string, device, "/dev/pcan32",
-                int, baudrate, 2)
+                int, baudrate, 2);
 
             /*! \file PeakCAN.h
              *
