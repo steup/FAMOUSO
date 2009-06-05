@@ -42,11 +42,7 @@
 
 namespace Idler {
 
-    /*!
-     * \file Idler.h
-     *
-     * \brief Let the thread idle e.g. by calling a sleep function
-     */
+    /*! \brief Let the thread idle e.g. by calling a sleep function */
     void idle();
 }
 

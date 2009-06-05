@@ -54,11 +54,7 @@
 namespace famouso {
     namespace mw {
         namespace nl {
-            /*! \file CANNL.h
-             *
-             * \class CANNL
-             *
-             * \brief CAN network layer acts as the interface to the Controller Area Network
+            /*! \brief CAN network layer acts as the interface to the Controller Area Network
              *
              *  The CANNL allows for using the CAN as a Network Layer within the FAMOUSO
              *  middleware. It can use different CAN drivers like SocketCAN, canary from AVR
