@@ -119,7 +119,7 @@ namespace famouso {
                                 _bsi=&bsi;
 
                                 id->prio(0xFD);
-                                id->etag(famouso::mw::nl::CAN::ETAGS::GET_ETAG);
+                                id->etag(famouso::mw::nl::CAN::detail::ETAGS::GET_ETAG);
                                 id->tx_node(tx_node);
                                 canDriver.send(bsi.mob);
 
@@ -139,7 +139,7 @@ namespace famouso {
                              */
                             bool handle_subject_bind_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
                                 IDType *id = &mob.id();
-                                if (id->etag() == famouso::mw::nl::CAN::ETAGS::SUPPLY_ETAG_NEW_BP) {
+                                if (id->etag() == famouso::mw::nl::CAN::detail::ETAGS::SUPPLY_ETAG_NEW_BP) {
                                     if (_bsi){
                                         // index describes which part of the subject is in the message
                                         uint8_t index=mob.data()[1]<<2;

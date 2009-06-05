@@ -50,6 +50,7 @@ namespace famouso {
         namespace nl {
             namespace CAN {
                 namespace ccp {
+                    using namespace famouso::mw::nl::CAN::detail;
 
                     //
                     // damit der Algorithmus ordentlich funktioniert, ist eine
@@ -106,7 +107,7 @@ namespace famouso {
                                     // 0xFD is non-real-time
                                     // \todo RealTimeClasses for the CAN-Bus needs to be defined somewhere
                                     id->prio(0xFD);
-                                    id->etag(famouso::mw::nl::CAN::ETAGS::CCP_SSI);
+                                    id->etag(famouso::mw::nl::CAN::detail::ETAGS::CCP_SSI);
                                     mob.len(8);
                                     // kopieren des uid in die Nachricht um auf ClientSeite die Arbitrierung
                                     // durchfuehren zu koennen.
@@ -140,7 +141,7 @@ namespace famouso {
                             Broker() : ccp_stage(15), uid(0ull) {}
 
                             bool handle_ccp_configure_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
-                                if (mob.id().etag() == famouso::mw::nl::CAN::ETAGS::CCP_RSI) {
+                                if (mob.id().etag() == famouso::mw::nl::CAN::detail::ETAGS::CCP_RSI) {
                                     if (handle_ccp_rsi(mob))
                                         canDriver.send(mob);
                                     return true;

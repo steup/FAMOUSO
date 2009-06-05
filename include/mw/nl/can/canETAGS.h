@@ -44,18 +44,20 @@ namespace famouso {
     namespace mw {
         namespace nl {
             namespace CAN {
+                namespace detail {
 
-                /*! \brief Predefined etags for ccp and etag exchange */
-                namespace ETAGS {
-                    enum {
-                        CCP_SSI  = 0x0,
-                        CCP_RSI,
-                        GET_ETAG,
-                        SUPPLY_ETAG,
-                        SUPPLY_ETAG_NEW_BP
+                    /*! \brief Predefined etags for ccp and etag exchange */
+                    struct ETAGS {
+                        enum {
+                            CCP_SSI  = 0x0,
+                            CCP_RSI,
+                            GET_ETAG,
+                            SUPPLY_ETAG,
+                            SUPPLY_ETAG_NEW_BP
+                        };
                     };
 
-                } /* namespace ETAGS */
+                } /* namespace detail */
             } /* namespace CAN */
         } /* namespace nl */
     } /* namespace mw */

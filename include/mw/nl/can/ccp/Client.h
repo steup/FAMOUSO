@@ -50,6 +50,8 @@ namespace famouso {
         namespace nl {
             namespace CAN {
                 namespace ccp {
+                    using namespace famouso::mw::nl::CAN::detail;
+
                     enum {
                         CCP_RUNNING = 0,    /*!< Configuration is running */
                         CCP_COMPLETE,       /*!< Configuration is complete */
@@ -115,7 +117,7 @@ namespace famouso {
                                     id->ccp_stage(stage);
                                     id->ccp_nibble(uidNibble);
 
-                                    id->etag(famouso::mw::nl::CAN::ETAGS::CCP_RSI);
+                                    id->etag(famouso::mw::nl::CAN::detail::ETAGS::CCP_RSI);
 
                                     msg.len(0);
 
@@ -129,7 +131,7 @@ namespace famouso {
                                         do {
                                             canDriver.receive_blocking(&msg);
                                             // Ist die Nachricht ein Konfigurationsantwort
-                                        } while (id->etag() != famouso::mw::nl::CAN::ETAGS::CCP_SSI);
+                                        } while (id->etag() != famouso::mw::nl::CAN::detail::ETAGS::CCP_SSI);
 
                                         // extrahiere die KnotenID
                                         tx_node = id->tx_node();
