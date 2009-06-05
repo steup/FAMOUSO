@@ -38,7 +38,7 @@
  ******************************************************************************/
 
 #ifndef __CANNL_h__
-#define __CANdNL_h__
+#define __CANNL_h__
 
 #include "case/Delegate.h"
 #include "mw/nl/BaseNL.h"
