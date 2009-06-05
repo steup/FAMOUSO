@@ -48,7 +48,7 @@ namespace famouso {
              *         specific network layer at run-time.
              *
              *          For example this functionality is needed for the
-             *          famouso::mw::nal::NetworkAdatpter and for the
+             *          famouso::mw::nal::NetworkAdapter and for the
              *          realisation of Gateways (famouso::mw::gwl::Gateway).
              */
             class BaseNL {
