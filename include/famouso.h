@@ -43,7 +43,15 @@
 #include "mw/el/EventChannelHandler.h"
 #include "util/CommandLineParameter.h"
 
+#include "config/type_traits/if_contains_type.h"
+#include "config/traits/StaticCreatorTrait.h"
+
+
 namespace famouso {
+    namespace configuration {
+        IF_CONTAINS_TYPE_(ELMS);
+        IF_CONTAINS_TYPE_(GW);
+    }
 
     /*! \brief  The init function of FAMOUSO initialize the Event Channel
      *          Handler, its sub-objects and let all configuration protocols
@@ -53,10 +61,24 @@ namespace famouso {
     inline void init() {
         famouso::mw::el::EventChannelHandler<typename T::EL>::create();
         famouso::mw::el::EventChannelHandler<typename T::EL>::init();
+
+        // dependent initialization, if the event layer middleware stub is configured
+        configuration::if_contains_type_ELMS<T>::template ThenElse<StaticCreatorTrait>::process();
+
+        // dependent initialization, if a gatway is configured
+
+        /*! \todo allow initialization of a GW only in case of more then one
+         *        network layer available. This can be determind with the help
+         *        of a configured NetworkAdapter. Is this type is missing in
+         *        general non Gateway may exist.
+         */
+        configuration::if_contains_type_GW<T>::template ThenElse<StaticCreatorTrait>::process();
     }
 
     template<class T>
     inline void init(int argc, char** argv) {
+        // first, parse command line parameter before any famouso middleware
+        // component will be initalized.
         famouso::util::clp(argc,argv);
         init<T>();
     }

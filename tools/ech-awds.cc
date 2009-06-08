@@ -37,8 +37,6 @@
  *
  ******************************************************************************/
 
-#include <iostream>
-
 // AWDSNL specific
 #include "mw/nl/AWDSNL.h"
 
@@ -48,11 +46,8 @@
 #include "mw/el/EventLayerMiddlewareStub.h"
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
-#include "mw/common/Event.h"
 
-#include "famouso.h"
-
-#include "util/Idler.h"
+#include "config/generator/description.h"
 
 namespace famouso {
 
@@ -67,31 +62,21 @@ namespace famouso {
 
                 typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
                 typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
+
+                DESCRIPTION("Project: FAMOUSO\n"
+                            "local Event Channel Handler with an AWDS network layer\n\n"
+                            "Author: Michael Schulze\n"
+                            "Revision: $Rev$\n"
+                            "$Date$\n"
+                            "last changed by $Author$\n\n"
+                            "build Time: "__TIME__"\n"
+                            "build Date: "__DATE__"\n\n");
+
         };
     }
 
     typedef AWDS::config config;
 }
 
-int main(int argc, char **argv) {
-    std::cout << "Project: FAMOUSO" << std::endl;
-    std::cout << "local Event Channel Handler" << std::endl << std::endl;
-    std::cout << "Author: Michael Schulze" << std::endl;
-    std::cout << "Revision: $Rev$" << std::endl;
-    std::cout << "$Date$" << std::endl;
-    std::cout << "last changed by $Author$" << std::endl << std::endl;
-    std::cout << "build Time: " << __TIME__ << std::endl;
-    std::cout << "build Date: " << __DATE__ << std::endl << std::endl;
-
-    try {
-        famouso::init<famouso::config>(argc, argv);
-        famouso::config::ELMS localELMS;
-        std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
-        Idler::idle();
-        std::cout << "FAMOUSO -- successfully finished" << std::endl;
-    } catch (const char *e) {
-        std::cerr << "Exception: " << e << std::endl;
-    }
-    return 0;
-}
+#include "generic-main.impl"
 

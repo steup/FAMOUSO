@@ -37,58 +37,31 @@
  *
  ******************************************************************************/
 
-// AWDSNL specific
-#include "mw/nl/AWDSNL.h"
+#include <iostream>
 
-// UDPBroadCastNL specific
-#include "mw/nl/UDPMultiCastNL.h"
+#include "config/type_traits/if_contains_type.h"
+IF_CONTAINS_TYPE_(Description);
 
-// common famouso middlware includes
-#include "mw/anl/AbstractNetworkLayer.h"
-#include "mw/nal/NetworkAdapter.h"
-#include "mw/gwl/Gateway.h"
-#include "mw/el/EventLayer.h"
-#include "mw/el/EventLayerMiddlewareStub.h"
-#include "mw/api/PublisherEventChannel.h"
-#include "mw/api/SubscriberEventChannel.h"
+#include "config/traits/OutputDescriptionTrait.h"
 
-#include "config/generator/description.h"
-namespace famouso {
+#include "famouso.h"
 
-    namespace GW_AWDS_UDPMC {
-        class config {
-                typedef famouso::mw::nl::AWDSNL nlAWDS;
-                typedef famouso::mw::anl::AbstractNetworkLayer< nlAWDS > anlAWDS;
+#include "util/Idler.h"
 
-                typedef famouso::mw::nl::UDPMultiCastNL nlUDP;
-                typedef famouso::mw::anl::AbstractNetworkLayer< nlUDP > anlUDP;
+int main(int argc, char **argv) {
+    // if the config contains a Description then print it out
+    if_contains_type_Description<famouso::config>::ThenElse<OutputDescriptionTrait>::process();
 
-                typedef famouso::mw::nal::NetworkAdapter< anlAWDS, anlUDP > na;
-
-            public:
-                typedef famouso::mw::el::EventLayer< na > EL;
-
-                typedef famouso::mw::gwl::Gateway<EL> GW;
-                typedef famouso::mw::el::EventLayerMiddlewareStub< EL > ELMS;
-
-                typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
-                typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
-
-                DESCRIPTION("Project: FAMOUSO\n"
-                            "local Event Channel Handler with a configured gateway,\n"
-                            "that connects an AWDS network with an UDP-Mutlicast network.\n\n"
-                            "Author: Michael Schulze\n"
-                            "Revision: $Rev$\n"
-                            "$Date$\n"
-                            "last changed by $Author$\n\n"
-                            "build Time: "__TIME__"\n"
-                            "build Date: "__DATE__"\n\n");
-
-        };
+    try {
+        famouso::init<famouso::config>(argc,argv);
+        std::cout << "FAMOUSO -- Initalisation successfull" << std::endl << std::endl;
+        Idler::idle();
+        std::cout << "FAMOUSO -- successfully finished" << std::endl;
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    } catch (const char *c) {
+        std::cerr << "Exception: " << c << std::endl;
     }
-
-    typedef GW_AWDS_UDPMC::config config;
+    return 0;
 }
-
-#include "generic-main.impl"
 
