@@ -106,7 +106,6 @@ namespace famouso {
                      *         instanciating objects.
                      */
                     EventChannel(const Subject& s) : _subj(s) {
-                        DEBUG(("%s ECH-ADDR=%p\n", __PRETTY_FUNCTION__, &_ech));
                     }
 
             };

@@ -92,7 +92,7 @@ namespace famouso {
                     void init(const NodeID &i) {
                         // hier muss das CAN Configuration Protokoll durchlaufen werden.
                         // vorher darf man aus dieser Funktion nicht zurueck kommen
-                        DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
+//                        DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
                         driver.init();
                         tx_node = ccp.ccp_configure_tx_node(UID("Schulze\0"), driver);
                         famouso::util::Delegate<> dg;

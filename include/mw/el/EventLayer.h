@@ -172,7 +172,7 @@ namespace famouso {
                         // traverse the list and call the respective subscriber notify callback
                         // in case subject matching
                         while (sec) {
-                            DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value, ec.subject().value));
+//                            DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value, ec.subject().value));
                             if (sec->subject() == ec.subject())
                                 sec->callback(e);
                             sec = static_cast<ec_t*>(sec->select());
