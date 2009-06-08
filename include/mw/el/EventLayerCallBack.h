@@ -38,7 +38,7 @@
  ******************************************************************************/
 
 #ifndef __EventLayerCallBack_h__
-#define __EventLayerCallback_h__
+#define __EventLayerCallBack_h__
 
 #include "mw/nl/BaseNL.h"
 #include "case/Delegate.h"

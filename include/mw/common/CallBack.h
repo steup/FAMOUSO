@@ -38,7 +38,7 @@
  ******************************************************************************/
 
 #ifndef __CallBack_h__
-#define __Callback_h__
+#define __CallBack_h__
 
 #include "mw/common/Event.h"
 #include "mw/nl/BaseNL.h"
