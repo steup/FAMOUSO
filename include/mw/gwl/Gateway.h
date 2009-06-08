@@ -74,15 +74,9 @@ namespace famouso {
 
                     /*! \brief Initalizes the the gateway and activates a subscription channel.
                      */
-                    Gateway() : famouso::mw::api::SubscriberEventChannel< ECH > (famouso::mw::Subject("SUBSCRIBE")) {}
-
-                    void start() {
+                    Gateway() : famouso::mw::api::SubscriberEventChannel< ECH > (famouso::mw::Subject("SUBSCRIBE")) {
                         this->subscribe();
                         this->callback.template bind<Gateway, &Gateway::subscribe_from_network>(this);
-                    }
-
-                    void stop() {
-                        this->unsubscribe();
                     }
 
                 private:
@@ -96,7 +90,7 @@ namespace famouso {
                             } else {
                                 uint32_t ii = 0;
                                 while (ii < gecs.size()) {
-                                    // todo base network noch ueberpruefen
+                                    /*! todo base network has to be checked */
                                     if (gecs[ii]->subject() == famouso::mw::Subject(cbd.data)) {
                                         std::cout << "forward channel exits" << std::endl;
                                         return;

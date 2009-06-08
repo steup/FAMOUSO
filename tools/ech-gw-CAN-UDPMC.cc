@@ -71,10 +71,9 @@
 namespace famouso {
 
     namespace GW_CAN_UDPMC {
-        const char *dev = "/dev/pcan32";
         class config {
             protected:
-                typedef device::nic::CAN::PeakCAN<dev, 0x011c> can;
+                typedef device::nic::CAN::PeakCAN can;
                 typedef famouso::mw::nl::CAN::ccp::Broker<can> ccpBroker;
                 typedef famouso::mw::nl::CAN::etagBP::Broker<can> etagBroker;
                 typedef famouso::mw::nl::CANNL<can, ccpBroker, etagBroker> nlCAN;
@@ -97,12 +96,12 @@ namespace famouso {
     template <class config>
     class Configurator : public config {
             typedef typename config::ELMS   localELMS;
-            typename config::GW     GW;
+            typedef typename config::GW     GW;
         public:
             Configurator() {
                 famouso::init<config>();
                 static localELMS elms;
-                GW.start();
+                static GW gw;
             }
     };
 
