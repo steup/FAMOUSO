@@ -133,7 +133,7 @@ namespace device {
                             uint8_t& data(uint8_t i) {
                                 return DATA[i];
                             }
-
+                            explicit MOB() {ID=0;}
                     };
 
                     explicit PeakCAN() : sbb(1000) {

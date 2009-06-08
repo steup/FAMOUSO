@@ -121,7 +121,7 @@ namespace device {
                             uint8_t &data(uint8_t i) {
                                 return can_frame::data[i];
                             }
-
+                            explicit MOB() {can_id=0;}
                     };
 
                     explicit SocketCAN() : _can_socket(0), sbb(1000), ints_allowed(false) {
