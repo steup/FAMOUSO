@@ -52,12 +52,12 @@ namespace famouso {
              *          an configured famouso::mw::el::EventLayer
              */
             template < class EL >
-            class EventChannelHandler {
+            class EventChannelHandler : public EL {
 
                     /*! \brief placement new operator to allow a constructor call
                      *         on pre-allocated memory
                      */
-                    static void* operator new(size_t, void* __p) {
+                    void* operator new(size_t, void* __p) {
                         return __p;
                     }
 
@@ -76,7 +76,7 @@ namespace famouso {
                     static void create() {
                         // late/defered Constructor call on pre-allocated memory
                         // using the placement new of C++
-                        new(&ech()) EL;
+                        new(&ech()) EventChannelHandler;
                     }
 
                     /*! \brief  initialize the middleware core by calling the
