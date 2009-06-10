@@ -39,8 +39,6 @@
 #ifndef __contains_type_h__
 #define __contains_type_h__
 
-#include "boost/mpl/bool.hpp"
-
 /*! \brief the CONTAINS_TYPE_(NAME) macro generates a compile time testing
  *         class, that allows for checking whether a type is defined within a
  *         type/class like a configuration description.
@@ -101,8 +99,6 @@ class contains_type_##NAME {                                                \
                                    sizeof(Tester::Test(static_cast<V*>(0))) \
                                   );                                        \
                                                                             \
-        /* allow further processing wiht boost::mpl algorithms    */        \
-        typedef boost::mpl::bool_<value> type;                              \
 }
 
 #endif
