@@ -43,7 +43,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <boost/tokenizer.hpp>
-#include "util/CommandLineParameter.h"
+#include "util/CommandLineParameterProvider.h"
 
 #define GENERATE_STRUCT_PARAMETER_HEAD struct Parameter {
 #define GENERATE_STRUCT_PARAMETER_PARAM(TYPE, VARIABLE) TYPE VARIABLE;

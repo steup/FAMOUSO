@@ -46,5 +46,6 @@
 SOURCES  += \
 src/mw/nl/UDPMultiCastNL.cc \
 src/util/ios.cc \
-src/util/Idler.cc
+src/util/Idler.cc \
+src/util/CommandLineParameter.cc
 

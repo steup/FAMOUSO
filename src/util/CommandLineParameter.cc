@@ -37,27 +37,32 @@
  *
  ******************************************************************************/
 
-#ifndef __CommandLineParameter_h__
-#define __CommandLineParameter_h__
+#include "util/CommandLineParameter.h"
+#include "util/CommandLineParameterProvider.h"
+
+#include <iostream>
 
 namespace famouso {
 
     namespace util {
 
-        /*! \brief The famouso::util::clp function is the interface to the
-         *         command line parameter framework. This function is called
-         *         within the famouso::init(int argc, char **argv) method in
-         *         order to parse the given parameter and deploy it to the
-         *         respective components.
-         *
-         *  \param[in] ac is the number of parameters given
-         *
-         *  \param[in] av is an array of char* containing at each entry a
-         *             parameter and the array is parsed
-         */
-        void clp(int ac, char **av);
+        void clp(int ac, char **av) {
+            // define a generic option set and add it to the global instance
+            boost::program_options::options_description generic("Generic options");
+            generic.add_options()
+                ("help,h", "produce help message");
+            cmdline_options::instance().add(generic);
 
+            // parse the options and store it in the respective parameter map
+            boost::program_options::store(boost::program_options::parse_command_line(ac, av, cmdline_options::instance()), vm::instance());
+            boost::program_options::notify(vm::instance());
+
+            // if the help parameter is given. Print the help and exit
+            if (vm::instance().count("help")) {
+                std::cout << cmdline_options::instance() << "\n";
+                exit(0);
+            }
+        }
     }
 }
 
-#endif

@@ -37,25 +37,42 @@
  *
  ******************************************************************************/
 
-#ifndef __CommandLineParameter_h__
-#define __CommandLineParameter_h__
+#ifndef __CommandLineParameterProvider_h__
+#define __CommandLineParameterProvider_h__
+
+#include <boost/pool/detail/singleton.hpp>
+#include <boost/program_options.hpp>
 
 namespace famouso {
 
     namespace util {
 
-        /*! \brief The famouso::util::clp function is the interface to the
-         *         command line parameter framework. This function is called
-         *         within the famouso::init(int argc, char **argv) method in
-         *         order to parse the given parameter and deploy it to the
-         *         respective components.
-         *
-         *  \param[in] ac is the number of parameters given
-         *
-         *  \param[in] av is an array of char* containing at each entry a
-         *             parameter and the array is parsed
+        /*! \brief This is option_description type.
          */
-        void clp(int ac, char **av);
+        typedef boost::program_options::options_description CommandLineParameter_type;
+
+        /*! \brief The cmdline_option is a singleton providing
+         *         the interface to the command line parameter
+         *         framework. It is used to put new options into
+         *         the general description enabling to add options
+         *         from different components in a coherent way.
+         *         All components use this to summarize the options
+         *         in one place
+         */
+        typedef boost::details::pool::singleton_default<CommandLineParameter_type> cmdline_options;
+
+
+        /*! \brief This type describes the map, where the command
+         *         line parameter are parsed into.
+         */
+        typedef boost::program_options::variables_map vm_type;
+
+        /*! \brief The vm is the interface to the parsed command line
+         *         parameters. It is realized as a singleton allowing access
+         *         from different places/components always to the same instance
+         *         of the parsed parameter.
+         */
+        typedef boost::details::pool::singleton_default<vm_type> vm;
 
     }
 }
