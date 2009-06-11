@@ -267,25 +267,26 @@ int main() {
             data[2] = 0;
             fahr_nich = true;
 
-		if (  (RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 75)) {
-            if (!fahr_nich) drive(LEFT);
-            delay = 0;
-            if (leftTicks == 0)
-                data[1] = 0;
-            else {
-                data[1] = 256 - leftTicks;
+            if (  (RealSensorFront > DISTANCE_LIMIT) || (RealSensorRight > DISTANCE_LIMIT) || (VirtualSensor < 75)) {
+                if (!fahr_nich) drive(LEFT);
+                delay = 0;
+                if (leftTicks == 0)
+                    data[1] = 0;
+                else {
+                    data[1] = 256 - leftTicks;
+                }
+                data[2] = rightTicks;
+            } else {
+                if (!fahr_nich) drive(STRAIGHT);
+                data[1] = leftTicks;
+                data[2] = rightTicks;
             }
-            data[2] = rightTicks;
-        } else {
-            if (!fahr_nich) drive(STRAIGHT);
-            data[1] = leftTicks;
-            data[2] = rightTicks;
-        }
 
 //  sprintf(output,"B %c %c %c B\n\r",data[1],data[2],RealSensorFront);
-        sprintf(output, "B %i %i %i\n\r", data[1], data[2], 255);
-        usart0_transmit_string(output);
+            sprintf(output, "B %i %i %i\n\r", data[1], data[2], 255);
+            usart0_transmit_string(output);
 
-        wait_ms(50);
+            wait_ms(50);
+        }
     }
 }
