@@ -48,14 +48,35 @@
 
 
 namespace famouso {
+
+    /*!\brief The namespace configuration contains all additional generated
+     *        tester and selector classes that are needed for the automatic
+     *        %configuration process. It is used for storing all relevant
+     *        entities in one place to bar namespace clashes.
+     */
     namespace configuration {
+        /*! \brief This macro generates a compile time tester and selector class
+         *         for checking if ELMS (famouso::mw::el::EventLayerMiddlewareStub)
+         *         is a subtype of a class/%configuration. This feasibility is used
+         *         for %configuration decisions during the %configuration process of
+         *         the middleware.
+         */
         IF_CONTAINS_TYPE_(ELMS);
+
+        /*! \brief This macro generates a compile time tester and selector
+         *         class for checking if GW (famouso::mw::gwl::Gateway) is a
+         *         subtype of a class/%configuration. This feasibility is used
+         *         for %configuration decisions during the %configuration process
+         *         of the middleware.
+         */
         IF_CONTAINS_TYPE_(GW);
     }
 
-    /*! \brief  The init function of FAMOUSO initialize the Event Channel
-     *          Handler, its sub-objects and let all configuration protocols
+    /*! \brief  The init function of %FAMOUSO initialize the Event Channel
+     *          Handler, its sub-objects and let all %configuration protocols
      *          run.
+     *
+     *  \tparam T contains a %FAMOUSO %configuration description.
      */
     template <class T>
     inline void init() {
@@ -66,7 +87,6 @@ namespace famouso {
         configuration::if_contains_type_ELMS<T>::template ThenElse<StaticCreatorTrait>::process();
 
         // dependent initialization, if a gatway is configured
-
         /*! \todo allow initialization of a GW only in case of more then one
          *        network layer available. This can be determind with the help
          *        of a configured NetworkAdapter. Is this type is missing in
@@ -75,7 +95,13 @@ namespace famouso {
         configuration::if_contains_type_GW<T>::template ThenElse<StaticCreatorTrait>::process();
     }
 
-    template<class T>
+    /*! \brief  The init function of %FAMOUSO with support for command line parameter
+     *          detection and evaluation. After that, it calls the standard famouso::init()
+     *          function to initialize the middleware as usual.
+     *
+     *  \tparam T contains a %FAMOUSO %configuration description.
+     */
+    template <class T>
     inline void init(int argc, char** argv) {
         // first, parse command line parameter before any famouso middleware
         // component will be initalized.
