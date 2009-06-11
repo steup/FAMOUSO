@@ -89,8 +89,8 @@ if ~isempty(data)
 end
 if ~isempty(id)
     aux=sortrows(data(id,:),1);
-    dist=aux(1,2); 
-end 
+    dist=aux(1,2);
+end
 v=[70 70 robot];
 if dist<20
     v=[-20 20 robot];

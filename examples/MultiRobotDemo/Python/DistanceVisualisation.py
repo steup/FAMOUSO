@@ -117,7 +117,7 @@ class LoopThread(Thread):
 ## Callback Klasse
 
 class CallBack:
-	
+
     def LogCallback(self, myEvent):
         global old
         if len(myEvent.content)==4:

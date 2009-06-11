@@ -157,7 +157,7 @@ function start_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 Application()
 
-% 
+%
 % --- Executes on button press in stop.
 function stop_Callback(hObject, eventdata, handles)
 % hObject    handle to stop (see GCBO)

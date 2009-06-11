@@ -37,7 +37,7 @@
 ##
 ################################################################################
 
-# include additional paths 
+# include additional paths
 import sys, os
 if sys.platform == 'win32':
     sys.path.append('..\\..\\..\\Bindings\\Python')
@@ -81,7 +81,7 @@ def Crashed_CallBack(myEvent):
     print "Crash !!"
     output=struct.pack('BBBBBB',65,0,0,1,0,0)
     ser.write(output)
-        
+
 def HumanDetCallBack(myEvent):
     [ID, human]=struct.unpack('BB',myEvent.content)
     if int(human)==1:
@@ -91,7 +91,7 @@ def HumanDetCallBack(myEvent):
         output=struct.pack('BBBBBB',65,0,2,0,0,0)
         print "Emergency situation terminated !!!"
     ser.write(output)
-    
+
 
 def sig_handler(signum, frame):
         DistanceSub.unsubscribe()

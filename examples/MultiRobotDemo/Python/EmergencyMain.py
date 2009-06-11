@@ -37,7 +37,7 @@
 ##
 ################################################################################
 
-# include additional paths 
+# include additional paths
 import sys, os
 if sys.platform == 'win32':
 	sys.path.append('..\\..\\..\\Bindings\\Python')
@@ -75,16 +75,16 @@ class LoggerCallback:
         if str(myEvent.content[1])=="\0":
 		print "No Emergency situation"
 		dialog.EmgergencySituation=False
-		dialog.labelOutput.setText("Alles ok!")  		
+		dialog.labelOutput.setText("Alles ok!")
 	else:
 		print "Emergency situation !!!"
 		dialog.EmgergencySituation=True
-		dialog.labelOutput.setText("STOP !!!")  
+		dialog.labelOutput.setText("STOP !!!")
 
-class EmergencyDialog(QtGui.QDialog, Dlg): 
-    
-    def __init__(self): 
-        QtGui.QDialog.__init__(self) 
+class EmergencyDialog(QtGui.QDialog, Dlg):
+
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.EmergencySituation=False
         self.connect(self.pushButtonQuit, QtCore.SIGNAL("clicked()"), self.onQuit)
@@ -93,35 +93,35 @@ class EmergencyDialog(QtGui.QDialog, Dlg):
         self.subject = "48756D616E446574"
 	self.pub = publisher.PublisherEventChannel(self.subject)
 	self.pub.announce(self.subject)
-	
-    def onQuit(self): 
-        print "Aus Maus" 
+
+    def onQuit(self):
+        print "Aus Maus"
         LogSubscriber.unsubscribe()
 	e=event.Event(self.subject,str('\0\0B'))
         self.pub.publish(e)
         self.pub.close()
         self.close()
-        
+
     def onTerminate(self):
-	self.labelOutput.setText("Alles ok!") 
+	self.labelOutput.setText("Alles ok!")
 	self.EmergencySituation=False
 	e=event.Event(self.subject,str('\0\0B'))
 	self.pub.publish(e)
-        
-    def onEmergency(self): 
+
+    def onEmergency(self):
         if  self.EmergencySituation==True:
-            print "Emergency detected already !" 
+            print "Emergency detected already !"
         if  self.EmergencySituation==False:
-            print "Emergency situation !" 
-            self.labelOutput.setText("STOP !!!")     
-            self.EmergencySituation=True 
-	    e=event.Event(self.subject,str('\0\1B'))	    
+            print "Emergency situation !"
+            self.labelOutput.setText("STOP !!!")
+            self.EmergencySituation=True
+	    e=event.Event(self.subject,str('\0\1B'))
 	    self.pub.publish(e)
 
 # Main
-app = QtGui.QApplication(sys.argv) 
-dialog = EmergencyDialog() 
-dialog.show() 
+app = QtGui.QApplication(sys.argv)
+dialog = EmergencyDialog()
+dialog.show()
 
 subject = "48756D616E446574"
 myCallbackObj = LoggerCallback()
@@ -131,4 +131,3 @@ newLoopThread = LoopThread()
 newLoopThread.start()
 
 sys.exit(app.exec_())
-
