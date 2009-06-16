@@ -109,14 +109,17 @@ class if_contains_type_##NAME {                                             \
                  typename ElsePolicy>                                       \
         struct PolicySelect_##NAME {                                        \
             static inline R do_it() {                                       \
-                return ElsePolicy::template process<T, NAME>();             \
+                return ElsePolicy::template process<T, NAME, R>();          \
             }                                                               \
         };                                                                  \
                                                                             \
         template<typename ThenPolicy, typename ElsePolicy>                  \
         struct PolicySelect_##NAME<true, ThenPolicy, ElsePolicy> {          \
             static inline R do_it() {                                       \
-                return ThenPolicy::template process<T, typename T::NAME>(); \
+                return ThenPolicy::template process<T,                      \
+                                                    typename T::NAME,       \
+                                                    R                       \
+                                                    >();                    \
             }                                                               \
         };                                                                  \
                                                                             \
@@ -126,14 +129,14 @@ class if_contains_type_##NAME {                                             \
                                                                             \
         /* processes dependent on the value the respective template     */  \
         /* which leads to generating code                               */  \
-        template <template <typename> class ThenPolicy,                     \
-                  template <typename> class ElsePolicy=EmptyPolicy >        \
+        template <typename ThenPolicy,                                      \
+                  typename ElsePolicy=EmptyPolicy >                         \
         struct ThenElse {                                                   \
             static inline R process() {                                     \
                 return PolicySelect_##NAME<                                 \
                             value,                                          \
-                            ThenPolicy<R>,                                  \
-                            ElsePolicy<R>                                   \
+                            ThenPolicy,                                     \
+                            ElsePolicy                                      \
                        >::do_it();                                          \
             }                                                               \
         };                                                                  \

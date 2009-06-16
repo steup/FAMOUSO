@@ -51,27 +51,23 @@
  *         However, it should be noted, that the destructor may not set back
  *         all things.
  *
- *  \tparam R is the return value of the static process method and its
- *          default is \c void
- *
  */
-template <typename R=void>
 struct LocalCreatorPolicy {
     /*! \brief The method is provided for calling within the context of a
      *         selector template. As the name of the policy class describes it
      *         creates a local %object that is also destructed if the method is
      *         left.
      *
-     *  \tparam R is the return value of the static process method and its
-     *          default is \c void
      *  \tparam T is a type normally a configuration type/class
      *  \tparam SubType is a type and you can instantiate an
      *          object of it. If the policy is used in the context of
      *          IF_CONTAINS_TYPE_(NAME) it is guaranteed, that SubType is the
      *          requested type.
+     *  \tparam R is the return value of the static process method and its
+     *          default is \c void
      *
      */
-    template< typename T, typename SubType>
+    template< typename T, typename SubType, typename R>
     static __attribute__((always_inline)) R process() {
         // here we give an additional attribute to still the compiler,
         // because we only want to create an %object and call its

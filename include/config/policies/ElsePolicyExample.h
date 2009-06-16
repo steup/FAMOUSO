@@ -50,11 +50,7 @@
  *         the compile time switch, although the ThenPolicy as well as the
  *         ElsePolicy have the same interface.
  *
- *  \tparam R is the return value of the static process method and its
- *          default is \c void
- *
  */
-template <typename R=void>
 struct ElsePolicyExample {
     /*! \brief The method is provided for calling within the context of a
      *         selector template. As the name of the policy class describes this
@@ -63,16 +59,16 @@ struct ElsePolicyExample {
      *         be used as starting point for developing own user-specific
      *         ElsePolicies.
      *
-     *  \tparam R is the return value of the static process method and its
-     *          default is \c void
      *  \tparam T is a type normally a configuration type/class
      *  \tparam SubTypeNotDefined is a type and you can not instantiate an
      *          object of it. Trying instantiation, leads to a compile time
      *          error if the policy is used in the context of
      *          IF_CONTAINS_TYPE_(NAME)
+     *  \tparam R is the return value of the static process method and its
+     *          default is \c void
      *
      */
-    template< typename T, typename SubTypeNotDefined>
+    template< typename T, typename SubTypeNotDefined, typename R>
     static __attribute__((always_inline)) R process() {
         std::cout << __PRETTY_FUNCTION__  << std::endl;
         return R();

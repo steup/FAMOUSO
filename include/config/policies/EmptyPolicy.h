@@ -49,25 +49,21 @@
  *         itself, but in case of completely inlining (as the attribute
  *         enforces) it is quite compiled away.
  *
- *  \tparam R is the return value of the static process method and its
- *          default is \c void
- *
  */
-template <typename R=void>
 struct EmptyPolicy {
     /*! \brief The method is provided for calling within the context of a
      *         selector template. As the name of the policy class describes this
      *         needs to be empty.
      *
-     *  \tparam R is the return value of the static process method and its
-     *          default is \c void
      *  \tparam T is a type normally a configuration type/class
      *  \tparam NoSubType is a type and you can not instantiate an object of
      *          it. Trying instantiation, leads to a compile time error if the
      *          policy is used in the context of IF_CONTAINS_TYPE_(NAME)
+     *  \tparam R is the return value of the static process method and its
+     *          default is \c void
      *
      */
-    template< typename T, typename NoSubType>
+    template< typename T, typename NoSubType, typename R>
     static __attribute__((always_inline)) R process() {
         return R();
     }

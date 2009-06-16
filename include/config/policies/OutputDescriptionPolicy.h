@@ -45,22 +45,21 @@
 /*! \brief OutputDescriptionPolicy prints the description of
  *         the configuration if such a description exists.
  */
-template <typename R=void>
 struct OutputDescriptionPolicy {
     /*! \brief The method is provided for calling within the context of a
      *         selector template. As the name of the policy class describes this
      *         is intended to be called for a subtype with containing the description.
      *
-     *  \tparam R is the return value of the static process method and its
-     *          default is \c void
      *  \tparam T is a type normally a configuration type/class
      *  \tparam SubType is the type and you can call the desc method
      *          that gives you a const char* const pointer to the
      *          description. If the policy is used in the context of
      *          IF_CONTAINS_TYPE_(NAME) it is guaranteed, that SubType
      *          is the requested type.
+     *  \tparam R is the return value of the static process method and its
+     *          default is \c void
      */
-    template< typename T, typename SubType>
+    template< typename T, typename SubType, typename R>
     static __attribute__((always_inline)) R process() {
         std::cout << SubType::desc() << std::endl;
         return R();
