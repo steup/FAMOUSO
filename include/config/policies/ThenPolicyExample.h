@@ -57,11 +57,11 @@
 template <typename R=void>
 struct ThenPolicyExample {
     /*! \brief The method is provided for calling within the context of a
-     *         selector template. As the name of the policys class describe this
+     *         selector template. As the name of the policy class describes this
      *         is intended to be called within the then clause of the selector
      *         policy. This example outputs the function signature and it can
      *         be used as starting point for developing own user-specific
-     *         ThenPolicys.
+     *         ThenPolicies.
      *
      *  \tparam R is the return value of the static process method and its
      *          default is \c void

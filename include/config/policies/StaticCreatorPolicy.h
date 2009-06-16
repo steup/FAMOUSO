@@ -55,7 +55,7 @@
 template <typename R=void>
 struct StaticCreatorPolicy {
     /*! \brief The method is provided for calling within the context of a
-     *         selector template. As the name of the policys class describe it
+     *         selector template. As the name of the policy class describes it
      *         creates a static %object that is not destructed if the method is
      *         left.
      *

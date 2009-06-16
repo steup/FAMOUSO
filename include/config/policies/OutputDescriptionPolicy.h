@@ -48,7 +48,7 @@
 template <typename R=void>
 struct OutputDescriptionPolicy {
     /*! \brief The method is provided for calling within the context of a
-     *         selector template. As the name of the policys class describe this
+     *         selector template. As the name of the policy class describes this
      *         is intended to be called for a subtype with containing the description.
      *
      *  \tparam R is the return value of the static process method and its

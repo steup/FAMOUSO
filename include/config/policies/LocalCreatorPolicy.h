@@ -58,7 +58,7 @@
 template <typename R=void>
 struct LocalCreatorPolicy {
     /*! \brief The method is provided for calling within the context of a
-     *         selector template. As the name of the policys class describe it
+     *         selector template. As the name of the policy class describes it
      *         creates a local %object that is also destructed if the method is
      *         left.
      *

@@ -56,7 +56,7 @@
 template <typename R=void>
 struct EmptyPolicy {
     /*! \brief The method is provided for calling within the context of a
-     *         selector template. As the name of the policys class describe this
+     *         selector template. As the name of the policy class describes this
      *         needs to be empty.
      *
      *  \tparam R is the return value of the static process method and its
