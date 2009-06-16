@@ -37,35 +37,45 @@
  *
  ******************************************************************************/
 
-#ifndef __OutputDescriptionTrait_h__
-#define __OutputDescriptionTrait_h__
+#ifndef __StaticCreatorPolicy_h__
+#define __StaticCreatorPolicy_h__
 
-#include <iostream>
-
-/*! \brief OutputDescriptionTrait prints the description of
- *         the configuration if such a description exists.
+/*! \brief StaticCreatorPolicy is a policy template for the compile time selection
+ *         utility IF_CONTAINS_TYPE_(NAME).
+ *
+ *         It is intended for the use within the then clause, because it
+ *         creates/construtes a static %object of the requested type.  This
+ *         creator can be used for things, that only needs to be constructed
+ *         and the reset of the functionality works then out of the box.
+ *
+ *  \tparam R is the return value of the static process method and its
+ *          default is \c void
+ *
  */
 template <typename R=void>
-struct OutputDescriptionTrait {
+struct StaticCreatorPolicy {
     /*! \brief The method is provided for calling within the context of a
-     *         selector template. As the name of the traits class describe this
-     *         is intended to be called for a subtype with containing the description.
+     *         selector template. As the name of the policys class describe it
+     *         creates a static %object that is not destructed if the method is
+     *         left.
      *
      *  \tparam R is the return value of the static process method and its
      *          default is \c void
      *  \tparam T is a type normally a configuration type/class
-     *  \tparam SubType is the type and you can call the desc method
-     *          that gives you a const char* const pointer to the
-     *          description. If the trait is used in the context of
-     *          IF_CONTAINS_TYPE_(NAME) it is guaranteed, that SubType
-     *          is the requested type.
+     *  \tparam SubType is a type and you can instantiate an
+     *          object of it. If the policy is used in the context of
+     *          IF_CONTAINS_TYPE_(NAME) it is guaranteed, that SubType is the
+     *          requested type.
+     *
      */
     template< typename T, typename SubType>
     static __attribute__((always_inline)) R process() {
-        std::cout << SubType::desc() << std::endl;
+        // here we give an additional attribute to still the compiler,
+        // because we only want to create a static %object and call its
+        // constructor
+        static SubType _t __attribute__((unused));
         return R();
     }
 };
-
 #endif
 

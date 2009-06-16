@@ -37,42 +37,42 @@
  *
  ******************************************************************************/
 
-#ifndef __ElseTraitExample_h__
-#define __ElseTraitExample_h__
+#ifndef __ThenPolicyExample_h__
+#define __ThenPolicyExample_h__
 
 #include <iostream>
 
-/*! \brief ElseTraitExample is a trait template for the compile time selection
+/*! \brief ThenPolicyExample is a policy template for the compile time selection
  *         utility IF_CONTAINS_TYPE_(NAME).
  *
- *         It is an example on how to write such a trait, that can be used in
- *         the metioned context. It is intended to be used for the else path of
- *         the compile time switch, although the ThenTrait as well as the
- *         ElseTrait have the same interface.
+ *         It is an example on how to write such a policy, that can be used in
+ *         the metioned context. It is intended to be used for the then path of
+ *         the compile time switch, although the ThenPolicy as well as the
+ *         ElsePolicy have the same interface.
  *
  *  \tparam R is the return value of the static process method and its
  *          default is \c void
  *
  */
 template <typename R=void>
-struct ElseTraitExample {
+struct ThenPolicyExample {
     /*! \brief The method is provided for calling within the context of a
-     *         selector template. As the name of the traits class describe this
-     *         is intended to be called within the else clause of the selector
-     *         trait. This example outputs the function signature and it can
+     *         selector template. As the name of the policys class describe this
+     *         is intended to be called within the then clause of the selector
+     *         policy. This example outputs the function signature and it can
      *         be used as starting point for developing own user-specific
-     *         ElseTraits.
+     *         ThenPolicys.
      *
      *  \tparam R is the return value of the static process method and its
      *          default is \c void
      *  \tparam T is a type normally a configuration type/class
-     *  \tparam SubTypeNotDefined is a type and you can not instantiate an
-     *          object of it. Trying instantiation, leads to a compile time
-     *          error if the trait is used in the context of
-     *          IF_CONTAINS_TYPE_(NAME)
+     *  \tparam SubType is a type and you can instantiate an
+     *          object of it. If the policy is used in the context of
+     *          IF_CONTAINS_TYPE_(NAME) it is guaranteed, that SubType is the
+     *          requested type.
      *
      */
-    template< typename T, typename SubTypeNotDefined>
+    template< typename T, typename SubType>
     static __attribute__((always_inline)) R process() {
         std::cout << __PRETTY_FUNCTION__  << std::endl;
         return R();

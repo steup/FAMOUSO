@@ -39,7 +39,7 @@
 #ifndef __if_contains_type_h__
 #define __if_contains_type_h__
 
-#include "config/traits/EmptyTrait.h"
+#include "config/policies/EmptyPolicy.h"
 #include "config/type_traits/contains_type.h"
 
 /*! \brief The IF_CONTAINS_TYPE_(NAME) macro generates a compile time selector
@@ -56,9 +56,9 @@
  *         integrated which itself is configurable with the action to support
  *         in case of existence or lack of the type. The default behaviour for
  *         else clause is do nothing, however it is up to the user to change
- *         that in a way that the user needs by providing a trait class. For an
- *         example, on how to provide a trait template class with the correct
- *         interface see ThenTraitExample or ElseTraitExample.
+ *         that in a way that the user needs by providing a policy class. For an
+ *         example, on how to provide a policy template class with the correct
+ *         interface see ThenPolicyExample or ElsePolicyExample.
  *
  *         How to use it? Here is an example:
  *
@@ -82,11 +82,11 @@
  *              // have specified an empty else clause
  *              if_contains_type_TestType<int>::ThenElse<Then>::process();
  *
- *              // executes the Else trait template due to the fact that
+ *              // executes the Else policy template due to the fact that
  *              // int does not contain the type TestType
  *              if_contains_type_TestType<int>::ThenElse<Then, Else>::process();
  *
- *              // executes the Then trait, because the requested type is contained
+ *              // executes the Then policy, because the requested type is contained
  *              if_contains_type_TestType<TypeWithTestType>::ThenElse<Then>::process();
  *
  *              ...
@@ -99,24 +99,24 @@
 template < typename T, typename R = void>                                   \
 class if_contains_type_##NAME {                                             \
         CONTAINS_TYPE_(NAME);                                               \
-        /* Generates Comile-Time Error if used in an ElseTrait          */  \
+        /* Generates Comile-Time Error if used in an ElsePolicy          */ \
         struct NAME;                                                        \
                                                                             \
-        /* a compile time selector for the traits the first is          */  \
+        /* a compile time selector for the policies the first is        */  \
         /* the general purpose template and the second is a             */  \
         /* specialization that is used if the subtype exists            */  \
-        template<bool U, typename ThenTrait,                                \
-                 typename ElseTrait>                                        \
-        struct TraitSelect_##NAME {                                         \
+        template<bool U, typename ThenPolicy,                               \
+                 typename ElsePolicy>                                       \
+        struct PolicySelect_##NAME {                                        \
             static inline R do_it() {                                       \
-                return ElseTrait::template process<T, NAME>();              \
+                return ElsePolicy::template process<T, NAME>();             \
             }                                                               \
         };                                                                  \
                                                                             \
-        template<typename ThenTrait, typename ElseTrait>                    \
-        struct TraitSelect_##NAME<true, ThenTrait, ElseTrait> {             \
+        template<typename ThenPolicy, typename ElsePolicy>                  \
+        struct PolicySelect_##NAME<true, ThenPolicy, ElsePolicy> {          \
             static inline R do_it() {                                       \
-                return ThenTrait::template process<T, typename T::NAME>();  \
+                return ThenPolicy::template process<T, typename T::NAME>(); \
             }                                                               \
         };                                                                  \
                                                                             \
@@ -126,14 +126,14 @@ class if_contains_type_##NAME {                                             \
                                                                             \
         /* processes dependent on the value the respective template     */  \
         /* which leads to generating code                               */  \
-        template <template <typename> class ThenTrait,                      \
-                  template <typename> class ElseTrait=EmptyTrait >          \
+        template <template <typename> class ThenPolicy,                     \
+                  template <typename> class ElsePolicy=EmptyPolicy >        \
         struct ThenElse {                                                   \
             static inline R process() {                                     \
-                return TraitSelect_##NAME<                                  \
+                return PolicySelect_##NAME<                                 \
                             value,                                          \
-                            ThenTrait<R>,                                   \
-                            ElseTrait<R>                                    \
+                            ThenPolicy<R>,                                  \
+                            ElsePolicy<R>                                   \
                        >::do_it();                                          \
             }                                                               \
         };                                                                  \

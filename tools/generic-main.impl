@@ -42,7 +42,7 @@
 #include "config/type_traits/if_contains_type.h"
 IF_CONTAINS_TYPE_(Description);
 
-#include "config/traits/OutputDescriptionTrait.h"
+#include "config/policies/OutputDescriptionPolicy.h"
 
 #include "famouso.h"
 
@@ -50,7 +50,7 @@ IF_CONTAINS_TYPE_(Description);
 
 int main(int argc, char **argv) {
     // if the config contains a Description then print it out
-    if_contains_type_Description<famouso::config>::ThenElse<OutputDescriptionTrait>::process();
+    if_contains_type_Description<famouso::config>::ThenElse<OutputDescriptionPolicy>::process();
 
     try {
         famouso::init<famouso::config>(argc,argv);

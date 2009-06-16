@@ -41,10 +41,10 @@
 #include "boost/mpl/assert.hpp"
 #include "boost/static_assert.hpp"
 #include "config/type_traits/if_contains_type.h"
-#include "config/traits/StaticCreatorTrait.h"
-#include "config/traits/LocalCreatorTrait.h"
-#include "config/traits/ThenTraitExample.h"
-#include "config/traits/ElseTraitExample.h"
+#include "config/policies/StaticCreatorPolicy.h"
+#include "config/policies/LocalCreatorPolicy.h"
+#include "config/policies/ThenPolicyExample.h"
+#include "config/policies/ElsePolicyExample.h"
 
 struct Micha {
     Micha() {
@@ -69,11 +69,11 @@ int main() {
     std::cout << if_contains_type_gw<StructWithGW>::value << std::endl;
     std::cout << if_contains_type_gw<StructWithNoGW>::value << std::endl;
 
-    if_contains_type_gw<StructWithGW>::ThenElse<StaticCreatorTrait>::process();
-    if_contains_type_gw<StructWithGW>::ThenElse<LocalCreatorTrait>::process();
-    std::cout << if_contains_type_gw<StructWithGW, int>::ThenElse<ThenTraitExample, ElseTraitExample>::process()<< std::endl;
-    std::cout << if_contains_type_gw<StructWithNoGW, int>::ThenElse<ThenTraitExample, ElseTraitExample>::process()<< std::endl;
-    if_contains_type_gw<int>::ThenElse<ThenTraitExample>::process();
+    if_contains_type_gw<StructWithGW>::ThenElse<StaticCreatorPolicy>::process();
+    if_contains_type_gw<StructWithGW>::ThenElse<LocalCreatorPolicy>::process();
+    std::cout << if_contains_type_gw<StructWithGW, int>::ThenElse<ThenPolicyExample, ElsePolicyExample>::process()<< std::endl;
+    std::cout << if_contains_type_gw<StructWithNoGW, int>::ThenElse<ThenPolicyExample, ElsePolicyExample>::process()<< std::endl;
+    if_contains_type_gw<int>::ThenElse<ThenPolicyExample>::process();
 
     return 0;
 }

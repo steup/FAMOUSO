@@ -44,7 +44,7 @@
 #include "util/CommandLineParameter.h"
 
 #include "config/type_traits/if_contains_type.h"
-#include "config/traits/StaticCreatorTrait.h"
+#include "config/policies/StaticCreatorPolicy.h"
 
 
 namespace famouso {
@@ -84,7 +84,7 @@ namespace famouso {
         famouso::mw::el::EventChannelHandler<typename T::EL>::init();
 
         // dependent initialization, if the event layer middleware stub is configured
-        configuration::if_contains_type_ELMS<T>::template ThenElse<StaticCreatorTrait>::process();
+        configuration::if_contains_type_ELMS<T>::template ThenElse<StaticCreatorPolicy>::process();
 
         // dependent initialization, if a gatway is configured
         /*! \todo allow initialization of a GW only in case of more then one
@@ -92,7 +92,7 @@ namespace famouso {
          *        of a configured NetworkAdapter. Is this type is missing in
          *        general non Gateway may exist.
          */
-        configuration::if_contains_type_GW<T>::template ThenElse<StaticCreatorTrait>::process();
+        configuration::if_contains_type_GW<T>::template ThenElse<StaticCreatorPolicy>::process();
     }
 
     /*! \brief  The init function of %FAMOUSO with support for command line parameter
