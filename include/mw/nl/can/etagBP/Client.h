@@ -91,7 +91,7 @@ namespace famouso {
                                 BindSubjectInfo () : etag(0), round(0){}
                             };
 
-                            volatile BindSubjectInfo *_bsi;
+                            BindSubjectInfo * volatile _bsi;
                             public:
 
                             typedef typename CAN_Driver::MOB::IDType IDType;
