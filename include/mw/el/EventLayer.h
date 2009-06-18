@@ -130,8 +130,8 @@ namespace famouso {
                      */
                     void subscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
                         DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
-                        Subscriber.append(ec);
                         LL::subscribe(ec.subject(), ec.snn());
+                        Subscriber.append(ec);
                     }
 
                     /*! \brief  unsubscribe an event channel and deregister the event
