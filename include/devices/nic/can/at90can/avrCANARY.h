@@ -91,7 +91,7 @@ namespace device {
                             void extended() { }
 
                             IDType& id() {
-                                return *reinterpret_cast<IDType*>(&_id);
+                                return _id;
                             }
 
                             uint8_t& len() {
