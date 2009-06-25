@@ -54,6 +54,8 @@
 #include "mw/common/UID.h"
 #include "famouso.h"
 
+#include "util/Idler.h"
+
 const char *dev = "/dev/pcan0";
 
 typedef device::nic::CAN::PeakCAN can;
@@ -88,6 +90,6 @@ int main(int argc, char **argv) {
     sec.subscribe();
     sec.callback.bind<&cb>();
 
-    pause();
+    Idler::idle();
     return 0;
 }
