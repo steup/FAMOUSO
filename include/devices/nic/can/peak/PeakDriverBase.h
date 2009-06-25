@@ -41,19 +41,22 @@
 #define __PeakDriverBase_h__
 
 #if defined(LINUX)
-#include <errno.h>
-#include <fcntl.h>    // O_RDWR
-#include <libpcan.h>
+    #include <errno.h>
+    #include <fcntl.h>    // O_RDWR
+    #include <libpcan.h>
+
 #elif defined(WIN32)
-#if defined(PEAKUSB)
-#include "Pcan_usb.h"
-#elif defined(PEAKPCI)
-#include "Pcan_pci.h"
+    #include <windows.h>
+    #if defined(PEAKUSB)
+        #include "Pcan_usb.h"
+    #elif defined(PEAKPCI)
+        #include "Pcan_pci.h"
+    #else
+        #error "You have to define either PEAKUSB or PEAKPCI to choose the used Peak driver"
+    #endif
+
 #else
-#error "You have to define either PEAKUSB or PEAKPCI to choose the used Peak driver"
-#endif
-#else
-#error "PEAK driver within FAMOUSO not support on that platform"
+    #error "PEAK driver within FAMOUSO not support on that platform"
 #endif
 
 #include "mw/nl/can/canID.h"
