@@ -37,31 +37,57 @@
  *
  ******************************************************************************/
 
-#ifndef __PeakCAN_h__
-#define __PeakCAN_h__
+#ifndef __RxInterrupt_h__
+#define __RxInterrupt_h__
 
-
-#if defined(LINUX)
-    #include "devices/nic/can/peak/PeakDriverLinuxTrait.h"
-#elif defined(WIN32)
-    #include "devices/nic/can/peak/PeakDriverWindowsTrait.h"
-#else
-    #error "PEAK driver within FAMOUSO not support on that platform"
-#endif
-
-#include "devices/nic/can/PAXCAN/SimulateInterruptViaThreadAdapter.h"
-#include "devices/nic/can/PAXCAN/PAXCAN.h"
-#include "devices/nic/can/peak/PeakDriver.h"
+#include "case/Delegate.h"
 
 namespace device {
     namespace nic {
         namespace CAN {
 
-            /*! \brief PeakCAN is a typedef to a configured PeakCANDriver with enabled
-             *         interrupt support. It is autmatically adapted to the platform
-             *         it is compiled for. Supported platforms are Linux and Windows.
+            /*! \brief  The RxInterrupt enables receive interrupt service base infrastructur
+             *          for devices that are not able to generate such interrupts. It defines
+             *          a handler and the functionality for switching on/off of the interrupt.
+             *
+             *          In order to fire interrupts it needs additional functionality like
+             *          device::nic::CAN::SimulateInterruptViaThreadAdapter
              */
-            typedef SimulateInterruptViaThreadAdapter<PAXCAN<PeakDriver<PeakDriverTrait> > > PeakCAN;
+            class RxInterrupt {
+                public:
+                    /*! \brief set the delegate that is called if an interrupt occurs */
+                    void set_rx_Interrupt(famouso::util::Delegate<> f) {
+                        rx_Interrupt = f;
+                    }
+
+                    /*! \brief switch interrupts for the %device on or off
+                     */
+                    void rx_interrupts(bool value) {
+                        ints_allowed = value;
+                    }
+
+                    /*! \brief get the current state of the interrupt switch for the %device
+                     */
+                    bool interrupts() {
+                        return ints_allowed;
+                    }
+
+                    /*! \brief fires the interrupt if interrupt is set and allowed */
+                    void fire_Interrupt() {
+                        if (rx_Interrupt && interrupts()) rx_Interrupt();
+                    }
+
+                private:
+                    /*! \brief the receive interrupt delegate allow binding of
+                     *         ordinary C-functions as well as C++ class methods
+                     */
+                    famouso::util::Delegate<> rx_Interrupt;
+
+                    /*! \brief member variable the indicates if interrupts are allowed or
+                     *         not.
+                     */
+                    bool ints_allowed;
+            };
 
         } /* namespace CAN */
     } /* namespace nic */

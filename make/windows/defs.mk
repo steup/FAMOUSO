@@ -37,7 +37,18 @@
 ##
 ################################################################################
 
+# PEAK Driver specific things
+PEAKINC				=-I$(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Api
+
+LIBPCAN				= $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_usb.lib
+PEAKDEVICE			= -DPEAKUSB
+
+#PEAKDEVICE			= -DPEAKPCI
+#PEAKLIB				= $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_pci.lib
+
+PEAK				= $(PEAKDEVICE) $(PEAKINC)
 ADDITIONAL_LIBS         += -lwsock32 -lws2_32
-ADDITIONAL_CFLAGS       += -DWIN32 -D_WIN32_WINNT=0x0501 -D__USE_W32_SOCKETS -mno-cygwin -DWIN32_LEAN_AND_MEAN
+ADDITIONAL_CFLAGS       += -DWIN32 -D_WIN32_WINNT=0x0501 -D__USE_W32_SOCKETS -mno-cygwin -DWIN32_LEAN_AND_MEAN $(PEAK)
 
 SUFFIX=.exe
+

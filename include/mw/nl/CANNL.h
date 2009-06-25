@@ -98,7 +98,7 @@ namespace famouso {
                         famouso::util::Delegate<> dg;
                         dg.bind<type, &type::rx_interrupt>(this);
                         driver.set_rx_Interrupt(dg);
-                        driver.interrupts_on();
+                        driver.rx_interrupts(true);
                     }
 
                     // bind Subject to specific networks name
