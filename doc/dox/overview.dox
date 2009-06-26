@@ -37,9 +37,13 @@
  *
  ******************************************************************************/
 
-/*!	\mainpage
-	\author Michael Schulze, Uni Magdeburg, IVS/EOS
-	\date 25.06.2009
+/*!
+
+\page famouso %FAMOUSO -- Family of Adaptive Middleware for autonomOUs Sentient Objects
+
+\htmlinclude famouso-pic-include.html
+
+\image latex "FAMOUSO.png" "" width=0.9\textwidth
 
 %FAMOUSO is a publish/subscribe middleware that readopts the ideas and
 concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art
@@ -59,12 +63,14 @@ programming languages (C/C++, Python, Java) as well as engineering tools (
 <a href="http://www.mathworks.com/">Matlab/Simulink</a>,
 <a href="http://www.ni.com/labview/">Labview</a>).
 
-- \ref famouso "Overview and the big picture"
-- \ref download
-- \ref compiling
-    - \ref prerequisite
-    - \ref general_build
-    - \ref avr-robot-win "Building on Windows for the AVR"
-    - \ref peak-can-build
-- \ref supported-devices
+Key features of %FAMOUSO are:
+	- Publish/Subscribe middleware
+	- Uniform addressing of topics
+	- No control flow dependancies between Publisher and Subscriber
+	- Abstraction of the concrete underlying communiction media
+	- Hides heterogeneity
+	- Portability
+	- Adaptability
+	- Configurability
+	- Deployment of modern software technologies
 */

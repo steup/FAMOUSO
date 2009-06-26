@@ -1,0 +1,215 @@
+/*!
+
+\page compiling How to build %FAMOUSO?
+
+
+
+\section prerequisite Prerequisite on building environment
+
+You have to install some tools for building %FAMOUSO on your prefered platform.
+
+- g++
+- make
+- wget
+
+If you want to build under Windows, you will install cygwin or mingw. You have
+to provide the mentioned tools for these environments too.
+
+In case of compiling for the Micro-Controller like the AVR you need instead of
+the normal g++ compiler a cross-compiler for the used Micro-Controller.
+
+
+
+\section general_build Compiling FAMOUSO in generall
+
+%FAMOUSO can be built via two different ways. However, it is recommended using
+the first way if you want compiling for one platform only. The second
+possibility is e.g. for \ref avr-robot-win "compiling on Windows for AVR" or in
+case you switch between different targets like it is while development.
+
+
+\subsection recommended-way Recommended way of compiling FAMOUSO
+
+- edit make/config.mk and choose the platform for which %FAMOUSO has to be built
+- type make in the main directory
+- change to the tools directory and type make "tool" which you want to build
+    - for some tools (ech-can) you have to fulfill prerequisites like an
+      installed pcan-lib if you want to use the peak-CAN library. \ref peak-can-build
+
+
+\subsection alternative-way Alternative way
+
+The steps 1 and 2 are combinable. If you would do this, you will use the make
+command with PLATFORM={linux|windows|avr} e.g.
+\code
+#> make CONFIG=PLATFORM
+\endcode
+If you use it in that way, it is needed that you always specify the platform
+while compiling examples or tools.
+
+
+
+
+
+\section avr-robot-win Building on Windows for the AVR
+
+As an example the build of the AVR-Robot part of the multi-robot demo is shown.
+
+-# define the path accordingly to your installation of WinAVR e.g.
+\code
+#> PATH=/cygdrive/c/Programme/WinAVR-20081205/bin:$PATH
+#> export PATH
+\endcode
+-# change to the %famouso root dir and compile library
+\code
+#> make CONFIG=avr INSTALLDIR=.
+\endcode
+-# compiling robot program
+\code
+#> cd examples/MultiRobotDemo/AVR-Robot/
+#> make CONFIG=avr INSTALLDIR=../../..
+\endcode
+-# flash the application on the AVR-Robot. Maybe it could be necessary that you
+configure the Makefile for the programmer that you use.
+\code
+#> make CONFIG=avr INSTALLDIR=../../.. program
+\endcode
+
+
+
+
+\section peak-can-build Building FAMOUSO with support for CAN
+
+Using CAN as the lowest event transport technologie needs support by an
+underlying hardware as well as a certain driver. Enabling the use on different
+platforms (Linux, Windows and Micro-Controller), %FAMOUSO is programmed against
+the generic PAXCAN interface that hides the platform specifics. However, the
+build process could not be complete untouched, because additional includes and
+libs are needed to build %FAMOUSO tools successfully.
+
+
+
+\subsection linuxPeakCAN FAMOUSO on Standard Linux with PeakCAN char driver support
+
+First of all, you have to download the current PeakCAN driver from the <a
+href="http://peak-system.com/">homepage of PEAK System GmbH</a> to a directory
+you want. Then you have to do the following steps:
+\code
+#> cd download-dir
+#> tar xvfz peak-linux-driver.xxx.tar.gz
+#> cd peak-linux-driver-xxx
+#> make clean; make NET=NO_NETDEV_SUPPORT
+#> make install   -> needs root privileges
+\endcode
+If you do so, you are able to compile the tools in this way
+\code
+#> cd famouso-dir/tools
+#> make ech-can
+\endcode
+because the includes and the lib are found by the compiler automatically.
+
+However, if you do not follow the steps above and you have installed the Peak
+includes/library not in the standard paths, you have to provide the locations
+to the make process by using a command like this
+\code
+#> make ech-can PCANINC=path-to-includes PCANLIB=path-to-pcanlib/libpcan.so
+\endcode
+
+Now, you are able to use the compiled tool.
+\code
+#> ./ech-can -p /dev/pcanXX:2
+
+# or for getting help and seeing the command line parameters
+#> ./ech-can --help
+\endcode
+
+
+
+\subsection linuxSocketCAN FAMOUSO on Standard Linux with SocketCAN support
+
+The Linux kernel contains SocketCAN since version 2.6.25. If you have an older
+kernel, you may upgrade or you have to use the \ref linuxPeakCAN "PeakCAN char driver"
+support. For using SocketCAN with Peak hardware, you have to download
+the current PeakCAN driver from the <a href="http://peak-system.com/">homepage
+of PEAK System GmbH</a> to a directory you want. Then you have to do the
+following steps:
+
+\code
+#> cd download-dir
+#> tar xvfz peak-linux-driver.xxx.tar.gz
+#> cd peak-linux-driver-xxx
+#> make clean; make NET=NETDEV_SUPPORT
+#> make install   -> needs root privileges
+\endcode
+After that, you have to bring up a CAN interface and set the correct baudrate.
+How to do this is described in the linux kernel documentation file can.txt.
+
+If you do so, you are able to compile the tools in this way
+\code
+#> cd famouso-dir/tools
+#> make ech-SocketCAN
+\endcode
+
+Now, you are able to use the tool.
+\code
+#> ./ech-can -s canXX
+
+# or for getting help and seeing the command line parameters
+#> ./ech-can --help
+\endcode
+
+
+
+\subsection linuxXenomaiPeakCAN FAMOUSO on Xenomai Linux with CAN support
+
+The support for Xenomai is in an experimental state and documentation is very
+limited.
+
+
+
+\subsection windowsPeakCAN FAMOUSO on Windows with PeakCAN support
+
+First of all, you have to download the current PCAN-Light PeakCAN driver from
+the <a href="http://peak-system.com/">homepage of PEAK System GmbH</a> to a
+directory you want and install it. Then it is recommended, that you follow
+exactly the next steps:
+\code
+#> cd famouso-dir/externals/PEAK
+#> unzip -a download-dir/usb.zip or pci.zip
+#> cd famouso-dir
+#> make
+\endcode
+If you do so, you are able to compile the tools in this way
+\code
+#> cd famouso-dir/tools
+#> make ech-can PCANDEVICE={PCI or USB}
+\endcode
+because the includes and the lib are found by the compiler automatically. For
+USB you can omit the explicit mention of PCANDEVICE, because it is the default.
+
+However, if you do not follow the steps above and you have unpacked the Peak
+includes/library not in the standard path, you have to provide the locations
+to the make process by using a command like this
+\code
+#> make ech-can PCANDEVICE={PCI or USB} \
+                PCANINC=path-to-includes \
+                PCANLIB=.../Visual\ C++/Pcan_{usb or pci}.lib
+\endcode
+
+Running the tool, needs one further step:
+\code
+#> cp dir-with-unpacked-driver/Disk/PCAN-Light/Pcan_{usb or pci}.dll .
+#> ./ech-can  --> baudrate is set to 250 kB by default
+
+# or for getting help and seeing the command line parameters
+#> ./ech-can --help
+\endcode
+
+
+
+\subsection at90can128CAN FAMOUSO on AVR with CAN support (at90can32, at90can64, at90can128)
+
+Compiling for the AVR with CAN support needs no further steps. %FAMOUSO
+contains all needed parts.
+
+*/

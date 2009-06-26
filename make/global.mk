@@ -69,12 +69,11 @@ DEBUG		= -g
 
 #Additional external libs
 LIBBOOST	= $(LIBDIR)/libboost_system-mt.a $(LIBDIR)/libboost_thread$(THREADTAG)-mt.a $(LIBDIR)/libboost_program_options-mt.a
-#LIBPCAN		= -lpcan
 
-#ADDITIONAL_CFLAGS	+=
+ADDITIONAL_CFLAGS	+= -I$(PCANINC)
 ADDITIONAL_CFLAGS	+= -DNDEBUG
 ADDITIONAL_BUILDS	+= $(LIBBOOST)
-ADDITIONAL_LIBS		+= $(ADDITIONAL_BUILDS) $(LIBPCAN)
+ADDITIONAL_LIBS		+= $(ADDITIONAL_BUILDS) $(PCANLIB)
 
 CCFLAGS		= -Wall $(DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
 CCOPTION	= -O3 -fno-strict-aliasing

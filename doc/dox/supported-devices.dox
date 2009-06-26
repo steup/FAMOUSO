@@ -1,0 +1,128 @@
+/*******************************************************************************
+ *
+ * Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * All rights reserved.
+ *
+ *    Redistribution and use in source and binary forms, with or without
+ *    modification, are permitted provided that the following conditions
+ *    are met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in
+ *      the documentation and/or other materials provided with the
+ *      distribution.
+ *
+ *    * Neither the name of the copyright holders nor the names of
+ *      contributors may be used to endorse or promote products derived
+ *      from this software without specific prior written permission.
+ *
+ *
+ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ *    IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ *    TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ *    PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ *    OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ *    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ *    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *
+ * $Id$
+ *
+ ******************************************************************************/
+
+/*!	\page supported-devices Supported platforms and network layer transports
+
+    %FAMOUSO supports a variety of different platforms and provides
+    transportation of events via different network technologies. Following, you
+    find a table presenting the actual possibilities.
+
+   <table>
+    <tr>
+      <td></td>
+      <td colspan="2" align="center">Linux</td>
+      <td colspan="2" align="center">Windows</td>
+      <td align="center">Micro-Controller</td>
+    </tr>
+    <tr>
+      <td>Feature</td>
+      <td align="center">Standard</td>
+      <td align="center">Xenomai</td>
+      <td align="center">mingw</td>
+      <td align="center">cygwin</td>
+      <td align="center">AVR</td>
+    </tr>
+    <tr>
+      <td align="center">CAN-Support</td>
+    </tr>
+    <tr>
+      <td>SocketCAN</td>
+      <td align="center">yes</td>
+      <td align="center">experimental <br> (except USB)</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+    </tr>
+    <tr>
+      <td>PeakCAN</td>
+      <td align="center">yes <br> (all devices)</td>
+      <td align="center">experimental <br> (except USB)</td>
+      <td align="center">yes <br> (PCI and USB)</td>
+      <td align="center">yes <br> (PCI and USB)</td>
+      <td align="center">no</td>
+    </tr>
+    <tr>
+      <td>canary</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+      <td align="center">yes</td>
+    </tr>
+    <tr>
+      <td align="center">UDP-Support</td>
+    </tr>
+    <tr>
+      <td>BroadCast</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">no</td>
+    </tr>
+    <tr>
+      <td>MultiCast</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">no</td>
+    </tr>
+    <tr>
+      <td align="center">Wireless Mesh Network</td>
+    </tr>
+    <tr>
+      <td>AWDS</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">yes</td>
+      <td align="center">no</td>
+    </tr>
+    <tr>
+      <td>802.15.4</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+      <td align="center">no</td>
+      <td align="center">not yet <br> alpha state</td>
+    </tr>
+</table>
+
+*/

@@ -37,34 +37,20 @@
  *
  ******************************************************************************/
 
-/*!	\mainpage
-	\author Michael Schulze, Uni Magdeburg, IVS/EOS
-	\date 25.06.2009
+/*!	\page download How to download?
 
-%FAMOUSO is a publish/subscribe middleware that readopts the ideas and
-concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art
-dev<b>IC</b>es).  Additionally, %FAMOUSO provides means for adaption e.g. to a
-specific platform. The middleware offers an event-based communication model
-according to the publisher/subscriber concept.
-%FAMOUSO is especially designed to allow cooperation between smart
-sensors and actuators on different hardware platforms ranging from 8-bit
-micro-controllers up to 32-bit PC/Workstations and interaction over a broad
-variety of communication media like
-<a href="http://www.semiconductors.bosch.de/pdf/can2spec.pdf">Controller Area Network</a>,
-<a href="http://standards.ieee.org/getieee802/802.15.html">802.15.4</a>,
-<a href="http://awds.berlios.de/">AWDS</a>,
-<a href="http://www.ietf.org/rfc/rfc3170.txt">UDP-MultiCast</a>.
-On application level it offers an unique API that is usable from different
-programming languages (C/C++, Python, Java) as well as engineering tools (
-<a href="http://www.mathworks.com/">Matlab/Simulink</a>,
-<a href="http://www.ni.com/labview/">Labview</a>).
+You have two options:
 
-- \ref famouso "Overview and the big picture"
-- \ref download
-- \ref compiling
-    - \ref prerequisite
-    - \ref general_build
-    - \ref avr-robot-win "Building on Windows for the AVR"
-    - \ref peak-can-build
-- \ref supported-devices
+- you can download an official release from the %FAMOUSO download page at <a
+  href="https://sourceforge.net/project/showfiles.php?group_id=237922"
+  class="external">Sourceforge</a>
+- or you can checkout the last state of the development from the %FAMOUSO
+  subversion repository.\n Use the following command:
+  \code
+  svn co https://svn-eos.cs.uni-magdeburg.de/repos/staff/mschulze/Research/MIKRO/famouso
+  \endcode
+  This grants only read access to the repository and it is not always warranted
+  that all sources will compile or work. This is due to the fact, that the
+  system is under active development.
+
 */

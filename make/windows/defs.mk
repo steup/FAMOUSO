@@ -38,17 +38,25 @@
 ################################################################################
 
 # PEAK Driver specific things
-PEAKINC				=-I$(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Api
+PCANINC                  =$(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Api
+PCANDEVICE               = USB
 
-LIBPCAN				= $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_usb.lib
-PEAKDEVICE			= -DPEAKUSB
+ifeq ($(PCANDEVICE), USB)
+ADDITIONAL_CFLAGS       += -DPEAKUSB
+PCANLIB                  = $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_usb.lib
+else
 
-#PEAKDEVICE			= -DPEAKPCI
-#PEAKLIB				= $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_pci.lib
+ifeq ($(PCANDEVICE), PCI)
+ADDITIONAL_CFLAGS       += -DPEAKPCI
+PCANLIB                  = $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_pci.lib
+else
+$(error Under Windows only PCANDEVICE=USB or =PCI supported)
+endif
 
-PEAK				= $(PEAKDEVICE) $(PEAKINC)
+endif
+
 ADDITIONAL_LIBS         += -lwsock32 -lws2_32
-ADDITIONAL_CFLAGS       += -DWIN32 -D_WIN32_WINNT=0x0501 -D__USE_W32_SOCKETS -mno-cygwin -DWIN32_LEAN_AND_MEAN $(PEAK)
+ADDITIONAL_CFLAGS       += -DWIN32 -D_WIN32_WINNT=0x0501 -D__USE_W32_SOCKETS -mno-cygwin -DWIN32_LEAN_AND_MEAN $(PEAKDEVICE)
 
 SUFFIX=.exe
 
