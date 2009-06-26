@@ -40,6 +40,8 @@
 #ifndef __canID_h__
 #define __canID_h__
 
+#include <stdint.h>
+
 namespace famouso {
     namespace mw {
         namespace nl {
