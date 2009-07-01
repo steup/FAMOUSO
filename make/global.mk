@@ -67,10 +67,17 @@ INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 
 DEBUG		= -g
 
-#Additional external libs
-LIBBOOST	= $(LIBDIR)/libboost_system-mt.a $(LIBDIR)/libboost_thread$(THREADTAG)-mt.a $(LIBDIR)/libboost_program_options-mt.a
 
+#Additional external libs
+
+ifeq ($(CONFIG),avr)
+# no additional builds defined here, see make/avr/def.mk for the definitions
+ADDITIONAL_BUILDS     =
+else
+LIBBOOST             = $(LIBDIR)/libboost_system-mt.a $(LIBDIR)/libboost_thread$(THREADTAG)-mt.a $(LIBDIR)/libboost_program_options-mt.a
 ADDITIONAL_BUILDS   += $(LIBBOOST)
+endif
+
 ADDITIONAL_LIBS     += $(ADDITIONAL_BUILDS)
 
 ADDITIONAL_CFLAGS   += -DNDEBUG

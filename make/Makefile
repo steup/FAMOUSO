@@ -67,9 +67,3 @@ include $(INSTALLDIR)/make/sources.mk
 
 include $(INSTALLDIR)/make/rules.mk
 
-
-ifeq ($(CONFIG),avr)
-ADDITIONAL_BUILDS=
-ADDITIONAL_LIBS=
-TOOLSRC=
-endif
