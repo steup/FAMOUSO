@@ -121,7 +121,7 @@ $(LIBFAMOUSO): $(LIBOBJ)
 	@$(AR) $(ARFLAGS) $@ $(LIBOBJ)
 	@$(RANLIB) $@
 
-include ./make/boost.mk
+include ./make/externals.mk
 
 clean:
 	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR) $(BINDIR)
