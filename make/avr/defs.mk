@@ -37,13 +37,12 @@
 ##
 ################################################################################
 
-$(LIBBOOST):
-	@echo Building needed Boost for $(PLATFORM)
-	./externals/buildBoost.sh $(LIBDIR) $(INCDIR) $(EXTENSION)
-	@$(RANLIB) $(LIBDIR)/*
+# external libs that needs to be build
+LIBAVR             = $(LIBDIR)/libavr-halib-$(MCU).a $(LIBDIR)/libavr-maclib-$(MCU).a
+ADDITIONAL_BUILDS  = $(LIBAVR)
 
-$(LIBAVR):
-	@echo Building needed $(LIBAVR)
-	make -C ./externals/AVR build
-	@$(RANLIB) $(LIBDIR)/*
+# the includes from the external libs
+ADDITIONAL_CFLAGS += -I$(INSTALLDIR)/externals/AVR/avr-halib/include -I$(INSTALLDIR)/externals/AVR/maclib/include
 
+# tools are not compiled for the avr platform
+TOOLSRC=

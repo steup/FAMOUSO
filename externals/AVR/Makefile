@@ -36,14 +36,39 @@
 ## $Id$
 ##
 ################################################################################
+-include ../../make/Makefile
 
-$(LIBBOOST):
-	@echo Building needed Boost for $(PLATFORM)
-	./externals/buildBoost.sh $(LIBDIR) $(INCDIR) $(EXTENSION)
-	@$(RANLIB) $(LIBDIR)/*
+filtered=$(filter-out %Makefile,$(shell find . -maxdepth 1 -name "*avr*"))
 
-$(LIBAVR):
-	@echo Building needed $(LIBAVR)
-	make -C ./externals/AVR build
-	@$(RANLIB) $(LIBDIR)/*
+.phony: all clean distclean
 
+all: build
+
+avr-halib:
+	@echo Checking out latest AVR-halib
+	@svn export https://svn-eos.cs.uni-magdeburg.de/repos/Projects/AVR/halib/trunk avr-halib --ignore-externals -q
+
+build-avr-halib:
+	@echo Building avr-halib
+	@make -C avr-halib ${MCU} portmapgen
+	@cp avr-halib/build/libavr-halib-${MCU}.a ${LIBDIR}
+
+avr-maclib:
+	@echo Checking out latest AVR-maclib
+	@svn export https://svn-eos.cs.uni-magdeburg.de/repos/stud/mafoerst/Code/maclib avr-maclib --ignore-externals -q
+
+build-avr-maclib:
+	@echo Building avr-maclib
+	@make -C avr-maclib HALIBDIR=../avr-halib portmap ${MCU}
+	@cp avr-maclib/build/libavr-maclib-${MCU}.a ${LIBDIR}
+
+build: avr-halib build-avr-halib avr-maclib build-avr-maclib
+
+clean:
+	make -C avr-halib clean
+	make -C avr-maclib clean
+
+
+
+distclean:
+	@rm -rf $(filtered)

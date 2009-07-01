@@ -134,6 +134,7 @@ distclean:
 	@rm -rf ./doc/latex
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
+	@make -C externals/AVR distclean
 
 properclean: distclean
 	@rm -rf externals/Boost externals/boost*
