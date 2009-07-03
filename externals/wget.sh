@@ -37,7 +37,7 @@
 ##
 ################################################################################
 
-BOOST_VERSION=boost_1_37_0
+BOOST_VERSION=boost_1_39_0
 rm -rf Boost boost*
 
 wget http://prdownloads.sourceforge.net/sourceforge/boost/${BOOST_VERSION}.tar.bz2 || exit

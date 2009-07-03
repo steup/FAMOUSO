@@ -61,9 +61,9 @@ include $(INSTALLDIR)/make/global.mk
 include $(INSTALLDIR)/make/sources.mk
 
 # Definition lesen, die fuer spezielle Targets gelten
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/defs.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/sources.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
 
 include $(INSTALLDIR)/make/rules.mk
 

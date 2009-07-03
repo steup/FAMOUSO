@@ -1,7 +1,6 @@
 PCAN=/usr/lib/libpcan.so
-PCANINC=/usr/include
+PCANINC=/PCANINCLUDE
 PCANLIB=$(shell test -f $(PCAN) && echo $(PCAN))
 
-ADDITIONAL_CFLAGS   += -I$(PCANINC)
-ADDITIONAL_LIBS     += $(PCANLIB)
-
+ADDITIONAL_CFLAGS 	+= -DLINUX -I$(PCANINC)
+ADDITIONAL_LIBS     += $(PCANLIB) -lpthread

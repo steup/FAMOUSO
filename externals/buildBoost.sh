@@ -54,13 +54,12 @@ echo Configure-Parameter $PARAMS
 echo BJAM-Parameter $BJAMCONFIG
 
 pushd Boost
-[ ! -x tools/jam/src/bootstrap/jam0 ] && ./configure $PARAMS
+[ ! -x tools/jam/src/bootstrap/jam0 ] && ./bootstrap.sh $PARAMS
 pushd tools/jam/src
 arch=`./bootstrap/jam0 -d0 -f build.jam --toolset=gcc --show-locate-target`
 popd
-command="./tools/jam/src/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS"
-make clean
-rm -f user-config.*
+command="./tools/jam/src/$arch/bjam -d2 -j10 $BJAMCONFIG $PARAMS -tx"
+rm -f user-config.* project-config.jam*
 echo $command
 $command
 #make distclean
