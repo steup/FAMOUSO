@@ -40,6 +40,7 @@
 #include "mw/nl/UDPMultiCastNL.h"
 #include "mw/el/EventLayerCallBack.h"
 
+#include <iostream>
 #include <vector>
 #include <boost/tokenizer.hpp>
 #include "util/CommandLineParameterGenerator.h"
