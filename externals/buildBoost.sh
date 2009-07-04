@@ -45,7 +45,7 @@ pushd `dirname $0`
 if [ -d Boost ]; then
 
 if [ x${3%.*} = xwindows ]; then
-    THREADAPI="threadapi=win32 target-os=windows"
+    THREADAPI="threadapi=win32 target-os=cygwin"
 fi
 
 PARAMS=" --libdir=$1 --includedir=$2 "
