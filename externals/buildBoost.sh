@@ -58,7 +58,7 @@ pushd Boost
 pushd tools/jam/src
 arch=`./bootstrap/jam0 -d0 -f build.jam --toolset=gcc --show-locate-target`
 popd
-command="./tools/jam/src/$arch/bjam -d2 -j10 $BJAMCONFIG $PARAMS -tx"
+command="./tools/jam/src/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS -tx"
 rm -f user-config.* project-config.jam*
 echo $command
 $command
