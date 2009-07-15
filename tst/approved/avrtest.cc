@@ -53,26 +53,25 @@
 #include "mw/common/UID.h"
 #include "famouso.h"
 
-typedef device::nic::CAN::avrCANARY can;
-typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
-typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
-typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
+struct config {
+    typedef device::nic::CAN::avrCANARY can;
+    typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
+    typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
+    typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
 
-typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-typedef famouso::mw::el::EventLayer< anl > el;
-typedef famouso::mw::api::EventChannel< el > EC;
-typedef famouso::mw::api::PublisherEventChannel<el> PEC;
-typedef famouso::mw::api::SubscriberEventChannel<el> SEC;
-
+    typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
+    typedef famouso::mw::el::EventLayer< anl > EL;
+    typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+    typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
+};
 
 #ifndef AVR
 #define DEBUG(x) printf x
 void done() {}
 void init() {}
 #else
-inline void init() {}
 
-include < avr / io.h >
+#include<avr/io.h>
 
 inline void usart1_transmit(unsigned char data) {
     /* Wait for empty transmit buffer */
@@ -109,18 +108,19 @@ void cb(famouso::mw::api::SECCallBackData& cbd) {
     DEBUG(("\r\nMichaels CallBack\r\n\r\n"));
 }
 
+
 int  main() {
     init();
     // greet the world
     DEBUG(("Hello World\r\n"));
     sei();
 
-    famouso::init<EC>();
-    SEC sec(0xf1);
+    famouso::init<config>();
+    config::SEC sec(famouso::mw::Subject(0xf1ull));
     sec.subscribe();
     sec.callback.bind<&cb>();
 
-    PEC pec(0xf1);
+    config::PEC pec(famouso::mw::Subject(0xf1ull));
     pec.announce();
 
     famouso::mw::Event e(pec.subject());
