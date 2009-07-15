@@ -118,7 +118,7 @@ namespace famouso {
                                     id->prio(0xFD);
                                     id->etag(famouso::mw::nl::CAN::detail::ETAGS::SUPPLY_ETAG);
                                     id->tx_node(constants::Broker_tx_node);
-                                    canDriver.send(mob);
+                                    canDriver.transmit(mob);
 
                                     mob.len(8);
                                     mob.data()[0] = id->tx_node();
@@ -131,14 +131,14 @@ namespace famouso {
                                     mob.data()[7] = sub.tab()[3];
                                     id->etag(famouso::mw::nl::CAN::detail::ETAGS::SUPPLY_ETAG_NEW_BP);
                                     id->tx_node(constants::Broker_tx_node);
-                                    canDriver.send(mob);
+                                    canDriver.transmit(mob);
 
                                     mob.data()[1] = 0x1;
                                     mob.data()[4] = sub.tab()[4];
                                     mob.data()[5] = sub.tab()[5];
                                     mob.data()[6] = sub.tab()[6];
                                     mob.data()[7] = sub.tab()[7];
-                                    canDriver.send(mob);
+                                    canDriver.transmit(mob);
 
                                     return true;
                                 }

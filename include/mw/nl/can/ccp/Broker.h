@@ -143,7 +143,7 @@ namespace famouso {
                             bool handle_ccp_configure_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
                                 if (mob.id().etag() == famouso::mw::nl::CAN::detail::ETAGS::CCP_RSI) {
                                     if (handle_ccp_rsi(mob))
-                                        canDriver.send(mob);
+                                        canDriver.transmit(mob);
                                     return true;
                                 } else {
                                     return false;

@@ -121,7 +121,7 @@ namespace famouso {
                                 id->prio(0xFD);
                                 id->etag(famouso::mw::nl::CAN::detail::ETAGS::GET_ETAG);
                                 id->tx_node(tx_node);
-                                canDriver.send(bsi.mob);
+                                canDriver.transmit(bsi.mob);
 
                                 while (_bsi);
                                 return bsi.etag;

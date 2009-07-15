@@ -91,11 +91,11 @@ namespace device {
                         sbb.pop_back(mob);
                     }
 
-                    /*! \brief sends a %CAN message in a blocking manner
+                    /*! \brief transmit a %CAN message in a blocking manner
                      *
                      *  \param[in] mob is %CAN message that will be delivered
                      */
-                    void send(typename Driver::MOB &mob) {
+                    void transmit(typename Driver::MOB &mob) {
                         Driver::write(mob);
                     }
 
@@ -106,7 +106,7 @@ namespace device {
                 protected:
                     /*! \brief test if there is a message arrived and signalise the
                      *         calling context, whether the interrupt condidtion is
-                     *         true of false
+                     *         true or false
                      *
                      *  \return true if a %CAN message was arrived
                      *  \return false otherwise

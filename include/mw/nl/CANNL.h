@@ -121,7 +121,7 @@ namespace famouso {
                             m.data()[m.len()] = p.data[m.len()];
                             ++m.len();
                         }
-                        driver.send(m);
+                        driver.transmit(m);
                     }
 
                     void deliver_fragment(const Packet_t& p) {

@@ -122,7 +122,7 @@ namespace famouso {
                                     msg.len(0);
 
                                     // Nachricht senden
-                                    canDriver.send(msg);
+                                    canDriver.transmit(msg);
 
                                     ccp_status = CCP_WAIT;
 
