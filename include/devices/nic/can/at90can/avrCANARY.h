@@ -46,16 +46,12 @@
 #include <stdint.h>
 
 #include "mw/nl/can/canID.h"
-#include "mw/nl/can/GenericReceiveInterrupt.h"
 
 namespace device {
     namespace nic {
         namespace CAN {
 
-            /*! \file avrCANARY.h
-             *
-             * \class avrCANARY
-             *
+            /*!
              * \brief The generic driver interface to the avrCAN hardware.
              *
              * At the moment only a basic and very simple CAN driver is
@@ -68,8 +64,6 @@ namespace device {
              *
              * \todo Use the supported features of the avr CAN hardware
              *       e.g. more message objects, transmit interrupt, ...
-             *
-             * \todo needs further documentation
              *
              */
             class avrCANARY {
@@ -115,6 +109,11 @@ namespace device {
 
                     explicit avrCANARY() {}
 
+                    /*! \brief receives a %CAN message in a blocking manner
+                     *
+                     *  \param[out] mob is filled with the arrived message if there
+                     *              was one
+                     */
                     bool receive(MOB* mob) {
                         // save CANPAGE
                         register uint8_t temp = CANPAGE;
@@ -146,11 +145,20 @@ namespace device {
 
                     }
 
+                    /*! \brief receives a %CAN message in a blocking manner
+                     *
+                     *  \param[out] mob is filled with the arrived message if there
+                     *              was one
+                     */
                     void receive_blocking(MOB *mob) {
                         while (!receive(mob));
                     }
 
-                    void send(MOB &mob) {
+                    /*! \brief transmit a %CAN message in a blocking manner
+                     *
+                     *  \param[in] mob is %CAN message that will be delivered
+                     */
+                    void transmit(MOB &mob) {
                         //enable MOb1, auto increment index, start with index = 0
                         CANPAGE = (1 << 4);
 
@@ -180,7 +188,6 @@ namespace device {
                       Mailbox 0: Receive  --> interrupt
                       Mailbox 1: Transmit --> polling
                     *******************************************************************/
-
                     void init() {
                         // reset CAN interface
                         CANGCON |= (1 << SWRES);
@@ -238,37 +245,50 @@ namespace device {
                         while (!(CANGSTA & (1 << ENFG)));
                     }
 
-
-                public:
-
+                    /*! \brief set the delegate that is called if an interrupt occurs */
                     void set_rx_Interrupt(famouso::util::Delegate<> f) {
-                        device::nic::CAN::detail::rx_Interrupt = f;
+                        rx_Interrupt = f;
                     }
 
-                    /*! \brief The tx_interrupt is called if the driver is able to
-                     * send new/further messages. (functionality not implemented yet)
-                     *
-                     * \todo Provide functionality of using tx_interrupt
-                     *
+
+                    /*! \brief switch interrupts for the %device on or off
                      */
-//                    famouso::util::Delegate<> tx_Interrupt;
-
-
-                    void interrupts_on() {
-                        CANGIE = (1 << ENIT) | (1 << ENRX); //enable receive interrupt
+                    void rx_interrupts(bool value) {
+                        if (value)
+                            CANGIE = (1 << ENIT) | (1 << ENRX); //enable receive interrupt
+                        else
+                            CANGIE = 0;
                     }
 
-                    void interrupts_off() {
-                        CANGIE = 0;
+                    /*! \brief get the current state of the interrupt switch for the %device
+                     */
+                    bool interrupts() {
+                        return CANGIE & ((1 << ENIT) | (1 << ENRX));
                     }
 
+                private:
+                    /*! \brief the receive interrupt delegate allow binding of
+                     *         ordinary C-functions as well as C++ class methods
+                     */
+                    static famouso::util::Delegate<> rx_Interrupt;
+
+                    friend void device::nic::CAN::fireCANARYInterrupt();
             };
+
+            famouso::util::Delegate<> avrCANARY::rx_Interrupt;
+
+            void inline fireCANARYInterrupt() {
+                device::nic::CAN::avrCANARY::rx_Interrupt();
+            }
+
         } /* namespace CAN */
     } /* namespace nic */
 } /* namespace device */
 
-SIGNAL(SIG_CAN_INTERRUPT1) {
-    device::nic::CAN::detail::rx_Interrupt();
+namespace {
+    SIGNAL(SIG_CAN_INTERRUPT1) {
+        device::nic::CAN::fireCANARYInterrupt();
+    }
 }
 
 #endif
