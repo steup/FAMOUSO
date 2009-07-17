@@ -49,7 +49,10 @@ namespace famouso {
                 void run() {
                     try {
                         boost::asio::io_service::work work(famouso::util::ios::instance());
-                        famouso::util::ios::instance().run();
+                        while(1) {
+                            famouso::util::ios::instance().reset();
+                            famouso::util::ios::instance().run();
+                        }
                     } catch (const char *c) {
                         std::cerr << "Exception : " << c << std::endl;
                         abort();
