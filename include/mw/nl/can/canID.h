@@ -134,49 +134,6 @@ namespace famouso {
                         }
                     };
 
-                    /*! \brief CAN-ID parts description for little endian machines
-                     */
-                    struct __attribute__((packed)) famouso_CAN_ID_LE_PC {
-                        typedef class __attribute__((packed)) {
-                            public:
-                            uint16_t _etag      : 14;
-                            uint8_t  _tx_nodelo :  2;
-                            uint8_t  _tx_nodehi :  5;
-                            int8_t   _priolo    :  3;
-                            int8_t   _priohi    :  5;
-                        } parts;
-                        typedef class __attribute__((packed)) {
-                            public:
-                            uint16_t _etag      : 14;
-                            uint8_t  _nibblelo  :  2;
-                            uint8_t  _nibblehi  :  2;
-                            uint8_t  _stage     :  4;
-                        } parts_ccp;
-                    };
-
-                    /*! \brief CAN-ID parts description for avr that is also
-                     *         little endian, but has additional padding.
-                     */
-                    struct __attribute__((packed)) famouso_CAN_ID_LE_CANARY {
-                        typedef class __attribute__((packed)) {
-                            uint8_t  _pad       :  3;
-                            public:
-                            uint16_t _etag      : 14;
-                            uint8_t  _tx_nodelo :  2;
-                            uint8_t  _tx_nodehi :  5;
-                            int8_t   _priolo    :  3;
-                            int8_t   _priohi    :  5;
-                        } parts;
-                        typedef class __attribute__((packed)) {
-                            uint8_t  _pad       :  3;
-                            public:
-                            uint16_t _etag      : 14;
-                            uint8_t  _nibblelo  :  2;
-                            uint8_t  _nibblehi  :  2;
-                            uint8_t  _stage     :  4;
-                        } parts_ccp;
-                    };
-
                  } /* namespace detail */
 
             } /* namespace CAN */

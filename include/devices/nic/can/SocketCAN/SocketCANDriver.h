@@ -54,7 +54,7 @@
 #include <errno.h>
 #include <fcntl.h>    // O_RDWR
 
-#include "mw/nl/can/canID.h"
+#include "mw/nl/can/canID_LE_PC.h"
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -82,13 +82,14 @@ namespace device {
             /*!
              * \brief The generic driver interface to the SocketCAN hardware.
              */
+            template< typename IDDesc=famouso::mw::nl::CAN::detail::famouso_CAN_ID_LE_PC>
             class SocketCANDriver {
                 public:
 
                     class MOB : private can_frame {
                         public:
                             typedef famouso::mw::nl::CAN::detail::ID<
-                                        famouso::mw::nl::CAN::detail::famouso_CAN_ID_LE_PC
+                                        IDDesc
                                     > IDType;
 
                             void extended() {

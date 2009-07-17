@@ -45,7 +45,7 @@
 
 #include <stdint.h>
 
-#include "mw/nl/can/canID.h"
+#include "mw/nl/can/canID_LE_AVR.h"
 
 namespace device {
     namespace nic {

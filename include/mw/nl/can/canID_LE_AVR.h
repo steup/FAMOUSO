@@ -37,25 +37,46 @@
  *
  ******************************************************************************/
 
-#ifndef __SocketCAN_h__
-#define __SocketCAN_h__
+#ifndef __canID_LE_AVR_h__
+#define __canID_LE_AVR_h__
 
-#include "devices/nic/can/PAXCAN/SimulateInterruptViaThreadAdapter.h"
-#include "devices/nic/can/PAXCAN/PAXCAN.h"
-#include "devices/nic/can/SocketCAN/SocketCANDriver.h"
+#include <stdint.h>
+#include "mw/nl/can/canID.h"
 
-namespace device {
-    namespace nic {
-        namespace CAN {
+namespace famouso {
+    namespace mw {
+        namespace nl {
+            namespace CAN {
+                namespace detail {
 
-            /*! \brief SocketCAN is a typedef to a configured PAXCAN with
-             *         SocketCANDriver and enabled interrupt support.
-             */
-            typedef SimulateInterruptViaThreadAdapter< PAXCAN < SocketCANDriver<> > > SocketCAN;
+                    /*! \brief CAN-ID parts description for avr that is also
+                     *         little endian, but has additional padding.
+                     */
+                    struct __attribute__((packed)) famouso_CAN_ID_LE_CANARY {
+                        typedef class __attribute__((packed)) {
+                            uint8_t  _pad       :  3;
+                            public:
+                            uint16_t _etag      : 14;
+                            uint8_t  _tx_nodelo :  2;
+                            uint8_t  _tx_nodehi :  5;
+                            int8_t   _priolo    :  3;
+                            int8_t   _priohi    :  5;
+                        } parts;
+                        typedef class __attribute__((packed)) {
+                            uint8_t  _pad       :  3;
+                            public:
+                            uint16_t _etag      : 14;
+                            uint8_t  _nibblelo  :  2;
+                            uint8_t  _nibblehi  :  2;
+                            uint8_t  _stage     :  4;
+                        } parts_ccp;
+                    };
 
-        } /* namespace CAN */
-    } /* namespace nic */
-} /* namespace device */
+                 } /* namespace detail */
+
+            } /* namespace CAN */
+        } /* namespace nl */
+    } /* namespace mw */
+} /* namespace famouso */
 
 #endif
-

@@ -59,7 +59,7 @@
     #error "PEAK driver within FAMOUSO not support on that platform"
 #endif
 
-#include "mw/nl/can/canID.h"
+#include "mw/nl/can/canID_LE_PC.h"
 
 namespace device {
     namespace nic {
