@@ -56,11 +56,7 @@
 
 #include "util/Idler.h"
 
-const char *dev = "/dev/pcan0";
-
 typedef device::nic::CAN::PeakCAN can;
-//typedef famouso::mw::nl::CAN::detail::ID ID;
-typedef can::MOB mob;
 
 struct config {
 typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
@@ -72,10 +68,6 @@ typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
 typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
 };
 typedef config::SEC SEC;
-
-// void cb(const EventChannel<EL>& m){
-//   printf("%s Parameter=%d\n", __PRETTY_FUNCTION__, m.snn());
-// }
 
 void cb(famouso::mw::api::SECCallBackData& cbd) {
     printf("Michaels CallBack %s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
