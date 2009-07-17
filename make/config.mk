@@ -38,6 +38,7 @@
 ################################################################################
 
 CONFIG=linux
+#CONFIG=linux/openwrt
 #CONFIG=windows/cross-mingw
 #CONFIG=windows/native-mingw
 #CONFIG=avr
