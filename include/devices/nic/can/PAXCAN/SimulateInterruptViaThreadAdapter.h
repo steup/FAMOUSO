@@ -43,6 +43,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include "devices/nic/can/PAXCAN/RxInterrupt.h"
+#include "util/ios.h"
 
 namespace device {
     namespace nic {
@@ -63,8 +64,10 @@ namespace device {
             template < class Base, class InterruptProvider = RxInterrupt >
             class SimulateInterruptViaThreadAdapter : public Base, public InterruptProvider {
                 public:
+                    typedef bool    asio_tag;
                     /*! \brief initialize the base and activates the service thread */
                     void init() {
+                        famouso::util::impl::start_ios();
                         Base::init();
                         sim = new boost::thread(
                             boost::bind(&SimulateInterruptViaThreadAdapter::simulatedInterruptViaThread,
@@ -73,7 +76,7 @@ namespace device {
 
                 private:
 
-                    /*! \brief the method of the servicing thread for receiving
+                    /*! \brief the method of the service thread for receiving
                      *         messages allowing asynchonity and callbacking
                      *         for simulating receive interrupts
                      */
@@ -81,12 +84,14 @@ namespace device {
                         typename Base::MOB mob;
                         while (1) {
                             if (Base::interrupt_condition ()) {
-                                /*! \todo the interrupt has to be synchronized
-                                 *        with the asio/other thread in order
-                                 *        to avoid inconsistencies in the
-                                 *        data-structures of the EventLayer
+                                /* Post the interrupt service routine to the
+                                 * ios-instance. This avoids inconsistencies
+                                 * in the data-structures of the EventLayer,
+                                 * because no threads are working at the same
+                                 * time on the EventLayer data-structures.
                                  */
-                                InterruptProvider::fire_Interrupt();
+                                famouso::util::ios::instance().post(
+                                    boost::bind(&InterruptProvider::fire_Interrupt, this));
                             } else {
                                 // sleep a short while
                             }

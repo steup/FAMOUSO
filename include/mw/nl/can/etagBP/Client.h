@@ -44,44 +44,32 @@
 #include "mw/nl/can/canETAGS.h"
 #include "mw/common/Subject.h"
 
+#include "PreventBlockingOfMiddlewareCoreInBlockingProtocol.h"
+#include "config/type_traits/contains_type.h"
+CONTAINS_TYPE_(asio_tag);
+#include "config/type_traits/if_select_type.h"
+
+
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace CAN {
                 namespace etagBP {
 
-                    /*!
-                    * \brief new ETAG binding protocol
-                    *
-                    * \todo busy waiting in the bind_subject method at the
-                    * moment but we have to block until the subject is bound.
-                    * That could lead to a problem in case of using the client
-                    * on a gateway node, because the waiting will be done
-                    * within a asynchronous function call and it blocks the
-                    * rest of the system (asio) till it is finished. For that
-                    * purpose it needs a better solution.
-                    * \n\n
-                    * This is only a problem in case of using asio. A solution
-                    * could be to create a thread within the
-                    * famouso::mw::el::EventLayerMiddlewareStub that does the
-                    * subscription and announcement of event channels that can
-                    * lead to blocking in the bind function, however the
-                    * asynchronous function call can return after the creation
-                    * of the thread. The system is not stalled then. However,
-                    * this leads to the next problem within the client, because
-                    * the clients data structure are not thread safe at the
-                    * moment.
-                    * \n\n
-                    * Furthermore, we have to find all places where event
-                    * channels are created in order to workaround the described
-                    * problem. -- famouso::mw::gwl::Gateway is also a
-                    * candidate.
-                    * \n\n
-                    * A general workaround is always using a broker on
-                    * gateways, and enabling synchronised brokers through
-                    * replicating their data structures.
-                    *
-                    */
+                    /*! \brief new ETAG binding protocol client part
+                     *
+                     * The protocol binds a famouso::mw::Subject to a short
+                     * network specific representation. Within this protocol,
+                     * the mapping is from 64Bit to 14Bit, meaning, we are
+                     * unable to map all subjects. Thus, it is impossible to
+                     * communicate with more than 14Bit different subject
+                     * within a %CAN environment. This seems to be a
+                     * limitation, but normally a typical application
+                     * environment uses only few different subjects.
+                     *
+                     * The server/broker part is in
+                     * famouso::mw::nl::CAN::etagBP::Broker.
+                     */
                     template < class CAN_Driver >
                     class Client {
                             struct BindSubjectInfo {
@@ -109,6 +97,23 @@ namespace famouso {
                              *
                              */
                             uint16_t bind_subject(const Subject &sub, uint16_t tx_node, CAN_Driver& canDriver) {
+                                //  select if we need a special treatment in
+                                //  case of using asio as middleware core event
+                                //  loop processing facility.  We detect it by
+                                //  looking into the CAN driver. If the driver
+                                //  has an asio_tag, the system uses asio
+                                //  normally too.  If it is not the case we
+                                //  select an uint8_t that is than an unused
+                                //  variable that is optimized away by the
+                                //  compiler. The attribute is given to avoid a
+                                //  warning by the compiler about a possible
+                                //  unused variable.
+                                typename  if_select_type <
+                                              contains_type_asio_tag<CAN_Driver>::value,
+                                              PreventBlockingOfMiddlewareCoreInBlockingProtocol,
+                                              uint8_t
+                                          >::type p __attribute__((unused));
+
                                 BindSubjectInfo bsi;
                                 IDType *id = reinterpret_cast<IDType*>(&(bsi.mob.id()));
                                 bsi.mob.len(8);

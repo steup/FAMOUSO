@@ -52,7 +52,20 @@ namespace famouso {
                 namespace etagBP {
                     using namespace famouso::mw::nl::CAN::detail;
 
-                    // ETAG supply protocol supports both the old and new one
+                    /*! \brief ETAG binding protocol the broker part supports
+                     *         both the old and new one
+                     *
+                     * The protocol binds a famouso::mw::Subject to a short
+                     * network specific representation. Within this protocol,
+                     * the mapping is from 64Bit to 14Bit, meaning, we are
+                     * unable to map all subjects. Thus, it is impossible to
+                     * communicate with more than 14Bit different subject
+                     * within a %CAN environment. This seems to be a
+                     * limitation, but normally a typical application
+                     * environment uses only few different subjects.
+                     *
+                     * The client part is in famouso::mw::nl::CAN::etagBP::Client.
+                     */
                     template < class CAN_Driver>
                     class Broker {
 
