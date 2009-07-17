@@ -1,6 +1,6 @@
 function start_cycles()
-%% Start the simrobot simulation environement 
-% and a visualisation tool according to the configuration 
+%% Start the simrobot simulation environement
+% and a visualisation tool according to the configuration
 %
 disp('Lets go!');
 home;
@@ -9,7 +9,7 @@ setpaths;
 delete(timerfind)
 global periode;
 global iterations;
-periode=5;          %[s] 
+periode=5;          %[s]
 iterations=3;       %Zahl der Durchlaeufe
 
 aux = timer('TimerFcn', @start_turn, ...
@@ -23,7 +23,7 @@ end
 function start_turn(obj, event)
     %% FAMOUSO integration?
     global scenario;
-    scenario.FAMOUSO=0;    
+    scenario.FAMOUSO=0;
     global periode;
     SimControl();
     disp('Simulation started')

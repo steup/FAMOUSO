@@ -66,7 +66,7 @@ if ~isempty(handle)
    try
      delete(handle);
    catch
-       
+ 
    end
 end
 % xlim('manual')

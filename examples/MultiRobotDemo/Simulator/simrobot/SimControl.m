@@ -75,7 +75,7 @@ function go_Callback(hObject, eventdata, handles)
 home
 global scenario;
 
-%% Loading Scenario 
+%% Loading Scenario
 scenarioDef();
 %% Preparing Map
 preparingMaps();

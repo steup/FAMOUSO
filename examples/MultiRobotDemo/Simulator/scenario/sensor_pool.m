@@ -87,3 +87,4 @@ sensors(i).scanangle=120;
 sensors(i).range=scale*15;
 sensors(i).resolution=10;
 sensors(i).line=0;
+
