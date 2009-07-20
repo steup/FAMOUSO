@@ -120,7 +120,7 @@ namespace famouso {
                         LL::publish(ec.snn(), e);
 
                         // publish locally on all subscribed event channels
-                        publish_local(ec, e);
+                        publish_local(e);
                     }
 
                     /*! \brief  subscribe an event channel on all lower layers and register
@@ -160,11 +160,10 @@ namespace famouso {
                      *          event channels that have subscribed to the same subject. Thus
                      *          this method can be seen as the local event channel handler.
                      *
-                     *  \param[in]  ec the publishing event channel
                      *  \param[in]  e the event that is published
                      *
                      */
-                    void publish_local(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e) {
+                    void publish_local(const Event &e) {
 
                         // give start of the SubsriberList
                         typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
@@ -172,8 +171,7 @@ namespace famouso {
                         // traverse the list and call the respective subscriber notify callback
                         // in case subject matching
                         while (sec) {
-//                            DEBUG(("%s %p %lld %lld\n", __PRETTY_FUNCTION__, sec, sec->subject().value, ec.subject().value));
-                            if (sec->subject() == ec.subject())
+                            if (sec->subject() == e.subject)
                                 sec->callback(e);
                             sec = static_cast<ec_t*>(sec->select());
                         }
@@ -210,7 +208,7 @@ namespace famouso {
                                 // if event was fetched, meaning we have a matching
                                 // of subjects, publish it locally to the respective
                                 // subscribers and then we are done.
-                                publish_local(*sec, e);
+                                publish_local(e);
                                 return;
                             }
                             sec = static_cast<ec_t*>(sec->select());
