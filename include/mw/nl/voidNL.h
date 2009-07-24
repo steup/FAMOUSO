@@ -69,10 +69,10 @@ namespace famouso {
                     ~voidNL() {}
 
                     void init() {
-                        init(UID(0ull));
+                        init(UID());
                     }
                     void init(const NodeID &i) {
-                        DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
+                        DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value()));
                     }
 
                     // bind Subject to specific networks name

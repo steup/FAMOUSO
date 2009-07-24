@@ -80,7 +80,7 @@ namespace famouso {
                                 uint16_t etag = constants::etagBP::count;
                                 while (etag > constants::etagBP::reserved) {
                                     --etag;
-                                    if ((etags[etag] == UID(0ull)) || (etags[etag] == sub)) {
+                                    if ((etags[etag] == UID()) || (etags[etag] == sub)) {
                                         etags[etag] = sub;
                                         std::cout << "Supply etag\t -- Subject [0x" << std::hex << sub.value() << "]"
                                         << " -> etag [0x" << etag << "]" << std::endl;

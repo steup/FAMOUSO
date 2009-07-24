@@ -69,7 +69,7 @@ namespace famouso {
                             uint8_t search_tx_node(const UID &uid) {
                                 uint8_t freeplace = 0xff;
                                 for (uint8_t i = 0; i < constants::ccp::count; ++i) {
-                                    if (knownNodes[i] == UID(0ull)) {
+                                    if (knownNodes[i] == UID()) {
                                         freeplace = i;
                                     } else {
                                         if (knownNodes[i] == uid) return i;
@@ -129,7 +129,7 @@ namespace famouso {
                                             << "] " << std::endl;
                                         }
                                         ccp_stage = 15;
-                                        uid = UID(0ull);
+                                        uid = UID();
                                     }
                                     // tx_node ist entweder die des Brokers, wenn noch nicht stage 0 und
                                     // sonst die txnode des neuen Knoten
@@ -138,7 +138,7 @@ namespace famouso {
                                 return true;
                             }
                         public:
-                            Broker() : ccp_stage(15), uid(0ull) {}
+                            Broker() : ccp_stage(15), uid() {}
 
                             bool handle_ccp_configure_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
                                 if (mob.id().etag() == famouso::mw::nl::CAN::detail::ETAGS::CCP_RSI) {
