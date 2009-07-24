@@ -37,9 +37,11 @@
 ##
 ################################################################################
 
-# zunaechst bestimmen, wo wir ueberhaupt installiert sind
+# If INSTALLDIR isn't defined, the FAMOUSO root directory has to be located.
+# This is only possible, if we are in a subdirectory.
+
 ifeq ($(INSTALLDIR),)
-ifeq ($(findstring /famouso/,$(shell pwd)/),/famouso/)
+ifeq ($(findstring /famouso/,$(shell pwd -L)/),/famouso/)
 
 MW_SEARCH_COMMAND := \
 while test ! -d famouso; do cd ..; done; \
@@ -48,6 +50,17 @@ pwd
 INSTALLDIR := $(shell $(MW_SEARCH_COMMAND))/famouso
 
 endif
+endif
+# INSTALLDIR is still undefined: error
+ifeq ($(INSTALLDIR),)
+$(info )
+$(info FAMOUSO's make-system is unable to determine the root directory of FAMOUSO.)
+$(info Usually, the name of the root directory is "famouso", but if you changed it)
+$(info you have to provide it to make. For doing it you have two options.)
+$(info First you can define the INSTALLDIR environment variable, or second you start)
+$(info make as follows "make INSTALLDIR=famouso-root-dir".)
+$(info )
+$(error Could not determine FAMOUSO's root directory)
 endif
 
 # Alle Makefiles in der richtigen Reihenfolge laden
