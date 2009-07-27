@@ -55,7 +55,7 @@ build-avr-halib:
 
 avr-maclib:
 	@echo Checking out latest AVR-maclib
-	@svn export https://svn-eos.cs.uni-magdeburg.de/repos/stud/mafoerst/Code/maclib avr-maclib --ignore-externals -q
+	@svn export https://svn-eos.cs.uni-magdeburg.de/repos/stud/mafoerst/Code/maclib avr-maclib --force --ignore-externals -q
 
 build-avr-maclib:
 	@echo Building avr-maclib

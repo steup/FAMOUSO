@@ -37,14 +37,46 @@
 ##
 ################################################################################
 
-CC      = avr-gcc
-CXX     = avr-g++
-AR      = avr-ar
-ARFLAGS = ru
-RANLIB  = avr-ranlib
-LD      = avr-ld
-AS      = avr-as
-OBJCOPY	= avr-objcopy
+include ../../make/Makefile
 
-MCU=at90can128
-ADDITIONAL_CFLAGS += -DAVR -mmcu=$(MCU)
+LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
+CXXFLAGS+= -O3
+
+filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
+
+################################################################################
+AVRDUDE = avrdude
+
+#AVRDUDE_PORT = /dev/parport0  # programmer connected to serial device
+#AVRDUDE_PORT = /dev/pcan1     # programmer connected to CAN
+AVRDUDE_PORT = /dev/ttyS0   # programmer connected to serial device
+#AVRDUDE_PORT = /dev/ttyUSB0   # programmer connected to serial device
+
+AVRDUDE_PROGRAMMER = avr911
+#AVRDUDE_PROGRAMMER = pcan
+#AVRDUDE_PROGRAMMER = stk200
+
+AVRDUDE_FLAGS        = -v -P $(AVRDUDE_PORT) -u -c $(AVRDUDE_PROGRAMMER) -p $(MCU)
+################################################################################
+
+.phony: all clean
+
+all:
+	@echo usage: \"make programm-to-build\"
+
+clean:
+	@rm -rf $(filtered)
+
+%:%.cc
+	$(MAKE) $(MFLAGS) $@.elf
+
+%.elf:%.cc
+	@$(RULEECHO) ; \
+	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
+
+%.hex:%.elf
+	@$(RULEECHO) ; \
+	$(OBJCOPY) -j .text -j .data -O ihex $< $@
+
+%.program:%.hex
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -U f:w:$@:a
