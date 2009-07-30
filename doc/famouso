@@ -66,5 +66,6 @@ programming languages (C/C++, Python, Java) as well as engineering tools (
     - \ref general_build
     - \ref avr-robot-win "Building on Windows for the AVR"
     - \ref peak-can-build
+- \ref as-external-lib
 - \ref supported-devices
 */
