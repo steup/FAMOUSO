@@ -83,6 +83,10 @@ command with PLATFORM={linux|windows|avr} e.g.
 \code
 #> make CONFIG=PLATFORM
 \endcode
+or
+\code
+#> make FAMOUSO_CONFIG=PLATFORM
+\endcode
 If you use it in that way, it is needed that you always specify the platform
 while compiling examples or tools.
 
