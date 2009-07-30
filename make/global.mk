@@ -57,22 +57,21 @@ TOOLSDIR    = $(INSTALLDIR)/tools
 
 SAMPLEDIR   = $(INSTALLDIR)/testsuite
 
-LIBNAME		= famouso
-LIBBASE		= $(INSTALLDIR)/lib
-LIBDIR 		= $(LIBBASE)/$(MACHINETYPE)/$(GCCVERSION)
-LIBFAMOUSO	= $(LIBDIR)/lib$(LIBNAME).a
+LIBNAME     = famouso
+LIBBASE     = $(INSTALLDIR)/lib
+LIBDIR      = $(LIBBASE)/$(MACHINETYPE)/$(GCCVERSION)
+LIBFAMOUSO  = $(LIBDIR)/lib$(LIBNAME).a
 
-LIB			= -L$(LIBDIR) -lfamouso
+LIB         = -L$(LIBDIR) -lfamouso
 INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 
-DEBUG		= -g
-
+FAMOUSO_DEBUG ?= -g -DNDEBUG
 
 #Additional external libs
 
 ifeq ($(CONFIG),avr)
 # no additional builds defined here, see make/avr/def.mk for the definitions
-ADDITIONAL_BUILDS     =
+ADDITIONAL_BUILDS    =
 else
 LIBBOOST             = $(LIBDIR)/libboost_system.a $(LIBDIR)/libboost_thread$(THREADTAG).a $(LIBDIR)/libboost_program_options.a
 ADDITIONAL_BUILDS   += $(LIBBOOST)
@@ -80,11 +79,11 @@ endif
 
 ADDITIONAL_LIBS     += $(ADDITIONAL_BUILDS)
 
-ADDITIONAL_CFLAGS   += -DNDEBUG
+ADDITIONAL_CFLAGS   += -fno-strict-aliasing
 
-CCFLAGS		= -Wall $(DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
-CCOPTION	= -O3 -fno-strict-aliasing
+CCFLAGS     = -Wall $(FAMOUSO_DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
+CCOPTION    = -O3
 
-CXXOPTION	= $(CCOPTION)
-CXXFLAGS	= -Wall $(DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS) $(CXXOPTION)
+CXXOPTION   = $(CCOPTION)
+CXXFLAGS    = -Wall $(FAMOUSO_DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
 
