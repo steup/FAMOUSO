@@ -37,15 +37,17 @@
 ##
 ################################################################################
 
-CONFIG=linux
-#CONFIG=linux/openwrt
-#CONFIG=windows/cross-mingw
-#CONFIG=windows/native-mingw
-#CONFIG=avr
+CONFIG?=linux
+#CONFIG?=linux/openwrt
+#CONFIG?=windows/cross-mingw
+#CONFIG?=windows/native-mingw
+#CONFIG?=avr
 
-COMPILER=$(word 2, $(subst /, ,$(CONFIG)))
-PLATFORM=$(word 1, $(subst /, ,$(CONFIG)))
-EXTENSION=$(subst /,.,$(CONFIG))
+FAMOUSO_CONFIG?=$(CONFIG)
+
+COMPILER=$(word 2, $(subst /, ,$(FAMOUSO_CONFIG)))
+PLATFORM=$(word 1, $(subst /, ,$(FAMOUSO_CONFIG)))
+EXTENSION=$(subst /,.,$(FAMOUSO_CONFIG))
 
 #$(info EX $(EXTENSION))
 #$(info Compiler $(COMPILER))
