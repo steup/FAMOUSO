@@ -40,8 +40,6 @@
 include ../../make/Makefile
 ADDITIONAL_CFLAGS+= -I../include
 
-LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
-
 filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
 
 .phony: all clean

@@ -39,9 +39,6 @@
 
 include ../../make/Makefile
 
-LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
-CXXFLAGS+=
-
 filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
 
 .phony: all clean

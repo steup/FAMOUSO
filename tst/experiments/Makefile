@@ -38,7 +38,6 @@
 ################################################################################
 include ../../make/Makefile
 
-LDFLAGS= $(LIB) $(ADDITIONAL_LIBS)
 CXXFLAGS+= -O3
 
 filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
