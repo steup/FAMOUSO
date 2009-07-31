@@ -37,30 +37,25 @@
 ##
 ################################################################################
 
-# If INSTALLDIR isn't defined, the FAMOUSO root directory has to be located.
-# This is only possible, if we are in a subdirectory.
-
+# If INSTALLDIR isn't defined, the FAMOUSO root directory is automatically determind
 ifeq ($(INSTALLDIR),)
-ifeq ($(findstring /famouso/,$(shell pwd -L)/),/famouso/)
-
-MW_SEARCH_COMMAND := \
-while test ! -d famouso; do cd ..; done; \
-pwd
-
-INSTALLDIR := $(shell $(MW_SEARCH_COMMAND))/famouso
-
+# get the path of this makefile
+this_makefile_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+# erase the trailing /make/ in order to get the correct root of FAMOUSO
+INSTALLDIR := $(patsubst %/make/,%,$(this_makefile_dir))
 endif
-endif
-# INSTALLDIR is still undefined: error
-ifeq ($(INSTALLDIR),)
+
+ifneq ($(shell test -f $(INSTALLDIR)/make/config.mk && echo success), success)
+# INSTALLDIR is defined wrong
 $(info )
-$(info FAMOUSO's make-system is unable to determine the root directory of FAMOUSO.)
-$(info Usually, the name of the root directory is "famouso", but if you changed it)
-$(info you have to provide it to make. For doing it you have two options.)
-$(info First you can define the INSTALLDIR environment variable, or second you start)
-$(info make as follows "make INSTALLDIR=famouso-root-dir".)
+$(info The INSTALLDIR you gave to FAMOUSO's make-system is wrong. The make-system  )
+$(info could not find its needed files. In general FAMOUSO's make-system is able   )
+$(info to determine its root directory automatically. Thus, you have three options:)
+$(info     - First, you don't define INSTALLDIR and let the make-system do the job.)
+$(info     - Second, you define the INSTALLDIR environment variable.               )
+$(info     - Third, you start make as follows "make INSTALLDIR=famouso-root-dir".  )
 $(info )
-$(error Could not determine FAMOUSO's root directory)
+$(error FAMOUSO's root directory is given wrong)
 endif
 
 # Alle Makefiles in der richtigen Reihenfolge laden
