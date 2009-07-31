@@ -75,8 +75,9 @@ namespace famouso {
                      */
                     void subscribe() {
                         DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
-                        // initialize a dummy callback
-                        callback.bind<&famouso::mw::api::cb>();
+                        // initialize a dummy callback if necessary
+                        if (!callback)
+                            callback.bind<&famouso::mw::api::cb>();
 
                         EventChannel<ECH>::ech().subscribe(*this);
                     }
