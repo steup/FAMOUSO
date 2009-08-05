@@ -37,11 +37,13 @@
 ##
 ################################################################################
 
-CONFIG?=linux
-#CONFIG?=linux/openwrt
-#CONFIG?=windows/cross-mingw
-#CONFIG?=windows/native-mingw
-#CONFIG?=avr
+ifeq ($(CONFIG),)
+CONFIG=linux
+#CONFIG=linux/openwrt
+#CONFIG=windows/cross-mingw
+CONFIG=windows/native-mingw
+#CONFIG=avr
+endif
 
 FAMOUSO_CONFIG?=$(CONFIG)
 
