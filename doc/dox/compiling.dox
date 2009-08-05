@@ -51,6 +51,15 @@ You have to install some tools for building %FAMOUSO on your prefered platform.
 - make
 - wget
 
+and for some Binding to other languages you need
+
+- swig
+- java
+- .Net or Mono
+- python
+
+If you want to  generate the documentation too,  you need doxygen.
+
 If you want to build under Windows, you will install cygwin or mingw. You have
 to provide the mentioned tools for these environments too.
 
