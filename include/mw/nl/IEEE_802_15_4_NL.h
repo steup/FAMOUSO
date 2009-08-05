@@ -57,8 +57,7 @@ namespace famouso {
     namespace mw {
         namespace nl {
 
-            /*! \class NL802_15_4
-             *  \brief Network layer that acts as the interface to any IEEE 802.15.4 compliant network.
+            /*! \brief Network layer that acts as the interface to any IEEE 802.15.4 compliant network.
              *
              *  This allows to use IEEE 802.15.4 as a Network Layer within the FAMOUSO
              *  middleware. Depending on the configuration different drivers can be used.
