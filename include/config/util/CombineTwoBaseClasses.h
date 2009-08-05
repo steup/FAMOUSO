@@ -47,8 +47,8 @@ namespace famouso {
             /*! \brief Combines two classes and therewith their features
              *         under one instance.
              *
-             *         \tparam B1 is the type of the first class
-             *         \tparam B2 is the type of the second class
+             *         \tparam Base1 is the type of the first class
+             *         \tparam Base2 is the type of the second class
             */
             template<typename Base1, typename Base2>
             struct CombineTwoBaseClasses : public Base1 , public Base2 {};
