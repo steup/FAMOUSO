@@ -42,58 +42,58 @@
 #include "config/policies/EmptyPolicy.h"
 #include "config/type_traits/contains_type.h"
 
-/*! \brief The IF_CONTAINS_TYPE_(NAME) macro generates a compile time selector
- *         class that allows for cheching on a specific subtype of type/class
- *         and enables code execution facilities in dependency of the existence
- *         of a subtype.
- *
- *  \param[in] NAME is the name of the subtype, that has to be tested.
- *
- *         The generated class if_contains_type_\a NAME supports first the type
- *         checking with the help of the macro CONTAINS_TYPE_(NAME) and second,
- *         it allows code execution in dependency of the existence of the
- *         requested type. For that purpose a compile time selector is
- *         integrated which itself is configurable with the action to support
- *         in case of existence or lack of the type. The default behaviour for
- *         else clause is do nothing, however it is up to the user to change
- *         that in a way that the user needs by providing a policy class. For an
- *         example, on how to provide a policy template class with the correct
- *         interface see ThenPolicyExample or ElsePolicyExample.
- *
- *         How to use it? Here is an example:
- *
- *         \code
- *
- *              struct TypeWithTestType {
- *                  typedef int TestType;
- *              };
- *
- *              IF_CONTAINS_TYPE_(TestType);
- *
- *              ...
- *
- *              // return 0, because int does not contain TestType
- *              if_contains_type_TestType<int>::value;
- *              // return 1, because TypeWithTestType contains TestType
- *              if_contains_type_TestType<TypeWithTestType>:: value;
- *
- *              // does nothing due to the fact that int does not contain
- *              // the type TestType and it executes nothing, because we
- *              // have specified an empty else clause
- *              if_contains_type_TestType<int>::ThenElse<Then>::process();
- *
- *              // executes the Else policy template due to the fact that
- *              // int does not contain the type TestType
- *              if_contains_type_TestType<int>::ThenElse<Then, Else>::process();
- *
- *              // executes the Then policy, because the requested type is contained
- *              if_contains_type_TestType<TypeWithTestType>::ThenElse<Then>::process();
- *
- *              ...
- *        \endcode
- *
- *  \author Michael Schulze
- *
+/*!
+\brief The IF_CONTAINS_TYPE_(NAME) macro generates a compile time selector
+       class that allows for cheching on a specific subtype of type/class
+       and enables code execution facilities in dependency of the existence
+       of a subtype.
+
+\param[in] NAME is the name of the subtype, that has to be tested.
+
+       The generated class if_contains_type_\a NAME supports first the type
+       checking with the help of the macro CONTAINS_TYPE_(NAME) and second,
+       it allows code execution in dependency of the existence of the
+       requested type. For that purpose a compile time selector is
+       integrated which itself is configurable with the action to support
+       in case of existence or lack of the type. The default behaviour for
+       else clause is do nothing, however it is up to the user to change
+       that in a way that the user needs by providing a policy class. For an
+       example, on how to provide a policy template class with the correct
+       interface see ThenPolicyExample or ElsePolicyExample.
+
+       How to use it? Here is an example:
+
+\code
+struct TypeWithTestType {
+    typedef int TestType;
+};
+
+IF_CONTAINS_TYPE_(TestType);
+
+...
+
+// return 0, because int does not contain TestType
+if_contains_type_TestType<int>::value;
+// return 1, because TypeWithTestType contains TestType
+if_contains_type_TestType<TypeWithTestType>:: value;
+
+// does nothing due to the fact that int does not contain
+// the type TestType and it executes nothing, because we
+// have specified an empty else clause
+if_contains_type_TestType<int>::ThenElse<Then>::process();
+
+// executes the Else policy template due to the fact that
+// int does not contain the type TestType
+if_contains_type_TestType<int>::ThenElse<Then, Else>::process();
+
+// executes the Then policy, because the requested type is contained
+if_contains_type_TestType<TypeWithTestType>::ThenElse<Then>::process();
+
+...
+\endcode
+
+\author Michael Schulze
+
  */
 #define IF_CONTAINS_TYPE_(NAME)                                             \
 template < typename T, typename R = void>                                   \

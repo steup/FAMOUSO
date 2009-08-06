@@ -39,30 +39,33 @@
 #ifndef __if_select_type_h__
 #define __if_select_type_h__
 
- /*! \brief compile time selector trait that selects one of two types
-  *         dependent on a boolean expression
-  *
-  *  How to use it? Here is an example:
-  *  \code
-  *     if_select_type<true, uint8_t, uint16_t>::type t1;  // t1 = uint8_t
-  *
-  *     if_select_type<false, uint8_t, uint16_t>::type t2; // t2 = uint16_t
-  *  \endcode
-  *
-  * \author Michael Schulze
-  *
-  */
+/*!
+\brief compile time selector trait that selects one of two types
+       dependent on a boolean expression
+
+\author Michael Schulze
+ */
 template< bool cond , typename T1 , typename T2 >
 struct if_select_type
 {
+    /*!
+    How to use it?  Here is an example:
+    \code
+    if_select_type<true, uint8_t, uint16_t>::type t1;  // t1 = uint8_t
+
+    if_select_type<false, uint8_t, uint16_t>::type t2; // t2 = uint16_t
+    \endcode
+     */
     typedef T1 type;
 };
 
- /*! \brief is a specialization of if_select_type
-  */
+/*! \brief is a specialization of %if_select_type
+\copydoc if_select_type
+ */
 template< typename T1 , typename T2 >
 struct if_select_type<false,T1,T2>
 {
+    /*! \copydoc if_select_type::type */
     typedef T2 type;
 };
 

@@ -56,18 +56,17 @@
  *
  *         How to use it? Here is an example:
  *
- *         \code
- *
- *              struct TypeWithTestType {
- *                  typedef int TestType;
- *              };
- *
- *              CONTAINS_TYPE_(TestType);
- *
- *              contains_type_TestType<int>::value;                 // returns 0
- *              contains_type_TestType<TypeWithTestType>:: value    // returns 1
- *
- *        \endcode
+\code
+struct TypeWithTestType {
+    typedef int TestType;
+};
+
+CONTAINS_TYPE_(TestType);
+
+contains_type_TestType<int>::value;                 // returns 0
+contains_type_TestType<TypeWithTestType>:: value    // returns 1
+
+\endcode
  *
  *  \author Michael Schulze
  *
