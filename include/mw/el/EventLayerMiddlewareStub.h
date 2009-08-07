@@ -46,6 +46,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 //#include <boost/thread/xtime.hpp>
+#include <boost/pool/pool.hpp>
 
 #include <iostream>
 //#include <list>
@@ -67,6 +68,72 @@ namespace famouso {
 
             template <typename EL>
             class EventLayerMiddlewareStub {
+
+                    // Pool memory allocator returning shared_ptr deleting themself. Not thread-safe ATM!
+                    class EventMemoryPool {
+
+                            // Change this to singleton_pool for thread-safe implementation.
+                            typedef boost::pool<boost::default_user_allocator_malloc_free> pool_type;
+
+                            // Use multiple pools of different size to save memory
+                            static pool_type & event_preamble() {
+                                static pool_type p(13); return p;
+                            }
+                            struct event_preamble_deleter {
+                                void operator()(uint8_t * p) {
+                                    event_preamble().free(p);
+                                }
+                            };
+
+                            static pool_type & event_data_4k() {
+                                static pool_type p(4*1024); return p;
+                            }
+                            struct event_data_4k_deleter {
+                                void operator()(uint8_t * p) {
+                                    event_data_4k().free(p);
+                                }
+                            };
+
+                            static pool_type & event_data_16k() {
+                                static pool_type p(16*1024); return p;
+                            }
+                            struct event_data_16k_deleter {
+                                void operator()(uint8_t * p) {
+                                    event_data_16k().free(p);
+                                }
+                            };
+
+                            static pool_type & event_data_64k() {
+                                static pool_type p(64*1024); return p;
+                            }
+                            struct event_data_64k_deleter {
+                                void operator()(uint8_t * p) {
+                                    event_data_64k().free(p);
+                                }
+                            };
+
+                        public:
+                            typedef boost::shared_ptr<uint8_t> pointer;
+
+                            static pointer alloc(size_t size) {
+                                if (size <= 13) {
+                                    // TODO: use allocate_shared for performance improvments
+                                    pointer p((uint8_t *)event_preamble().malloc(), event_preamble_deleter());
+                                    return p;
+                                } else if (size <= 4*1024) {
+                                    pointer p((uint8_t *)event_data_4k().malloc(), event_data_4k_deleter());
+                                    return p;
+                                } else if (size <= 16*1024) {
+                                    pointer p((uint8_t *)event_data_16k().malloc(), event_data_16k_deleter());
+                                    return p;
+                                } else {
+                                    pointer p((uint8_t *)event_data_64k().malloc(), event_data_64k_deleter());
+                                    return p;
+                                }
+                            }
+                            // maybe call release_memory() sometimes
+                    };
+
 
                     template <typename lECH>
                 class EventChannelConnection : public boost::enable_shared_from_this< EventChannelConnection<lECH> > {
@@ -94,7 +161,7 @@ namespace famouso {
                             }
 
                             EventChannelConnection()
-                                    : socket_(famouso::util::ios::instance()) {
+                                    : socket_(famouso::util::ios::instance()), incomplete_async_writes(0) {
                             }
                         private:
 
@@ -116,11 +183,14 @@ namespace famouso {
                                 if (!error) {
                                     // If it is no publich event, then it have to be an unannouncement.
                                     if (event_head[0] == FAMOUSO::PUBLISH) {
+                                        // Allocate self deleting buffer for event_data from EventMemoryPool
+                                        uint32_t event_data_size = ntohl(*(uint32_t *) & (event_head[9]));
+                                        typename EventMemoryPool::pointer event_data = EventMemoryPool::alloc(event_data_size);
                                         // bind correct handler to the socket in order to
                                         // receive the event_data on that socket
-                                        boost::asio::async_read(socket(), boost::asio::buffer(event_data, ntohl(*(uint32_t *)&(event_head[9]))),
+                                        boost::asio::async_read(socket(), boost::asio::buffer(event_data.get(), event_data_size),
                                                                 boost::bind(&EventChannelConnection::get_event_data, this->shared_from_this(),
-                                                                            pec, boost::asio::placeholders::error,
+                                                                            pec, event_data, boost::asio::placeholders::error,
                                                                             boost::asio::placeholders::bytes_transferred));
                                         return;
                                     }
@@ -129,15 +199,18 @@ namespace famouso {
                             }
 
                             void get_event_data(boost::shared_ptr<PEC> pec,
+                                                typename EventMemoryPool::pointer event_data,
                                                 const boost::system::error_code& error,
                                                 size_t bytes_transferred) {
                                 if (!error) {
                                     // now the Event is complete
                                     famouso::mw::Event e(pec->subject());
                                     e.length = bytes_transferred;
-                                    e.data = (uint8_t *) & event_data;
+                                    e.data = (uint8_t *) event_data.get();
+                                    current_event_data = event_data;
                                     // publish to FAMOUSO
                                     pec->publish(e);
+                                    current_event_data.reset();
                                     // bind correct handler to the socket in order to
                                     // receive a new event_head on that socket
                                     boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
@@ -154,16 +227,43 @@ namespace famouso {
                                 report(sec->subject(), "Unsubscription");
                             }
 
+                            void write_handler(typename EventMemoryPool::pointer event_data,
+                                               typename EventMemoryPool::pointer event_preamble,
+                                               const boost::system::error_code & error,
+                                               size_t bytes_transferred) {
+                                incomplete_async_writes--;
+                            }
+
                             void cb(famouso::mw::api::SECCallBackData & cbd) {
-                                uint8_t preamble[13] = {FAMOUSO::PUBLISH};
-                                uint32_t *len = (uint32_t *) & preamble[9];
-                                for (uint8_t i = 0;i < 8;++i)
-                                    preamble[i+1] = cbd.subject.tab()[i];
-                                *len = htonl(cbd.length);
-                                boost::asio::write(socket(), boost::asio::buffer(preamble, 13),
-                                                   boost::asio::transfer_all());
-                                boost::asio::write(socket(), boost::asio::buffer(cbd.data, cbd.length),
-                                                   boost::asio::transfer_all());
+                                if (incomplete_async_writes < 5) {
+                                    // Idea: performance improvement for multiple subscribers: alloc and init preamble once in get_event_data() like event_data
+                                    typename EventMemoryPool::pointer sp_preamble = EventMemoryPool::alloc(13);
+                                    uint8_t * preamble = sp_preamble.get();
+                                    preamble[0] = FAMOUSO::PUBLISH;
+                                    uint32_t *len = (uint32_t *) & preamble[9];
+                                    for (uint8_t i = 0;i < 8;++i)
+                                        preamble[i+1] = cbd.subject.tab()[i];
+                                    *len = htonl(cbd.length);
+                                    boost::array<boost::asio::const_buffer, 2> bufs = {{
+                                            boost::asio::buffer(preamble, 13),
+                                            boost::asio::buffer(cbd.data, cbd.length)
+                                        }
+                                    };
+                                    incomplete_async_writes++;
+                                    // bufs memory owned by shared_ptr current_event_data and sp_preamble passed
+                                    // to write_handler()
+                                    boost::asio::async_write(socket(), bufs, boost::asio::transfer_all(),
+                                                             boost::bind(&EventChannelConnection::write_handler, this->shared_from_this(),
+                                                                         current_event_data,
+                                                                         sp_preamble,
+                                                                         boost::asio::placeholders::error,
+                                                                         boost::asio::placeholders::bytes_transferred));
+                                } else {
+                                    // Too many incomplete writes... assume that the client is crashed or
+                                    // blocking inside the callback. Drop current event to prevent flooding
+                                    // memory with async write operations which are likely to be never
+                                    // completed.
+                                }
                             }
 
                             void handle_request(const boost::system::error_code& error, size_t bytes_transferred) {
@@ -209,9 +309,15 @@ namespace famouso {
                             }
 
                             boost::asio::ip::tcp::socket socket_;
+
+                            // Number of asynchronous writes to the client not yet completed
+                            unsigned int incomplete_async_writes;
+
                             // Buffer used to store data received from the client.
                             boost::array<uint8_t, 13> event_head;
-                            boost::array<uint8_t, 65535> event_data;
+
+                            // Workaround for transporting shared_ptr from get_event_data() into cb()
+                            typename EventMemoryPool::pointer current_event_data;
 
                     };
 
