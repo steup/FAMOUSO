@@ -52,8 +52,9 @@ namespace famouso {
             CLP2( UDPOptions,
                   "UDP-MultiCastNL",
                   "multicast-ip,m",
-                  "multicast ip addresse and port\n(e.g. 127.0.0.1:9999 (default))",
-                  std::string, ip ,"127.0.0.1",
+                  "multicast ip address and port (e.g. 0.0.0.0:9999 (default) "
+                  "binds on all interfaces of the system)",
+                  std::string, ip ,"0.0.0.0",
                   int, port, 9999
             );
 
