@@ -50,6 +50,7 @@ You have to install some tools for building %FAMOUSO on your prefered platform.
 - g++
 - make
 - wget
+- svn (if you want to checkout the current development version.)
 
 and for some Binding to other languages you need
 
