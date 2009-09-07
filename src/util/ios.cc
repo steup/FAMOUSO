@@ -46,10 +46,11 @@ namespace famouso {
         namespace impl {
             namespace detail {
 
+                volatile bool running=true;
                 void run() {
                     try {
                         boost::asio::io_service::work work(famouso::util::ios::instance());
-                        while(1) {
+                        while(running) {
                             famouso::util::ios::instance().reset();
                             famouso::util::ios::instance().run();
                         }
@@ -64,6 +65,14 @@ namespace famouso {
                 static boost::thread t(boost::bind(&famouso::util::impl::detail::run));
             }
 
+            void stop_ios() {
+                famouso::util::ios::instance().stop();
+            }
+
+            void exit_ios() {
+                detail::running=false;
+                stop_ios();
+            }
         }
     }
 }

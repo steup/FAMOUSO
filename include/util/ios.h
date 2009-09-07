@@ -53,6 +53,8 @@ namespace famouso {
 
         namespace impl {
             void start_ios();
+            void stop_ios();
+            void exit_ios();
         }
     }
 }

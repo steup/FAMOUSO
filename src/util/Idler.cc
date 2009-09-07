@@ -51,8 +51,8 @@ namespace Idler {
     boost::mutex waiter;
 
     void siginthandler(int) {
-        // signalise the ios-thread to stop
-        famouso::util::ios::instance().stop();
+        // signalise the ios to stop
+        famouso::util::impl::exit_ios();
         // Unlock waiter -> waiting thread will leave idle()
         waiter.unlock();
     }
@@ -71,7 +71,7 @@ namespace Idler {
         // ios-thread has finished
         boost::xtime time;
         boost::xtime_get(&time, boost::TIME_UTC);
-        time.nsec += 100000;
+        time.nsec += 100000000;
         boost::thread::sleep(time);
     }
 
