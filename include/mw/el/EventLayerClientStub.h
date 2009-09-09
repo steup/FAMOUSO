@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>,
+ *                          Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -54,6 +55,7 @@
 #include "case/Delegate.h"
 #include "util/ios.h"
 
+#include <map>
 
 namespace famouso {
     namespace mw {
@@ -67,17 +69,21 @@ namespace famouso {
                     void action() {
                         uint8_t recvBuffer[BUFSIZE];
                         int recvMsgSize;
-                        while ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, 13))) > 0) {
-                            // ermitteln der Laenge des Events
-                            unsigned int len = ntohl(*(uint32_t *) & (recvBuffer[9]));
-                            // und den Rest aus dem Socket holen
-                            if ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, len))) > 0) {
-                                // Event aufbauen und veroeffentlichen
-                                Event e(sec.subject());
-                                e.length = len;
-                                e.data = (uint8_t *) recvBuffer;
-                                sec.callback(e);
+                        try {
+                            while ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, 13))) > 0) {
+                                // ermitteln der Laenge des Events
+                                unsigned int len = ntohl(*(uint32_t *) & (recvBuffer[9]));
+                                // und den Rest aus dem Socket holen
+                                if ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, len))) > 0) {
+                                    // Event aufbauen und veroeffentlichen
+                                    Event e(sec.subject());
+                                    e.length = len;
+                                    e.data = (uint8_t *) recvBuffer;
+                                    sec.callback(e);
+                                }
                             }
+                        } catch (...) {
+                            // unsubscribe will disallow receive -> exception to stop thread
                         }
                     }
                 public:
@@ -90,6 +96,9 @@ namespace famouso {
                     typedef famouso::mw::api::SubscriberEventChannel<EventLayerClientStub>  SEC;
                     boost::array<char, 13> event_head;
                     boost::array<char, 65535> event_data;
+                    typedef std::pair<boost::thread *, NotifyWorkerThread<SEC> *> NotifyThreadData;
+                    typedef std::map<SEC *, NotifyThreadData> NotifyThreadMap;
+                    NotifyThreadMap notify_threads;
 
                     void do_connection_socket(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
                         ec.snn() = new boost::asio::ip::tcp::socket(famouso::util::ios::instance());
@@ -160,9 +169,9 @@ namespace famouso {
                         boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
                         // create a thread that gets the ec and if a messages arrives at the
                         // socket connection the ec is called back
-                        // \todo potentiell ein Speicherleck, Der Thread bzw. die Daten sollten auch wieder zerstoert werden
-                        //       wenn sie nicht mehr benoetigt werden
-                        new boost::thread(boost::bind(&NotifyWorkerThread<SEC>::action, new NotifyWorkerThread<SEC>(ec)));
+                        NotifyWorkerThread<SEC> * nwt = new NotifyWorkerThread<SEC>(ec);
+                        NotifyThreadData t (new boost::thread(boost::bind(&NotifyWorkerThread<SEC>::action, nwt)), nwt);
+                        notify_threads[&ec] = t;
                         DEBUG(("Generate Thread and Connect to local ECH\n"));
                     }
 
@@ -170,12 +179,26 @@ namespace famouso {
                     void unsubscribe(famouso::mw::api::SubscriberEventChannel<EventLayerClientStub> &ec) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         DEBUG(("close connection\n"));
+
+                        // Only return when notify thread terminated to prevent the thread to
+                        // access already deleted data structures resulting in undefined behaviour
+                        NotifyThreadMap::iterator it = notify_threads.find(&ec);
+                        if (it != notify_threads.end()) {
+                            NotifyThreadData t = it->second;
+                            ec.snn()->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
+                            t.first->join();
+                            ec.snn()->close();
+                            delete t.first;
+                            delete t.second;
+                            notify_threads.erase(&ec);
+                        }
                     }
 
                     // Verbindung schliessen sollte reichen
                     void unannounce(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec) {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         DEBUG(("close connection\n"));
+                        ec.snn()->close();
                     }
             };
         } // namespace el
