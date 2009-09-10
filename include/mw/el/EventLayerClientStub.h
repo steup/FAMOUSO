@@ -99,6 +99,7 @@ namespace famouso {
                     typedef std::pair<boost::thread *, NotifyWorkerThread<SEC> *> NotifyThreadData;
                     typedef std::map<SEC *, NotifyThreadData> NotifyThreadMap;
                     NotifyThreadMap notify_threads;
+                    boost::mutex notify_threads_mutex;
 
                     void do_connection_socket(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
                         ec.snn() = new boost::asio::ip::tcp::socket(famouso::util::ios::instance());
@@ -171,7 +172,9 @@ namespace famouso {
                         // socket connection the ec is called back
                         NotifyWorkerThread<SEC> * nwt = new NotifyWorkerThread<SEC>(ec);
                         NotifyThreadData t (new boost::thread(boost::bind(&NotifyWorkerThread<SEC>::action, nwt)), nwt);
+                        notify_threads_mutex.lock();
                         notify_threads[&ec] = t;
+                        notify_threads_mutex.unlock();
                         DEBUG(("Generate Thread and Connect to local ECH\n"));
                     }
 
@@ -182,6 +185,7 @@ namespace famouso {
 
                         // Only return when notify thread terminated to prevent the thread to
                         // access already deleted data structures resulting in undefined behaviour
+                        notify_threads_mutex.lock();
                         NotifyThreadMap::iterator it = notify_threads.find(&ec);
                         if (it != notify_threads.end()) {
                             NotifyThreadData t = it->second;
@@ -192,6 +196,7 @@ namespace famouso {
                             delete t.second;
                             notify_threads.erase(&ec);
                         }
+                        notify_threads_mutex.unlock();
                     }
 
                     // Verbindung schliessen sollte reichen
