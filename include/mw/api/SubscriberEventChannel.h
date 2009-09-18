@@ -82,7 +82,7 @@ namespace famouso {
                         EventChannel<ECH>::ech().subscribe(*this);
                     }
 
-                private:
+                protected:
                     void unsubscribe() {
                         DEBUG(("%s\n", __PRETTY_FUNCTION__));
                         EventChannel<ECH>::ech().unsubscribe(*this);
