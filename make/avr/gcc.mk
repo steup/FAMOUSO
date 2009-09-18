@@ -37,6 +37,8 @@
 ##
 ################################################################################
 
+.PRECIOUS: % %.elf %.hex
+
 CC      = avr-gcc
 CXX     = avr-g++
 AR      = avr-ar
@@ -73,4 +75,8 @@ AVRDUDE_FLAGS        = -v -P $(AVRDUDE_PORT) -u -c $(AVRDUDE_PROGRAMMER) -p $(MC
 
 %.program:%.hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U f:w:$<:a
+
+%:%.cc
+	@$(RULEECHO) ; \
+	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
 
