@@ -112,7 +112,9 @@ $(MODULEDIR)/%.o : %.cc
 # Regeln zur Erzeugung der Dependency-dateien
 $(DEPENDDIR)/%.d : %.cc
 	@$(RULEECHO) ; \
-	$(CXX) -MM $(CXXFLAGS) $< | sed -e "s#.*:#$(MODULEDIR)\/&#" > $@
+	$(CXX) -MM $(CXXFLAGS) $< -o $@
+	@sed -e "s#.*:#$(MODULEDIR)\/&#;s#$(INCDIR)/boost/[a-z|_|\.|\/|0-9]*##g;s#  \\\##;/^ *$$/d" $@ -i
+	@sed -i -e '$$s/\ \\//' $@
 
 # -------------------------------------------------
 # Bauen der lib
