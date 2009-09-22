@@ -113,7 +113,7 @@ $(MODULEDIR)/%.o : %.cc
 $(DEPENDDIR)/%.d : %.cc
 	@$(RULEECHO) ; \
 	$(CXX) -MM $(CXXFLAGS) $< -o $@
-	@sed -e "s#.*:#$(MODULEDIR)\/&#;s#$(INCDIR)/boost/[a-z|_|\.|\/|0-9]*##g;s#  \\\##;/^ *$$/d" $@ -i
+	@sed -e "s#.*:#$(MODULEDIR)\/&#;s#$(INCDIR)/boost/[a-z|_|\.|\/|0-9]*##g;/^ *\\\/d;/[\s]/!d" $@ -i
 	@sed -i -e '$$s/\ \\//' $@
 
 # -------------------------------------------------
