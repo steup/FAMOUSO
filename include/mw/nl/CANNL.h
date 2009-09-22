@@ -86,7 +86,7 @@ namespace famouso {
                     ~CANNL() {}
 
                     void init() {
-                        init(NodeID(static_cast<unsigned long long>(0ull)));
+                        init(NodeID());
                     }
 
                     void init(const NodeID &i) {
