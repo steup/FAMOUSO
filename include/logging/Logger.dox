@@ -1,0 +1,237 @@
+/*******************************************************************************
+ *
+ * Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * All rights reserved.
+ *
+ *    Redistribution and use in source and binary forms, with or without
+ *    modification, are permitted provided that the following conditions
+ *    are met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in
+ *      the documentation and/or other materials provided with the
+ *      distribution.
+ *
+ *    * Neither the name of the copyright holders nor the names of
+ *      contributors may be used to endorse or promote products derived
+ *      from this software without specific prior written permission.
+ *
+ *
+ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ *    IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ *    TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ *    PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ *    OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ *    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ *    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *
+ * $Id$
+ *
+ ******************************************************************************/
+//-------------------------------------------------------------------------------
+//Author contact information:
+//
+//Michael Schulze                         Phone   : +49-391-67-11459
+//Otto-von-Guericke University Magdeburg  Fax     : +49-391-67-12810
+//PF 4120                                 Email   : mschulze@ovgu.de
+//39016 Magdeburg                         Building: G29/309
+//
+//Preferred contact is email or fax, because I am very often not at the office.
+//-------------------------------------------------------------------------------
+
+/*!
+\page loggingframework A Highly Configurable Logging Framework In C++
+\author Michael Schulze (mschulze@ivs.cs.uni-magdeburg.de)
+
+I am sure you know that. Logging is a crucial technique during the development
+of software. Moreover, it is a great tool for investigating problems which
+arise while running the software on the clients systems. One of the major
+benefits of %logging is that you, the user of software, are able to provide
+helpful information to software maintainers by simply delivering the logged
+data -- for that job you do not need any knowledge about programming
+languages, debuggers and so forth.
+
+If you did not know it already, then I think you are at least now convinced
+that %logging is something for you. However, you might say: ''Logging is not a
+new technique and there exist a lot of realisations of it. Why the heck
+another one?''. Yes, you are right: there are a lot of different %logging
+implementations, but they have often a lot of drawbacks:
+
+    - %logging consumes always a lot of resources even if it is fully disabled
+      in a release build
+        - log-messages are still part of the build
+        - %logging-framework is present
+    - preprocessor-implemented %logging often has side effects. For instance,
+      if we want to call a function always and for debugging purpose we print
+      its return value with the help of a %logging macro like LOGGING(f()) the
+      function is only called if %logging is active. If the macro is redefined
+      to nothing to disable %logging, the function will never be called
+    - the adding of new features like different backends (sinks) or customized
+      prefixes to %logging messages are often associated with a high learning
+      effort
+
+The main question here is:
+Which features should a basic %logging framework at least have?
+    - it should be easy to use (maybe with the typical behaviour of
+      operator<<)
+    - it should be easy to extend
+    - it should be portable
+    - it should allow enabling/disabling certain parts at compile time and
+      also at runtime dependent on the configuration
+    - it should be able to be disabled at compile time, leading to zero
+      overhead at runtime. Thus, neither code- nor memory-space is wasted
+    - it should be work as efficient and economical as possible with its
+      needed resource to allow using it in resource constrained environment
+      like micro-controllers
+
+I propose a %logging framework that fulfils all requirements and avoids
+macro-related pitfalls.
+
+To make it more handy, I give an example (Listing 1) in order to show how easy
+to use it is.
+
+\code
+-------------- Listing 1 ------------------------------------------------------
+#include "logging.h"
+using ::logging::log;
+
+int main(int, char**) {
+    log() << "Hello World!" << log::endl;
+    log() << log::bin << 15 << log::endl;
+    log() << log::oct << 15 << log::endl;
+    log() << log::dec << 15 << log::endl;
+    log() << log::hex << 15 << log::endl;
+    return 0;
+}
+-------------- Listing 1 ------------------------------------------------------
+\endcode
+
+\verbatim
+-------------- Console output 1 -----------------------------------------------
+$ g++ logTest.cc -o logTest -Wall -ansi -pedantic -Os
+$ ./logTest
+Hello World!
+1111
+017
+15
+0xf
+$ size logTest
+   text    data     bss     dec     hex filename
+   2413     304     172    2889     b49 logTest
+-------------- Console output 1 -----------------------------------------------
+\endverbatim
+
+If you disable the %logging framework, which is very comfortable feasible with
+the setting of an additional command line parameter for the compiler,  no
+output will be generated and you get the following results (Console output 2)
+
+\verbatim
+-------------- Console output 2 -----------------------------------------------
+$ g++ logTest.cc -o logTest -DLOGGING_DISABLE -Wall -ansi -pedantic -Os
+$ ./logTest
+$ size logTest
+   text    data     bss     dec     hex filename
+   1167     276       8    1451     5ab logTest
+-------------- Console output 2 -----------------------------------------------
+\endverbatim
+
+
+For showing that no resources are wasted, I compare the size of the logTest.cc
+example with an deactivated %logging framework against an empty
+main-implementation (Console output 3)
+
+\verbatim
+-------------- Console output 3 -----------------------------------------------
+$ cat empty_main.cc
+int main(int,char**) {
+    return 0;
+}
+
+$ g++ empty_main.cc -o empty_main -Wall -ansi -pedantic -Os
+$ ./empty_main
+$ size empty_main
+   text    data     bss     dec     hex filename
+   1167     276       8    1451     5ab empty_main
+-------------- Console output 3 -----------------------------------------------
+\endverbatim
+
+You see, how easy to use it is and it is also very easy to extend (\ref
+extending), enabling to adapt it to your needs.
+
+<!--
+
+// If you are interested in the proposal, I will show in the full article the
+// following points:
+//     * What are the concepts behind the scene
+//     * How it is realised, configured, ...
+//     * How easy it is to extend
+//     * How %logging-levels work
+//     * Generic decorations e.g. customized prefixes, colorizing, etc.
+//     * the applicability in a very resource-constrained environment (8-Bit
+//       Atmel AVR mirco-controller)
+-->
+
+\section extending Extending the Logging Framework
+
+Here is an example that shows a simple extension of the %logging framework by a
+colorizer component.
+\code
+#define LOGGING_DEFINE_EXTENDED_OUTPUT_TYPE
+#include "logging/logging.h"
+using ::logging::log;
+
+// extensions start
+// define a simple ansi console colors struct
+//
+// The contained values correspond to ansi color definitions
+// However, the colors are only work on platforms that are
+// able to interpret these ansi escape sequences, like
+// [L|U]nix
+//
+struct ConsoleColors {
+    enum Colors {
+        magenta = 35,
+        bold = 1,
+        reset = 0
+    };
+};
+
+// Defines the extended output type that is capable to interpret
+// the colors and produce the correct escape sequences.
+template < typename Base>
+struct CC : public Base {
+    // catch color type and produce the correct escape sequence
+    CC& operator << (const ConsoleColors::Colors l) {
+        uint8_t tmp=Base::getBase();
+        *this << log::dec << "\033[0" << static_cast<uint16_t>(l) << 'm';
+        Base::setBase(tmp);
+        return *this;
+    }
+    // forward all unknown types to the base output type for
+    // further processing.
+    template<typename T>
+    CC& operator << (const T &t) {
+        Base::operator<<(t);
+        return *this;
+    }
+};
+// extensions end
+
+LOGGING_DEFINE_OUTPUT( CC< ::logging::LoggingType> )
+
+int main(int, char**) {
+    log< ::logging::Error>() << "Normal output" << log::endl;
+    // using the extension to colorize the output
+    log() << ConsoleColors::magenta << "Combining console codes" << ConsoleColors::reset << log::endl;
+    return 0;
+}
+\endcode
+*/
