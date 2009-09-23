@@ -125,30 +125,58 @@ namespace logging {
         };
     } /* detail */
 
-    /*! \brief The interface to the %logging framework
+    /*! \brief The struct %log acts as interface to the %logging framework.
      *
-     *  \tparam Level describes the %logging %Level. It could be logging::Trace,
-     *          logging::Info, ... or a user defined type, that fulfils the the
-     *          correct interface.
+     *  Some definitions are provided for convenience, because
+     *  it allows the same use case like with the std::streams.
      *
-     * You can use the %logging framework in two ways, like the following code
-     * shows.
-     * \code
-     * log() << "Hello World!" << log::endl;
-     * // prints "Hello World!" with a line feed.
-     *
-     * log< ::logging::Info>() << "Hello World!" << log::endl;
-     * //prints "[ INFO  ] Hello World!" with a line feed.
-     * \endcode
+     *  Here is an example and you see it is very intuitive to use
+     *  as it is with the std::streams.
+     *  \code
+     *  log::emit() << log::hex << 15 << log::endl;
+     *  // prints 0xf with a line feed
+     *  \endcode
      */
-    template<typename Level>
-    inline typename ::logging::detail::Logger<Level, loggingReturnType>::return_type& log () {
-        return ::logging::detail::Logger<Level, loggingReturnType>::logging();
-    }
+    struct log {
+        /*! \brief Numerative manipulator definitions */
+        enum Numerative_ {
+            bin  =  2,   ///< switch to binary output
+            oct  =  8,   ///< switch to octal output
+            dec  = 10,   ///< switch to decimal output
+            hex  = 16    ///< switch to hexadecimal output
+        };
+        typedef Numerative_ Numerative;
+        /*! \brief Manipulator definitions */
+        enum Manipulator {
+            tab  =  9,   ///< prints a tabulator to the output
+            endl = 10    ///< adds a line feed output
+        };
 
-    inline ::logging::detail::Logger< ::logging::Void, loggingReturnType>::return_type& log () {
-        return ::logging::detail::Logger< ::logging::Void, loggingReturnType>::logging();
-    }
+        /*! \brief The emit method gets the to logged information and emits it to the
+         *         output (sink) of the %logging framework
+         *
+         *  \tparam Level describes the %logging %Level. It could be logging::Trace,
+         *          logging::Info, ... or a user defined type, that fulfils the the
+         *          correct interface.
+         *
+         * You can use the log::emit method as follows:
+         * \code
+         * log::emit() << "Hello World!" << log::endl;
+         * // prints "Hello World!" with a line feed.
+         *
+         * log::emit< ::logging::Info>() << "Hello World!" << log::endl;
+         * //prints "[ INFO  ] Hello World!" with a line feed.
+         * \endcode
+         */
+        template<typename Level>
+        static inline typename ::logging::detail::Logger<Level, loggingReturnType>::return_type& emit () {
+            return ::logging::detail::Logger<Level, loggingReturnType>::logging();
+        }
+
+        static inline ::logging::detail::Logger< ::logging::Void, loggingReturnType>::return_type& emit () {
+            return ::logging::detail::Logger< ::logging::Void, loggingReturnType>::logging();
+        }
+    };
 
 } /* logging */
 
@@ -161,7 +189,7 @@ namespace logging {
  *  \code
  *  LOGGING_DISABLE_NAME( ::logging::INFO);
  *  ...
- *  log< ::logging::Info>() << "Hello World!" << log::endl;
+ *  log::emit< ::logging::Info>() << "Hello World!" << log::endl;
  *  // prints and evaluates to nothing, thus no run-time or other
  *  // ressources have to be paid
  *  \endcode

@@ -104,11 +104,11 @@ to use it is.
 using ::logging::log;
 
 int main(int, char**) {
-    log() << "Hello World!" << log::endl;
-    log() << log::bin << 15 << log::endl;
-    log() << log::oct << 15 << log::endl;
-    log() << log::dec << 15 << log::endl;
-    log() << log::hex << 15 << log::endl;
+    log::emit() << "Hello World!" << log::endl;
+    log::emit() << log::bin << 15 << log::endl;
+    log::emit() << log::oct << 15 << log::endl;
+    log::emit() << log::dec << 15 << log::endl;
+    log::emit() << log::hex << 15 << log::endl;
     return 0;
 }
 -------------- Listing 1 ------------------------------------------------------
@@ -182,7 +182,7 @@ extending), enabling to adapt it to your needs.
 \section extending Extending the Logging Framework
 
 Here is an example that shows a simple extension of the %logging framework by a
-colorizer component.
+coloriser component.
 \code
 #define LOGGING_DEFINE_EXTENDED_OUTPUT_TYPE
 #include "logging/logging.h"
@@ -210,8 +210,8 @@ template < typename Base>
 struct CC : public Base {
     // catch color type and produce the correct escape sequence
     CC& operator << (const ConsoleColors::Colors l) {
-        uint8_t tmp=Base::getBase();
-        *this << log::dec << "\033[0" << static_cast<uint16_t>(l) << 'm';
+        unsigned char tmp=Base::getBase();
+        *this << log::dec << "\033[0" << static_cast<unsigned short>(l) << 'm';
         Base::setBase(tmp);
         return *this;
     }
@@ -228,9 +228,9 @@ struct CC : public Base {
 LOGGING_DEFINE_OUTPUT( CC< ::logging::LoggingType> )
 
 int main(int, char**) {
-    log< ::logging::Error>() << "Normal output" << log::endl;
-    // using the extension to colorize the output
-    log() << ConsoleColors::magenta << "Combining console codes" << ConsoleColors::reset << log::endl;
+    log::emit() << "Normal output" << log::endl;
+    // using the extension to colorise the output
+    log::emit() << ConsoleColors::magenta << "Combining console codes" << ConsoleColors::reset << log::endl;
     return 0;
 }
 \endcode

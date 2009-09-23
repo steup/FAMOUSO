@@ -40,35 +40,9 @@
 #ifndef __OutputStream_h__
 #define __OutputStream_h__
 
-#include <stdint.h>
+#include "logging/Logger.h"
 
 namespace logging {
-
-    /*! \brief The struct %log is provided for convenience, because
-     *         it allows the same use case like with the std::streams
-     *
-     *  Here is an example and you see it is very intuitive to use
-     *  as it is with the std::streams.
-     *  \code
-     *  log() << log::hex << 15 << log::endl;
-     *  // prints 0xf with a line feed
-     *  \endcode
-     */
-    struct log {
-        /*! \brief Numerative manipulator definitions */
-        enum Numerative_ {
-            bin  =  2,   ///< switch to binary output
-            oct  =  8,   ///< switch to octal output
-            dec  = 10,   ///< switch to decimal output
-            hex  = 16    ///< switch to hexadecimal output
-        };
-        typedef Numerative_ Numerative;
-        /*! \brief Manipulator definitions */
-        enum Manipulator {
-            tab  =  9,   ///< prints a tabulator to the output
-            endl = 10    ///< adds a line feed output
-        };
-    };
 
     /*! \brief The %OutputStream provides different overloading of operator,
      *         enabling the output of different types in an uniform way.
@@ -84,7 +58,7 @@ namespace logging {
     class OutputStream : public Base {
             /*!\brief basis for display of digits eg. 2, 8, 10 or 16
              */
-            uint8_t base;
+            unsigned char base;
 
             /*!\brief forwards the outputed character to the base class,
              *        that usually performs the output to a %device.
@@ -97,13 +71,13 @@ namespace logging {
              *
              * \return the current base of conversions
              */
-            uint8_t getBase() {return base;}
+            unsigned char getBase() {return base;}
 
             /*!\brief Set the base for number conversions
              *
              * \param tmp the new base for conversions
              */
-            void setBase(uint8_t tmp){base=tmp;}
+            void setBase(unsigned char tmp){base=tmp;}
 
         public:
             /*! \brief Default constructor initialising with dezimal system

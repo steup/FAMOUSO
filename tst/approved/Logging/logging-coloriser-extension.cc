@@ -40,34 +40,66 @@
 // for at90can128 with 16MHz CPU clock
 #define CPU_FREQUENCY 16000000
 
+#define LOGGING_DEFINE_EXTENDED_OUTPUT_TYPE
 //#define LOGGING_DISABLE
 #include "logging/logging.h"
 using namespace ::logging;
 
-// logging levels can be disabled at compile time
-//LOGGING_DISABLE_LEVEL(::logging::Error);
-//LOGGING_DISABLE_LEVEL(::logging::Trace);
-//LOGGING_DISABLE_LEVEL(::logging::Warning);
-//LOGGING_DISABLE_LEVEL(::logging::Info);
-
-struct Test {
-    Test() {
-        log::emit< ::logging::Info>() << "Test::Test()\n";
-    }
-    ~Test() {
-        log::emit< ::logging::Info>() << "~Test::Test()\n";
-    }
+// extensions start
+/*! \brief define a simple ansi console colors struct
+ *
+ * The contained values correspond to ansi color definitions
+ * However, the colors are only work on platforms that are
+ * able to interpret these ansi escape sequences, like
+ * [L|U]nix
+ */
+struct ConsoleColors {
+    enum Colors {
+        magenta = 35,
+        bold = 1,
+        reset = 0
+    };
 };
 
+/*! \brief Defines the extended output type that is capable to interpret
+ *         the colors and produce the correct escape sequences.
+ */
+template < typename Base>
+struct CC : public Base {
+    /*! \brief catch color type and produce the correct escape sequence
+     */
+    CC& operator << (const ConsoleColors::Colors l) {
+        unsigned char tmp=Base::getBase();
+        *this << log::dec << "\033[0" << static_cast<unsigned short>(l) << 'm';
+        Base::setBase(tmp);
+        return *this;
+    }
+
+    /*! \brief forward all unknown types to the base output type for
+     *         further processing.
+     */
+    template<typename T>
+    CC& operator << (const T &t) {
+        Base::operator<<(t);
+        return *this;
+    }
+};
+// extensions end
+LOGGING_DEFINE_OUTPUT( CC< ::logging::LoggingType> )
+
+
 int main(int, char**) {
-    log::emit() << "Hello World! with the logging framework" << log::endl << log::endl;
-    log::emit() << "Print 15 in hexadecimal " << log::hex << 15 << log::endl;
-    log::emit() << "Print 15 in decimal" << log::dec << 15 << log::endl;
-    log::emit() << "Print 15 in octal " << log::oct << 15 << log::endl;
-    log::emit() << "Print 15 in binary with a tab" << log::tab << 15 << log::endl << log::endl;
-    log::emit< ::logging::Error>() << "Logging an Error" << log::endl;
-    log::emit< ::logging::Trace>() << "Logging a Trace" << log::endl;
-    log::emit< ::logging::Warning>() << "Logging a Warning" << log::endl;
-    log::emit< ::logging::Info>() << "Logging an Info" << log::endl;
+    log::emit() << "Hello World! with the logging framework"
+                << log::endl << log::endl;
+
+    // using the extension to colorize the output
+    log::emit() << ConsoleColors::magenta
+                << "Combining console codes"
+                << ConsoleColors::reset
+                << log::endl << log::endl;
+
+    log::emit() << "and back to normal color mode"
+                << log::endl;
+
     return 0;
 }

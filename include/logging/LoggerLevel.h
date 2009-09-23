@@ -40,8 +40,6 @@
 #ifndef __LoggerLevel_h__
 #define __LoggerLevel_h__
 
-#include <stdint.h>
-
 namespace logging {
 
     /*! \brief %Level allows for describing the current %level of %logging.
@@ -63,7 +61,7 @@ namespace logging {
         };
 
         /*! \brief the current set level */
-        uint8_t l;
+        unsigned char l;
 
         /*! \brief operator to test if a certain %level is set */
         bool operator & (Level& r) {
@@ -78,7 +76,7 @@ namespace logging {
     };
 
     /*! \brief This class is intended to be used as a template argument for
-     *         the logging::log() function.
+     *         the logging::log::emit() function.
      *
      *         Prefixes the output with "[ ERROR ] " and enables reporting
      *         of the current logging level.
@@ -95,7 +93,7 @@ namespace logging {
     };
 
     /*! \brief This class is intended to be used as a template argument for
-     *         the logging::log() function.
+     *         the logging::log::emit() function.
      *
      *         Prefixes the output with "[WARNING] " and enables reporting
      *         of the current logging level.
@@ -112,7 +110,7 @@ namespace logging {
     };
 
     /*! \brief This class is intended to be used as a template argument for
-     *         the logging::log() function.
+     *         the logging::log::emit() function.
      *
      *         Does not prefix the output, but enables reporting of the
      *         current logging level, too.
@@ -132,7 +130,7 @@ namespace logging {
     typedef Void Normal;
 
     /*! \brief This class is intended to be used as a template argument for
-     *         the logging::log() function.
+     *         the logging::log::emit() function.
      *
      *         Prefixes the output with "[ INFO  ] " and enables reporting
      *         of the current logging level.
@@ -149,7 +147,7 @@ namespace logging {
     };
 
     /*! \brief This class is intended to be used as a template argument for
-     *         the logging::log() function.
+     *         the logging::log::emit() function.
      *
      *         Prefixes the output with "[ TRACE ] " and enables reporting
      *         of the current logging level.
@@ -166,7 +164,7 @@ namespace logging {
     };
 
     /*! \brief This class is intended to be used as a template argument for
-     *         the logging::log() function.
+     *         the logging::log::emit() function.
      *
      *         Prefixes the output with "[ DEBUG ] " and enables reporting
      *         of the current logging level.
