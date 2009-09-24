@@ -64,7 +64,7 @@ int main(int, char**) {
     log::emit() << "Print 15 in hexadecimal " << log::hex << 15 << log::endl;
     log::emit() << "Print 15 in decimal" << log::dec << 15 << log::endl;
     log::emit() << "Print 15 in octal " << log::oct << 15 << log::endl;
-    log::emit() << "Print 15 in binary with a tab" << log::tab << 15 << log::endl << log::endl;
+    log::emit() << "Print 15 in binary with a tab" << log::bin << log::tab << 15 << log::endl << log::endl;
     log::emit< ::logging::Error>() << "Logging an Error" << log::endl;
     log::emit< ::logging::Trace>() << "Logging a Trace" << log::endl;
     log::emit< ::logging::Warning>() << "Logging a Warning" << log::endl;
