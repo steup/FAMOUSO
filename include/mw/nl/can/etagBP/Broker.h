@@ -82,12 +82,12 @@ namespace famouso {
                                     --etag;
                                     if ((etags[etag] == UID()) || (etags[etag] == sub)) {
                                         etags[etag] = sub;
-                                        std::cout << "Supply etag\t -- Subject [0x" << std::hex << sub.value() << "]"
-                                        << " -> etag [0x" << etag << "]" << std::endl;
+                                        log::emit() << "Supply etag\t -- Subject [0x" << log::hex << sub.value() << "]"
+                                        << " -> etag [0x" << etag << "]" << log::endl;
                                         return etag;
                                     }
                                 }
-                                std::cout << "no free etags -- that should never be happen" << std::endl;
+                                log::emit() << "no free etags -- that should never be happen" << log::endl;
                                 return 0;
                             }
 

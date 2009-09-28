@@ -46,7 +46,6 @@
 #include "mw/common/CallBack.h"
 #include "mw/el/EventChannelHandler.h"
 
-#include "debug.h"
 #include "object/Chain.h"
 #include "case/Delegate.h"
 

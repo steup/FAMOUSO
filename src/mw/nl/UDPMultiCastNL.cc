@@ -40,7 +40,7 @@
 #include "mw/nl/UDPMultiCastNL.h"
 #include "mw/el/EventLayerCallBack.h"
 
-#include <iostream>
+#include "debug.h"
 #include <vector>
 #include <boost/tokenizer.hpp>
 #include "util/CommandLineParameterGenerator.h"
@@ -131,7 +131,7 @@ namespace famouso {
                                     boost::asio::placeholders::bytes_transferred
                                    ));
                 } else {
-                    std::cerr << "while receiving : " << error.message() << std::endl;
+                    log::emit< ::logging::Error>() << "while receiving : " << error.message() << log::endl;
                     throw "Error in UDPMultiCastNL::interrupt";
                 }
 

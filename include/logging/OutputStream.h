@@ -154,6 +154,24 @@ namespace logging {
                 return *this << const_cast<char *>(string);
             }
 
+            /*!\brief outputs a string of unsigned character
+             *
+             * \param string the unsigned character string, that is output
+             * \return %OutputStream& allows for chaining of operators
+             */
+            OutputStream& operator << (unsigned char* string) {
+                return *this << reinterpret_cast<char*>(string);
+            }
+
+            /*!\brief outputs a constant string of unsigned character
+             *
+             * \param string the unsigned character string, that is output
+             * \return %OutputStream& allows for chaining of operators
+             */
+            OutputStream& operator << (const unsigned char* string) {
+                return *this << reinterpret_cast<char*>(string);
+            }
+
             /*!\brief displays a short using the set numerative
              *
              * \param ival the short, that is output

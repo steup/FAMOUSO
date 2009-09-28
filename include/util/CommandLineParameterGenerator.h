@@ -104,7 +104,7 @@
                                 throw desc": to few command line arguments";\
                         }\
                     } catch (const char *c) {\
-                        std::cout << c << std::endl << std::endl << options << std::endl;\
+                        log::emit() << c << log::endl << log::endl << options << log::endl;\
                         exit(0);\
                     }\
                 }\

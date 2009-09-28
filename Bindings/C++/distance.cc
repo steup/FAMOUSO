@@ -58,7 +58,7 @@
 int done;
 
 void cb(famouso::mw::api::SECCallBackData& cbd) {
-    printf("%s Parameter=%d Daten:=%s\n", __PRETTY_FUNCTION__, cbd.length, cbd.data);
+    printf("%s Parameter=%d Daten:=%s\n", FUNCTION_SIGNATURE, cbd.length, cbd.data);
 }
 
 void siginthandler(int egal) {

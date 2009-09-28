@@ -40,7 +40,7 @@
 #ifndef __PeakDriverLinuxTrait_h__
 #define __PeakDriverLinuxTrait_h__
 
-#include <iostream>
+#include "debug.h"
 
 #include "devices/nic/can/peak/PeakDriverBase.h"
 #include "util/CommandLineParameterGenerator.h"
@@ -87,7 +87,7 @@ namespace device {
                         CLP::config::PEAKOptions::Parameter param;
                         CLP::config::PEAKOptions::instance().getParameter(param);
                         if ( (param.baudrate < 0) || (param.baudrate > 8) ) {
-                            std::cerr << "Error: parameter baudrate out of Range" << std::endl;
+                            log::emit< ::logging::Error>() << "Error: parameter baudrate out of Range" << log::endl;
                             exit(0);
                         }
 
@@ -97,13 +97,13 @@ namespace device {
                         //  on linux and windows in the same way
                         handle = LINUX_CAN_Open(param.device.c_str(), O_RDWR);
                         if (!handle) {
-                            std::cerr << "can't open CAN device " << param.device << std::endl;
+                            log::emit< ::logging::Error>() << "can't open CAN device " << param.device << log::endl;
                             exit(errno);
                         }
 
                         errno = CAN_Init(handle, baudrates[param.baudrate], CAN_INIT_TYPE_EX);
                         if (errno) {
-                            std::cerr << "CAN_Init() fails" << std::endl;
+                            log::emit< ::logging::Error>() << "CAN_Init() fails" << log::endl;
                             exit(errno);
                         }
                     }

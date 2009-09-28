@@ -39,7 +39,7 @@
 
 #include "boost/thread.hpp"
 #include "util/ios.h"
-#include <iostream>
+#include "debug.h"
 
 namespace famouso {
     namespace util {
@@ -55,7 +55,7 @@ namespace famouso {
                             famouso::util::ios::instance().run();
                         }
                     } catch (const char *c) {
-                        std::cerr << "Exception : " << c << std::endl;
+                        log::emit< ::logging::Error>() << "Exception : " << c << log::endl;
                         abort();
                     }
                 }

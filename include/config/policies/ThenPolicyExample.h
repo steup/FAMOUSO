@@ -40,7 +40,7 @@
 #ifndef __ThenPolicyExample_h__
 #define __ThenPolicyExample_h__
 
-#include <iostream>
+#include "debug.h"
 
 /*! \brief ThenPolicyExample is a policy template for the compile time selection
  *         utility IF_CONTAINS_TYPE_(NAME).
@@ -70,7 +70,7 @@ struct ThenPolicyExample {
      */
     template< typename T, typename SubType, typename R>
     static __attribute__((always_inline)) R process() {
-        std::cout << __PRETTY_FUNCTION__  << std::endl;
+        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
         return R();
     }
 };

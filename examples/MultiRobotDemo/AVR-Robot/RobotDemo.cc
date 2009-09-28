@@ -40,7 +40,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
-#include "usart0.h"
 #include "Analog.h"
 
 #include <stdio.h>
@@ -252,17 +251,13 @@ void Crash_CB(famouso::mw::api::SECCallBackData& e) {
 int main() {
 
     init();
-    // USART-Initalisierung
-    usart0_init(51); // 19200 8N1 bei 16 MHz
-    usart0_transmit_string("\nRobot starting\n");
-
+    log::emit() << log::endl << "Robot starting" << log::endl;
     // Interrupts erlauben
     sei();    // global enable interrupts
 
-    usart0_transmit_string("FAMOUSO -- Initialization started.\n");
+    log::emit() << "FAMOUSO -- Initialization started." << log::endl;
     famouso::init<famouso::config>();
-
-    usart0_transmit_string("FAMOUSO -- Initialization successful.\n");
+    log::emit() << "FAMOUSO -- Initialization successful" << log::endl;
 
     famouso::config::SEC sec(distance);
     sec.subscribe();

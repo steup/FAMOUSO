@@ -40,12 +40,17 @@
 #ifndef __DEBUG_h__
 #define __DEBUG_h__
 
-#ifdef NDEBUG
-
-#define DEBUG(X)
+#ifdef __GNUC__
+#define FUNCTION_SIGNATURE  __PRETTY_FUNCTION__
 #else
-#include <stdio.h>
-#define DEBUG(X) printf X
+#define FUNCTION_SIGNATURE  __FUNCSIG__
 #endif
 
+#ifdef FAMOUSO_DISABLE_DEBUG
+#define LOGGING_DISABLE
+#endif
+
+#include "logging/logging.h"
+using namespace ::logging;
+LOGGING_DISABLE_LEVEL(::logging::Trace);
 #endif

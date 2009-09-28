@@ -50,22 +50,16 @@
 #include <util/delay.h>
 
 #include "avr-halib/avr/regmaps.h"
-#include "avr-halib/avr/uart.h"
 
 #include "avr-halib/share/cdevice.h"
 #include "avr-halib/share/cbuffer.h"
 
 //-----------------------------------------------------------------------------
-UseInterrupt(SIG_UART1_RECV);
-UseInterrupt(SIG_UART1_DATA);
-CDevice< SecOut< CInBuffer< COutBuffer< Uart < Uart1<> > ,uint8_t,200> ,uint8_t,200> >  >uart;
-//-----------------------------------------------------------------------------
 #include "config.h"
 int main() {
     sei();                              // enable interrupts
 
-    uart << "Starting demonstation of IEEE 802.15.4 communication (P)!\n";
-    uart.writeNewline();
+    log::emit() << "Starting demonstation of IEEE 802.15.4 communication (S)!" << log::endl << log::endl;
     //-------------------------------------------------------------------------
     famouso::init<famouso::config>();   // initialize famouso
 

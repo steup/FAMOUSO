@@ -40,7 +40,7 @@
 #ifndef __PeakDriver_h__
 #define __PeakDriver_h__
 
-#include <iostream>
+#include "debug.h"
 #include <stdint.h>
 
 namespace device {
@@ -69,8 +69,8 @@ namespace device {
                      */
                     void write(typename PeakTrait::MOB &mob) {
                         if ((errno = PeakTrait::write_mob(mob))) {
-                            std::cerr << "CAN_Read() error" << std::endl;
-                            std::cerr << "closing application" << std::endl;
+                            log::emit< ::logging::Error>() << "CAN_Read() error" << log::endl;
+                            log::emit< ::logging::Error>() << "closing application" << log::endl;
                             exit(0);
                         }
                     }
@@ -90,19 +90,19 @@ namespace device {
                                     if (mob.MSGTYPE & MSGTYPE_STATUS) {
                                         status = PeakTrait::status();
                                         if ((int)status < 0) {
-                                            std::cerr << "CAN error" << std::endl;
-                                            std::cerr << "closing application" << std::endl;
+                                            log::emit< ::logging::Error>() << "CAN error" << log::endl;
+                                            log::emit< ::logging::Error>() << "closing application" << log::endl;
                                             exit(0);
                                         } else
-                                            std::cerr << "pending %CAN status 0x." << status << " read." << std::endl;
+                                            log::emit< ::logging::Error>() << "pending %CAN status 0x." << status << " read." << log::endl;
                                         return false;
                                     }
                                     return true;
                                 }
                             case    CAN_ERR_QRCVEMPTY: break; // hier muss warten implementiert werden, falls zu oft gepolled wird
                             default: {
-                                    std::cerr << "CAN_Read() error" << std::endl;
-                                    std::cerr << "closing application" << std::endl;
+                                    log::emit< ::logging::Error>() << "CAN_Read() error" << log::endl;
+                                    log::emit< ::logging::Error>() << "closing application" << log::endl;
                                     exit(0);
                                 }
                         }

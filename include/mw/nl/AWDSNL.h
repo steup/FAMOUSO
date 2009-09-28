@@ -49,6 +49,7 @@
 #include <vector>
 #include <iterator>
 
+#include "debug.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "util/ios.h"
@@ -261,7 +262,7 @@ namespace famouso {
                                         /*! \todo implement subscription announcement see protocol specification in doc */
                                         break;
                                     }
-                                default: std::cout << "AWDS_Packet not supported yet" << std::endl;
+                                default: log::emit() << "AWDS_Packet not supported yet" << log::endl;
                             }
 
                             m_socket.async_receive(boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
@@ -270,7 +271,7 @@ namespace famouso {
                                                                boost::asio::placeholders::bytes_transferred));
 
                         } else {
-                            std::cerr << "AWDS-Network : " << error.message() << std::endl;
+                            log::emit< ::logging::Error>() << "AWDS-Network : " << error.message() << log::endl;
                             throw "AWDS-Network disconnected likely";
                         }
 

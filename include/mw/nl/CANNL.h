@@ -92,7 +92,7 @@ namespace famouso {
                     void init(const NodeID &i) {
                         // hier muss das CAN Configuration Protokoll durchlaufen werden.
                         // vorher darf man aus dieser Funktion nicht zurueck kommen
-//                        DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << " Configuration 64Bit NodeID=" << i.value() << log::endl;
                         driver.init();
                         tx_node = ccp.ccp_configure_tx_node(UID("Schulze\0"), driver);
                         famouso::util::Delegate<> dg;
@@ -103,13 +103,13 @@ namespace famouso {
 
                     // bind Subject to specific networks name
                     void bind(const Subject &s, SNN &snn) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         snn = etagBP.bind_subject(s, tx_node, driver);
                     }
 
                     void deliver(const Packet_t& p) {
                         // senden des CAN Paketes
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         typename CAN_Driver::MOB m;
 
                         m.extended();
@@ -126,19 +126,19 @@ namespace famouso {
 
                     void deliver_fragment(const Packet_t& p) {
                         // Fragmentierung wird zur Zeit noch nicht unterstuetzt
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     void fetch(Packet_t& p) {
                         // ist das Auslesen eines einzelnen Paketes
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         p.data = mob.data();
                         p.data_length = mob.len();
                     }
 
 
                     void tx_interrupt() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     /*! \brief This function is called from the driver-level as
@@ -156,7 +156,7 @@ namespace famouso {
                      *       Technicken zu realisieren.
                      */
                     void rx_interrupt() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         driver.receive(&mob);
                         if (ccp.handle_ccp_configure_request(mob, driver))
                             return;

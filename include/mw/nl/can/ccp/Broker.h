@@ -89,11 +89,11 @@ namespace famouso {
 
                                 // kommt die Nachricht von jemandem der im richtigen stage ist?
                                 if (!(ccp_stage == stage)) {
-                                    std::cerr << "received ccp rsi for stage "
+                                    log::emit< ::logging::Error>() << "received ccp rsi for stage "
                                     << static_cast<uint32_t>(stage)
                                     << " but I am in stage "
                                     << static_cast<uint32_t>(ccp_stage)
-                                    << " dropping it." << std::endl;
+                                    << " dropping it." << log::endl;
                                     return false;
                                 } else {
                                     // stage aktualisieren
@@ -119,14 +119,14 @@ namespace famouso {
                                         // generiere KnotenID, kein freier darf nicht vorkommen, weil dann
                                         // der knoten keine tx_node bekommt
                                         if ((tx_node = search_tx_node(uid)) > constants::Broker_tx_node) {
-                                            std::cerr << "more than " << constants::Broker_tx_node
-                                            << " nodes configured that means something went wrong" << std::endl;
+                                            log::emit< ::logging::Error>() << "more than " << constants::Broker_tx_node
+                                            << " nodes configured that means something went wrong" << log::endl;
                                             return false;
                                         } else {
-                                            std::cout << std::hex << "CCP\t\t -- NodeID  [0x" << uid.value()
+                                            log::emit() << log::hex << "CCP\t\t -- NodeID  [0x" << uid.value()
                                             << "] -> tx_node [0x" << static_cast<uint32_t>(tx_node)
                                             << "] Name=[" << reinterpret_cast<char*>(uid.tab())
-                                            << "] " << std::endl;
+                                            << "] " << log::endl;
                                         }
                                         ccp_stage = 15;
                                         uid = UID();

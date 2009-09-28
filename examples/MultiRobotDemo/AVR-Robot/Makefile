@@ -39,7 +39,7 @@
 
 include ../../../make/Makefile
 
-CXXFLAGS+= -O3
+#CXXFLAGS+= -O3
 
 filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
 
@@ -53,7 +53,7 @@ TARGET = RobotDemo
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 OPT = s
 
-ADDITIONAL_SRC = usart0.cc
+ADDITIONAL_SRC =
 
 #WARNINGS=-Wall -Wextra -Wshadow -Wpointer-arith -Wcast-align -Wsign-compare \
 #		-Waggregate-return

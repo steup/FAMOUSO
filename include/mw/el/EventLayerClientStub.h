@@ -54,6 +54,7 @@
 #include "util/endianness.h"
 #include "case/Delegate.h"
 #include "util/ios.h"
+#include "debug.h"
 
 #include <map>
 
@@ -110,7 +111,7 @@ namespace famouso {
                         try {
                             ec.snn()->connect(endpoint);
                         } catch (...) {
-                            std::cerr << "An error occurred while connecting to the ech" << std::endl;
+                            log::emit< ::logging::Error>() << "An error occurred while connecting to the ech" << log::endl;
                             abort();
                         }
                     }
@@ -128,7 +129,7 @@ namespace famouso {
                     // announce legt hier nur einen Socket an und meldet sich
                     // bei localen EventChannelHandler an
                     void announce(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         do_connection_socket(ec);
                         uint8_t transferBuffer[9] = {FAMOUSO::ANNOUNCE};
                         for (uint8_t i = 0;i < 8;++i)
@@ -140,7 +141,8 @@ namespace famouso {
                     // Publish uebermittelt die Daten
                     // an den localen ECH
                     void publish(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec, const Event &e) {
-                        DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE
+                                << log::hex << log::tab << ec.select() << log::endl;
                         // Hier koennte der Test erfolgen, ob die Subjects vom Event
                         // und vom EventChannel gleich sind, weil nur dann
                         // das Event in diesen Kanal gehoert
@@ -160,7 +162,8 @@ namespace famouso {
 
                     // Verbindung  zum  ECH oeffnen und Subject subscribieren
                     void subscribe(famouso::mw::api::SubscriberEventChannel<EventLayerClientStub> &ec) {
-                        DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE
+                                << log::hex << log::tab << ec.select() << log::endl;
                         do_connection_socket(ec);
                         // create subscribe message
                         uint8_t transferBuffer[9] = {FAMOUSO::SUBSCRIBE};
@@ -175,13 +178,13 @@ namespace famouso {
                         notify_threads_mutex.lock();
                         notify_threads[&ec] = t;
                         notify_threads_mutex.unlock();
-                        DEBUG(("Generate Thread and Connect to local ECH\n"));
+                        log::emit< ::logging::Trace>() << "Generate Thread and Connect to local ECH" << log::endl;
                     }
 
                     // Verbindung schliessen, sollte reichen
                     void unsubscribe(famouso::mw::api::SubscriberEventChannel<EventLayerClientStub> &ec) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
-                        DEBUG(("close connection\n"));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl
+                                << "close connection" << log::endl;
 
                         // Only return when notify thread terminated to prevent the thread to
                         // access already deleted data structures resulting in undefined behaviour
@@ -201,8 +204,8 @@ namespace famouso {
 
                     // Verbindung schliessen sollte reichen
                     void unannounce(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
-                        DEBUG(("close connection\n"));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl
+                                << "close connection" << log::endl;
                         ec.snn()->close();
                     }
             };

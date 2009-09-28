@@ -49,7 +49,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
-#include <iostream>
+#include "debug.h"
 #include <stdint.h>
 #include <errno.h>
 #include <fcntl.h>    // O_RDWR
@@ -143,7 +143,7 @@ namespace device {
                     void write(MOB &mob) {
                         /* send frame */
                         if ( ::write(_can_socket, &mob, sizeof(mob)) != sizeof(mob)) {
-                            std::cerr << "error on writing on SocketCAN socket " << std::endl;
+                            log::emit< ::logging::Error>() << "error on writing on SocketCAN socket " << log::endl;
                             exit(errno);
                         }
                     }
@@ -156,18 +156,18 @@ namespace device {
                         struct sockaddr_can addr;
                         struct ifreq ifr;
                         if ((_can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-                            std::cerr << "can't create SocketCAN socket" << std::endl;
+                            log::emit< ::logging::Error>() << "can't create SocketCAN socket" << log::endl;
                             exit(errno);
                         }
                         strcpy(ifr.ifr_name, param.device.c_str());
                         if (ioctl(_can_socket, SIOCGIFINDEX, &ifr) < 0) {
-                            std::cerr << "SIOCGIFINDEX " << param.device << "no such CAN device found." << std::endl;
+                            log::emit< ::logging::Error>() << "SIOCGIFINDEX " << param.device << "no such CAN device found." << log::endl;
                             exit(errno);
                         }
                         addr.can_ifindex = ifr.ifr_ifindex;
 
                         if (bind(_can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-                            std::cerr << "can't bind CAN device " << param.device << std::endl;
+                            log::emit< ::logging::Error>() << "can't bind CAN device " << param.device << log::endl;
                             exit(errno);
                         }
                    }

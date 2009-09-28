@@ -103,7 +103,7 @@ namespace famouso {
                      *  references).
                      */
                     void init() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         driver.init();
                         driver.rx_Interrupt.template bind<type, &type::rx_interrupt>(this);
                     }
@@ -114,7 +114,7 @@ namespace famouso {
                      *  \param[out] snn Short Network Name
                      */
                     void bind(const Subject &s, SNN &snn) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         snn = s;
                     }
 
@@ -123,7 +123,7 @@ namespace famouso {
                      *  \param[in] p  packet to be published
                      */
                     void deliver(const Packet_t& p) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         struct message buffer;
 
                         SNN *subject = reinterpret_cast<SNN*>( buffer.data );//TODO Problem mit kleinem subject
@@ -143,7 +143,7 @@ namespace famouso {
                      *  \param[in] p  packet of the fragment to be published
                      */
                     void deliver_fragment(const Packet_t& p) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     /*! \brief  Transfers the data of the last received message into a packet
@@ -152,7 +152,7 @@ namespace famouso {
                      *  \param[out] p   packet that is going to contain the received data
                      */
                     void fetch(Packet_t& p) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
 
                         p.snn         = *reinterpret_cast<SNN*>( mbuffer.data );
                         p.data        = mbuffer.data + sizeof( famouso::mw::Subject );
@@ -164,7 +164,7 @@ namespace famouso {
                      *          message.
                      */
                     void rx_interrupt(const mob_t& msg) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         mbuffer.size = 0;
                         while ( mbuffer.size != msg.length) {
                             mbuffer.data[mbuffer.size] = msg.data[mbuffer.size];
@@ -179,7 +179,7 @@ namespace famouso {
                      *  \todo   Provide functionality to use tx_interrupt
                      */
                     void tx_interrupt() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     /*! \brief  Returns Short Network Name of the last received message.

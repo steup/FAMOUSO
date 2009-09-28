@@ -41,7 +41,6 @@
 #define __NetworkAdapter_h__
 
 #include "iostream"
-#include "debug.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/el/EventLayer.h"
 #include "mw/api/SubscriberEventChannel.h"

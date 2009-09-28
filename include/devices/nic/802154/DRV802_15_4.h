@@ -116,16 +116,20 @@ namespace device {
                      *  \todo       use enum parameter for sanity check of maximal payload
                      */
                     void send(const uint8_t* buffer, uint8_t size) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         // asserts if data size corresponds to payload size of communication layer
                         if ( size > _rflayer.getMaxPayload() ) {
-                            DEBUG(("Error: Payload size violation sending DATA RF"));
+                            log::emit< ::logging::Error>()
+                                    <<"Payload size violation sending DATA RF"
+                                    << log::endl;
                             return;
                         }
 
                         // transmit buffer
                         if (!(_rflayer.send(buffer, size, DESTINATION))) {
-                            DEBUG(("Error: MAC transmission failed!"));
+                            log::emit< ::logging::Error>()
+                                    <<"MAC transmission failed!"
+                                    << log::endl;
                             //TODO need there be an error response if transmission failed?
                         }
                     }

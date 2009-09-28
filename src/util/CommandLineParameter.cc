@@ -40,7 +40,7 @@
 #include "util/CommandLineParameter.h"
 #include "util/CommandLineParameterProvider.h"
 
-#include <iostream>
+#include "debug.h"
 
 namespace famouso {
 
@@ -59,7 +59,7 @@ namespace famouso {
 
             // if the help parameter is given. Print the help and exit
             if (vm::instance().count("help")) {
-                std::cout << cmdline_options::instance() << "\n";
+                log::emit() << cmdline_options::instance() << "\n";
                 exit(0);
             }
         }

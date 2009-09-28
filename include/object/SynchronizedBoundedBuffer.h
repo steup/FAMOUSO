@@ -47,7 +47,7 @@
 #include <boost/function.hpp>
 #include <boost/circular_buffer.hpp>
 #include <deque>
-#include <iostream>
+#include "debug.h"
 
 namespace object {
 

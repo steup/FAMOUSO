@@ -79,7 +79,7 @@ namespace famouso {
                      *    the respective callback for publishing.
                      */
                     GatewayEventChannel(const Subject &s, const famouso::mw::nl::BaseNL * const bnl) : BASE(s), _bnl(bnl) {
-                        DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
 
                         this->ech().subscribe(*this);
                         // initialize the forwarding callback
@@ -96,7 +96,7 @@ namespace famouso {
                      *    \param[in] cbd the event that needs to be forwarded.
                      */
                     void forward(famouso::mw::api::SECCallBackData& cbd) {
-                        DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
 
                         // If the event is from the another network as the subscription it will
                         // be published, otherwise it would an reflection in the same network

@@ -45,7 +45,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/pool/pool.hpp>
 
-#include <iostream>
+#include "debug.h"
 
 #include "mw/common/Event.h"
 #include "mw/api/PublisherEventChannel.h"
@@ -198,16 +198,16 @@ namespace famouso {
                              *  \param str Message
                              */
                             void report(const famouso::mw::Subject &s, const char *const str) {
-                                std::cout << "Channel\t\t -- Subject [";
+                                log::emit() << "Channel\t\t -- Subject [";
                                 for (uint8_t i = 0;i < 8;++i) {
                                     uint8_t c = s.tab()[i];
                                     if ((c < 32) || (c > 126)) c = 32;   // only printable characters
-                                    std::cout << c ;
+                                    log::emit() << c ;
                                 }
-                                std::cout << "] -> " << str << "\t0x" << std::hex;
-                                std::cout.fill('0');
-                                std::cout.width(16);
-                                std::cout << s.value() << std::endl;
+                                log::emit() << "] -> " << str << "\t0x" << log::hex;
+//                                log::emit().fill('0');
+//                                log::emit().width(16);
+                                log::emit() << s.value() << log::endl;
                             }
 
                             /*!
@@ -377,10 +377,10 @@ namespace famouso {
                                                 break;
                                             }
                                         default:
-                                            std::cerr << "Wrong opcode:\t0x" << event_head[0] << std::endl;
+                                            log::emit< ::logging::Error>() << "Wrong opcode:\t0x" << event_head[0] << log::endl;
                                     }
                                 } else {
-                                    std::cerr << "Wrong message format:" << std::endl;
+                                    log::emit< ::logging::Error>() << "Wrong message format:" << log::endl;
                                 }
                             }
 
@@ -433,7 +433,7 @@ namespace famouso {
                             ecc->start();
                             start_accept();
                         } else {
-                            std::cerr << "Error in asynchronous acceptance of an incoming connection or CTRL^C" << std::endl;
+                            log::emit< ::logging::Error>() << "Error in asynchronous acceptance of an incoming connection or CTRL^C" << log::endl;
                         }
                     }
                     boost::asio::ip::tcp::acceptor acceptor_;

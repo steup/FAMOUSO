@@ -44,7 +44,7 @@
  *  Michael Schulze, 2008
  */
 
-#include <iostream>
+#include "debug.h"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/xtime.hpp>
 
@@ -56,9 +56,10 @@
 // definition of a simple event callback that
 // prints the received event data out
 void cb(famouso::mw::api::SECCallBackData& cbd) {
-    std::cout << __PRETTY_FUNCTION__ << " Length="
+    log::emit() << FUNCTION_SIGNATURE << " Length="
     << cbd.length << " Event data="
-    << cbd.data << std::endl;
+    << cbd.data << log::endl;
+    std::cout<< cbd.data <<std::endl;
 }
 
 int main(int argc, char **argv) {

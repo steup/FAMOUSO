@@ -103,7 +103,7 @@ namespace famouso {
                      *  \param[in]  ec the publishing event channel that is announced
                      */
                     void announce(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         LL::announce(ec.subject(), ec.snn());
                         Publisher.append(ec);
                     }
@@ -115,7 +115,8 @@ namespace famouso {
                      *
                      */
                     void publish(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e) {
-                        DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE
+                                 << log::hex << ec.select() << log::endl;
                         // publish on all  lower layers/subnets
                         LL::publish(ec.snn(), e);
 
@@ -129,7 +130,8 @@ namespace famouso {
                      *  \param[in]  ec the subscribing event channel that is announced
                      */
                     void subscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        DEBUG(("%s %p\n", __PRETTY_FUNCTION__, ec.select()));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE
+                                 << log::hex << ec.select() << log::endl;
                         LL::subscribe(ec.subject(), ec.snn());
                         Subscriber.append(ec);
                     }
@@ -140,7 +142,7 @@ namespace famouso {
                      *  \param[in]  ec the unsubscribed event channel
                      */
                     void unsubscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         Subscriber.remove(ec);
                     }
 
@@ -150,7 +152,7 @@ namespace famouso {
                      *  \param[in]  ec the unsubscribed event channel
                      */
                     void unannounce(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         Publisher.remove(ec);
                     }
 
@@ -190,7 +192,7 @@ namespace famouso {
                      *              layer.
                      */
                     void fetch(famouso::mw::nl::BaseNL *bnl = 0) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
 
                         // give start of the SubsriberList
                         typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;

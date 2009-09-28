@@ -67,7 +67,7 @@ namespace famouso {
                      *         \sa AbstractNetworkLayer::announce
                      */
                     void announce() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         EventChannel<ECH>::ech().announce(*this);
                     }
 
@@ -78,13 +78,13 @@ namespace famouso {
                      *         \sa AbstractNetworkLayer::publish
                      */
                     void publish(const Event& e) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         EventChannel<ECH>::ech().publish(*this, e);
                     }
 
                 private:
                     void unannounce() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         EventChannel<ECH>::ech().unannounce(*this);
                     }
 

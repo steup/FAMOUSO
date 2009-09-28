@@ -40,6 +40,7 @@
 #ifndef __SubscriberEventChannel_h__
 #define __SubscriberEventChannel_h__
 
+#include "debug.h"
 #include "mw/api/EventChannel.h"
 
 namespace famouso {
@@ -74,7 +75,7 @@ namespace famouso {
                      *         \sa AbstractNetworkLayer::subscribe
                      */
                     void subscribe() {
-                        DEBUG(("%s %p\n", __PRETTY_FUNCTION__, this));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::tab << this << log::endl;
                         // initialize a dummy callback if necessary
                         if (!callback)
                             callback.bind<&famouso::mw::api::cb>();
@@ -84,7 +85,7 @@ namespace famouso {
 
                 protected:
                     void unsubscribe() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         EventChannel<ECH>::ech().unsubscribe(*this);
                     }
 

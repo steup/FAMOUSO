@@ -58,7 +58,6 @@ namespace famouso {
                 public:
                     struct info {
                         enum {
-                            payload = 8
                         };
                     };
 
@@ -71,33 +70,33 @@ namespace famouso {
                     ~UDPBroadCastNL() {}
 
                     void init(const NodeID &i) {
-                        DEBUG(("%s Configuration 64Bit NodeID=%lld\n", __PRETTY_FUNCTION__, i.value));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << " Configuration 64Bit NodeID=" << i.value() << log::endl;
                     }
 
                     // bind Subject to specific networks name
                     void bind(const Subject &s, SNN &snn) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     void deliver(const Packet_t& p) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     void deliver_fragment(const Packet_t& p) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     void fetch(Packet_t& p) {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     void interrupt() {
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                     }
 
                     void init() {
+                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
                         famouso::util::impl::start_ios();
-                        DEBUG(("%s\n", __PRETTY_FUNCTION__));
                     }
                     SNN lastPacketSNN() {
                         return 0;

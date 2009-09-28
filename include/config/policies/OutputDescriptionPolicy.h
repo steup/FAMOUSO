@@ -40,7 +40,7 @@
 #ifndef __OutputDescriptionPolicy_h__
 #define __OutputDescriptionPolicy_h__
 
-#include <iostream>
+#include "debug.h"
 
 /*! \brief OutputDescriptionPolicy prints the description of
  *         the configuration if such a description exists.
@@ -61,7 +61,7 @@ struct OutputDescriptionPolicy {
      */
     template< typename T, typename SubType, typename R>
     static __attribute__((always_inline)) R process() {
-        std::cout << SubType::desc() << std::endl;
+        log::emit() << SubType::desc() << log::endl;
         return R();
     }
 };

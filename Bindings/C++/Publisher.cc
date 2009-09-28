@@ -43,7 +43,7 @@
  * Michael Schulze, 2008
  */
 
-#include <iostream>
+#include "debug.h"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/xtime.hpp>
 
