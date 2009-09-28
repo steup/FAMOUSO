@@ -50,7 +50,7 @@ OBJCOPY	= avr-objcopy
 AVRDUDE = avrdude
 
 MCU=at90can128
-ADDITIONAL_CFLAGS += -DAVR -mmcu=$(MCU) -fno-threadsafe-statics
+ADDITIONAL_CFLAGS += -DAVR -mmcu=$(MCU) -fno-threadsafe-statics -Os
 
 ################################################################################
 #AVRDUDE_PORT = /dev/parport0  # programmer connected to serial device
