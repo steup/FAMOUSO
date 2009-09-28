@@ -46,11 +46,10 @@
 #define FUNCTION_SIGNATURE  __FUNCSIG__
 #endif
 
-#ifdef FAMOUSO_DISABLE_DEBUG
-#define LOGGING_DISABLE
-#endif
-
 #include "logging/logging.h"
 using namespace ::logging;
+#ifdef FAMOUSO_DEBUG_DISABLE
 LOGGING_DISABLE_LEVEL(::logging::Trace);
+#endif
+
 #endif

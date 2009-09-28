@@ -65,7 +65,7 @@ LIBFAMOUSO  = $(LIBDIR)/lib$(LIBNAME).a
 LIB         = -L$(LIBDIR) -lfamouso
 INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 
-FAMOUSO_DEBUG ?= -g -DNDEBUG
+FAMOUSO_DEBUG ?= -g -DFAMOUSO_DEBUG_DISABLE
 
 #Additional external libs
 
