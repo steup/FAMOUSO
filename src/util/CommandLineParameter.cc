@@ -59,7 +59,7 @@ namespace famouso {
 
             // if the help parameter is given. Print the help and exit
             if (vm::instance().count("help")) {
-                log::emit() << cmdline_options::instance() << "\n";
+                std::cout << cmdline_options::instance() << "\n";
                 exit(0);
             }
         }
