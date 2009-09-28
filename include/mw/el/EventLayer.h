@@ -156,8 +156,6 @@ namespace famouso {
                         Publisher.remove(ec);
                     }
 
-                private:
-
                     /*! \brief  publishes an event from an event channel locally to other
                      *          event channels that have subscribed to the same subject. Thus
                      *          this method can be seen as the local event channel handler.
@@ -166,7 +164,6 @@ namespace famouso {
                      *
                      */
                     void publish_local(const Event &e) {
-
                         // give start of the SubsriberList
                         typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
                         ec_t* sec = static_cast<ec_t*>(Subscriber.select());
@@ -178,8 +175,6 @@ namespace famouso {
                             sec = static_cast<ec_t*>(sec->select());
                         }
                     }
-
-                public:
 
                     /*! \brief Fetches an event from a specific sub network.
                      *
