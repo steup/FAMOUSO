@@ -48,14 +48,14 @@
 #include "logging/FileOutput.h"
 
 namespace logging {
-    /*!\brief The %config namespace separates the configurations of the %logging
+    /*!\brief The %_config_ namespace separates the configurations of the %logging
      *        framework from the %logging namespace avoiding name clashes.
      *
      *        It contains different possible configurations for different
      *        platforms, but the configurations are not limited to the yet
      *        provided one.
      */
-    namespace config {
+    namespace _config_ {
 
         /*!\brief FileLogType is a possible %logging type, supporting %logging
          *        to a file on general purpose operating systems
@@ -95,7 +95,7 @@ namespace logging {
 
     /*!\brief base logging type for the respective platform
      */
-    typedef ::logging::config::StdLogType LoggingType;
+    typedef ::logging::_config_::StdLogType LoggingType;
 }
 
 
