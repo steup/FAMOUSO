@@ -37,43 +37,12 @@
 ##
 ################################################################################
 
-# If INSTALLDIR isn't defined, the FAMOUSO root directory is automatically determind
-ifeq ($(INSTALLDIR),)
-# get the path of this makefile
-this_makefile_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-# erase the trailing /make/ in order to get the correct root of FAMOUSO
-INSTALLDIR := $(patsubst %/make/,%,$(this_makefile_dir))
-endif
-
-ifneq ($(shell test -f $(INSTALLDIR)/make/config.mk && echo success), success)
-# INSTALLDIR is defined wrong
-$(info )
-$(info The INSTALLDIR you gave to FAMOUSO's make-system is wrong. The make-system  )
-$(info could not find its needed files. In general FAMOUSO's make-system is able   )
-$(info to determine its root directory automatically. Thus, you have three options:)
-$(info     - First, you don't define INSTALLDIR and let the make-system do the job.)
-$(info     - Second, you define the INSTALLDIR environment variable.               )
-$(info     - Third, you start make as follows "make INSTALLDIR=famouso-root-dir".  )
-$(info )
-$(error FAMOUSO's root directory is given wrong)
-endif
-
-# Alle Makefiles in der richtigen Reihenfolge laden
+# -----------------------------------------------------------------------------
 #
-# Definition des Targets und zusaetzlicher Einstellungen lesen
-include $(INSTALLDIR)/make/config.mk
-include $(INSTALLDIR)/make/tags.mk
+#                             SOURCES
+#
+# -----------------------------------------------------------------------------
 
-# einige Definition lesen, die immer gelten
-include $(INSTALLDIR)/make/global.mk
-include $(INSTALLDIR)/make/sources.mk
-
-# Definition lesen, die fuer spezielle Targets gelten
--include $(INSTALLDIR)/make/$(PLATFORM)/defs.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/sources.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/defs.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/sources.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
-
-include $(INSTALLDIR)/make/rules.mk
+SOURCES  += \
+src/util/openwrt-compiler-workaround.cc
 
