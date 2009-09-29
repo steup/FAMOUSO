@@ -55,7 +55,7 @@ endif
 
 endif
 
-PCANLIBRARY=$(shell test -f $(PCANLIB) && echo $(PCANLIB))
+PCANLIBRARY="$(shell test -f $(PCANLIB) && echo $(PCANLIB))"
 
 ADDITIONAL_LIBS         += -lwsock32 -lws2_32 $(PCANLIBRARY)
 ADDITIONAL_CFLAGS       += -DWIN32 -D_WIN32_WINNT=0x0501 -D__USE_W32_SOCKETS -mno-cygwin -DWIN32_LEAN_AND_MEAN $(PEAKDEVICE) -I$(PCANINC)
