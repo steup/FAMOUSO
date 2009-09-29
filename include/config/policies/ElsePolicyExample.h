@@ -70,7 +70,7 @@ struct ElsePolicyExample {
      */
     template< typename T, typename SubTypeNotDefined, typename R>
     static  R process() {
-        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+        TRACE_FUNCTION;
         return R();
     }
 };

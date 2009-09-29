@@ -75,7 +75,7 @@ namespace famouso {
                      *         \sa AbstractNetworkLayer::subscribe
                      */
                     void subscribe() {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         // initialize a dummy callback if necessary
                         if (!callback)
                             callback.bind<&famouso::mw::api::cb>();
@@ -85,7 +85,7 @@ namespace famouso {
 
                 protected:
                     void unsubscribe() {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         EventChannel<ECH>::ech().unsubscribe(*this);
                     }
 

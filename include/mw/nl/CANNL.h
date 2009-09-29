@@ -92,7 +92,7 @@ namespace famouso {
                     void init(const NodeID &i) {
                         // hier muss das CAN Configuration Protokoll durchlaufen werden.
                         // vorher darf man aus dieser Funktion nicht zurueck kommen
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Trace>()
                             << " Configuration 64Bit NodeID=" << i.value()
                             << ::logging::log::endl;
@@ -106,13 +106,13 @@ namespace famouso {
 
                     // bind Subject to specific networks name
                     void bind(const Subject &s, SNN &snn) {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         snn = etagBP.bind_subject(s, tx_node, driver);
                     }
 
                     void deliver(const Packet_t& p) {
                         // senden des CAN Paketes
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         typename CAN_Driver::MOB m;
 
                         m.extended();
@@ -129,19 +129,19 @@ namespace famouso {
 
                     void deliver_fragment(const Packet_t& p) {
                         // Fragmentierung wird zur Zeit noch nicht unterstuetzt
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                     }
 
                     void fetch(Packet_t& p) {
                         // ist das Auslesen eines einzelnen Paketes
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         p.data = mob.data();
                         p.data_length = mob.len();
                     }
 
 
                     void tx_interrupt() {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                     }
 
                     /*! \brief This function is called from the driver-level as
@@ -159,7 +159,7 @@ namespace famouso {
                      *       Technicken zu realisieren.
                      */
                     void rx_interrupt() {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         driver.receive(&mob);
                         if (ccp.handle_ccp_configure_request(mob, driver))
                             return;

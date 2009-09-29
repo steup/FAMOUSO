@@ -72,7 +72,7 @@ namespace famouso {
                         init(UID());
                     }
                     void init(const NodeID &i) {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Trace>()
                             << " Configuration 64Bit NodeID=" << i.value()
                             << ::logging::log::endl;
@@ -80,24 +80,24 @@ namespace famouso {
 
                     // bind Subject to specific networks name
                     void bind(const Subject &s, SNN &snn) {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         snn = 0x1;
                     }
 
                     void deliver(const Packet_t& p) {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                     }
 
                     void deliver_fragment(const Packet_t& p) {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                     }
 
                     void fetch(Packet_t& p) {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                     }
 
                     void interrupt() {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                     }
 
                     SNN lastPacketSNN() {

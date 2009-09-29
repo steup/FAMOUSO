@@ -70,7 +70,7 @@ struct ThenPolicyExample {
      */
     template< typename T, typename SubType, typename R>
     static  R process() {
-        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+        TRACE_FUNCTION;
         return R();
     }
 };

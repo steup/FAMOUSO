@@ -116,7 +116,7 @@ namespace device {
                      *  \todo       use enum parameter for sanity check of maximal payload
                      */
                     void send(const uint8_t* buffer, uint8_t size) {
-                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        TRACE_FUNCTION;
                         // asserts if data size corresponds to payload size of communication layer
                         if ( size > _rflayer.getMaxPayload() ) {
                             ::logging::log::emit< ::logging::Error>()

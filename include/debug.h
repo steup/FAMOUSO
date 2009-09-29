@@ -52,4 +52,10 @@
 LOGGING_DISABLE_LEVEL(::logging::Trace);
 #endif
 
+#define TRACE_FUNCTION do {                   \
+    ::logging::log::emit< ::logging::Trace>() \
+       << FUNCTION_SIGNATURE                  \
+       << ::logging::log::endl;               \
+} while(0)
+
 #endif
