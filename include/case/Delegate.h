@@ -98,7 +98,6 @@ namespace famouso {
                 }
 
                 //  additional attributes only support on newer compilers
-                //  void operator ()(parameter a0) const __attribute__((always_inline))
                 void operator()(parameter a0) const {
                     (*stub_ptr_)(obj_ptr_, a0);
                 }
@@ -159,7 +158,6 @@ namespace famouso {
                 }
 
                 //  additional attributes only support on newer compilers
-                //  void operator ()() const __attribute__((always_inline))
                 void operator()() const {
                     (*stub_ptr_)(obj_ptr_);
                 }

@@ -69,7 +69,7 @@ struct ElsePolicyExample {
      *
      */
     template< typename T, typename SubTypeNotDefined, typename R>
-    static __attribute__((always_inline)) R process() {
+    static  R process() {
         ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
         return R();
     }

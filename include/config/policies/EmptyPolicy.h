@@ -64,7 +64,7 @@ struct EmptyPolicy {
      *
      */
     template< typename T, typename NoSubType, typename R>
-    static __attribute__((always_inline)) R process() {
+    static  R process() {
         return R();
     }
 };

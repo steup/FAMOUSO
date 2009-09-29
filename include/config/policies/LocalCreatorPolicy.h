@@ -68,7 +68,7 @@ struct LocalCreatorPolicy {
      *
      */
     template< typename T, typename SubType, typename R>
-    static __attribute__((always_inline)) R process() {
+    static  R process() {
         // here we give an additional attribute to still the compiler,
         // because we only want to create an %object and call its
         // constructor
