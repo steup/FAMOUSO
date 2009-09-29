@@ -198,16 +198,14 @@ namespace famouso {
                              *  \param str Message
                              */
                             void report(const famouso::mw::Subject &s, const char *const str) {
-                                log::emit() << "Channel\t\t -- Subject [";
+                                ::logging::log::emit() << "Channel\t\t -- Subject [";
                                 for (uint8_t i = 0;i < 8;++i) {
                                     uint8_t c = s.tab()[i];
                                     if ((c < 32) || (c > 126)) c = 32;   // only printable characters
-                                    log::emit() << c ;
+                                    ::logging::log::emit() << c ;
                                 }
-                                log::emit() << "] -> " << str << "\t0x" << log::hex;
-//                                log::emit().fill('0');
-//                                log::emit().width(16);
-                                log::emit() << s.value() << log::endl;
+                                ::logging::log::emit() << "] -> " << str << "\t0x" << ::logging::log::hex;
+                                ::logging::log::emit() << s.value() << ::logging::log::endl;
                             }
 
                             /*!
@@ -377,10 +375,12 @@ namespace famouso {
                                                 break;
                                             }
                                         default:
-                                            log::emit< ::logging::Error>() << "Wrong opcode:\t0x" << event_head[0] << log::endl;
+                                            ::logging::log::emit< ::logging::Error>() << "Wrong opcode:\t0x"
+                                                << event_head[0] << ::logging::log::endl;
                                     }
                                 } else {
-                                    log::emit< ::logging::Error>() << "Wrong message format:" << log::endl;
+                                    ::logging::log::emit< ::logging::Error>() << "Wrong message format:"
+                                        << ::logging::log::endl;
                                 }
                             }
 
@@ -433,7 +433,9 @@ namespace famouso {
                             ecc->start();
                             start_accept();
                         } else {
-                            log::emit< ::logging::Error>() << "Error in asynchronous acceptance of an incoming connection or CTRL^C" << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "Error in asynchronous acceptance of an incoming connection or CTRL^C"
+                                << ::logging::log::endl;
                         }
                     }
                     boost::asio::ip::tcp::acceptor acceptor_;

@@ -61,7 +61,7 @@ struct OutputDescriptionPolicy {
      */
     template< typename T, typename SubType, typename R>
     static __attribute__((always_inline)) R process() {
-        log::emit() << SubType::desc() << log::endl;
+        ::logging::log::emit() << SubType::desc() << ::logging::log::endl;
         return R();
     }
 };

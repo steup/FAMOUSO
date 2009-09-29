@@ -131,7 +131,9 @@ namespace famouso {
                                     boost::asio::placeholders::bytes_transferred
                                    ));
                 } else {
-                    log::emit< ::logging::Error>() << "while receiving : " << error.message() << log::endl;
+                    ::logging::log::emit< ::logging::Error>()
+                        << "while receiving : " << error.message()
+                        << ::logging::log::endl;
                     throw "Error in UDPMultiCastNL::interrupt";
                 }
 

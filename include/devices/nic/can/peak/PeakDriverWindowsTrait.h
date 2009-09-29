@@ -83,13 +83,16 @@ namespace device {
                         CLP::config::PEAKOptions::Parameter param;
                         CLP::config::PEAKOptions::instance().getParameter(param);
                         if ( (param.baudrate < 0) || (param.baudrate > 8) ) {
-                            log::emit< ::logging::Error>() << "Error: parameter baudrate out of Range" << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "Error: parameter baudrate out of Range"
+                                << ::logging::log::endl;
                             exit(0);
                         }
 
                         errno = CAN_Init(baudrates[param.baudrate], CAN_INIT_TYPE_EX);
                         if (errno) {
-                            log::emit< ::logging::Error>() << "CAN_Init() fails" << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "CAN_Init() fails" << ::logging::log::endl;
                             exit(errno);
                         }
                     }

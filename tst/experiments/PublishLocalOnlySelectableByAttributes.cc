@@ -71,9 +71,9 @@ typedef config::SEC SEC;
 
 // callback that is called on occurrence of an event
 void cb(famouso::mw::api::SECCallBackData& cbd) {
-    log::emit() << "Michaels CallBack " << FUNCTION_SIGNATURE
+    ::logging::log::emit() << "Michaels CallBack " << FUNCTION_SIGNATURE
             << " Parameter=" <<  cbd.length
-            << " Daten:=" << cbd.data << log::endl;
+            << " Daten:=" << cbd.data << ::logging::log::endl;
 }
 
 // test on equality

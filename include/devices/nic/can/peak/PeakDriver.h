@@ -69,8 +69,9 @@ namespace device {
                      */
                     void write(typename PeakTrait::MOB &mob) {
                         if ((errno = PeakTrait::write_mob(mob))) {
-                            log::emit< ::logging::Error>() << "CAN_Read() error" << log::endl;
-                            log::emit< ::logging::Error>() << "closing application" << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "CAN_Read() error" << ::logging::log::endl
+                                << "closing application" << ::logging::log::endl;
                             exit(0);
                         }
                     }
@@ -90,19 +91,23 @@ namespace device {
                                     if (mob.MSGTYPE & MSGTYPE_STATUS) {
                                         status = PeakTrait::status();
                                         if ((int)status < 0) {
-                                            log::emit< ::logging::Error>() << "CAN error" << log::endl;
-                                            log::emit< ::logging::Error>() << "closing application" << log::endl;
+                                            ::logging::log::emit< ::logging::Error>()
+                                                << "CAN error" << ::logging::log::endl
+                                                << "closing application" << ::logging::log::endl;
                                             exit(0);
                                         } else
-                                            log::emit< ::logging::Error>() << "pending %CAN status 0x." << status << " read." << log::endl;
+                                            ::logging::log::emit< ::logging::Error>()
+                                                << "pending %CAN status 0x." << status
+                                                << " read." << ::logging::log::endl;
                                         return false;
                                     }
                                     return true;
                                 }
                             case    CAN_ERR_QRCVEMPTY: break; // hier muss warten implementiert werden, falls zu oft gepolled wird
                             default: {
-                                    log::emit< ::logging::Error>() << "CAN_Read() error" << log::endl;
-                                    log::emit< ::logging::Error>() << "closing application" << log::endl;
+                                    ::logging::log::emit< ::logging::Error>()
+                                        << "CAN_Read() error" << ::logging::log::endl
+                                        << "closing application" << ::logging::log::endl;
                                     exit(0);
                                 }
                         }

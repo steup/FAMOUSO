@@ -55,7 +55,7 @@ namespace famouso {
                             famouso::util::ios::instance().run();
                         }
                     } catch (const char *c) {
-                        log::emit< ::logging::Error>() << "Exception : " << c << log::endl;
+                        ::logging::log::emit< ::logging::Error>() << "Exception : " << c << ::logging::log::endl;
                         abort();
                     }
                 }

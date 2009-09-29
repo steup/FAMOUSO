@@ -143,7 +143,9 @@ namespace device {
                     void write(MOB &mob) {
                         /* send frame */
                         if ( ::write(_can_socket, &mob, sizeof(mob)) != sizeof(mob)) {
-                            log::emit< ::logging::Error>() << "error on writing on SocketCAN socket " << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "error on writing on SocketCAN socket "
+                                << ::logging::log::endl;
                             exit(errno);
                         }
                     }
@@ -156,18 +158,25 @@ namespace device {
                         struct sockaddr_can addr;
                         struct ifreq ifr;
                         if ((_can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-                            log::emit< ::logging::Error>() << "can't create SocketCAN socket" << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "can't create SocketCAN socket"
+                                << ::logging::log::endl;
                             exit(errno);
                         }
                         strcpy(ifr.ifr_name, param.device.c_str());
                         if (ioctl(_can_socket, SIOCGIFINDEX, &ifr) < 0) {
-                            log::emit< ::logging::Error>() << "SIOCGIFINDEX " << param.device << "no such CAN device found." << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "SIOCGIFINDEX " << param.device
+                                << "no such CAN device found."
+                                << ::logging::log::endl;
                             exit(errno);
                         }
                         addr.can_ifindex = ifr.ifr_ifindex;
 
                         if (bind(_can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-                            log::emit< ::logging::Error>() << "can't bind CAN device " << param.device << log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << "can't bind CAN device " << param.device
+                                << ::logging::log::endl;
                             exit(errno);
                         }
                    }

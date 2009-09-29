@@ -70,7 +70,7 @@ struct CC : public Base {
      */
     CC& operator << (const ConsoleColors::Colors l) {
         unsigned char tmp=Base::getBase();
-        *this << log::dec << "\033[0" << static_cast<unsigned short>(l) << 'm';
+        *this << ::logging::log::dec << "\033[0" << static_cast<unsigned short>(l) << 'm';
         Base::setBase(tmp);
         return *this;
     }
@@ -89,17 +89,17 @@ LOGGING_DEFINE_OUTPUT( CC< ::logging::LoggingType> )
 
 
 int main(int, char**) {
-    log::emit() << "Hello World! with the logging framework"
-                << log::endl << log::endl;
+    ::logging::log::emit() << "Hello World! with the logging framework"
+                << ::logging::log::endl << ::logging::log::endl;
 
     // using the extension to colorize the output
-    log::emit() << ConsoleColors::magenta
+    ::logging::log::emit() << ConsoleColors::magenta
                 << "Combining console codes"
                 << ConsoleColors::reset
-                << log::endl << log::endl;
+                << ::logging::log::endl << ::logging::log::endl;
 
-    log::emit() << "and back to normal color mode"
-                << log::endl;
+    ::logging::log::emit() << "and back to normal color mode"
+                << ::logging::log::endl;
 
     return 0;
 }

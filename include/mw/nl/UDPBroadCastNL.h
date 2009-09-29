@@ -70,32 +70,35 @@ namespace famouso {
                     ~UDPBroadCastNL() {}
 
                     void init(const NodeID &i) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << " Configuration 64Bit NodeID=" << i.value() << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        ::logging::log::emit< ::logging::Trace>()
+                            << " Configuration 64Bit NodeID=" << i.value()
+                            << ::logging::log::endl;
                     }
 
                     // bind Subject to specific networks name
                     void bind(const Subject &s, SNN &snn) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                     }
 
                     void deliver(const Packet_t& p) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                     }
 
                     void deliver_fragment(const Packet_t& p) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                     }
 
                     void fetch(Packet_t& p) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                     }
 
                     void interrupt() {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                     }
 
                     void init() {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         famouso::util::impl::start_ios();
                     }
                     SNN lastPacketSNN() {

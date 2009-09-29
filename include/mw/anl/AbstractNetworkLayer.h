@@ -89,7 +89,7 @@ namespace famouso {
                      *  \param[out]  snn the short network name of the subject
                      */
                     void announce(const Subject &s, SNN &snn) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         NL::bind(s, snn);
                         // nach dem Bind noch bekannt geben,
                         // das dieser Kanal publiziert wird
@@ -101,14 +101,14 @@ namespace famouso {
                      *  \param[in]  e the event that has to be published
                      */
                     void publish(const SNN &snn, const Event &e) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         typename NL::Packet_t p(snn, &e[0], e.length);
                         if (e.length <= NL::info::payload)
                             NL::deliver(p);
                         else
-                            log::emit< ::logging::Warning>()
+                            ::logging::log::emit< ::logging::Warning>()
                                 << "Event is to big to deliver at once and fragmentation"
-                                << "is not supported at the moment" << log::endl;
+                                << "is not supported at the moment" << ::logging::log::endl;
                     }
 
                     /*! \brief  subscribe a subject and get its short network representation
@@ -122,7 +122,7 @@ namespace famouso {
                      *  \param[out]  snn the short network name of the subject
                      */
                     void subscribe(const Subject &s, SNN &snn) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         NL::bind(s, snn);
                         // nach dem Bind auch noch bekannt geben,
                         // dass dieser Kanal subscribiert wird
@@ -142,7 +142,7 @@ namespace famouso {
                      *          \li \b false otherwise
                      */
                     bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::BaseNL *bnl) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         if (snn == NL::lastPacketSNN()) {
                             typename NL::Packet_t p;
                             NL::fetch(p);

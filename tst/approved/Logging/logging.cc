@@ -52,22 +52,33 @@ using namespace ::logging;
 
 struct Test {
     Test() {
-        log::emit< ::logging::Info>() << "Test::Test()\n";
+        ::logging::log::emit< ::logging::Info>() << "Test::Test()\n";
     }
     ~Test() {
-        log::emit< ::logging::Info>() << "~Test::Test()\n";
+        ::logging::log::emit< ::logging::Info>() << "~Test::Test()\n";
     }
 };
 
 int main(int, char**) {
-    log::emit() << "Hello World! with the logging framework" << log::endl << log::endl;
-    log::emit() << "Print 15 in hexadecimal " << log::hex << 15 << log::endl;
-    log::emit() << "Print 15 in decimal" << log::dec << 15 << log::endl;
-    log::emit() << "Print 15 in octal " << log::oct << 15 << log::endl;
-    log::emit() << "Print 15 in binary with a tab" << log::bin << log::tab << 15 << log::endl << log::endl;
-    log::emit< ::logging::Error>() << "Logging an Error" << log::endl;
-    log::emit< ::logging::Trace>() << "Logging a Trace" << log::endl;
-    log::emit< ::logging::Warning>() << "Logging a Warning" << log::endl;
-    log::emit< ::logging::Info>() << "Logging an Info" << log::endl;
+    ::logging::log::emit() << "Hello World! with the logging framework"
+        << ::logging::log::endl << ::logging::log::endl;
+    ::logging::log::emit() << "Print 15 in hexadecimal "
+        << ::logging::log::hex << 15 << ::logging::log::endl;
+    ::logging::log::emit() << "Print 15 in decimal"
+        << ::logging::log::dec << 15 << ::logging::log::endl;
+    ::logging::log::emit() << "Print 15 in octal "
+        << ::logging::log::oct << 15 << ::logging::log::endl;
+    ::logging::log::emit() << "Print 15 in binary with a tab"
+        << ::logging::log::bin << ::logging::log::tab << 15
+        << ::logging::log::endl << ::logging::log::endl;
+
+    ::logging::log::emit< ::logging::Error>() << "Logging an Error"
+        << ::logging::log::endl;
+    ::logging::log::emit< ::logging::Trace>() << "Logging a Trace"
+        << ::logging::log::endl;
+    ::logging::log::emit< ::logging::Warning>() << "Logging a Warning"
+        << ::logging::log::endl;
+    ::logging::log::emit< ::logging::Info>() << "Logging an Info"
+        << ::logging::log::endl;
     return 0;
 }

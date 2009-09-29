@@ -47,7 +47,7 @@
 #endif
 
 #include "logging/logging.h"
-using namespace ::logging;
+
 #ifdef FAMOUSO_DEBUG_DISABLE
 LOGGING_DISABLE_LEVEL(::logging::Trace);
 #endif

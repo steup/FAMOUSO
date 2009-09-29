@@ -56,9 +56,9 @@
 // definition of a simple event callback that
 // prints the received event data out
 void cb(famouso::mw::api::SECCallBackData& cbd) {
-    log::emit() << FUNCTION_SIGNATURE << " Length="
+    ::logging::log::emit() << FUNCTION_SIGNATURE << " Length="
     << cbd.length << " Event data="
-    << cbd.data << log::endl;
+    << cbd.data << ::logging::log::endl;
     std::cout<< cbd.data <<std::endl;
 }
 

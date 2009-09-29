@@ -262,7 +262,7 @@ namespace famouso {
                                         /*! \todo implement subscription announcement see protocol specification in doc */
                                         break;
                                     }
-                                default: log::emit() << "AWDS_Packet not supported yet" << log::endl;
+                                default: ::logging::log::emit() << "AWDS_Packet not supported yet" << ::logging::log::endl;
                             }
 
                             m_socket.async_receive(boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
@@ -271,7 +271,7 @@ namespace famouso {
                                                                boost::asio::placeholders::bytes_transferred));
 
                         } else {
-                            log::emit< ::logging::Error>() << "AWDS-Network : " << error.message() << log::endl;
+                            ::logging::log::emit< ::logging::Error>() << "AWDS-Network : " << error.message() << ::logging::log::endl;
                             throw "AWDS-Network disconnected likely";
                         }
 

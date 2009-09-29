@@ -103,7 +103,7 @@ namespace famouso {
                      *  \param[in]  ec the publishing event channel that is announced
                      */
                     void announce(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         LL::announce(ec.subject(), ec.snn());
                         Publisher.append(ec);
                     }
@@ -115,8 +115,9 @@ namespace famouso {
                      *
                      */
                     void publish(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE
-                                 << log::hex << ec.select() << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << "Publish channel "
+                                 << ::logging::log::hex << ec.select() << ::logging::log::endl;
                         // publish on all  lower layers/subnets
                         LL::publish(ec.snn(), e);
 
@@ -130,8 +131,9 @@ namespace famouso {
                      *  \param[in]  ec the subscribing event channel that is announced
                      */
                     void subscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE
-                                 << log::hex << ec.select() << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << "Subscribe channel "
+                                 << ::logging::log::hex << ec.select() << ::logging::log::endl;
                         LL::subscribe(ec.subject(), ec.snn());
                         Subscriber.append(ec);
                     }
@@ -142,7 +144,7 @@ namespace famouso {
                      *  \param[in]  ec the unsubscribed event channel
                      */
                     void unsubscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         Subscriber.remove(ec);
                     }
 
@@ -152,7 +154,7 @@ namespace famouso {
                      *  \param[in]  ec the unsubscribed event channel
                      */
                     void unannounce(famouso::mw::api::EventChannel<EventLayer> &ec) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         Publisher.remove(ec);
                     }
 
@@ -164,6 +166,7 @@ namespace famouso {
                      *
                      */
                     void publish_local(const Event &e) {
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
                         // give start of the SubsriberList
                         typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
                         ec_t* sec = static_cast<ec_t*>(Subscriber.select());
@@ -187,7 +190,7 @@ namespace famouso {
                      *              layer.
                      */
                     void fetch(famouso::mw::nl::BaseNL *bnl = 0) {
-                        log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << log::endl;
+                        ::logging::log::emit< ::logging::Trace>() << FUNCTION_SIGNATURE << ::logging::log::endl;
 
                         // give start of the SubsriberList
                         typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;

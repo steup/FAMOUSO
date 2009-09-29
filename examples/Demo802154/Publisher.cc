@@ -59,7 +59,9 @@
 int main() {
     sei();                              // enable interrupts
 
-    log::emit() << "Starting demonstation of IEEE 802.15.4 communication (S)!" << log::endl << log::endl;
+    ::logging::log::emit()
+        << "Starting demonstation of IEEE 802.15.4 communication (S)!"
+        << ::logging::log::endl << ::logging::log::endl;
     //-------------------------------------------------------------------------
     famouso::init<famouso::config>();   // initialize famouso
 

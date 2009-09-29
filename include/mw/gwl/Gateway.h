@@ -83,22 +83,26 @@ namespace famouso {
 
                     void subscribe_from_network(famouso::mw::api::SECCallBackData& cbd) {
                         if (this->ech().get_network_id() == 0) {
-                            log::emit() << "Lokal Subscription" << log::endl;
+                            ::logging::log::emit() << "Lokal Subscription" << ::logging::log::endl;
                         } else {
                             if (this->subject() == famouso::mw::Subject(cbd.data)) {
-                                log::emit() << "Subscribe Message of another gateway" << log::endl;
+                                ::logging::log::emit() << "Subscribe Message of another gateway"
+                                    << ::logging::log::endl;
                             } else {
                                 uint32_t ii = 0;
                                 while (ii < gecs.size()) {
                                     /*! todo base network has to be checked */
                                     if (gecs[ii]->subject() == famouso::mw::Subject(cbd.data)) {
-                                        log::emit() << "forward channel exits" << log::endl;
+                                        ::logging::log::emit() << "forward channel exits"
+                                            << ::logging::log::endl;
                                         return;
                                     }
                                     ii++;
                                 }
                                 std::string str(reinterpret_cast<const char*>(cbd.data), 0, 8);
-                                log::emit() << "Generate a new proxy channel for forwarding events of Subject " << str << log::endl;
+                                ::logging::log::emit()
+                                    << "Generate a new proxy channel for forwarding events of Subject "
+                                    << str << ::logging::log::endl;
                                 const GEC *g = new GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
                                 gecs.push_back(g);
                             }

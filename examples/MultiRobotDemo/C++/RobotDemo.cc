@@ -81,9 +81,9 @@ int main(int argc, char **argv) {
     done = 0;
     signal(SIGINT, siginthandler);
 
-    log::emit() << "FAMOUSO -- Initialization started." << log::endl;
+    ::logging::log::emit() << "FAMOUSO -- Initialization started." << ::logging::log::endl;
     famouso::init<famouso::config>();
-    log::emit() << "FAMOUSO -- Initialization successful." << log::endl;
+    ::logging::log::emit() << "FAMOUSO -- Initialization successful." << ::logging::log::endl;
 
     famouso::config::SEC sec(Distance);
     sec.subscribe();
