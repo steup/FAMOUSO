@@ -71,7 +71,7 @@ namespace famouso {
 
                     void init(const NodeID &i) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Trace>()
+                        ::logging::log::emit< ::logging::Info>()
                             << " Configuration 64Bit NodeID=" << i.value()
                             << ::logging::log::endl;
                     }

@@ -144,7 +144,7 @@ namespace famouso {
                     // an den localen ECH
                     void publish(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec, const Event &e) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Trace>() << "Publish channel "
+                        ::logging::log::emit< ::logging::Info>() << "Publish channel "
                                  << ::logging::log::hex << ec.select() << ::logging::log::endl;
                         // Hier koennte der Test erfolgen, ob die Subjects vom Event
                         // und vom EventChannel gleich sind, weil nur dann
@@ -166,7 +166,7 @@ namespace famouso {
                     // Verbindung  zum  ECH oeffnen und Subject subscribieren
                     void subscribe(famouso::mw::api::SubscriberEventChannel<EventLayerClientStub> &ec) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Trace>() << "Subscribe channel "
+                        ::logging::log::emit< ::logging::Info>() << "Subscribe channel "
                                  << ::logging::log::hex << ec.select() << ::logging::log::endl;
                         do_connection_socket(ec);
                         // create subscribe message
@@ -182,7 +182,7 @@ namespace famouso {
                         notify_threads_mutex.lock();
                         notify_threads[&ec] = t;
                         notify_threads_mutex.unlock();
-                        ::logging::log::emit< ::logging::Trace>()
+                        ::logging::log::emit< ::logging::Info>()
                             << "Generate Thread and Connect to local ECH"
                             << ::logging::log::endl;
                     }
@@ -190,7 +190,7 @@ namespace famouso {
                     // Verbindung schliessen, sollte reichen
                     void unsubscribe(famouso::mw::api::SubscriberEventChannel<EventLayerClientStub> &ec) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Trace>() << "close connection" << ::logging::log::endl;
+                        ::logging::log::emit< ::logging::Info>() << "close connection" << ::logging::log::endl;
 
                         // Only return when notify thread terminated to prevent the thread to
                         // access already deleted data structures resulting in undefined behaviour
@@ -211,7 +211,7 @@ namespace famouso {
                     // Verbindung schliessen sollte reichen
                     void unannounce(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Trace>() << "close connection" << ::logging::log::endl;
+                        ::logging::log::emit< ::logging::Info>() << "close connection" << ::logging::log::endl;
                         ec.snn()->close();
                     }
             };

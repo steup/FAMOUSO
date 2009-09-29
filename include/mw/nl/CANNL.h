@@ -93,7 +93,7 @@ namespace famouso {
                         // hier muss das CAN Configuration Protokoll durchlaufen werden.
                         // vorher darf man aus dieser Funktion nicht zurueck kommen
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Trace>()
+                        ::logging::log::emit< ::logging::Info>()
                             << " Configuration 64Bit NodeID=" << i.value()
                             << ::logging::log::endl;
                         driver.init();

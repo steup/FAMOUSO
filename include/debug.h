@@ -50,6 +50,7 @@
 
 #ifdef FAMOUSO_DEBUG_DISABLE
 LOGGING_DISABLE_LEVEL(::logging::Trace);
+LOGGING_DISABLE_LEVEL(::logging::Info);
 #endif
 
 #define TRACE_FUNCTION do {                   \
