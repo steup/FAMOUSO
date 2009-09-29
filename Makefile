@@ -44,7 +44,7 @@
 # -----------------------------------------------------------------------------
 include ./make/Makefile
 
-ALLSRC = $(SOURCES) $(TOOLSRC)
+ALLSRC = $(SOURCES)
 
 # -------------------------------------------------------------------------
 # Namen der Unterverzeichnisse mit den Quelltexten
@@ -57,11 +57,6 @@ VPATH = $(sort $(dir $(ALLSRC) ))
 # (werden automatisch aus den Quelltextdateinamen ermittelt)
 # Objekt fuer die LIB
 LIBOBJ   = $(addprefix $(MODULEDIR)/,$(notdir $(SOURCES:.cc=.o)))
-
-# Objekt fuer die Tools
-TOOLOBJ = $(addprefix $(MODULEDIR)/,$(notdir $(TOOLSRC:.cc=.o)))
-# Ausfuehrbaren Tools
-TOOLBIN = $(addprefix $(BINDIR)/,$(notdir $(TOOLSRC:.cc=$(SUFFIX))))
 
 # Listen mit den Dependency-dateien, die beim Kompilieren entstehen:
 # (werden automatisch aus den Quelltextdateinamen ermittelt)
@@ -101,20 +96,6 @@ $(DEPENDDIR):
 
 rmbin:
 	@rm -f $(BINDIR)/*
-
-# --------------------------------------------------------------------------
-# Regeln zur Erzeugung der Objektdateien
-$(MODULEDIR)/%.o : %.cc
-	@$(RULEECHO) ; \
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
-
-# --------------------------------------------------------------------------
-# Regeln zur Erzeugung der Dependency-dateien
-$(DEPENDDIR)/%.d : %.cc
-	@$(RULEECHO) ; \
-	$(CXX) -MM $(CXXFLAGS) $< -o $@
-	@sed -e "s#.*:#$(MODULEDIR)\/&#;s#$(INCDIR)/boost/[a-z|_|\.|\/|0-9]*##g;/^ *\\\/d;/[\s]/!d" $@ -i
-	@sed -i -e '$$s/\ \\//' $@
 
 # -------------------------------------------------
 # Bauen der lib

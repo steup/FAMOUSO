@@ -49,18 +49,4 @@ all:
 clean:
 	@rm -rf $(filtered)
 
-# rule for creating the object file
-$(MODULEDIR)/%.o : %.cc
-	@$(RULEECHO) ; \
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
-
-# rule for linking the application and give it
-# the correct name dependend of the platform
-%:$(MODULEDIR)/%.o
-	@$(RULEECHO) ; \
-	$(CXX) $< -o $@.foobar $(CXXFLAGS) $(LDFLAGS) ; \
-	mv $@.foobar $(basename $@)$(SUFFIX)
-
-ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
--include $(DEPENDDIR)/*
-endif
+-include *-$(MACHINETYPE)-$(GCCVERSION).d

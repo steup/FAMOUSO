@@ -63,3 +63,30 @@ RULEECHO = echo "$(notdir $<) -> $@"
 %.o: %.S
 	@$(RULEECHO) ; \
 	$(CC) -c $< -o $@
+
+# --------------------------------------------------------------------------
+# Regeln zur Erzeugung der Objektdateien
+$(MODULEDIR)/%.o : %.cc
+	@$(RULEECHO) ; \
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+# --------------------------------------------------------------------------
+# Regeln zur Erzeugung der Dependency-dateien
+$(DEPENDDIR)/%.d : %.cc
+	@$(RULEECHO) ; \
+	$(CXX) -MM $(CXXFLAGS) $< -o $@
+	@sed -e "s#.*:#$(MODULEDIR)\/&#;s#$(INCDIR)/boost/[a-z|A-Z|_|\.|\/|0-9]*##g;/^ *\\\/d;/[\s]/!d" $@ -i
+	@sed -i -e '$$s/\ \\//' $@
+
+# rule for creating the depend file and
+# # for linking the application and give it
+# # the correct name dependend of the platform
+%:%.cc
+	@$(RULEECHO) ; \
+    $(CXX) -MM $(CXXFLAGS) $< -o $@-$(MACHINETYPE)-$(GCCVERSION).d ;
+	@sed -e "s#.*:#$@:#;s#$(INCDIR)/boost/[a-z|A-Z|_|\.|\/|0-9]*##g;/^ *\\\/d;/[\s]/!d" $@-$(MACHINETYPE)-$(GCCVERSION).d -i
+	@sed -i -e '$$s/\ \\//' $@-$(MACHINETYPE)-$(GCCVERSION).d
+	@$(CXX) $< -o $@.foobar $(CXXFLAGS) $(LDFLAGS) ; \
+	mv $@.foobar $(basename $@)$(SUFFIX)
+
+

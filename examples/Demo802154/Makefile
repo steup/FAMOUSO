@@ -39,7 +39,7 @@
 
 include ../../make/Makefile
 
-filtered=$(filter-out %.cc %.h %.py %Makefile,$(shell find . -maxdepth 1 -type f))
+filtered=$(filter-out %.cc %.h %.py %.impl %Makefile,$(shell find . -maxdepth 1 -type f))
 
 .phony: all clean
 
@@ -48,3 +48,5 @@ all:
 
 clean:
 	@rm -rf $(filtered)
+
+-include *-$(MACHINETYPE)-$(GCCVERSION).d

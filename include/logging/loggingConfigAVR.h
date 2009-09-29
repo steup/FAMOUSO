@@ -44,7 +44,7 @@
 #include "logging/OutputStream.h"
 #include "logging/OutputBaseType.h"
 
-#ifndef CPU_FREQUENCY
+#if ! ( defined(CPU_FREQUENCY) || defined(F_CPU) )
 #warning CPU_FREQUENCY is not set and the avr-halib will select the default \
          value of 8MHz. If does not correspond to the right micro-controller \
          CPU frequency the logging output will obfuscated.

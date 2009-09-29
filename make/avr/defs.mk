@@ -43,6 +43,3 @@ ADDITIONAL_BUILDS  = $(LIBAVR)
 
 # the includes from the external libs
 ADDITIONAL_CFLAGS += -I$(INSTALLDIR)/externals/AVR/avr-halib/include -I$(INSTALLDIR)/externals/AVR/avr-maclib/include
-
-# tools are not compiled for the avr platform
-TOOLSRC=

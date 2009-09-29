@@ -65,9 +65,10 @@ AVRDUDE_PROGRAMMER = avr911
 AVRDUDE_FLAGS        = -v -P $(AVRDUDE_PORT) -u -c $(AVRDUDE_PROGRAMMER) -p $(MCU)
 ################################################################################
 
-%.elf:%.cc
+%.elf:%.cc $(basename $@)
 	@$(RULEECHO) ; \
-	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
+	$(MAKE) $(basename $@) ; \
+	cp $(basename $@) $@
 
 %.hex:%.elf
 	@$(RULEECHO) ; \
@@ -75,8 +76,3 @@ AVRDUDE_FLAGS        = -v -P $(AVRDUDE_PORT) -u -c $(AVRDUDE_PROGRAMMER) -p $(MC
 
 %.program:%.hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U f:w:$<:a
-
-%:%.cc
-	@$(RULEECHO) ; \
-	$(CXX) $< -o $@ $(CXXFLAGS) $(LDFLAGS)
-
