@@ -49,7 +49,7 @@ struct Packet {
     uint8_t* data; // pointer to data
     uint16_t data_length; // size of data
 
-    Packet() {};
+    Packet() : data(0), data_length(0) {};
 
     Packet(const Packet<T>& p)
             : snn(p.snn), data(p.data), data_length(p.data_length) {}
