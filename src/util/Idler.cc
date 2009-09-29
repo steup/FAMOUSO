@@ -73,6 +73,7 @@ namespace Idler {
         boost::xtime_get(&time, boost::TIME_UTC);
         time.nsec += 100000000;
         boost::thread::sleep(time);
+        waiter.unlock();
     }
 
 }
