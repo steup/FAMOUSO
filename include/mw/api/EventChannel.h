@@ -107,6 +107,12 @@ namespace famouso {
                     EventChannel(const Subject& s) : _subj(s) {
                     }
 
+
+                private:
+                    // Private copy constructor and copy ensure that event channels
+                    // cannot be copied
+                    EventChannel(const EventChannel<ECH> & e);
+                    const EventChannel<ECH> & operator=(const EventChannel<ECH> &);
             };
 
         } // namespace api
