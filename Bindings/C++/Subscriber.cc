@@ -59,7 +59,6 @@ void cb(famouso::mw::api::SECCallBackData& cbd) {
     ::logging::log::emit() << FUNCTION_SIGNATURE << " Length="
     << cbd.length << " Event data="
     << cbd.data << ::logging::log::endl;
-    std::cout<< cbd.data <<std::endl;
 }
 
 int main(int argc, char **argv) {
