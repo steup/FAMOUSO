@@ -198,14 +198,15 @@ namespace famouso {
                              *  \param str Message
                              */
                             void report(const famouso::mw::Subject &s, const char *const str) {
-                                ::logging::log::emit() << "Channel\t\t -- Subject [";
+                                ::logging::log::emit() << str << ::logging::log::tab
+                                    << ::logging::log::tab << "-- Subject [";
                                 for (uint8_t i = 0;i < 8;++i) {
                                     uint8_t c = s.tab()[i];
                                     if ((c < 32) || (c > 126)) c = 32;   // only printable characters
                                     ::logging::log::emit() << c ;
                                 }
-                                ::logging::log::emit() << "] -> " << str << "\t0x" << ::logging::log::hex;
-                                ::logging::log::emit() << s.value() << ::logging::log::endl;
+                                ::logging::log::emit() << "] -> " << ::logging::log::hex
+                                    << s.value() << ::logging::log::endl;
                             }
 
                             /*!

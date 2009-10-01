@@ -208,12 +208,30 @@ namespace logging {
                 return *this << (unsigned long) ival;
             }
 
+            /*!\brief displays an integer using the set numerative
+             *
+             * \param ival the integer, that is output
+             * \return %OutputStream& allows for chaining of operators
+             */
+            OutputStream& operator << (long ival) {
+                return *this << (long long) ival;
+            }
+
+            /*!\brief displays an unsigned short using the set numerative
+             *
+             * \param ival the unsigned integer, that is output
+             * \return %OutputStream& allows for chaining of operators
+             */
+            OutputStream& operator << (unsigned long ival) {
+                return *this << (unsigned long long) ival;
+            }
+
             /*!\brief displays a long using the set numerative
              *
              * \param ival the long, that is output
              * \return %OutputStream& allows for chaining of operators
              */
-            OutputStream& operator << (long ival) {
+            OutputStream& operator << (long long ival) {
                 // if value is negative a minus is outputed first
                 if (ival < 0) {
                     put ('-');
@@ -228,23 +246,26 @@ namespace logging {
              * \param ival the unsigned long, that is output
              * \return %OutputStream& allows for chaining of operators
              */
-            OutputStream& operator << (unsigned long ival) {
-                unsigned long div;
+            OutputStream& operator << (unsigned long long ival) {
+                unsigned long long div;
                 char digit;
 
-                if (base == 8)
-                    put ('0');              // oktal digits start with a NULL
-                else if (base == 16) {
-                    put ('0');              // hexadezimal digits start with 0x
-                    put ('x');
+                switch (base) {
+                    case 2: put('b');break; // binary digits start with a b
+                    case 8: put('0');break; // oktal digits start with a NULL
+                    case 16:{
+                            put ('0');              // hexadezimal digits start with 0x
+                            put ('x');
+                            break;
+                    }
                 }
 
                 // computes the max power of the choosen basis, that is smaler than the value
                 // of the digit
-                for (div = 1; ival / div >= (unsigned long) base; div *= base);
+                for (div = 1; ival / div >= (unsigned long long) base; div *= base);
 
                 // prints the digit character after character
-                for (; div > 0; div /= (unsigned long) base) {
+                for (; div > 0; div /= (unsigned long long) base) {
                     digit = ival / div;
                     if (digit < 10)
                         put ('0' + digit);
@@ -280,6 +301,7 @@ namespace logging {
              */
             template<typename T>
             OutputStream& operator << (T) {
+                char swallow_unsupported_type;
                 return *this;
             }
 

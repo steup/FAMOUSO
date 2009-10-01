@@ -100,7 +100,7 @@ namespace device {
                         handle = LINUX_CAN_Open(param.device.c_str(), O_RDWR);
                         if (!handle) {
                             ::logging::log::emit< ::logging::Error>()
-                                << "can't open CAN device " << param.device
+                                << "can't open CAN device " << param.device.c_str()
                                 << ::logging::log::endl;
                             exit(errno);
                         }
