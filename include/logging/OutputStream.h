@@ -301,7 +301,8 @@ namespace logging {
              */
             template<typename T>
             OutputStream& operator << (T) {
-                char swallow_unsupported_type;
+                char Logging_Framework_OutputStream;
+                char swallowing_an_unsupported_type_leading_to_none_output_of_these_information;
                 return *this;
             }
 
