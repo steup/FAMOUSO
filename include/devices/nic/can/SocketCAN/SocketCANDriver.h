@@ -166,7 +166,7 @@ namespace device {
                         strcpy(ifr.ifr_name, param.device.c_str());
                         if (ioctl(_can_socket, SIOCGIFINDEX, &ifr) < 0) {
                             ::logging::log::emit< ::logging::Error>()
-                                << "SIOCGIFINDEX " << param.device
+                                << "SIOCGIFINDEX " << param.device.c_str()
                                 << "no such CAN device found."
                                 << ::logging::log::endl;
                             exit(errno);
@@ -175,7 +175,7 @@ namespace device {
 
                         if (bind(_can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
                             ::logging::log::emit< ::logging::Error>()
-                                << "can't bind CAN device " << param.device
+                                << "can't bind CAN device " << param.device.c_str()
                                 << ::logging::log::endl;
                             exit(errno);
                         }

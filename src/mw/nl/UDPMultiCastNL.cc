@@ -132,7 +132,7 @@ namespace famouso {
                                    ));
                 } else {
                     ::logging::log::emit< ::logging::Error>()
-                        << "while receiving : " << error.message()
+                        << "while receiving : " << error.message().c_str()
                         << ::logging::log::endl;
                     throw "Error in UDPMultiCastNL::interrupt";
                 }

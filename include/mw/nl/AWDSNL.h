@@ -271,7 +271,8 @@ namespace famouso {
                                                                boost::asio::placeholders::bytes_transferred));
 
                         } else {
-                            ::logging::log::emit< ::logging::Error>() << "AWDS-Network : " << error.message() << ::logging::log::endl;
+                            ::logging::log::emit< ::logging::Error>() << "AWDS-Network : "
+                                << error.message().c_str() << ::logging::log::endl;
                             throw "AWDS-Network disconnected likely";
                         }
 

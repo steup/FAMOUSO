@@ -102,7 +102,7 @@ namespace famouso {
                                 std::string str(reinterpret_cast<const char*>(cbd.data), 0, 8);
                                 ::logging::log::emit()
                                     << "Generate a new proxy channel for forwarding events of Subject "
-                                    << str << ::logging::log::endl;
+                                    << str.c_str() << ::logging::log::endl;
                                 const GEC *g = new GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
                                 gecs.push_back(g);
                             }
