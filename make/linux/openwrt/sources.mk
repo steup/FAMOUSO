@@ -44,5 +44,5 @@
 # -----------------------------------------------------------------------------
 
 SOURCES  += \
-src/util/openwrt-compiler-workaround.cc
+src/convenience/openwrt-compiler-workaround.cc
 
