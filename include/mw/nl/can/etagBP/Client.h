@@ -44,7 +44,8 @@
 #include "mw/nl/can/canETAGS.h"
 #include "mw/common/Subject.h"
 
-#include "PreventBlockingOfMiddlewareCoreInBlockingProtocol.h"
+#include "mw/nl/can/etagBP/PreventBlockingOfMiddlewareCoreInBlockingProtocol.h"
+#include "mw/nl/can/etagBP/InterruptEnabler.h"
 #include "config/type_traits/contains_type.h"
 CONTAINS_TYPE_(asio_tag);
 #include "config/type_traits/if_select_type.h"
@@ -69,6 +70,12 @@ namespace famouso {
                      *
                      * The server/broker part is in
                      * famouso::mw::nl::CAN::etagBP::Broker.
+                     *
+                     * \todo    The etagBP is not reentrant. This could be a problem on
+                     *          Gateways especially on those, using the InterruptEnabler.
+                     *          Using the PreventBlockingOfMiddlewareCoreInBlockingProtocol
+                     *          it is always safe because it synchronises the reactivation of
+                     *          the BP in a way, that it is not executed in parallel.
                      */
                     template < class CAN_Driver >
                     class Client {
@@ -103,16 +110,15 @@ namespace famouso {
                                 //  looking into the CAN driver. If the driver
                                 //  has an asio_tag, the system uses asio
                                 //  normally too.  If it is not the case we
-                                //  select an uint8_t that is than an unused
-                                //  variable that is optimized away by the
-                                //  compiler. The attribute is given to avoid a
-                                //  warning by the compiler about a possible
-                                //  unused variable.
+                                //  select an InterruptEnabler that allows
+                                //  recognizing interrupts in case of using
+                                //  the binding protocol from within an interrupt
+                                //  context.
                                 typename  if_select_type <
                                               contains_type_asio_tag<CAN_Driver>::value,
                                               PreventBlockingOfMiddlewareCoreInBlockingProtocol,
-                                              uint8_t
-                                          >::type p __attribute__((unused));
+                                              InterruptEnabler
+                                          >::type unblocker;
 
                                 BindSubjectInfo bsi;
                                 IDType *id = reinterpret_cast<IDType*>(&(bsi.mob.id()));
