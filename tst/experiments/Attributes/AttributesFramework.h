@@ -40,7 +40,8 @@
 #ifndef __AttributesFramework_h__
 #define __AttributesFramework_h__
 
-#include <iostream>
+#define F_CPU 16000000
+#include "debug.h"
 #include <typeinfo>
 #define BOOST_NO_STDLIB_CONFIG
 #include  <stdint.h>
@@ -136,7 +137,7 @@ namespace famouso {
 
                     // print the sequence
                     static void traverse() {
-                        std::cout << " Type " << typeid(typename boost::mpl::deref<I>::type).name() << std::endl;
+                        ::logging::log::emit() << " Type " << typeid(typename boost::mpl::deref<I>::type).name() << ::logging::log::endl;
                         TestOnDuplicates <
                             S,
                             typename boost::mpl::next<I>::type
@@ -152,7 +153,7 @@ namespace famouso {
                         value = 1
                     };
                     static void traverse() {
-                        std::cout << "End of Sequence" << std::endl;
+                        ::logging::log::emit() << "End of Sequence" << ::logging::log::endl;
                     }
                 };
 
