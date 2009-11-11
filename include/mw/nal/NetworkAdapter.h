@@ -40,7 +40,6 @@
 #ifndef __NetworkAdapter_h__
 #define __NetworkAdapter_h__
 
-#include "iostream"
 #include "mw/nl/BaseNL.h"
 #include "mw/el/EventLayer.h"
 #include "mw/api/SubscriberEventChannel.h"
@@ -169,7 +168,7 @@ namespace famouso {
                     }
 
                     /*! \brief Traverses a specific sub network for a short
-                     *         network name and receives an event from thta
+                     *         network name and receives an event from that
                      *         specific subnetwork.
                      *
                      *  \param[in]  snn is the specific short network name that is in this case the struct SNN.
