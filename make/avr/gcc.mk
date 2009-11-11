@@ -53,14 +53,14 @@ MCU=at90can128
 ADDITIONAL_CFLAGS += -DAVR -mmcu=$(MCU) -fno-threadsafe-statics -Os
 
 ################################################################################
-#AVRDUDE_PORT = /dev/parport0  # programmer connected to serial device
-#AVRDUDE_PORT = /dev/pcan1     # programmer connected to CAN
-#AVRDUDE_PORT = /dev/ttyS0   # programmer connected to serial device
-AVRDUDE_PORT = /dev/ttyUSB0   # programmer connected to serial device
+#AVRDUDE_PORT ?= /dev/parport0  # programmer connected to serial device
+#AVRDUDE_PORT ?= /dev/pcan1     # programmer connected to CAN
+#AVRDUDE_PORT ?= /dev/ttyS0   # programmer connected to serial device
+AVRDUDE_PORT ?= /dev/ttyUSB0   # programmer connected to serial device
 
-AVRDUDE_PROGRAMMER = avr911
-#AVRDUDE_PROGRAMMER = pcan
-#AVRDUDE_PROGRAMMER = stk200
+AVRDUDE_PROGRAMMER ?= avr911
+#AVRDUDE_PROGRAMMER ?= pcan
+#AVRDUDE_PROGRAMMER ?= stk200
 
 AVRDUDE_FLAGS        = -v -P $(AVRDUDE_PORT) -u -c $(AVRDUDE_PROGRAMMER) -p $(MCU)
 ################################################################################
