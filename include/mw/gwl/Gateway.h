@@ -40,15 +40,13 @@
 #ifndef __Gateway_h__
 #define __Gateway_h__
 
-#include "iostream"
 #include "debug.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/el/EventLayer.h"
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/gwl/GatewayEventChannel.h"
 #include "mw/common/Event.h"
-
-#include <vector>
+#include "object/Storage.h"
 
 namespace famouso {
     namespace mw {
@@ -62,17 +60,19 @@ namespace famouso {
              *      -# managing resources
              *      -# only on proxy per subject on a network
              *
-             *  \tparam ECH is a configured famouso::mw::el::EventLayer
-             *
+             * \tparam ECH is a configured famouso::mw::el::EventLayer
+             * \tparam Storage is the depot where the generated forwarding channels
+             *         are stored/managed. The default parameter is object::Storage
              */
-            template < class ECH >
+            template < class ECH, template < typename > class Storage=object::Storage >
             class Gateway  : private famouso::mw::api::SubscriberEventChannel<ECH> {
                     typedef GatewayEventChannel<ECH> GEC;
-                    std::vector<const GEC * >     gecs;
+                    typedef typename Storage<GEC>::depot depot;
 
+                    depot gecs;
                 public:
 
-                    /*! \brief Initalizes the the gateway and activates a subscription channel.
+                    /*! \brief Initalizes the gateway and activates a subscription channel.
                      */
                     Gateway() : famouso::mw::api::SubscriberEventChannel< ECH > (famouso::mw::Subject("SUBSCRIBE")) {
                         this->subscribe();
@@ -89,22 +89,25 @@ namespace famouso {
                                 ::logging::log::emit() << "Subscribe Message of another gateway"
                                     << ::logging::log::endl;
                             } else {
-                                uint32_t ii = 0;
-                                while (ii < gecs.size()) {
+                                typename depot::iterator ii = gecs.begin();
+                                while (ii != gecs.end()) {
                                     /*! todo base network has to be checked */
-                                    if (gecs[ii]->subject() == famouso::mw::Subject(cbd.data)) {
+                                    if ((*ii).subject() == famouso::mw::Subject(cbd.data)) {
                                         ::logging::log::emit() << "forward channel exits"
                                             << ::logging::log::endl;
                                         return;
                                     }
                                     ii++;
                                 }
-                                std::string str(reinterpret_cast<const char*>(cbd.data), 0, 8);
-                                ::logging::log::emit()
-                                    << "Generate a new proxy channel for forwarding events of Subject "
-                                    << str.c_str() << ::logging::log::endl;
-                                const GEC *g = new GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
-                                gecs.push_back(g);
+                                // hier muss ein neuer rein
+//                                std::string str(reinterpret_cast<const char*>(cbd.data), 0, 8);
+                                GEC *p=gecs.newElement();
+                                if ( p ) {
+                                    ::logging::log::emit()
+                                        << "Generate a new proxy channel for forwarding events of Subject "
+                                        << cbd.data << ::logging::log::endl;
+                                    new(p) GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
+                                }
                             }
                         }
                     }

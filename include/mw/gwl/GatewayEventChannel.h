@@ -69,6 +69,13 @@ namespace famouso {
                     const famouso::mw::nl::BaseNL * const _bnl;
                 public:
 
+                    /*! \brief placement new operator to allow a constructor call
+                     *         on pre-allocated memory
+                     */
+                    void *operator new(size_t size, void* buffer) {
+                        return buffer;
+                    }
+
                     /*! \brief Constructs the forwarding channel.
                      *
                      *    Subscribe the event channel and reserve resources
@@ -87,6 +94,7 @@ namespace famouso {
                     }
 
                 private:
+
                     /*! \brief The forward function is a callback.
                      *
                      *    This callback is called by the famouso::mw::el::EventLayer
