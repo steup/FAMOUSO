@@ -152,11 +152,20 @@ namespace object {
                         return ConstantSizeListIterator(_storage, _currentPos);
                     }
 
-                    /*! Increment iterator
+                    /*! prefix increment iterator
                      *
                      * \return an iterator
                      */
                     ConstantSizeListIterator operator ++ () {
+                        _currentPos = _storage.getNextElement(_currentPos + 1);
+                        return ConstantSizeListIterator(_storage, _currentPos);
+                    }
+
+                    /*! Postfix increment iterator
+                     *
+                     * \return an iterator
+                     */
+                    ConstantSizeListIterator operator ++ (int) {
                         _currentPos = _storage.getNextElement(_currentPos + 1);
                         return ConstantSizeListIterator(_storage, _currentPos);
                     }
