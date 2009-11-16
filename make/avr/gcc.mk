@@ -49,7 +49,7 @@ AS      = avr-as
 OBJCOPY	= avr-objcopy
 AVRDUDE = avrdude
 
-MCU=at90can128
+MCU?=at90can128
 ADDITIONAL_CFLAGS += -DAVR -mmcu=$(MCU) -fno-threadsafe-statics -Os
 
 ################################################################################
