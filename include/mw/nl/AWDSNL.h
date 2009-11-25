@@ -183,7 +183,7 @@ namespace famouso {
                      */
                     void deliver(const Packet_t& p, uint8_t type = AWDS_Packet::constants::packet_type::publish) {
                         // try to detect subscription channel because in AWDS its get special treatment
-                        // this test works only due to the fact that the SNN is equal to the famouso::mw::Subjcet
+                        // this test works only due to the fact that the SNN is equal to the famouso::mw::Subject
                         if (p.snn == famouso::mw::Subject("SUBSCRIBE")) {
                             subscriptions.push_front(famouso::mw::Subject(p.data));
                             subscriptions.sort();
@@ -295,7 +295,7 @@ namespace famouso {
                                 awds_header.addr[4] = 0xff;
                                 awds_header.addr[5] = 0xff;
                                 awds_header.type = AWDS_Packet::constants::packet_type::subscribe;
-                                awds_header.size = htons(sizeof(uint32_t) + 2 + htons(count_subj) * sizeof(famouso::mw::Subject));
+                                awds_header.size = htons(sizeof(uint32_t) + 2 + ntohs(count_subj) * sizeof(famouso::mw::Subject));
                                 buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
                                 buffers.push_back(boost::asio::buffer(&reserved, sizeof(uint32_t)));
                                 buffers.push_back(boost::asio::buffer(&count_subj, sizeof(uint16_t)));
