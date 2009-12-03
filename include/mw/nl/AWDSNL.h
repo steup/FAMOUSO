@@ -122,8 +122,9 @@ namespace famouso {
                     /**
                      * \brief default constructor
                      */
-                    AWDSNL() : m_socket(famouso::util::ios::instance()),
-                            timer_(famouso::util::ios::instance()) {}
+                    AWDSNL() :  m_socket(famouso::util::ios::instance()),
+                                timer_(famouso::util::ios::instance()),
+                                next_packet_is_full_packet(false) {}
 
                     /**
                      * \brief destructor
@@ -151,8 +152,9 @@ namespace famouso {
                             throw "could not connect to AWDS-Network";
                         }
 
-                        m_socket.async_receive(
+                        boost::asio::async_read( m_socket,
                             boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
+                            boost::asio::transfer_at_least(sizeof(AWDS_Packet::Header)),
                             boost::bind(&AWDSNL::interrupt, this,
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred)
@@ -246,12 +248,26 @@ namespace famouso {
                      * \brief handle called on receive
                      *
                      * Will be called, whenever a packet was received.
-                     *
-                     * \todo noch pruefen, ob auch wirklich das ganze paket da ist,
-                     *       ansonsten noch mal asynchron warten, bis alles da ist.
                      */
                     void interrupt(const boost::system::error_code& error, size_t bytes_recvd) {
                         if (!error) {
+                            if (!next_packet_is_full_packet) {
+                               bytes_recvd -= sizeof(AWDS_Packet::Header);
+                                // test  whether the packet is full received
+                                if ( bytes_recvd != awds_packet.header.size) {
+                                    // no and now receive the rest of the packet
+                                    boost::asio::async_read( m_socket,
+                                        boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
+                                        boost::asio::transfer_at_least(awds_packet.header.size-bytes_recvd),
+                                        boost::bind(&AWDSNL::interrupt, this,
+                                                    boost::asio::placeholders::error,
+                                                    boost::asio::placeholders::bytes_transferred)
+                                    );
+                                    next_packet_is_full_packet=true;
+                                    return;
+                                }
+                            }
+                            // we got a full packet and now we will process it
                             switch (awds_packet.header.type) {
                                 case AWDS_Packet::constants::packet_type::publish :
                                 case AWDS_Packet::constants::packet_type::publish_fragment : {
@@ -265,10 +281,14 @@ namespace famouso {
                                 default: ::logging::log::emit() << "AWDS_Packet not supported yet" << ::logging::log::endl;
                             }
 
-                            m_socket.async_receive(boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
-                                                   boost::bind(&AWDSNL::interrupt, this,
-                                                               boost::asio::placeholders::error,
-                                                               boost::asio::placeholders::bytes_transferred));
+                            // try receiving the next packet
+                            boost::asio::async_read( m_socket,
+                                boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
+                                boost::asio::transfer_at_least(sizeof(AWDS_Packet::Header)),
+                                boost::bind(&AWDSNL::interrupt, this,
+                                            boost::asio::placeholders::error,
+                                            boost::asio::placeholders::bytes_transferred)
+                            );
 
                         } else {
                             ::logging::log::emit< ::logging::Error>() << "AWDS-Network : "
@@ -276,6 +296,8 @@ namespace famouso {
                             throw "AWDS-Network disconnected likely";
                         }
 
+                        // the next packet is maybe not a full packet
+                        next_packet_is_full_packet=false;
 
                     }
 
@@ -316,6 +338,7 @@ namespace famouso {
                     AWDS_Packet awds_packet;
                     std::list<SNN> subscriptions;
                     CLP::config::AWDSOptions::Parameter param;
+                    bool next_packet_is_full_packet;
             };
 
         }
