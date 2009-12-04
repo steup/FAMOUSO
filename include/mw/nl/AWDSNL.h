@@ -254,11 +254,11 @@ namespace famouso {
                             if (!next_packet_is_full_packet) {
                                bytes_recvd -= sizeof(AWDS_Packet::Header);
                                 // test  whether the packet is full received
-                                if ( bytes_recvd != awds_packet.header.size) {
+                                if ( bytes_recvd != ntohs(awds_packet.header.size)) {
                                     // no and now receive the rest of the packet
                                     boost::asio::async_read( m_socket,
-                                        boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
-                                        boost::asio::transfer_at_least(awds_packet.header.size-bytes_recvd),
+                                        boost::asio::buffer(reinterpret_cast<uint8_t*>(&awds_packet)+sizeof(AWDS_Packet::Header)+bytes_recvd,
+                                                            ntohs(awds_packet.header.size)-bytes_recvd),
                                         boost::bind(&AWDSNL::interrupt, this,
                                                     boost::asio::placeholders::error,
                                                     boost::asio::placeholders::bytes_transferred)
