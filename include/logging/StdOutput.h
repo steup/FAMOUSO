@@ -48,6 +48,7 @@ namespace logging {
      *         output facilities of e.g. Linux or
      *         Windows.
      */
+    template <std::ostream & stream = ::std::cout>
     class StdOutput {
         public:
             /*! \brief operator that can output a simple character.
@@ -57,7 +58,7 @@ namespace logging {
              *         opertor<< calls.
              */
             StdOutput & operator<<(const char c) {
-                ::std::cout << c;
+                stream << c;
                 return *this;
             }
     };
