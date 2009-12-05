@@ -153,8 +153,7 @@ namespace famouso {
                         }
 
                         boost::asio::async_read( m_socket,
-                            boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
-                            boost::asio::transfer_at_least(sizeof(AWDS_Packet::Header)),
+                            boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet::Header)),
                             boost::bind(&AWDSNL::interrupt, this,
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred)
@@ -252,20 +251,15 @@ namespace famouso {
                     void interrupt(const boost::system::error_code& error, size_t bytes_recvd) {
                         if (!error) {
                             if (!next_packet_is_full_packet) {
-                               bytes_recvd -= sizeof(AWDS_Packet::Header);
-                                // test  whether the packet is full received
-                                if ( bytes_recvd != ntohs(awds_packet.header.size)) {
-                                    // no and now receive the rest of the packet
-                                    boost::asio::async_read( m_socket,
-                                        boost::asio::buffer(&awds_packet.data[bytes_recvd],
-                                                            ntohs(awds_packet.header.size)-bytes_recvd),
-                                        boost::bind(&AWDSNL::interrupt, this,
-                                                    boost::asio::placeholders::error,
-                                                    boost::asio::placeholders::bytes_transferred)
-                                    );
-                                    next_packet_is_full_packet=true;
-                                    return;
-                                }
+                                boost::asio::async_read( m_socket,
+                                    boost::asio::buffer(&awds_packet.data,
+                                                        ntohs(awds_packet.header.size)),
+                                    boost::bind(&AWDSNL::interrupt, this,
+                                                boost::asio::placeholders::error,
+                                                boost::asio::placeholders::bytes_transferred)
+                                );
+                                next_packet_is_full_packet=true;
+                                return;
                             }
                             // we got a full packet and now we will process it
                             switch (awds_packet.header.type) {
@@ -283,8 +277,7 @@ namespace famouso {
 
                             // try receiving the next packet
                             boost::asio::async_read( m_socket,
-                                boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet)),
-                                boost::asio::transfer_at_least(sizeof(AWDS_Packet::Header)),
+                                boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet::Header)),
                                 boost::bind(&AWDSNL::interrupt, this,
                                             boost::asio::placeholders::error,
                                             boost::asio::placeholders::bytes_transferred)
