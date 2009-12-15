@@ -86,6 +86,7 @@ $(DEPENDDIR)/%.d : %.cc
     $(CXX) -MM $(CXXFLAGS) $< -o $@-$(MACHINETYPE)-$(GCCVERSION).d ;
 	@sed -e "s#.*:#$@:#;s#$(INCDIR)/boost/[a-z|A-Z|_|\.|\/|0-9]*##g;/^ *\\\/d;/[\s]/!d" $@-$(MACHINETYPE)-$(GCCVERSION).d -i
 	@sed -i -e '$$s/\ \\//' $@-$(MACHINETYPE)-$(GCCVERSION).d
+	@sed -i '$$i\ $(LIBFAMOUSO) \\' $@-$(MACHINETYPE)-$(GCCVERSION).d
 	@$(CXX) $< -o $@.foobar $(CXXFLAGS) $(LDFLAGS) ; \
 	mv $@.foobar $(basename $@)$(SUFFIX)
 
