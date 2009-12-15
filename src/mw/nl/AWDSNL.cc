@@ -141,13 +141,16 @@ namespace famouso {
                     // check age of clients
                     tmplist.clear();
                     for (ClientList::iterator it = cl.begin(); it != cl.end(); it++) {
-                        log::emit< AWDS >() << log::dec << "checking subscriber: " <<  *it;
                         // add good clients to temp list
                         if (it->elapsed() < max_age){
                             tmplist.push_front(*it);
-                            log::emit() << " -> ok" << log::endl;
+                            log::emit< AWDS >() << log::dec
+                                                << "checking subscriber: "
+                                                <<  *it << " -> ok" << log::endl;
                         } else {
-                            log::emit() << " -> old" << log::endl;
+                            log::emit< AWDS >() << log::dec
+                                                << "checking subscriber: "
+                                                <<  *it << " -> old" << log::endl;
                         }
                     }
 
