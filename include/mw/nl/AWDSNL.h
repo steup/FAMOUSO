@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2008-2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *               2009-2010 Michael Kriese <kriese@cs.uni-magdeburg.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -40,91 +41,56 @@
 #ifndef __AWDSNL_hpp__
 #define __AWDSNL_hpp__
 
-#include <stdio.h>
-#include <boost/bind.hpp>
-#include <boost/utility.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-
-#include <string>
 #include <vector>
-#include <iterator>
 
-#include "debug.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "util/ios.h"
-#include "util/CommandLineParameterGenerator.h"
 #include "mw/common/Subject.h"
-
-#include "mw/el/EventLayerCallBack.h"
+#include "mw/nl/awds/AWDS_Packet.h"
+#include "mw/nl/awds/AWDSClient.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
 
-            // define command line parameter and default values
-            CLP3(AWDSOptions,
-                "AWDS Network Layer",
-                "awds,a",
-                "connection and config parameter for the awds-network in the form of IP:PORT:INTERVAL\n"
-                "Values:\n"
-                "  IP:       \tThe ip-addresse of the ps-awds-deamon\n"
-                "  PORT:     \tThe port on which the deamon listen\n"
-                "  INTERVAL: \tThe renew-interval of subsciptions\n"
-                "(default 127.0.0.1:8555:60)",
-                std::string, ip, "127.0.0.1",
-                int, port, 8555,
-                int, interval, 60);
+            using awds::AWDS_Packet;
+            using awds::AWDSClient;
 
-            struct __attribute__((packed)) AWDS_Packet {
-                struct constants {
-                    struct packet_size {
-                        enum {
-                            payload = 1400
-                        };
-                    };
-                    struct packet_type {
-                        enum {
-                            publish_fragment = 0x7B,
-                            publish = 0x7C,
-                            subscribe = 0x7D
-                        };
-                    };
-                };
-                struct __attribute__((packed)) Header {
-                        uint8_t addr[6];
-                        uint8_t type;
-                    private:
-                        uint8_t __pad;
-                    public:
-                        uint16_t size;
-                };
-
-                Header   header;
-                uint8_t  data[constants::packet_size::payload];
-            };
-
-            class AWDSNL : public BaseNL, boost::noncopyable {
+            /*! \brief The AWDS network layer provides functionality for sending
+             *         packets over the AWDS network.
+             */
+            class AWDSNL: public BaseNL, boost::noncopyable {
                 public:
 
+                /*! \brief A Struct for holding infomational constants.
+                 */
                     struct info {
-                        enum {
-                            payload = AWDS_Packet::constants::packet_size::payload - sizeof(famouso::mw::Subject),
-                        };
+                            enum {
+                                    /*! \brief The maximum payload an AWDS packet can have
+                                     *         (without the subject).
+                                     */
+                                payload = AWDS_Packet::constants::packet_size::payload
+                                        - sizeof(famouso::mw::Subject),
+                            };
                     };
 
                     // type of an address
                     typedef famouso::mw::Subject SNN;
 
                     // type of a packet
-                    typedef Packet<SNN> Packet_t;
+                    typedef Packet< SNN > Packet_t;
+
+                    // list of macs
+                    typedef std::list< AWDSClient > ClientList;
+
+                    // map of subject and corresponding clients
+                    typedef std::map< SNN, ClientList > SNNClientMap;
 
                     /**
                      * \brief default constructor
                      */
-                    AWDSNL() :  m_socket(famouso::util::ios::instance()),
-                                timer_(famouso::util::ios::instance()),
-                                next_packet_is_full_packet(false) {}
+                    AWDSNL();
 
                     /**
                      * \brief destructor
@@ -132,34 +98,12 @@ namespace famouso {
                      *  Closes the socket.
                      *
                      */
-                    ~AWDSNL() throw() {
-                        m_socket.close();
-                    }
+                    ~AWDSNL() throw ();
 
                     /**
                      * Sets the options for the socket and starts receiving.
                      */
-                    void init() {
-                        famouso::util::impl::start_ios();
-                        // get command line parameter
-                        CLP::config::AWDSOptions::instance().getParameter(param);
-
-                        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
-                        boost::system::error_code ec;
-                        m_socket.connect(endpoint, ec);
-                        if (ec) {
-                            // An error occurred.
-                            throw "could not connect to AWDS-Network";
-                        }
-
-                        boost::asio::async_read( m_socket,
-                            boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet::Header)),
-                            boost::bind(&AWDSNL::interrupt, this,
-                                        boost::asio::placeholders::error,
-                                        boost::asio::placeholders::bytes_transferred)
-                        );
-
-                    }
+                    void init();
 
                     /**
                      * \brief bind a subject
@@ -167,9 +111,7 @@ namespace famouso {
                      * \param s subject
                      * \param snn bound address
                      */
-                    void bind(const famouso::mw::Subject &s, SNN &snn) {
-                        snn = s;
-                    }
+                    void bind(const famouso::mw::Subject &s, SNN &snn);
 
                     /**
                      * \brief deliver
@@ -179,37 +121,9 @@ namespace famouso {
                      * \param[in] p packet
                      * \param[in] type describes the packet type and is used for specifying
                      *            a fragmented or normal published packet.
-                     *
-                     * \todo momentan nur broadcast. siehe spezification fuer andere Verfahren unter doc/psawds/ipc-protocol.txt
                      */
-                    void deliver(const Packet_t& p, uint8_t type = AWDS_Packet::constants::packet_type::publish) {
-                        // try to detect subscription channel because in AWDS its get special treatment
-                        // this test works only due to the fact that the SNN is equal to the famouso::mw::Subject
-                        if (p.snn == famouso::mw::Subject("SUBSCRIBE")) {
-                            subscriptions.push_front(famouso::mw::Subject(p.data));
-                            subscriptions.sort();
-                            subscriptions.unique();
-
-                            timer_.cancel();
-                            announce_subscriptions(boost::system::error_code());
-                        } else {
-                            std::vector<boost::asio::const_buffer> buffers;
-                            AWDS_Packet::Header awds_header;
-                            awds_header.addr[0] = 0xff;
-                            awds_header.addr[1] = 0xff;
-                            awds_header.addr[2] = 0xff;
-                            awds_header.addr[3] = 0xff;
-                            awds_header.addr[4] = 0xff;
-                            awds_header.addr[5] = 0xff;
-                            awds_header.type = type;
-                            awds_header.size = htons(p.data_length + sizeof(famouso::mw::Subject));
-                            buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
-                            buffers.push_back(boost::asio::buffer(&p.snn, sizeof(famouso::mw::Subject)));
-                            buffers.push_back(boost::asio::buffer(p.data, p.data_length));
-
-                            m_socket.send(buffers);
-                        }
-                    }
+                    void deliver(const Packet_t& p, uint8_t type =
+                            AWDS_Packet::constants::packet_type::publish);
 
                     /**
                      * \brief publish
@@ -218,120 +132,41 @@ namespace famouso {
                      *
                      * \param p packet
                      */
-                    void deliver_fragment(const Packet_t& p) {
-                        deliver(p, AWDS_Packet::constants::packet_type::publish_fragment);
-                    };
+                    void deliver_fragment(const Packet_t& p);
 
                     /**
                      * \brief processes incoming packets
                      *
                      * \param p fetched packet is saved here
                      */
-                    void fetch(Packet_t& p) {
-                        p.snn = famouso::mw::Subject(awds_packet.data);
-                        p.data =  &awds_packet.data[8];
-                        p.data_length = ntohs(awds_packet.header.size) - sizeof(famouso::mw::Subject);
-                    }
+                    void fetch(Packet_t& p);
 
                     /**
                      * \brief get last SSN
                      *
                      * Returns the short network name for the last packet.
                      */
-                    SNN lastPacketSNN() {
-                        return *reinterpret_cast<SNN*>(awds_packet.data);
-                    }
-
+                    SNN lastPacketSNN();
 
                     /**
                      * \brief handle called on receive
                      *
                      * Will be called, whenever a packet was received.
                      */
-                    void interrupt(const boost::system::error_code& error, size_t bytes_recvd) {
-                        if (!error) {
-                            if (!next_packet_is_full_packet) {
-                                boost::asio::async_read( m_socket,
-                                    boost::asio::buffer(&awds_packet.data,
-                                                        ntohs(awds_packet.header.size)),
-                                    boost::bind(&AWDSNL::interrupt, this,
-                                                boost::asio::placeholders::error,
-                                                boost::asio::placeholders::bytes_transferred)
-                                );
-                                next_packet_is_full_packet=true;
-                                return;
-                            }
-                            // we got a full packet and now we will process it
-                            switch (awds_packet.header.type) {
-                                case AWDS_Packet::constants::packet_type::publish :
-                                case AWDS_Packet::constants::packet_type::publish_fragment : {
-                                        famouso::mw::el::IncommingEventFromNL(this);
-                                        break;
-                                    }
-                                case AWDS_Packet::constants::packet_type::subscribe : {
-                                        /*! \todo implement subscription announcement see protocol specification in doc */
-                                        break;
-                                    }
-                                default: ::logging::log::emit() << "AWDS_Packet not supported yet" << ::logging::log::endl;
-                            }
-
-                            // try receiving the next packet
-                            boost::asio::async_read( m_socket,
-                                boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet::Header)),
-                                boost::bind(&AWDSNL::interrupt, this,
-                                            boost::asio::placeholders::error,
-                                            boost::asio::placeholders::bytes_transferred)
-                            );
-
-                        } else {
-                            ::logging::log::emit< ::logging::Error>() << "AWDS-Network : "
-                                << error.message().c_str() << ::logging::log::endl;
-                            throw "AWDS-Network disconnected likely";
-                        }
-
-                        // the next packet is maybe not a full packet
-                        next_packet_is_full_packet=false;
-
-                    }
+                    void interrupt(const boost::system::error_code& error, size_t bytes_recvd);
 
                 private:
-                    void announce_subscriptions(const boost::system::error_code& error) {
-                        if (!error) {// != boost::asio::error::operation_aborted)
+                    void announce_subscriptions(const boost::system::error_code& error);
 
-                            if (subscriptions.size()) {
-                                uint16_t count_subj = htons(subscriptions.size());
-                                std::vector<boost::asio::const_buffer> buffers;
-                                uint32_t reserved = htonl(20);
-                                AWDS_Packet::Header awds_header;
-                                awds_header.addr[0] = 0xff;
-                                awds_header.addr[1] = 0xff;
-                                awds_header.addr[2] = 0xff;
-                                awds_header.addr[3] = 0xff;
-                                awds_header.addr[4] = 0xff;
-                                awds_header.addr[5] = 0xff;
-                                awds_header.type = AWDS_Packet::constants::packet_type::subscribe;
-                                awds_header.size = htons(sizeof(uint32_t) + 2 + ntohs(count_subj) * sizeof(famouso::mw::Subject));
-                                buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
-                                buffers.push_back(boost::asio::buffer(&reserved, sizeof(uint32_t)));
-                                buffers.push_back(boost::asio::buffer(&count_subj, sizeof(uint16_t)));
-
-                                for (std::list<SNN>::const_iterator i = subscriptions.begin(); i != subscriptions.end(); ++i) {
-                                    buffers.push_back(boost::asio::buffer(&(*i), sizeof(famouso::mw::Subject)));
-                                }
-
-                                m_socket.send(buffers);
-                            }
-
-                            timer_.expires_from_now(boost::posix_time::seconds(param.interval));
-                            timer_.async_wait(boost::bind(&AWDSNL::announce_subscriptions, this, boost::asio::placeholders::error));
-                        }
-                    }
                     boost::asio::ip::tcp::socket m_socket;
                     boost::asio::deadline_timer timer_;
                     AWDS_Packet awds_packet;
-                    std::list<SNN> subscriptions;
-                    CLP::config::AWDSOptions::Parameter param;
+                    std::list< SNN > subscriptions;
+                    SNNClientMap subscriber;
                     bool next_packet_is_full_packet;
+                    int interval;
+                    int max_age;
+                    uint max_unicast;
             };
 
         }
