@@ -45,6 +45,8 @@
 #include "logging/logging.h"
 using namespace ::logging;
 
+#ifndef WIN32
+
 // extensions start
 /*! \brief define a simple ansi console colors struct
  *
@@ -55,11 +57,50 @@ using namespace ::logging;
  */
 struct ConsoleColors {
     enum Colors {
-        magenta = 35,
-        bold = 1,
-        reset = 0
+        reset = 0,
+        black=30,
+        red=31,
+        green=32,
+        yellow=33,
+        blue = 34,
+        magenta=35,
+        cyan=36,
+        white=37
     };
 };
+
+#define GENERATE_OPERATOR_CONTENT   \
+        unsigned char tmp=Base::getBase();  \
+        *this << ::logging::log::dec << "\033[0" << static_cast<unsigned short>(l) << 'm';  \
+        Base::setBase(tmp);
+
+#else
+
+#include <windows.h> // WinApi header
+
+/*! \brief define a simple console colors struct for windows terminals
+ */
+struct ConsoleColors {
+    enum Colors {
+        reset = 7,
+        blue=9,
+        green,
+        cyan,
+        red,
+        magenta,
+        yellow,
+        white,
+        black=0
+    };
+};
+
+#define GENERATE_OPERATOR_CONTENT   \
+    HANDLE hConsole; \
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE); \
+    SetConsoleTextAttribute(hConsole, l);
+
+#endif
+
 
 /*! \brief Defines the extended output type that is capable to interpret
  *         the colors and produce the correct escape sequences.
@@ -69,9 +110,7 @@ struct CC : public Base {
     /*! \brief catch color type and produce the correct escape sequence
      */
     CC& operator << (const ConsoleColors::Colors l) {
-        unsigned char tmp=Base::getBase();
-        *this << ::logging::log::dec << "\033[0" << static_cast<unsigned short>(l) << 'm';
-        Base::setBase(tmp);
+        GENERATE_OPERATOR_CONTENT
         return *this;
     }
 
@@ -84,6 +123,7 @@ struct CC : public Base {
         return *this;
     }
 };
+
 // extensions end
 LOGGING_DEFINE_OUTPUT( CC< ::logging::LoggingType> )
 
@@ -93,7 +133,7 @@ int main(int, char**) {
                 << ::logging::log::endl << ::logging::log::endl;
 
     // using the extension to colorize the output
-    ::logging::log::emit() << ConsoleColors::magenta
+    ::logging::log::emit() << ConsoleColors::blue
                 << "Combining console codes"
                 << ConsoleColors::reset
                 << ::logging::log::endl << ::logging::log::endl;
