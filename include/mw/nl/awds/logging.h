@@ -67,7 +67,7 @@ namespace logging {
      */
     struct AWDS {
             /*! \brief delivers the current %level of %logging */
-            static ::logging::Level::__levels level() {
+            static ::logging::Level::levels level() {
                 return ::logging::Level::user;
             }
             /*! \brief delivers the string reporting the current %level of %logging */
