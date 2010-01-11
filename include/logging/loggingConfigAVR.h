@@ -61,7 +61,7 @@
 #endif
 
 namespace logging {
-    /*!\brief The %_config_ namespace separates the configurations of the
+    /*!\brief The %config namespace separates the configurations of the
      *        %logging framework from the %logging namespace avoiding name
      *        clashes.
      *
@@ -69,7 +69,7 @@ namespace logging {
      *        platforms, but the configurations are not limited to the yet
      *        provided one.
      */
-    namespace _config_ {
+    namespace config {
 
         /*!\brief UartLogType is a possible %logging type for the AVR
          *        micro controller.
@@ -95,7 +95,7 @@ namespace logging {
 
     /*!\brief base logging type for the respective platform
      */
-    typedef ::logging::_config_::UartLogType LoggingType;
+    typedef ::logging::config::UartLogType LoggingType;
 }
 
 
