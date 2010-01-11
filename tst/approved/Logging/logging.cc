@@ -64,7 +64,7 @@ int main(int, char**) {
         << ::logging::log::endl << ::logging::log::endl;
     ::logging::log::emit() << "Print 15 in hexadecimal "
         << ::logging::log::hex << 15 << ::logging::log::endl;
-    ::logging::log::emit() << "Print 15 in decimal"
+    ::logging::log::emit() << "Print 15 in decimal "
         << ::logging::log::dec << 15 << ::logging::log::endl;
     ::logging::log::emit() << "Print 15 in octal "
         << ::logging::log::oct << 15 << ::logging::log::endl;

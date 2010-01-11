@@ -40,10 +40,6 @@
 #ifndef __loggingConfigAVR_h__
 #define __loggingConfigAVR_h__
 
-#include "logging/OutputLevelSwitchDisabled.h"
-#include "logging/OutputStream.h"
-#include "logging/OutputBaseType.h"
-
 #if ! ( defined(CPU_FREQUENCY) || defined(F_CPU) )
 #warning CPU_FREQUENCY is not set and the avr-halib will select the default \
          value of 8MHz. If does not correspond to the right micro-controller \

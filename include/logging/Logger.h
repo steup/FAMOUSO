@@ -40,11 +40,10 @@
 #ifndef __Logger_h__
 #define __Logger_h__
 
-#include "logging/NullOutput.h"
-#include "logging/LoggerLevel.h"
-
 #include <boost/pool/detail/singleton.hpp>
 
+#include "logging/NullOutput.h"
+#include "logging/LoggerLevel.h"
 
 /*! \brief The namespace %logging contains everything that is related to the
  *         %logging framework (\ref loggingframework) and encloses it to avoid
@@ -74,7 +73,7 @@ namespace logging {
          *  \tparam R represents the return_type aka the output type, that is responsible
          *          for the %logging.
          */
-        template<typename Level, typename R>
+        template<typename Level = ::logging::Void, typename R = loggingReturnType>
         class Logger {
             public:
                 /*! \brief The typedef is made for function from outer scope,
@@ -88,8 +87,7 @@ namespace logging {
                  *  \return A reference to the held %object.
                  */
                 static return_type& logging () {
-                    Obj<typename return_type::output_base_type, int>::obj().currentLevel(Level::level());
-                    return Obj<typename return_type::output_base_type, int>::obj() << Level::desc();
+                    return Obj<typename return_type::output_base_type, int>::obj();
                 }
 
             private:
@@ -111,7 +109,7 @@ namespace logging {
                 };
 
                 /*! \brief It is a specialisation of Logger::Obj. It is used to disable
-                 *        the output by delivering always an instance to a NullOutput.
+                 *         the output by delivering always an instance to a NullOutput.
                  *
                  *  \copydoc Obj
                  */
@@ -139,25 +137,28 @@ namespace logging {
      */
     struct log {
         /*! \brief Numerative manipulator definitions */
-        enum Numerative_ {
+        enum Numerative {
             bin  =  2,   ///< switch to binary output
             oct  =  8,   ///< switch to octal output
             dec  = 10,   ///< switch to decimal output
             hex  = 16    ///< switch to hexadecimal output
         };
-        typedef Numerative_ Numerative;
+
         /*! \brief Manipulator definitions */
         enum Manipulator {
-            tab  =  9,   ///< prints a tabulator to the output
-            endl = 10    ///< adds a line feed output
+            tab  =  '\t',   ///< prints a tabulator to the output
+            endl =  '\n'    ///< adds a line feed output
         };
 
         /*! \brief The emit method gets the to logged information and emits it to the
          *         output (sink) of the %logging framework
          *
-         *  \tparam Level describes the %logging %Level. It could be logging::Trace,
+         * \tparam  Level describes the %logging %Level. It could be logging::Trace,
          *          logging::Info, ... or a user defined type, that fulfils the the
          *          correct interface.
+         *
+         * \returns a type, to that can be logged, but it behaviour depends on the
+         *          configuration
          *
          * You can use the log::emit method as follows:
          * \code
@@ -169,17 +170,67 @@ namespace logging {
          * \endcode
          */
         template<typename Level>
-        static inline typename ::logging::detail::Logger<Level, loggingReturnType>::return_type& emit () {
-            return ::logging::detail::Logger<Level, loggingReturnType>::logging();
+        static inline typename ::logging::detail::Logger<Level>::return_type& emit () {
+            return ::logging::detail::Logger<Level>::logging()
+                   << Level::level() << Level::desc();
         }
 
-        static inline ::logging::detail::Logger< ::logging::Void, loggingReturnType>::return_type& emit () {
-            return ::logging::detail::Logger< ::logging::Void, loggingReturnType>::logging();
+        static inline ::logging::detail::Logger<>::return_type& emit () {
+            return ::logging::detail::Logger<>::logging();
         }
     };
 
+    namespace detail {
+        /*! \brief output the given data according to output_base_type's policy
+         */
+        template<typename TT, typename M>
+        static inline void output(TT& t, const M& m){
+            static_cast<typename TT::output_base_type&>(t)<<m;
+        }
+    }
+
+    /*! \brief free operator function to dive into the framework
+     */
+    template<typename T>
+    static inline ::logging::loggingReturnType &
+    operator<<( ::logging::loggingReturnType& ret, const T& t) {
+        ::logging::detail::output(ret,t);
+        return ret;
+    }
+
+
+    /*! \brief free operator function overload for disabled parts
+     *         of the framework
+     */
+    template<typename T>
+    static inline ::logging::NullOutput&
+    operator << (::logging::NullOutput& no, T) {
+        return no;
+    }
+
 } /* logging */
 
+
+/*! \brief The macro generates the correct return type of the logging framework
+ *
+ *  \param BASE describes the base type of the return type (loggingReturnType)
+ *
+ *  This macro is used if someone extend the logging framework with further
+ *  functionality like customized prefixes or colorization. For an example
+ *  and howto read \ref extending
+ */
+#define LOGGING_DEFINE_OUTPUT(BASE)                                           \
+namespace logging {                                                           \
+    struct loggingReturnType : public BASE {                                  \
+            /*! \brief The provided typedef is used for compile time          \
+             *         selection of different implementation of the           \
+             *         %logging framework. Thus, it is necessary              \
+             *         that any output type supports this type                \
+             *         definition, why it is defined here.                    \
+             */                                                               \
+            typedef BASE    output_base_type;                                 \
+        };                                                                    \
+}
 
 /*! \brief The macro enables partial disabling of certain %logging levels
  *
@@ -195,15 +246,15 @@ namespace logging {
  *  \endcode
  */
 #define LOGGING_DISABLE_LEVEL(NAME)                                           \
-    namespace logging {                                                       \
-        namespace detail {                                                    \
-            template<typename Level, typename R>                              \
-            class Logger;                                                     \
+namespace logging {                                                           \
+    namespace detail {                                                        \
+        template<typename Level, typename R>                                  \
+        class Logger;                                                         \
                                                                               \
-            template <>                                                       \
-            class Logger<NAME, ::logging::loggingReturnType>;                 \
-        } /* detail */                                                        \
-    } /* logging */                                                           \
+        template <>                                                           \
+        class Logger<NAME, ::logging::loggingReturnType>;                     \
+    } /* detail */                                                            \
+} /* logging */                                                               \
                                                                               \
 template<>                                                                    \
 class logging::detail::Logger<NAME, ::logging::loggingReturnType> {           \
@@ -214,28 +265,5 @@ class logging::detail::Logger<NAME, ::logging::loggingReturnType> {           \
         }                                                                     \
 }
 
-/*! \brief The macro generates the correct return type of the logging framework
- *
- *  \param BASE describes the base type of the return type (loggingReturnType)
- *
- *  This macro is used if someone extend the logging framework with further
- *  functionality like customized prefixes or colorization. For an example
- *  and howto read \ref extending
- */
-#define LOGGING_DEFINE_OUTPUT(BASE)                                           \
-    namespace logging {                                                       \
-        struct loggingReturnType : public BASE {                              \
-            /*! \brief The operator matches on every type, and provides an    \
-             *         empty implementation. The compiler see the empty method\
-             *         or chain of empty methods, and throwing these away if  \
-             *         compiling with optimizations.                          \
-             */                                                               \
-            template< typename T>                                             \
-            loggingReturnType& operator<<(const T &t) {                       \
-                BASE::operator<<(t);                                          \
-                return *this;                                                 \
-            }                                                                 \
-        };                                                                    \
-    } /* logging */
-
 #endif
+

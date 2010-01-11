@@ -40,6 +40,8 @@
 #ifndef __OutputLevelSwitchDisabled_h__
 #define __OutputLevelSwitchDisabled_h__
 
+#include "logging/LoggerLevel.h"
+
 namespace logging {
 
     /*! \brief The dynamic treatment of logging levels is switched off if this
@@ -48,20 +50,23 @@ namespace logging {
     template < typename Base >
     class OutputLevelSwitchDisabled : public Base {
         public:
-            /*! \brief Matches on every type used for switching %levels. */
-            template< typename T>
-            void currentLevel (T) {}
+            /*! \brief Matches only on correct type and used for switching
+             *         %levels. However, here the implementation is empty
+             *         due to the fact, that level switching is disabled
+             *         by this class
+             */
+            OutputLevelSwitchDisabled& operator<<(const ::logging::Level::levels&) {
+                return *this;
+            }
 
-//            /*! \brief The operator matches on every type, and provides an
-//             *         empty implementation. The compiler see the empty method
-//             *         or chain of empty methods, and throwing these away if
-//             *         compiling with optimizations.
-//             */
-//            template< typename T>
-//            OutputLevelSwitchDisabled& operator<<(T t) {
-//                Base::operator<<(t);
-//                return *this;
-//            }
+            /*! \brief The operator matches on every type, and delegates further
+             *         work to the base class.
+             */
+            template< typename T>
+            OutputLevelSwitchDisabled& operator<<(T t) {
+                Base::operator<<(t);
+                return *this;
+            }
     };
 
 } /* logging */

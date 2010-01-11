@@ -42,7 +42,8 @@
 
 #include "logging/NullOutput.h"
 #include "logging/OutputStream.h"
-#include "logging/OutputBaseType.h"
+#include "logging/OutputLevelSwitchDisabled.h"
+#include "logging/OutputLevelRunTimeSwitch.h"
 #include "logging/Logger.h"
 
 #ifndef LOGGING_DEFINE_OWN_OUTPUT_TYPE
@@ -50,7 +51,7 @@
 #ifdef LOGGING_DISABLE
 
 /*! \brief define NullOutput as output %device */
-LOGGING_DEFINE_OUTPUT( ::logging::OutputBaseType< ::logging::NullOutput> )
+LOGGING_DEFINE_OUTPUT( ::logging::NullOutput )
 
 // undefine the macro and redefine it as empty to switch off all
 // user created output types and ensure that only the NullOutput

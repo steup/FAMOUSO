@@ -44,7 +44,7 @@
 
 namespace logging {
 
-    /*! \brief Treatment of logging levels can switched at runtime
+    /*! \brief Treatment of logging levels can be switched at runtime
      */
     template < typename Base >
     class OutputLevelRunTimeSwitch  : public Base {
@@ -60,20 +60,20 @@ namespace logging {
              *         on in the general %level.
              */
             bool allowed() {
-                return (_level&_current);
+                return !!(_level&_current);
             }
 
             /*! \brief Matches only on correct type and set the
              *         current %level for the output.
              */
-            void currentLevel (const ::logging::Level::__levels& l) {
+            OutputLevelRunTimeSwitch& operator<<(const ::logging::Level::levels& l) {
                 _current = l;
+                return *this;
             }
 
-            /*! \brief The operator matches on every type, and provides an
-             *         empty implementation. The compiler see the empty method
-             *         or chain of empty methods, and throwing these away if
-             *         compiling with optimizations.
+            /*! \brief The operator matches on every type, and delegates further
+             *         work to the base class if the output is currently
+             *         allowed.
              */
             template< typename T>
             OutputLevelRunTimeSwitch& operator<<(T t) {

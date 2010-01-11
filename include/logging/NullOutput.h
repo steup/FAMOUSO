@@ -40,32 +40,12 @@
 #ifndef __NullOutput_h__
 #define __NullOutput_h__
 
-#include "logging/OutputLevelSwitchDisabled.h"
-
 namespace logging {
 
-    namespace detail {
-        /*! \brief Provides an %empty base class for the use as template
-         *         argument, where no other base classes are possible.
-         */
-        struct empty {};
-    }
-
     /*! \brief This class is used to deactivate some parts or the whole
-     *         %logging framework.
+     *         %logging framework. It provides a specific type only.
      */
-    class NullOutput : public OutputLevelSwitchDisabled<detail::empty> {
-        public:
-            /*! \brief The operator matches on every type, and provides an
-             *         empty implementation. The compiler see the empty method
-             *         or chain of empty methods, and throwing these away if
-             *         compiling with optimizations.
-             */
-            template< typename T>
-            NullOutput & operator<<(T) {
-                return *this;
-            }
-    };
+    class NullOutput {};
 
 } /* logging */
 

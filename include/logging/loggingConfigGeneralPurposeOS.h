@@ -40,10 +40,6 @@
 #ifndef __loggingConfigGeneralPurposeOS_h__
 #define __loggingConfigGeneralPurposeOS_h__
 
-#include "logging/OutputLevelRunTimeSwitch.h"
-#include "logging/OutputLevelSwitchDisabled.h"
-#include "logging/OutputStream.h"
-
 #include "logging/StdOutput.h"
 #include "logging/FileOutput.h"
 
@@ -62,9 +58,7 @@ namespace logging {
          */
         typedef ::logging::OutputLevelSwitchDisabled <
                     ::logging::OutputStream <
-                        ::logging::OutputBaseType<
-                            ::logging::FileOutput
-                        >
+                        ::logging::FileOutput
                     >
                 > FileLogType;
 
@@ -73,9 +67,7 @@ namespace logging {
          */
         typedef ::logging::OutputLevelSwitchDisabled <
                     ::logging::OutputStream <
-                        ::logging::OutputBaseType<
-                            ::logging::StdOutput<>
-                        >
+                        ::logging::StdOutput<>
                     >
                 > StdLogType;
 
@@ -84,9 +76,7 @@ namespace logging {
          */
         typedef ::logging::OutputLevelSwitchDisabled <
                     ::logging::OutputStream <
-                        ::logging::OutputBaseType<
-                            ::logging::StdOutput< ::std::clog>
-                        >
+                        ::logging::StdOutput< ::std::cerr>
                     >
                 > StdErrLogType;
 
@@ -97,9 +87,7 @@ namespace logging {
          */
         typedef ::logging::OutputLevelRunTimeSwitch <
                     ::logging::OutputStream <
-                        ::logging::OutputBaseType<
-                            ::logging::StdOutput<>
-                        >
+                        ::logging::StdOutput<>
                     >
                 > StdLogRunTimeSwitchType;
     }
