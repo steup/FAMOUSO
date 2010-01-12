@@ -47,3 +47,6 @@ $(LIBAVR):
 	make -C ./externals/AVR build
 	@$(RANLIB) $(LIBDIR)/*
 
+$(LIBLOGGING):
+	@echo Checking out logging framework
+	svn co https://logging-cpp.svn.sourceforge.net/svnroot/logging-cpp/include/logging $@

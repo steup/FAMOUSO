@@ -67,6 +67,8 @@ FAMOUSO_DEBUG ?= -g -DFAMOUSO_DEBUG_DISABLE
 
 #Additional external libs
 
+LIBLOGGING           = $(INCDIR)/logging
+
 ifeq ($(CONFIG),avr)
 # no additional builds defined here, see make/avr/def.mk for the definitions
 ADDITIONAL_BUILDS    =

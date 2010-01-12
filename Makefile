@@ -67,7 +67,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(ADDITIONAL_BUILDS) depend $(LIBFAMOUSO)
+all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(LIBLOGGING) $(ADDITIONAL_BUILDS) depend $(LIBFAMOUSO)
 
 doc:
 	doxygen doc/doxygen.conf
@@ -120,7 +120,7 @@ distclean:
 	@make -C externals/AVR distclean
 
 properclean: distclean
-	@rm -rf externals/Boost externals/boost*
+	@rm -rf externals/Boost externals/boost* $(LIBLOGGING)
 
 depend: $(DEPENDDIR) $(DEPSPRE)
 
