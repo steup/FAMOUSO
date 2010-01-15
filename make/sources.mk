@@ -47,5 +47,5 @@ SOURCES  = \
 src/mw/common/AttributeList.cc \
 src/mw/common/Attribute.cc \
 src/mw/common/Event.cc \
-src/mw/common/CallBack.cc \
+src/mw/api/CallBack.cc \
 src/mw/el/EventLayerCallback.cc

@@ -42,7 +42,6 @@
 
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/nl/BaseNL.h"
-#include "mw/common/CallBack.h"
 
 namespace famouso {
     namespace mw {

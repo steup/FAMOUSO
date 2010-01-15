@@ -42,6 +42,7 @@
 
 #include "debug.h"
 #include "mw/api/EventChannel.h"
+#include "mw/api/CallBack.h"
 
 namespace famouso {
     namespace mw {
