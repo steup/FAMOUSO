@@ -39,7 +39,8 @@
 
 # external libs that needs to be build
 LIBAVR              = $(LIBDIR)/libavr-halib-$(MCU).a $(LIBDIR)/libavr-maclib-$(MCU).a
-ADDITIONAL_BUILDS  += $(LIBAVR)
+ADDITIONAL_LIBS	   += $(LIBAVR)
+EXTERNALS          += $(LIBAVR)
 
 # the includes from the external libs
-ADDITIONAL_CFLAGS += -I$(INSTALLDIR)/externals/AVR/avr-halib/include -I$(INSTALLDIR)/externals/AVR/avr-maclib/include
+ADDITIONAL_CFLAGS += -I$(EXTERNALSDIR)/AVR/avr-halib/include -I$(EXTERNALSDIR)/AVR/avr-maclib/include

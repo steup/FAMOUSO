@@ -38,17 +38,17 @@
 ################################################################################
 
 # PEAK Driver specific things
-PCANINC                  =$(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Api
+PCANINC                  = $(EXTERNALSDIR)/PEAK/Disk/PCAN-Light/Api
 PCANDEVICE               = USB
 
 ifeq ($(PCANDEVICE), USB)
 ADDITIONAL_CFLAGS       += -DPEAKUSB
-PCANLIB                  = $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_usb.lib
+PCANLIB                  = $(EXTERNALSDIR)/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_usb.lib
 else
 
 ifeq ($(PCANDEVICE), PCI)
 ADDITIONAL_CFLAGS       += -DPEAKPCI
-PCANLIB                  = $(INSTALLDIR)/externals/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_pci.lib
+PCANLIB                  = $(EXTERNALSDIR)/PEAK/Disk/PCAN-Light/Lib/Visual\ C++/Pcan_pci.lib
 else
 $(error Under Windows only PCANDEVICE=USB or =PCI supported)
 endif

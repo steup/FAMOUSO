@@ -40,8 +40,7 @@
 MACHINETYPE = $(shell $(CXX) -dumpmachine)
 GCCVERSION  = gcc-$(shell $(CXX) -dumpversion)
 
-BINDIRBASE  = $(INSTALLDIR)/bin
-BINDIR      = $(BINDIRBASE)/$(MACHINETYPE)/$(GCCVERSION)
+EXTERNALSDIR= $(INSTALLDIR)/externals
 
 MODDIRBASE  = $(INSTALLDIR)/module
 MODULEDIR   = $(MODDIRBASE)/$(MACHINETYPE)/$(GCCVERSION)
@@ -65,24 +64,28 @@ INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
 
 FAMOUSO_DEBUG ?= -g -DFAMOUSO_DEBUG_DISABLE
 
-#Additional external libs
+# external header dependencies
+# this variable definition leads to downloading and checking out
+# the needed externals. In the include dir resides all header only
+# dependencies
+EXTERNALS    = $(EXTERNALSDIR)/include
+# define Boost also as external
+EXTERNALS   += $(EXTERNALSDIR)/Boost
 
-LIBLOGGING           = $(INCDIR)/logging
+# prefix until now defined externals with -I to allow using it as
+# include path for compiler runs
+ADDITIONAL_CFLAGS := $(patsubst %,-I%,$(EXTERNALS))
 
-ifeq ($(CONFIG),avr)
-# no additional builds defined here, see make/avr/def.mk for the definitions
-ADDITIONAL_BUILDS    =
-else
+ifneq ($(CONFIG),avr)
 LIBBOOST             = $(LIBDIR)/libboost_system.a $(LIBDIR)/libboost_thread$(THREADTAG).a $(LIBDIR)/libboost_program_options.a
-ADDITIONAL_BUILDS   += $(LIBBOOST)
+EXTERNALS           += $(LIBBOOST)
+ADDITIONAL_LIBS     += $(LIBBOOST)
 endif
 
-ADDITIONAL_LIBS     += $(ADDITIONAL_BUILDS)
 
 OPTLEVEL	= -Os
 
 ADDITIONAL_CFLAGS   += -fno-strict-aliasing $(OPTLEVEL)
-
 
 CCFLAGS     = -Wall $(FAMOUSO_DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
 CCOPTION    =

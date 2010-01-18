@@ -37,16 +37,20 @@
 ##
 ################################################################################
 
+$(EXTERNALSDIR)/Boost:
+	@echo Prepare Boost
+	$(EXTERNALSDIR)/prepareBoost.sh
+
 $(LIBBOOST):
 	@echo Building needed Boost for $(PLATFORM)
-	./externals/buildBoost.sh $(LIBDIR) $(INCDIR) $(EXTENSION)
+	$(EXTERNALSDIR)/buildBoost.sh $(LIBDIR) $(EXTERNALSDIR)/Boost $(EXTENSION)
 	@$(RANLIB) $(LIBDIR)/*
 
 $(LIBAVR):
 	@echo Building needed $(LIBAVR)
-	make -C ./externals/AVR build
+	make -C $(EXTERNALSDIR)/AVR build
 	@$(RANLIB) $(LIBDIR)/*
 
-$(LIBLOGGING):
+$(EXTERNALSDIR)/include:
 	@echo Checking out logging framework
-	svn co https://logging-cpp.svn.sourceforge.net/svnroot/logging-cpp/include/logging $@
+	svn co https://logging-cpp.svn.sourceforge.net/svnroot/logging-cpp/include $@

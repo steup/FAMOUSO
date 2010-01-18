@@ -67,7 +67,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 # Definition der Targets
 .PHONY: all clean doc
 
-all: $(LIBDIR) $(MODULEDIR) $(BINDIR) $(DEPENDDIR) $(LIBLOGGING) $(ADDITIONAL_BUILDS) depend $(LIBFAMOUSO)
+all: $(LIBDIR) $(MODULEDIR) $(DEPENDDIR) $(EXTERNALS) depend $(LIBFAMOUSO)
 
 doc:
 	doxygen doc/doxygen.conf
@@ -88,14 +88,8 @@ $(LIBDIR):
 $(MODULEDIR):
 	@mkdir -p $@
 
-$(BINDIR):
-	@mkdir -p $@
-
 $(DEPENDDIR):
 	@mkdir -p $@
-
-rmbin:
-	@rm -f $(BINDIR)/*
 
 # -------------------------------------------------
 # Bauen der lib
@@ -107,20 +101,21 @@ $(LIBFAMOUSO): $(LIBOBJ)
 include ./make/externals.mk
 
 clean:
-	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR) $(BINDIR)
+	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR)
 
 distclean:
-	@rm -rf $(LIBBASE) $(MODDIRBASE) $(BINDIRBASE) $(DEPDIRBASE)
-	@rm -rf ./include/boost
+	@rm -rf $(LIBBASE) $(MODDIRBASE) $(DEPDIRBASE)
 	@rm -rf ./doc/html
 	@rm -rf ./doc/www/docu
 	@rm -rf ./doc/latex
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
-	@make -C externals/AVR distclean
+	@make -C $(EXTERNALSDIR)/AVR distclean
 
 properclean: distclean
-	@rm -rf externals/Boost externals/boost* $(LIBLOGGING)
+	@rm -rf $(EXTERNALSDIR)/Boost
+	@rm -rf $(EXTERNALSDIR)/boost*
+	@rm -rf $(EXTERNALSDIR)/include
 
 depend: $(DEPENDDIR) $(DEPSPRE)
 
