@@ -40,45 +40,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "mw/nl/CANNL.h"
-#include "mw/nl/voidNL.h"
-#include "mw/anl/AbstractNetworkLayer.h"
-#include "mw/el/EventLayer.h"
 #include "mw/common/Event.h"
-#include "mw/api/PublisherEventChannel.h"
-#include "mw/api/SubscriberEventChannel.h"
-
-#ifdef __AVR__
-#include "devices/nic/can/at90can/avrCANARY.h"
-typedef device::nic::CAN::avrCANARY can;
-#else
-#include "devices/nic/can/peak/PeakCAN.h"
-typedef device::nic::CAN::PeakCAN can;
-#endif
-#include "mw/nl/can/canETAGS.h"
-#include "mw/nl/can/canID.h"
-#include "mw/nl/can/etagBP/Client.h"
-#include "mw/nl/can/ccp/Client.h"
-#include "mw/common/UID.h"
-#include "famouso.h"
-
-#include "util/Idler.h"
+#include "case/Delegate.h"
 
 #include "debug.h"
 
 #include "mw/attributes/EmptyAttribute.h"
-
-struct config {
-    typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
-    typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
-    typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
-    typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-    typedef famouso::mw::el::EventLayer< anl > EL;
-    typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
-    typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
-};
-typedef config::SEC SEC;
-
 // test the equality of types
 template < typename T, typename U>
 struct is_same{
@@ -97,6 +64,8 @@ template<uint8_t ttl>
 class TTL : public EmptyAttribute {
     uint8_t data[size];
 public:
+    typedef TTL<0>  tag_type;
+    typedef TTL type;
     enum {
         size = 2,
         value= ttl,
@@ -165,14 +134,16 @@ class ExtendedEvent : public famouso::mw::Event {
         else
            return false;
     }
+
 };
 
 
 // try to find if the message contains the attribute <A>
 template<typename A>
-A* find(const uint8_t * const d) {
-    if (d[0] && (d[1] == A::id))
-        return reinterpret_cast<A*>(const_cast<uint8_t*>((&d[1])));
+A* find(const famouso::mw::Event& e) {
+    uint8_t *d=e.data;
+    if (d[0] && (d[1] == A::tag_type::id))
+        return reinterpret_cast<A*>(&d[1]);
     else
         return reinterpret_cast<A*>(NULL);
 }
@@ -185,75 +156,150 @@ struct compare_equality {
     }
 };
 
-// PublisherEventChannel definition with the ability to restrict the
-// dissemination area (local network-wide)
-template< typename Dissemination=EmptyAttribute>
-struct P : public config::PEC {
-    P() : config::PEC(famouso::mw::Subject(0xf1)){}
-
-    template<class Ev>
-    void publish(Ev e){
-        if ( is_same<Dissemination, Local>::value ||
-             e.template check<Local, compare_equality >() )
-            ech().publish_local(e);
-        else
-            ech().publish(*this,e);
-    }
-
-    template<class Attr, typename Ev>
-    void publish(Ev e){
-        if ( is_same<Attr, Local>::value || Ev::local )
-            ech().publish_local(e);
-        else
-            publish(e);
+template< typename A>
+struct has_ {
+    template< typename t>
+    static bool apply(t e) {
+        return !!(find<A>(e));
     }
 };
 
-// callback that is called on occurrence of an event
-void cb(famouso::mw::api::SECCallBackData& cbd) {
-    ::logging::log::emit() << "Michaels CallBack " << FUNCTION_SIGNATURE
-            << " Parameter=" <<  cbd.length
-            << " Daten:=";
-    for (uint16_t i=0;i<cbd.length;++i)
-        ::logging::log::emit() << cbd.data[i];
-    ::logging::log::emit() << ::logging::log::endl;
-    // try to find if the message contains the TTL attribute
-    if ( find<TTL<0> >(cbd.data) )
-        ::logging::log::emit() << "TTL enthalten" << ::logging::log::endl;
+template< typename A>
+struct not_ {
+    template< typename t>
+    static bool apply(t e) {
+        return !(A::apply(e));
+    }
+};
+
+struct true_ {
+    template< typename t>
+    static bool apply(t) {
+        return true;
+    }
+};
+
+struct false_ {
+    template< typename t>
+    static bool apply(t) {
+        return false;
+    }
+};
+
+template< typename A, typename B, typename C=true_, typename D=true_, typename E=true_>
+struct and_ {
+    template< typename t>
+    static bool apply(t e) {
+        return (A::apply(e) && B::apply(e) && C::apply(e) && D::apply(e) && E::apply(e));
+    }
+};
+
+template< typename A, typename B, typename C=false_, typename D=false_, typename E=false_>
+struct or_ {
+    template< typename t>
+    static bool apply(t e) {
+        return (A::apply(e) || B::apply(e) || C::apply(e) || D::apply(e) || E::apply(e));
+    }
+};
+
+template< typename A>
+struct ge_ {
+    template< typename t>
+    static bool apply(t e) {
+        A* a=find<A>(e);
+        return !!(a && (a->get() >= A::value));
+    }
+};
+
+template< typename A>
+struct g_ {
+    template< typename t>
+    static bool apply(t e) {
+        A* a=find<A>(e);
+        return !!(a && (a->get() > A::value));
+    }
+};
+
+template< typename A>
+struct l_ {
+    template< typename t>
+    static bool apply(t e) {
+        A* a=find<A>(e);
+        return !!(a && (a->get() < A::value));
+    }
+};
+
+template< typename A>
+struct le_ {
+    template< typename t>
+    static bool apply(t e) {
+        A* a=find<A>(e);
+        return !!(a && (a->get() <= A::value));
+    }
+};
+
+
+template < typename f>
+struct filter {
+    template< typename t>
+    bool operator() (t e) {
+        return f::apply(e);
+    }
+
+    template< typename t>
+    static bool apply(t e) {
+        return f::apply(e);
+    }
+};
+
+template< typename F, typename T>
+bool filter_and_transform(F& f, T e) {
+    bool b=f(e);
+    if ( b )
+        ::logging::log::emit() << "Filter matches" << ::logging::log::endl;
+    else
+        ::logging::log::emit() << "Filter does not match" << ::logging::log::endl;
+
+    return b;
 }
 
 int main(int argc, char **argv) {
+    typedef filter< has_<Body> > has_body;
+    typedef filter<
+        and_<
+           has_body,
+//           has_<
+//               Body
+//               >,
+            ge_<
+                TTL<1>
+               >,
+            le_<
+                TTL<2>
+               >
+            >
+         > ftype;
+    ftype f;
 
-#ifdef __AVR__
-    sei();
-#endif
+    famouso::util::Delegate<const famouso::mw::Event&, bool> d;
+    d.bind<&has_body::apply>();
 
-    // init famouso
-    famouso::init<config>(argc,argv);
+    // try different tests with the filter
+    const ExtendedEvent<0, TTL<0> > e0(famouso::mw::Subject(0xf1));
+    filter_and_transform(f,e0);
+//    filter_and_transform(d,e0);
 
-    // generate PublisherEventChannel without
-    // dissemination restrictions
-    P<> p;
+    ExtendedEvent<0, TTL<1> > e1(famouso::mw::Subject(0xf1));
+    filter_and_transform(f,e1);
 
-    // generate a SubscriberEventChannel with the same
-    // subject as the PublisherEventChannel
-    SEC sec(famouso::mw::Subject(0xf1));
-    sec.subscribe();
-    sec.callback.bind<&cb>();
+    ExtendedEvent<0, TTL<2> > e2(famouso::mw::Subject(0xf1));
+    filter_and_transform(f,e2);
 
-    // create an event with an additional attribute
-    ExtendedEvent<2, TTL<1> > e(p.subject());
-    e="Mi";
+    ExtendedEvent<0, TTL<3> > e3(famouso::mw::Subject(0xf1));
+    filter_and_transform(f,e3);
 
-    // publish the event
-    p.publish(e);
-    p.publish<Local>(e);
+    ExtendedEvent<0 > e4(famouso::mw::Subject(0xf1));
+    filter_and_transform(f,e4);
 
-    // create a second event without additional attributes
-    ExtendedEvent<2> e2(p.subject());
-    e2="Ma";
-    p.publish<EmptyAttribute>(e2);
-
-    Idler::idle();
     return 0;
 }
