@@ -90,7 +90,7 @@ public:
         return _tab;
     }
 
-    const uint64_t value() const {
+    uint64_t value() const {
         return ntohll(_value);
     }
 private:
