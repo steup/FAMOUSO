@@ -39,6 +39,8 @@
 #ifndef __EmptyAttribute_h__
 #define __EmptyAttribute_h__
 
+#include <stdlib.h>
+
 #include "mw/attributes/tags/AttributeTag.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
 
@@ -55,7 +57,6 @@ namespace famouso {
                 typedef EmptyAttribute            base_type;
                 typedef EmptyAttribute            type;
 
-
                 /*! \brief the placement new operator can be used to
                  *         construct an attribute on a provided part
                  *         of memory
@@ -64,16 +65,16 @@ namespace famouso {
                      return __p;
                 }
 
+                /*! \brief an EmptyAttribute has no size
+                 */
                 enum {
-                    size=0,
-                    value=0,
-                    id=0
+                    size = 0
                 };
             };
 
-        }
-    }
-}
+        } /* attributes */
+    } /* mw */
+} /* famouso */
 
 #endif
 
