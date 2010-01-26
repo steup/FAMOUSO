@@ -120,7 +120,7 @@ namespace famouso {
                                         // der knoten keine tx_node bekommt
                                         if ((tx_node = search_tx_node(uid)) > constants::Broker_tx_node) {
                                             ::logging::log::emit< ::logging::Error>() << "more than "
-                                                << constants::Broker_tx_node
+                                                << static_cast<short>(constants::Broker_tx_node)
                                                 << " nodes configured that means something went wrong"
                                                 << ::logging::log::endl;
                                             return false;
