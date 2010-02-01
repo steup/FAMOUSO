@@ -85,7 +85,7 @@ endif
 
 OPTLEVEL	= -Os
 
-ADDITIONAL_CFLAGS   += -fno-strict-aliasing $(OPTLEVEL)
+ADDITIONAL_CFLAGS   += -fno-strict-aliasing -Wfatal-errors $(OPTLEVEL)
 
 CCFLAGS     = -Wall $(FAMOUSO_DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
 CCOPTION    =
