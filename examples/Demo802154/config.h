@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008, 2009
+ * Copyright (c) 2008-2010
  * Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  * Thomas Kiebel <kiebel@ivs.cs.uni-magdeburg.de>
  * All rights reserved.

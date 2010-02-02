@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>,
+ * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>,
  *                          Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
