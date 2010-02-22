@@ -43,4 +43,4 @@ ADDITIONAL_LIBS	   += $(LIBAVR)
 EXTERNALS          += $(LIBAVR)
 
 # the includes from the external libs
-ADDITIONAL_CFLAGS += -I$(EXTERNALSDIR)/AVR/avr-halib/include -I$(EXTERNALSDIR)/AVR/avr-maclib/include -I$(EXTERNALSDIR)/Boost/boost/compatibility/cpp_c_headers/
+ADDITIONAL_CFLAGS += -I$(EXTERNALSDIR)/AVR/avr-halib/include -I$(EXTERNALSDIR)/AVR/avr-maclib/include -I$(EXTERNALSDIR)/Boost/boost/compatibility/cpp_c_headers/ -DBOOST_NO_STDLIB_CONFIG
