@@ -40,6 +40,9 @@
 #ifndef __EventChannelHandler_h__
 #define __EventChannelHandler_h__
 
+#include <stddef.h>
+#include <stdint.h>
+
 namespace famouso {
     namespace mw {
         namespace el {

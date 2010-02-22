@@ -42,6 +42,7 @@
 
 #include "debug.h"
 #include "mw/common/Event.h"
+#include "mw/nl/BaseNL.h"
 
 namespace famouso {
     namespace mw {
