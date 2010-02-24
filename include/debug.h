@@ -59,4 +59,80 @@ LOGGING_DISABLE_LEVEL(::logging::Info);
        << ::logging::log::endl;               \
 } while(0)
 
+
+
+
+#if !defined(ASSERT_FAILED_HANDLER)
+
+#include <stdlib.h>
+
+/*!
+ * \brief Default assert handler
+ * \param expr Expression evaluated to false
+ * \param file File which contains assert
+ * \param line Line which contains assert
+ */
+static inline void __assert_failed_handler(const char * expr, const char * file, int line) {
+    using ::logging::log;
+    log::emit() << file << ":" << log::dec << line << ": Assertion '" << expr << "' failed." << log::endl;
+    abort();
+}
+
+/*!
+ * \brief Name of the assert handler function
+ *
+ * This preprocessor symbol may be defined before including
+ * debug.h to overwrite the default assert handler function.
+ */
+#define ASSERT_FAILED_HANDLER ::__assert_failed_handler
+
+#endif
+
+#undef assert
+#undef assert_only_def
+
+#if defined(NDEBUG)
+#define assert(expr)
+#define assert_only_def(var_def)
+#else
+
+/*!
+ * \brief Print diagnostic message and abort program if
+ *        \p expr evaluates to false
+ * \param expr Expression to test for
+ *
+ * Useful to find bugs and spot wrong usage of interfaces by
+ * checking assumptions that should be always true. Do not use
+ * this macro to check for errors that may happen in NDEBUG
+ * case, e.g. invalid user input.
+ *
+ * Evaluates to nothing if preprocessor symbol NDEBUG is defined.
+ *
+ * \par Overwrite handler function:
+ * An assert handler function has the following signature:
+ * \code void foobar(const char * expr, const char * file, int line); \endcode
+ * It should never return if you are not interested in undefined
+ * behaviour.
+ * To get your handler called on assertion failure define the preprocessor
+ * symbol ASSERT_FAILED_HANDLER before including debug.h:
+ * \code #define ASSERT_FAILED_HANDLER foobar \endcode
+ */
+#define assert(expr) ((expr) ? ((void)0) : ASSERT_FAILED_HANDLER (#expr, __FILE__, __LINE__))
+
+/*!
+ * \brief Define local variable only used with assert test
+ * \param var_def Definition of a variable
+ *
+ * Use this to define variables with meaningful names to
+ * to get better assert messages while avoiding the
+ * 'unused variable' warning in NDEBUG case.
+ *
+ * Evaluates to var_def if NDEBUG is not defined.
+ * Evaluates to nothing if NDEBUG is defined.
+ */
+#define assert_only_def(var_def) var_def
+
+#endif
+
+
 #endif
