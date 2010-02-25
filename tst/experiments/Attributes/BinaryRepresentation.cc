@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -33,12 +34,13 @@
  *    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *
- * $Id: template.cc 1510 2010-02-02 07:18:58Z mschulze $
+ * $Id$
  *
  ******************************************************************************/
 
 #include "stdint.h"
 #include <iostream>
+#include <typeinfo>
 
 #include "mw/attributes/EmptyAttribute.h"
 #include "mw/attributes/TTL.h"
@@ -295,7 +297,7 @@ void writeAttribute(const A& attribute, uint8_t*& target) {
 			} else {
 				// The length can be written unextended
 				header->extension     = false;
-				header->valueOrLength = A::size;
+				header->valueOrLength = A::size & 0x7;
 			}
 
 			// Write the attribute value to the bytes following the attribute header (and
@@ -319,7 +321,7 @@ void writeAttribute(const A& attribute, uint8_t*& target) {
 			*target++ = A::size & 0xFF;
 		} else {
 			header->extension = false;
-			header->length    = A::size;
+			header->length    = A::size & 0x3;
 		}
 
 		// In any case the is written now
