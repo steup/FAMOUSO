@@ -40,5 +40,8 @@ PCAN=/usr/lib/libpcan.so
 PCANINC=/PCANINCLUDE
 PCANLIB=$(shell test -f $(PCAN) && echo $(PCAN))
 
-ADDITIONAL_CFLAGS 	+= -DLINUX -I$(PCANINC)
-ADDITIONAL_LIBS     += $(PCANLIB) -lpthread
+LIBFEC = $(LIBDIR)/libfec.a
+
+ADDITIONAL_CFLAGS   += -DLINUX -I$(PCANINC) -I$(EXTERNALSDIR)/FEC
+ADDITIONAL_LIBS     += $(PCANLIB) -lpthread $(LIBFEC)
+EXTERNALS           += $(LIBFEC)

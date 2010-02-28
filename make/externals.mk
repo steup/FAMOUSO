@@ -51,6 +51,11 @@ $(LIBAVR):
 	make -C $(EXTERNALSDIR)/AVR build
 	@$(RANLIB) $(LIBDIR)/*
 
+$(LIBFEC):
+	@echo Buildung needed forward error correction library
+	make -C $(EXTERNALSDIR)/FEC
+	@cp $(EXTERNALSDIR)/FEC/libfec.a $(LIBDIR)
+
 $(EXTERNALSDIR)/include:
 	@echo Checking out logging framework
 	svn co https://logging-cpp.svn.sourceforge.net/svnroot/logging-cpp/include $@

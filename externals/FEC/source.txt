@@ -1,0 +1,10 @@
+Source:
+http://info.iet.unipi.it/~luigi/fec.html
+
+Changes:
+- Makefile
+  - added all and libfec.a target
+  - hanged optimization level
+- removed optimized assembler versions
+- some compile warning fixes
+- fix to make it compile on Windows
