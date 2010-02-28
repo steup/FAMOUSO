@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                         Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -152,6 +153,12 @@ namespace famouso {
                             typedef famouso::mw::api::PublisherEventChannel<lECH> PEC;
                             typedef famouso::mw::api::SubscriberEventChannel<lECH> SEC;
 
+                            /// Workaround for transporting shared_ptr from get_event_data() into cb()
+                            static boost::shared_ptr<uint8_t> & current_event_data() {
+                                static boost::shared_ptr<uint8_t> data;
+                                return data;
+                            }
+
                         public:
                             /*!
                              *  \brief Use shared pointers (from boost) for automated deletion
@@ -198,6 +205,7 @@ namespace famouso {
                              *  \param str Message
                              */
                             void report(const famouso::mw::Subject &s, const char *const str) {
+
                                 ::logging::log::emit() << str << ::logging::log::tab
                                     << ::logging::log::tab << "-- Subject [";
                                 for (uint8_t i = 0;i < 8;++i) {
@@ -252,10 +260,10 @@ namespace famouso {
                                     famouso::mw::Event e(pec->subject());
                                     e.length = bytes_transferred;
                                     e.data = (uint8_t *) event_data.get();
-                                    current_event_data = event_data;
+                                    current_event_data() = event_data;
                                     // publish to FAMOUSO
                                     pec->publish(e);
-                                    current_event_data.reset();
+                                    current_event_data().reset();
                                     // bind correct handler to the socket in order to
                                     // receive a new event_head on that socket
                                     boost::asio::async_read(socket(), boost::asio::buffer(event_head, event_head.size()),
@@ -299,9 +307,11 @@ namespace famouso {
                             /*!
                              *  \brief Subscriber channel callback that forwards events to client app (subscriber connections)
                              *  \param cbd  Callback data (event to forward to this subscriber)
+                             *  \todo Comparing incomplete_async_writes with constant is insufficient for crash detection...
+                             *        the time passed since last decrease of incomplete_async_writes should be crucial
                              */
                             void cb(famouso::mw::api::SECCallBackData & cbd) {
-                                if (incomplete_async_writes < 5) {
+                                if (incomplete_async_writes < 1000) {
                                     // Idea: performance improvement for
                                     //       multiple subscribers: alloc and
                                     //       init preamble once in
@@ -318,12 +328,13 @@ namespace famouso {
                                             boost::asio::buffer(cbd.data, cbd.length)
                                         }
                                     };
+
                                     incomplete_async_writes++;
                                     // bufs memory owned by shared_ptr current_event_data and sp_preamble passed
                                     // to write_handler()
                                     boost::asio::async_write(socket(), bufs, boost::asio::transfer_all(),
                                                              boost::bind(&EventChannelConnection::write_handler, this->shared_from_this(),
-                                                                         current_event_data,
+                                                                         current_event_data(),
                                                                          sp_preamble,
                                                                          boost::asio::placeholders::error,
                                                                          boost::asio::placeholders::bytes_transferred));
@@ -393,10 +404,6 @@ namespace famouso {
 
                             /// Buffer used to store data received from the client
                             boost::array<uint8_t, 13> event_head;
-
-                            /// Workaround for transporting shared_ptr from get_event_data() into cb()
-                            typename EventMemoryPool::pointer current_event_data;
-
                     };
 
 
