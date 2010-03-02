@@ -38,124 +38,118 @@
  *
  ******************************************************************************/
 
-#include "stdint.h"
-#include <iostream>
-#include <typeinfo>
+#include <stdint.h>
 
+#include "util/endianness.h"
+#include "mw/common/Event.h"
 #include "mw/attributes/EmptyAttribute.h"
-#include "mw/attributes/TTL.h"
 
-#define ATTRIBUTE_LIST_LENGTH_BITS 7
-#define NON_EXTENSION_LENGTH_LIMIT (1 << ATTRIBUTE_LIST_LENGTH_BITS)
+#include "debug.h"
 
-// Category constant for non-system attributes (system attributes will
-//  have a category range of (0x0 - 0xE)
-#define NON_SYSTEM_CATEGORY 0xF
-
-// If a system attribute is not extended this is the maximum value which
-//  can be written (length or value with two bits set)
-#define SYS_ATTRIB_NON_EXT_LIMIT 0x3
-
-// If a non-system attribute is not extended this is the maximum length
-//  which can be written directly into the header byte
-#define NON_SYS_ATTRIB_NON_EXT_LIMIT 0x7
-
-using namespace std;
-using namespace famouso::mw::attributes;
-
-// TTL system attribute with "isSystem"-flag
-template <uint8_t ttl>
-class ExtTTL : public TTL<ttl> {
-	public:
-		enum {
-			id       = NON_SYSTEM_CATEGORY - 1,
-			isSystem = true,
-			size     = 1 // The size should only represent the bytes used by the value
-		};
-};
-
-// Test non-system attribute
-template <uint64_t timestamp>
-class TimeStamp : public EmptyAttribute  {
-	public:
-		typedef TimeStamp<0>             base_type;
-		typedef tags::integral_const_tag compare_tag;
-		typedef TimeStamp                type;
-
-		enum {
-			isSystem = false,
-			size     = 8,
-			id       = 0x0001
-		};
-
-		static uint64_t value() {
-			return (timestamp);
-		}
-
-		TimeStamp() : val(timestamp) {}
-
-		TimeStamp(const uint64_t& val) : val(val) {}
-
-		uint64_t get() const {
-			return (val);
-		}
-
-	private:
-		uint64_t val;
-};
-
-/*
+/*!
+ * Calculates the number of bits needed to represent the given
+ *  unsigned value.
  *
+ * /tparam Value The value to calculate the bit count for
  */
-struct AttributeListHeader {
-	// Lower 7 bits
-	uint8_t length    : ATTRIBUTE_LIST_LENGTH_BITS;
-
-	// Highest bit
-	bool    extension : 1;
-} __attribute__((packed));
-
-/*
- *
- */
-/*
-struct AttributeElementHeader {
-		union {
-			// For system attributes
-			struct {
-				uint8_t valueOrLength       : 2;
-				bool    valueOrLengthSwitch : 1;
-			} __attribute__((packed));
-
-			// For non system attributes
-			uint8_t length : 3;
-		};
-
-		bool    extension : 1;
-
-		// Highest 4 bits
-		uint8_t category  : 4;
-} __attribute__((packed));
-*/
-
-/*
-union AttributeElementHeader {
-    // For system attributes
-    struct {
-        uint8_t valueOrLength       : 2;
-        uint8_t valueOrLengthSwitch : 1;
-    } __attribute__((packed));
-
-    // For non system attributes
-    uint8_t length : 3;
-
-    struct {
-        uint8_t :3;
-        uint8_t extension : 1;
-        uint8_t category  : 4;
-    } __attribute__((packed));
+template <uint32_t Value>
+struct BitCountCalculator {
+	enum {
+		value = (Value < 0x2) ? 1 : (1 + BitCountCalculator<Value >> 1>::value)
+	};
 };
-*/
+template <>
+struct BitCountCalculator<0> {
+	enum {
+		value = 0
+	};
+};
+
+template <uint32_t BitCount>
+struct BitCountToByteCount {
+	enum {
+		value = (BitCount % 8 == 0) ? (BitCount / 8) : ((BitCount / 8) + 1)
+	};
+};
+
+template <typename Attr>
+struct SizeCalculator {
+private:
+	enum {
+		byteCount = BitCountToByteCount<Attr::bitCount>::value
+	};
+
+public:
+	enum {
+		value = (Attr::isSystem) ?
+					( // For system attributes
+					(Attr::bitCount < 3) ?
+						// If the value fits the header byte unextended, this is the only byte needed
+						1 :
+
+						// If the length fits the header byte unextended, we would write the header byte + "length-many" bytes
+						//  (Length-values up to 3 fit into two bits, which would be remaining)
+						// TODO: Consider extended values
+						(byteCount < 4) ?
+							(1 + byteCount) :
+							// Otherwise we would extend the header byte and so need one more byte
+							(2 + byteCount)
+					) :
+
+					( // For non system attributes
+					// The last part of the header byte is always the length, we now must find out, if the
+					//  header must extended for the length
+					(byteCount < 8) ?
+						// The length fits unextended, so we need 1 byte for the header itself, one byte
+						//  for the type and "length-many" bytes for the value
+						(1 + 1 + byteCount) :
+						// We must extend the header byte, that is one more byte compared to the first
+						//  case is needed
+						(1 + 1 + 1 + byteCount)
+					)
+	};
+};
+
+template <typename ValueType>
+ValueType inner_hton(const ValueType& value);
+
+template <>
+uint8_t inner_hton<uint8_t>(const uint8_t& value) {
+	return (value);
+}
+template <>
+uint16_t inner_hton<uint16_t>(const uint16_t& value) {
+	return (htons(value));
+}
+template <>
+uint32_t inner_hton<uint32_t>(const uint32_t& value) {
+	return (htonl(value));
+}
+
+template <typename ValueType, ValueType Value, bool IsSystem = false>
+struct ExtendedAttribute : public famouso::mw::attributes::EmptyAttribute {
+	typedef ExtendedAttribute<ValueType, Value, IsSystem> thisType;
+
+	enum {
+		id       = 0x12,
+		isSystem = IsSystem,
+		bitCount = BitCountCalculator<Value>::value,
+		size     = SizeCalculator<thisType>::value
+	};
+
+	// The data array contains the right aligned value of this attribute
+	uint8_t data[BitCountToByteCount<bitCount>::value];
+
+	static const ValueType value() {
+		return (Value);
+	}
+
+	ExtendedAttribute() {
+		// Initialize the member array "data" to the binary representation
+		//  of this attribute's value
+		*((ValueType*) &data[0]) = inner_hton(Value << (8 * (sizeof(ValueType) - BitCountToByteCount<bitCount>::value)));
+	}
+};
 
 union AttributeElementHeader {
     // For system attributes
@@ -170,227 +164,126 @@ union AttributeElementHeader {
     uint8_t length : 3;
 };
 
-/*!
- * \brief Writes the given attribute list size to the given
- *  byte array and returns the next available position to
- *  write into the array
- *
- * If the list size does not exceed 127 only one byte will
- *  written with the extension bit not set. Otherwise the
- *  given length will be split into two bytes. Note that
- *  lengths above 32767 are generally not supported and will
- *  silently be cut down to this limit.
- *
- * \param[in] listSize The number of attributes represented by
- *  this list header
- * \param[in,out] target The byte array to write the header into, since
- *  this is provided referenced the next available write position
- *  can be obtained after thuis method returns
- */
-void writeAttributeListHeader(const uint16_t& listSize, uint8_t*& target) {
-	// Directly interpret the first byte as the header struct and increment the target pointer
-	AttributeListHeader* header = (AttributeListHeader*) target++;
+template <typename Attr>
+struct AttributeHeaderWriter {
+	enum {
+		// The byte count for the attribute header
+		// If the attribute's size is 1 (which includes the header) the header size is
+		//  also 1, otherwise: TODO: Consider extended values
+		size = (Attr::size == 1) ? 1 : Attr::size - BitCountToByteCount<Attr::bitCount>::value
+	};
 
-	// FIXME: Turn the order of writing high and low byte around, so that the high byte
-	//  is written first
+	uint8_t data[size];
 
-	// The usage of bit field structs automatically implies the bit-op with a
-	//  7-bit-mask here
-	header->length    = listSize;
-	// The extension bit must be set if the given size is not less than the
-	//  limit (the limit is the first extended value)
-	header->extension = !(listSize < NON_EXTENSION_LENGTH_LIMIT);
+	AttributeHeaderWriter() {
+		AttributeElementHeader* header = (AttributeElementHeader*) data;
 
-	if (header->extension) {
-		// Write the length extension and afterwards increment the
-		//  pointer
-		*target++ = (listSize >> ATTRIBUTE_LIST_LENGTH_BITS);
-	}
-}
+		// The extension bit will be set if the header's size is greater than 1 byte
+		//  (Since this is the intuitive meaning of the extension bit)
+		header->extension = (size > 1);
 
-/*!
- * \brief Reads an attribute list header, i.e. its size, from the
- *  given byte array incrementing the array pointer to the next
- *  available read position.
- *
- * \param[in,out] source The byte array to read the list header from
- *
- * \return The attribute list size
- */
-const uint16_t readAttributeListHeader(const uint8_t*& source) {
-	const AttributeListHeader* header = (const AttributeListHeader*) source;
+		if (Attr::isSystem) {
+			// System attributes write their id directly into the header byte
+			header->category = Attr::id & 0xF;
 
-	uint16_t result = header->length;
+			// The VOL flag is set depending on the bits used for the attribute's value
+			// FIXME: That is not right, if the value would take 10 bits, we also could set the
+			//  VOL flag, we would have to extend but not have to write the length explicitly
+			header->valueOrLengthSwitch = (Attr::bitCount < 3);
 
-	++source;
-
-	if (header->extension) {
-		result |= (*source++ << ATTRIBUTE_LIST_LENGTH_BITS);
-	}
-
-	return (result);
-}
-
-// TODO: What about byte order? At the moment the value is written as it
-//  stored in memory since it is iterated as a byte array (perhaps hton and
-//  ntoh would solve this)
-template <typename T>
-void writeValue(const T& val, const uint16_t& size, uint8_t*& target) {
-	uint8_t* value = (uint8_t*) &val;
-
-	for (int i = 0; i < size; ++i) {
-		*target++ = value[i];
-	}
-}
-
-template <typename T>
-void readValue(T& val, const uint16_t& size, uint8_t*& source) {
-	uint8_t* value = (uint8_t*) &val;
-
-	for (int i = 0; i < size; ++i) {
-		value[i] = *source++;
-	}
-}
-
-// An attribute is assumed to provide the following:
-//
-// CATEGORY:
-// - if the attribute is a system attribute by A::isSystem
-//
-// ID:
-// - if it is a system attribute, it should provide a four bit ID by A::id
-//    in the range 0-15
-// - otherwise A::id() may provide an eight bit ID
-//
-// LENGTH:
-// - the number of bytes which the attribute's value needs for representation by A::size
-//
-// VALUE:
-// - an arbitrary length value by attribute.get()
-//
-template <typename A>
-void writeAttribute(const A& attribute, uint8_t*& target) {
-	// Interpret the first byte as a header struct and increment the pointer
-	AttributeElementHeader* header = (AttributeElementHeader*) target++;
-
-	if (A::isSystem) {
-		// TODO assert (A::id != 15)
-
-		header->category = A::id;
-
-		// TODO: Is it assumable that an attribute value is always integral? If not, how
-		//  can we check whether the value fits unextended?
-		// The size flag only tells how much BYTES are used not BITS, so we cannot use
-		//  this to decide the extension flag
-
-		if (attribute.get() > SYS_ATTRIB_NON_EXT_LIMIT) {
-			header->valueOrLengthSwitch = false; // In any case we write the length
-
-			// Check if the length can be written unextended
-			if (A::size > SYS_ATTRIB_NON_EXT_LIMIT) {
-				// The length must be split to the extension byte
-				header->extension     = true;
-				header->valueOrLength = (A::size >> 8); // Write the highest two bits of the length
-
-				// Write the lower byte of the length to the extension byte
-				*target++ = A::size & 0xFF;
-			} else {
-				// The length can be written unextended
-				header->extension     = false;
-				header->valueOrLength = A::size & 0x7;
+			// If the length follows, we have some more work to do (the value would be written
+			//  by the attribute itself)
+			if (Attr::bitCount > 2) {
+				// Check if the length can be written unextended (lengths less than 4
+				//  directly fit the rest of the header byte)
+				if (BitCountToByteCount<Attr::bitCount>::value < 4) {
+					header->valueOrLength = BitCountToByteCount<Attr::bitCount>::value & 0x3;
+				} else {
+					// In the other case only the highest 2 bits of the length will be written
+					//  to the header byte directly (the lower 8 bits will be written to the
+					//  next byte)
+					header->valueOrLength = (BitCountToByteCount<Attr::bitCount>::value >> 8) & 0x3;
+					// The lower 8 bits of the length
+					data[1] = (BitCountToByteCount<Attr::bitCount>::value & 0xFF);
+				}
 			}
-
-			// Write the attribute value to the bytes following the attribute header (and
-			//  possibly the extension byte)
-			writeValue(attribute.get(), A::size, target);
 		} else {
-			// The plain value fits the two bits
-			header->extension           = false;
-			header->valueOrLengthSwitch = true; // We write the value
-			header->valueOrLength       = attribute.get();
+			header->category = 0xF;
+
+			// For non-system attributes we have to check if the length fits into the
+			//  three remaining bits (lengths up to 7 can be written to three bits)
+			if (BitCountToByteCount<Attr::bitCount>::value < 8) {
+				header->length = (BitCountToByteCount<Attr::bitCount>::value & 0x7);
+
+				data[1] = Attr::id;
+			} else {
+				header->length = ((BitCountToByteCount<Attr::bitCount>::value >> 8) & 0x7);
+
+				data[1] = BitCountToByteCount<Attr::bitCount>::value & 0xFF;
+				data[2] = Attr::id;
+			}
 		}
-	} else {
-		header->category = NON_SYSTEM_CATEGORY;
+	}
+};
 
-		// Check whether the length fits unextended
-		if (A::size > NON_SYS_ATTRIB_NON_EXT_LIMIT) {
-			header->extension = true;
-			header->length    = (A::size >> 8); // Write the highest three bits of the length
+template <typename Attr>
+struct ValueOffsetCalculator {
+	enum {
+		value = (Attr::isSystem) ?
+					( // For system attributes
+					// First we have to check if the header size is 1 byte
+					(AttributeHeaderWriter<Attr>::size == 1) ?
+						(// If it is, this could mean that either the value directly fits the
+						 //  header or the length directly fits the header
+						(Attr::bitCount < 3) ?
+							// The value directly fits the header, so the offset is 0
+							0 :
+							// The length directly fits the header, so the offset is 1
+							1
+						) :
+						( // If it's not this could either mean that the value is written
+						  //  extended or the length is written extended
+							1 // TODO
+						)
+					) :
+					( // For non-system attributes
+					2 // TODO
+					)
+	};
+};
 
-			// Write the lower byte of the length to the extension byte
-			*target++ = A::size & 0xFF;
-		} else {
-			header->extension = false;
-			header->length    = A::size & 0x3;
-		}
 
-		// In any case the is written now
-		*target++ = A::id;
+void print(uint8_t* array, uint8_t length) {
+	::logging::log::emit() << ::logging::log::hex;
 
-		// And finally the attribute value follows
-		writeValue(attribute.get(), A::size, target);
+	for (uint8_t i = 0; i < length; ++i) {
+		::logging::log::emit() << '[' << (int) array[i] << ']';
 	}
 
-	// TODO Debug
-	cout << "Attr       : " << typeid(attribute).name() << endl;
-
-	cout << "ID         : " << A::id << endl;
-	cout << "Size       : " << A::size << endl;
-	cout << "IsSystem   : " << A::isSystem << endl;
-	cout << "Value:     : " << (long) attribute.get() << endl;
-
-	cout << endl;
-
-	cout << "Category   : " << (int) header->category << endl;
-	cout << "Extension  : " << (int) header->extension << endl;
-
-	if (A::isSystem) {
-		cout << "VOL Switch : " << (int) header->valueOrLengthSwitch << endl;
-		cout << "VOL Value  : " << (int) header->valueOrLength << endl;
-	} else {
-		cout << "Length     : " << (int) header->length << endl;
-	}
-
-	cout << "-------------" << endl;
+	::logging::log::emit() << ::logging::log::endl;
 }
-
-// ----------------------------------------------------
 
 int main() {
-	// Attribute list length
-	const int cnt = 0x3;
+	typedef ExtendedAttribute<uint32_t, 0x8FFFF> AttrType;
 
-	// Declared attributes
-	ExtTTL<1> ttl;
+	uint8_t data[AttrType::size];
 
-	TimeStamp<0x87654321> ts1;
-	TimeStamp<0x12345678> ts2;
-
-	// The buffer to write the data into
-	uint8_t  buffer[256];
-	// A movable pointer to the buffer (needed by the encoding method)
-	uint8_t* bufPtr = buffer;
-
-	// Configure stream to write hex representation
-	cout << hex;
-
-	// Write the list length
-	writeAttributeListHeader(cnt, bufPtr);
-
-	cout << "Wrote " << (int) (bufPtr - buffer) << " bytes for the length" << endl << endl;
-
-	// Write the attributes
-	writeAttribute(ttl, bufPtr);
-	writeAttribute(ts1, bufPtr);
-	writeAttribute(ts2, bufPtr);
-
-	// Another movable pointer to the buffer for printing the written bytes
-	uint8_t* outPtr = buffer;
-
-	// Print the bytes
-	while (outPtr != bufPtr) {
-		cout << "[" << (int) *outPtr++ << "]";
+	// Init data to zeros
+	for (int i = 0; i < AttrType::size; ++i) {
+		data[i] = 0x00;
 	}
 
-	cout << endl;
+	new (&data[ValueOffsetCalculator<AttrType>::value]) AttrType;
+
+	AttrType* attr = (AttrType*) &data[ValueOffsetCalculator<AttrType>::value];
+
+	::logging::log::emit() << "Attribute size: " << (int) AttrType::size << ::logging::log::endl;
+
+	print(attr->data, sizeof(attr->data));
+
+	AttributeHeaderWriter<AttrType> w;
+
+	print(w.data, sizeof(w.data));
+
+	print(data, sizeof(data));
 }
