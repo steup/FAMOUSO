@@ -81,8 +81,8 @@ case you switch between different targets like it is while development.
 
 - edit make/config.mk and choose the platform for which %FAMOUSO has to be built
 - type make in the main directory
-- change to the tools directory and type make "tool" which you want to build
-    - for some tools (ech-can) you have to fulfill prerequisites like an
+- change to the ECHs directory and type make "ech-config" which you want to build
+    - for some ECH configurations (ech-can) you have to fulfill prerequisites like an
       installed pcan-lib if you want to use the peak-CAN library. \ref peak-can-build
 
 
@@ -98,7 +98,7 @@ or
 #> make FAMOUSO_CONFIG=PLATFORM
 \endcode
 If you use it in that way, it is needed that you always specify the platform
-while compiling examples or tools.
+while compiling examples or ECHs.
 
 
 
@@ -138,7 +138,7 @@ underlying hardware as well as a certain driver. Enabling the use on different
 platforms (Linux, Windows and Micro-Controller), %FAMOUSO is programmed against
 the generic PAXCAN interface that hides the platform specifics. However, the
 build process could not be complete untouched, because additional includes and
-libs are needed to build %FAMOUSO tools successfully.
+libs are needed to build %FAMOUSO ECHs successfully.
 
 
 
@@ -154,9 +154,9 @@ you want. Then you have to do the following steps:
 #> make clean; make NET=NO_NETDEV_SUPPORT
 #> make install   -> needs root privileges
 \endcode
-If you do so, you are able to compile the tools in this way
+If you do so, you are able to compile the ECHs in this way
 \code
-#> cd famouso-dir/tools
+#> cd famouso-dir/ECHs
 #> make ech-can
 \endcode
 because the includes and the lib are found by the compiler automatically.
@@ -197,9 +197,9 @@ following steps:
 After that, you have to bring up a CAN interface and set the correct baudrate.
 How to do this is described in the linux kernel documentation file can.txt.
 
-If you do so, you are able to compile the tools in this way
+If you do so, you are able to compile the ECHs in this way
 \code
-#> cd famouso-dir/tools
+#> cd famouso-dir/ECHs
 #> make ech-SocketCAN
 \endcode
 
@@ -232,9 +232,9 @@ exactly the next steps:
 #> cd famouso-dir
 #> make
 \endcode
-If you do so, you are able to compile the tools in this way
+If you do so, you are able to compile the ECHs in this way
 \code
-#> cd famouso-dir/tools
+#> cd famouso-dir/ECHs
 #> make ech-can PCANDEVICE={PCI or USB}
 \endcode
 because the includes and the lib are found by the compiler automatically. For
