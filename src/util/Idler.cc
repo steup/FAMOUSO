@@ -43,29 +43,30 @@
 #include <boost/thread.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 
 #include <signal.h>
 
 namespace Idler {
 
     boost::mutex waiter;
+    boost::condition cond_variable;
 
     void siginthandler(int) {
         // signalise the ios to stop
         famouso::util::impl::exit_ios();
         // Unlock waiter -> waiting thread will leave idle()
-        waiter.unlock();
+        cond_variable.notify_one();
     }
 
     void idle() {
-        // aquire the lock waiter the first time
-        waiter.lock();
+        // aquire the lock waiter
+        boost::mutex::scoped_lock lock(waiter);
 
         signal(SIGINT, Idler::siginthandler);
 
-        // aquire the lock a second time to
-        // block until waiter gets unlocked via SIGINT
-        waiter.lock();
+        // block until waiting condition gets false via SIGINT
+        cond_variable.wait(waiter);
 
         // wait an additional short time to ensure that the
         // ios-thread has finished
@@ -73,7 +74,6 @@ namespace Idler {
         boost::xtime_get(&time, boost::TIME_UTC);
         time.nsec += 100000000;
         boost::thread::sleep(time);
-        waiter.unlock();
     }
 
 }
