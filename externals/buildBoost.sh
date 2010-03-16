@@ -44,12 +44,8 @@ pushd `dirname $0`
 [ ! -d Boost ] && sh wget.sh && sh patchBoost.sh
 if [ -d Boost ]; then
 
-if [ x${3%.*} = xwindows ]; then
-    THREADAPI="threadapi=win32 target-os=cygwin"
-fi
-
 PARAMS=" --libdir=$1 --includedir=$2 "
-BJAMCONFIG=" gcc --layout=system --with-system --with-thread --with-program_options link=static --user-config=`pwd`/user-config.jam.${3%/*} install ${THREADAPI}"
+BJAMCONFIG=" gcc --layout=system --with-system --with-thread --with-program_options link=static --user-config=`pwd`/user-config.jam.${3%/*} install threading=multi"
 echo Configure-Parameter $PARAMS
 echo BJAM-Parameter $BJAMCONFIG
 

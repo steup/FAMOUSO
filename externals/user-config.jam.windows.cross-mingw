@@ -1,1 +1,4 @@
-using gcc : : i386-mingw32-gcc : <cxxflags>-mthreads ; 
+using gcc : : i386-mingw32-gcc ;
+toolset.add-requirements
+   <toolset>gcc:<target-os>windows
+   <toolset>gcc:<threadapi>win32 ;
