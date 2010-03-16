@@ -44,36 +44,29 @@
 #include <boost/thread/xtime.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
 #include <signal.h>
 
 namespace Idler {
 
-    boost::mutex waiter;
-    boost::condition cond_variable;
+    volatile bool done = false;
 
     void siginthandler(int) {
-        // signalise the ios to stop
-        famouso::util::impl::exit_ios();
-        // Unlock waiter -> waiting thread will leave idle()
-        cond_variable.notify_one();
+        // Unlock the idle() thread
+        done=true;
     }
 
     void idle() {
-        // aquire the lock waiter
-        boost::mutex::scoped_lock lock(waiter);
 
         signal(SIGINT, Idler::siginthandler);
 
-        // block until waiting condition gets false via SIGINT
-        cond_variable.wait(waiter);
+        while(!done) {
+            boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+        }
 
-        // wait an additional short time to ensure that the
-        // ios-thread has finished
-        boost::xtime time;
-        boost::xtime_get(&time, boost::TIME_UTC);
-        time.nsec += 100000000;
-        boost::thread::sleep(time);
+        // signalise the ios to exit
+        famouso::util::impl::exit_ios();
     }
 
 }

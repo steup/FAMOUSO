@@ -38,6 +38,7 @@
  ******************************************************************************/
 
 #include "boost/thread.hpp"
+#include "boost/shared_ptr.hpp"
 #include "util/ios.h"
 #include "debug.h"
 
@@ -46,7 +47,9 @@ namespace famouso {
         namespace impl {
             namespace detail {
 
+                boost::shared_ptr<boost::thread> ios_thread;
                 volatile bool running=true;
+
                 void run() {
                     try {
                         boost::asio::io_service::work work(famouso::util::ios::instance());
@@ -62,16 +65,17 @@ namespace famouso {
             }
 
             void start_ios() {
-                static boost::thread t(boost::bind(&famouso::util::impl::detail::run));
-            }
-
-            void stop_ios() {
-                famouso::util::ios::instance().stop();
+                if (!detail::ios_thread)
+                    detail::ios_thread.reset(new boost::thread(boost::bind(&famouso::util::impl::detail::run)));
             }
 
             void exit_ios() {
-                detail::running=false;
-                stop_ios();
+                if (detail::ios_thread) {
+                    detail::running=false;
+                    famouso::util::ios::instance().stop();
+                    detail::ios_thread->join();
+                    detail::ios_thread.reset();
+                }
             }
         }
     }
