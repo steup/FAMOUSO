@@ -72,6 +72,7 @@ all: $(LIBDIR) $(MODULEDIR) $(DEPENDDIR) $(EXTERNALS) depend $(LIBFAMOUSO)
 doc:
 	doxygen doc/doxygen.conf
 	cp ./doc/images/FAMOUSO.png ./doc/html
+	cp ./tools/install-cygwin.bat ./doc/html
 
 website:
 	mkdir -p ./doc/www/docu
@@ -80,6 +81,7 @@ website:
 	@echo "<!--#set var=\"base\" value=\"./../..\" -->" > ./doc/www/docu/online/base.shtml
 	make -C ./doc/latex all
 	cp ./doc/latex/refman.pdf ./doc/www/docu
+	cp ./tools/install-cygwin.bat ./doc/www/docu/online
 
 
 $(LIBDIR):

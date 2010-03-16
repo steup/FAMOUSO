@@ -61,8 +61,22 @@ and for some Binding to other languages you need
 
 If you want to  generate the documentation too,  you need doxygen.
 
-If you want to build under Windows, you will install cygwin or mingw. You have
-to provide the mentioned tools for these environments too.
+If you want to build under Windows, you will install
+<a href="http://www.cygwin.org/cygwin/">cygwin</a>
+or
+<a href="http://www.mingw.org/">mingw</a>.
+You have to provide the mentioned tools for these environments too.
+For cygwin, we provide a <a href="./install-cygwin.bat">install-cygwin.bat</a>
+that installs cygwin in a minimal version, enabling downloading and compiling
+of %FAMOUSO. The script itself and the cygwin setup tool from the
+<a href="http://www.cygwin.org/cygwin/">cygwin website</a> have to reside in the
+same directory. You should open a cmd.exe and start the
+<a href="./install-cygwin.bat">install-cygwin.bat</a>
+with an install-dir parameter.
+
+
+
+
 
 In case of compiling for the Micro-Controller like the AVR you need instead of
 the normal g++ compiler a cross-compiler for the used Micro-Controller.
