@@ -42,9 +42,6 @@
 
 #include <boost/thread.hpp>
 #include <boost/thread/xtime.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
 #include <signal.h>
 
