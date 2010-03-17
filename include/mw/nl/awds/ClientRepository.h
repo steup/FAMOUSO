@@ -138,9 +138,19 @@ namespace famouso {
                          */
                         void unreg(AWDSClient::type client);
 
+
+                        /*! \brief The maximum time when a client has to be resubscribe.
+                         *
+                         *         The default value is 70 seconds.
+                         *
+                         *  \param age The time in seconds.
+                         */
+                        void maxAge(int age);
+
                     private:
                         SNNClientMap _snnmap;
                         ClientList::type _clients;
+                        int _maxAge;
                 };
 
             } /* awds */

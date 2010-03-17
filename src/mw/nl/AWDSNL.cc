@@ -88,8 +88,8 @@ namespace famouso {
 
                 // set local variables
                 interval = param.interval;
-                max_age = param.max_age;
                 max_unicast = param.max_uni;
+                _repo.maxAge(param.max_age);
 
                 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
                 boost::system::error_code ec;
@@ -129,26 +129,6 @@ namespace famouso {
                         log::emit<AWDS>() << "No subsciber for Subject: " << p.snn << log::endl;
                         return;
                     }
-
-                    int bad_subscribers = 0;
-
-                    // check age of clients
-                    for (ClientList::iterator it = cl->begin(); it != cl->end(); it++) {
-                        if ((*it)->elapsed() < max_age) {
-                            // do nothing with good clients
-                            // TODO: implement attributes check here
-                            log::emit<AWDS>() << log::dec << "checking subscriber: " << *it << " -> ok" << log::endl;
-                        } else {
-                            log::emit<AWDS>() << log::dec << "checking subscriber: " << *it << " -> old" << log::endl;
-                            // remove bad client from the repository
-                            _repo.remove(*it);
-                            // remove bad client from the actual list
-                            it = cl->erase(it);
-                            bad_subscribers++;
-                        }
-                    }
-
-                    log::emit<AWDS>() << log::dec << "Removed bad subscribers: " << bad_subscribers << log::endl;
 
                     std::vector<boost::asio::const_buffer> buffers;
                     AWDS_Packet::Header awds_header;

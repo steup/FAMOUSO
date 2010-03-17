@@ -157,7 +157,6 @@ namespace famouso {
                     ClientRepository::type &_repo;
                     bool next_packet_is_full_packet;
                     int interval;
-                    int max_age;
                     uint max_unicast;
             };
 

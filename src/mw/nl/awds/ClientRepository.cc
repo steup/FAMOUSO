@@ -51,7 +51,8 @@ namespace famouso {
                     return instance;
                 }
 
-                ClientRepository::ClientRepository(): _clients(ClientList::Create()){
+                ClientRepository::ClientRepository() :
+                    _clients(ClientList::Create()), _maxAge(70) {
                 }
 
                 AWDSClient::type ClientRepository::find(MAC mac) {
@@ -80,17 +81,31 @@ namespace famouso {
 
                     // subject not registered, return empty list
                     if (it == _snnmap.end()) {
-                        log::emit() << "not found" << log::endl;
+                        log::emit() << "no clients found." << log::endl;
                         return result;
                     }
 
                     ClientList::type cls = (*it).second;
 
-                    log::emit() << "found: " << log::dec << cls->size() << log::endl;
+                    log::emit() << "found " << log::dec << cls->size() << " clients." << log::endl;
 
-                    // add all clients to result list
-                    for (ClientList::iterator it2 = cls->begin(); it2 != cls->end(); it2++)
-                        result->add(*it2);
+                    log::emit<AWDS>() << "Checking clients ... ";
+
+                    int bad_subscribers = 0;
+
+                    // add  clients to result list
+                    for (ClientList::iterator it = cls->begin(); it != cls->end(); it++) {
+
+                        // check age of clients
+                        if ((*it)->elapsed() < _maxAge) {
+                            // add good client
+                            // TODO: implement attributes check here
+                            result->add(*it);
+                        } else
+                            bad_subscribers++;
+                    }
+
+                    log::emit() << log::dec << "found " << bad_subscribers << " bad subscribers." << log::endl;
 
                     return result;
                 }
@@ -145,6 +160,10 @@ namespace famouso {
                     // remove client from all subjects
                     for (SNNClientMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++)
                         (*it).second->remove(client);
+                }
+
+                void ClientRepository::maxAge(int age) {
+                    _maxAge = age;
                 }
             } /* awds */
         } /* nl */
