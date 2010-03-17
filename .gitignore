@@ -23,7 +23,10 @@
 # /externals/
 /externals/Boost*
 /externals/boost*
-externals/include
+/externals/include
+/externals/FEC/fec.S
+/externals/FEC/fec.o
+/externals/FEC/libfec.a
 
 # /include/
 /include/boost
@@ -33,15 +36,15 @@ externals/include
 /include/logging
 
 # tempfiles
-Bindings/C++/Publisher
-Bindings/C++/Publisher-*
-Bindings/C++/Subscriber
-Bindings/C++/Subscriber-*
-Bindings/C++/Subscriber-*
-tools/ech-awds
-tools/ech-awds-*
-tst/experiments/QoS/Publisher
-tst/experiments/QoS/Publisher-*
-tst/experiments/QoS/Subscriber
-tst/experiments/QoS/Subscriber-*
-doc/html
+/Bindings/C++/Publisher
+/Bindings/C++/Publisher-*
+/Bindings/C++/Subscriber
+/Bindings/C++/Subscriber-*
+/Bindings/C++/Subscriber-*
+/tools/ech-awds
+/tools/ech-awds-*
+/tst/experiments/QoS/Publisher
+/tst/experiments/QoS/Publisher-*
+/tst/experiments/QoS/Subscriber
+/tst/experiments/QoS/Subscriber-*
+/doc/html
