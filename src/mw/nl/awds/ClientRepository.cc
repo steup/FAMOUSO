@@ -52,32 +52,32 @@ namespace famouso {
                 }
 
                 ClientRepository::ClientRepository() :
-                    _clients(ClientList::Create()), _maxAge(70) {
+                    _clients(SubscriberList::Create()), _maxAge(70) {
                 }
 
                 AWDSClient::type ClientRepository::find(MAC mac) {
                     log::emit<AWDS>() << "Searching client ... ";
                     // look for a client with specified mac
-                    for (ClientList::iterator it = _clients->begin(); it != _clients->end(); it++) {
-                        if (mac == (*it)->mac()) {
-                            log::emit() << "found: " << *it << log::endl;
-                            return *it;
+                    for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++) {
+                        if (mac == it->client->mac()) {
+                            log::emit() << "found: " << it->client << log::endl;
+                            return it->client;
                         }
                     }
 
                     // client not found, create a new and register
                     AWDSClient::type result = AWDSClient::create(mac);
                     log::emit() << "not found: " << result << log::endl;
-                    _clients->add(result);
+                    _clients->add(Subscriber::Create(result, Attributes::create()));
                     return result;
                 }
 
-                ClientList::type ClientRepository::find(SNN subject) {
+                ClientRepository::ClientList::type ClientRepository::find(SNN subject) {
                     log::emit<AWDS>() << "Searching clients for subject (" << subject << ") ... ";
                     ClientList::type result = ClientList::Create();
 
                     // look for registered subject
-                    SNNClientMap::iterator it = _snnmap.find(subject);
+                    SubscriberMap::iterator it = _snnmap.find(subject);
 
                     // subject not registered, return empty list
                     if (it == _snnmap.end()) {
@@ -85,27 +85,34 @@ namespace famouso {
                         return result;
                     }
 
-                    ClientList::type cls = (*it).second;
+                    SubscriberList::type cls = (*it).second;
 
                     log::emit() << "found " << log::dec << cls->size() << " clients." << log::endl;
 
-                    log::emit<AWDS>() << "Checking clients ... ";
+                    log::emit<AWDS>() << "Checking clients ... " << log::endl;
 
                     int bad_subscribers = 0;
 
-                    // add  clients to result list
-                    for (ClientList::iterator it = cls->begin(); it != cls->end(); it++) {
+                    Attributes::type pubA = _snnAttribs[subject];
 
-                        // check age of clients
-                        if ((*it)->elapsed() < _maxAge) {
+                    // add  clients to result list
+                    for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
+                        Attributes::type subA, cA = it->attribs;
+
+                        // find the
+                        for (SubscriberList::iterator it2 = _clients->begin(); it2 != _clients->end(); it2++)
+                            if (it2->client == it->client)
+                                subA = it2->attribs;
+
+                        // check age and attributes of clients
+                        if ((it->client->elapsed() <= _maxAge) && (cA <= subA) && (subA <= pubA))
                             // add good client
-                            // TODO: implement attributes check here
-                            result->add(*it);
-                        } else
+                            result->add(it->client);
+                        else
                             bad_subscribers++;
                     }
 
-                    log::emit() << log::dec << "found " << bad_subscribers << " bad subscribers." << log::endl;
+                    log::emit<AWDS>() << log::dec << "Found " << bad_subscribers << " bad subscribers." << log::endl;
 
                     return result;
                 }
@@ -116,13 +123,15 @@ namespace famouso {
                     unreg(client);
 
                     // remove client from client list
-                    _clients->remove(client);
+                    for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++)
+                        if (it->client == client)
+                            _clients->erase(it);
                 }
 
                 void ClientRepository::remove(SNN subject) {
                     log::emit<AWDS>() << "Remove subject: " << subject << log::endl;
 
-                    SNNClientMap::iterator it = _snnmap.find(subject);
+                    SubscriberMap::iterator it = _snnmap.find(subject);
 
                     // subject registered, delete it
                     if (it != _snnmap.end()) {
@@ -131,35 +140,43 @@ namespace famouso {
                     }
                 }
 
-                void ClientRepository::reg(AWDSClient::type client, SNN subject) {
+                void ClientRepository::reg(AWDSClient::type client, SNN subject, Attributes::type attribs) {
                     log::emit<AWDS>() << "Register client to subject: " << client << " | " << subject << log::endl;
                     // look for clients registered to given subject
-                    SNNClientMap::iterator it = _snnmap.find(subject);
+                    SubscriberMap::iterator it = _snnmap.find(subject);
 
                     // subject registered,
-                    if (it == _snnmap.end())
+                    if (it == _snnmap.end()) {
                         // Temporary workaround until publisher announcing subjects
-                        _snnmap[subject] = ClientList::Create();
+                        _snnmap[subject] = SubscriberList::Create();
+                        _snnAttribs[subject] = Attributes::create();
+                    }
 
                     // add client to subject
-                    _snnmap[subject]->add(client);
+                    _snnmap[subject]->add(Subscriber::Create(client, attribs));
                 }
 
-                void ClientRepository::reg(SNN subject) {
+                void ClientRepository::reg(SNN subject, Attributes::type attribs) {
                     log::emit<AWDS>() << "Register subject: " << subject << log::endl;
                     // look for registered subject
-                    SNNClientMap::iterator it = _snnmap.find(subject);
+                    SubscriberMap::iterator it = _snnmap.find(subject);
 
                     // subject not registered, register it
-                    if (it == _snnmap.end())
-                        _snnmap[subject] = ClientList::Create();
+                    if (it == _snnmap.end()) {
+                        _snnmap[subject] = SubscriberList::Create();
+                        _snnAttribs[subject] = attribs;
+                    }
                 }
 
                 void ClientRepository::unreg(AWDSClient::type client) {
                     log::emit<AWDS>() << "Unregister client from subjects: " << client << log::endl;
                     // remove client from all subjects
-                    for (SNNClientMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++)
-                        (*it).second->remove(client);
+                    for (SubscriberMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++) {
+                        for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
+                            if (it2->client == client)
+                                it->second->erase(it2);
+                        }
+                    }
                 }
 
                 void ClientRepository::maxAge(int age) {

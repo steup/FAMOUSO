@@ -45,116 +45,68 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/noncopyable.hpp"
 #include "mw/nl/awds/AWDS_Packet.h"
+#include "mw/attributes/TTL.h"
+#include "mw/attributes/filter/find.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
+                namespace detail {
 
-                namespace details {
-
-                    template< typename T>
-                    T cast_get(const void *data) {
-                        const T *p = static_cast<const T *> (data);
-                        return *p;
+                    /*! \brief try to find the Attribute A in a data pointer
+                     *
+                     *  \tparam A is the type of the attribute
+                     *
+                     *  \returns a pointer to the location of attribute A
+                     *           within the event, and NULL else
+                     *
+                     *  \todo this function has to be adapted if the binary
+                     *        representation of attributes within event
+                     *        change
+                     *
+                     *  \todo at the moment, only the first attribute is
+                     *        checked
+                     */
+                    template< typename A, typename B, typename C >
+                    static inline A* find(B *data, C size) {
+                        for (C p = 0; p < size; p++) {
+                            if (data[p] == A::base_type::id)
+                                return reinterpret_cast<A*> (&data[p]);
+                        }
+                        return reinterpret_cast<A*> (0);
                     }
 
-                    template< typename T>
-                    void cast_set(void *data, T value) {
-                        T *p = static_cast<T *> (data);
-                        *p = value;
-                    }
-                } // namespace details
+                } // namespace detail
 
                 class Attributes: boost::noncopyable {
+                    private:
+                        typedef attributes::TTL<0> TTL;
+
                     public:
                         typedef boost::shared_ptr<Attributes> type;
-                        typedef uint32_t value_t;
 
-                        struct constants {
-                                enum {
-                                    payload = awds::AWDS_Packet::constants::packet_size::payload,
-                                    attrib_header_size = 1,
-                                    attrib_size = 5
-                                };
-
-                                struct offsets {
-                                        enum {
-                                            attrib_count = 0,
-                                            attrib_data = attrib_count + attrib_header_size
-                                        };
-                                };
-                        };
-
-                        enum AttributeType {
-                            TTL = 0x1,
-                            Latency = 0x2
-                        };
 
                         void set(awds::AWDS_Packet &p) {
-                            // get number of attributes
-                            num = p.data[constants::offsets::attrib_count];
-
-                            uint16_t size = ntohl(p.header.size);
-
-                            if (size < (num * constants::attrib_size + constants::attrib_header_size)) {
-                                num = 0;
+                            // if this is not an attributes packet
+                            if (p.header.type != AWDS_Packet::constants::packet_type::attributes)
                                 return;
-                            }
 
-                            // copy attributes
-                            std::memcpy(data, &p.data[constants::offsets::attrib_data], num * constants::attrib_size);
+                            TTL * t = detail::find<TTL>(p.data, ntohs(p.header.size));
+                            if (t)
+                                ttl.set(t->get());
                         }
 
                         void get(awds::AWDS_Packet &p) {
-                            // set number of attributes
-                            p.data[constants::offsets::attrib_count] = num;
-
-                            // size of attributes
-                            uint16_t size = num * constants::attrib_size;
-
-                            // copy attributes
-                            std::memcpy(&p.data[constants::offsets::attrib_data], data, size);
-
-                            // size of attributes and header
-                            size += constants::attrib_header_size;
-
-                            // set packet size
-                            p.header.size = htonl(size);
-                        }
-
-                        value_t get(AttributeType attrib) const {
-                            for (int p = 0; p < num * constants::attrib_size; p += constants::attrib_size) {
-                                if (data[p] == attrib)
-                                    return ntohl(details::cast_get<value_t>(&data[p + 1]));
-                            }
-                            return ~0;
-                        }
-
-                        void set(AttributeType attrib, value_t value) {
-                            int p = 0;
-                            for (; p < num * constants::attrib_size; p += constants::attrib_size) {
-                                if (data[p] == attrib) {
-                                    // copy value to data
-                                    details::cast_set(&data[p + 1], htonl(value));
-                                    return;
-                                }
-                            }
-
-                            data[p] = (uint8_t) attrib;
-                            details::cast_set(&data[p + 1], htonl(value));
-                            num++;
                         }
 
                         /*! \brief Checks weather attributes are matching
                          *
                          *  \param o The other attributes.
-                         *  \return true if all attributes of o are more to this, otherwise false.
+                         *  \return true if all attributes of this are less than o, otherwise false.
                          */
                         bool operator<(const Attributes & o) const {
-                            if (this->get(TTL) < o.get(TTL))
-                                return false;
-                            if (this->get(Latency) < o.get(Latency))
+                            if (ttl.get() >= o.ttl.get())
                                 return false;
 
                             return true;
@@ -163,12 +115,10 @@ namespace famouso {
                         /*! \brief Checks weather attributes are matching
                          *
                          *  \param o The other attributes.
-                         *  \return true if all attributes of o are less to this, otherwise false.
+                         *  \return true if all attributes of this are more than o, otherwise false.
                          */
                         bool operator>(const Attributes & o) const {
-                            if (this->get(TTL) > o.get(TTL))
-                                return false;
-                            if (this->get(Latency) > o.get(Latency))
+                            if (ttl.get() <= o.ttl.get())
                                 return false;
 
                             return true;
@@ -180,9 +130,7 @@ namespace famouso {
                          *  \return true if all attributes of o are equal to this, otherwise false.
                          */
                         bool operator==(const Attributes & o) const {
-                            if (this->get(TTL) != o.get(TTL))
-                                return false;
-                            if (this->get(Latency) != o.get(Latency))
+                            if (ttl.get() != o.ttl.get())
                                 return false;
 
                             return true;
@@ -191,7 +139,7 @@ namespace famouso {
                         /*! \brief Checks weather attributes are matching
                          *
                          *  \param o The other attributes.
-                         *  \return true if all attributes of o are more or equal to this, otherwise false.
+                         *  \return true if all attributes of o are more than or equal to this, otherwise false.
                          */
                         bool operator<=(const Attributes & o) const {
                             return !(*this > o);
@@ -200,7 +148,7 @@ namespace famouso {
                         /*! \brief Checks weather attributes are matching
                          *
                          *  \param o The other attributes.
-                         *  \return true if all attributes of o are less or equal to this, otherwise false.
+                         *  \return true if all attributes of o are less than or equal to this, otherwise false.
                          */
                         bool operator>=(const Attributes & o) const {
                             return !(*this < o);
@@ -219,15 +167,54 @@ namespace famouso {
                          *
                          *  \return An instance of attributes.
                          */
-                        static type create(){
+                        static type create() {
                             type res = type(new Attributes());
                             return res;
                         }
 
                     private:
-                        uint8_t num;
-                        uint8_t data[constants::payload];
+                        TTL ttl;
                 };
+
+                /*! \brief Checks weather attributes are matching
+                 *
+                 *  \param a The first attributes.
+                 *  \param b The second attributes.
+                 *  \return true if all attributes of a are less than or equal to b, otherwise false.
+                 */
+                bool operator<=(const Attributes::type &a, const Attributes::type &b) {
+                    return *a <= *b;
+                }
+
+                /*! \brief Checks weather attributes are matching
+                 *
+                 *  \param a The first attributes.
+                 *  \param b The second attributes.
+                 *  \return true if all attributes of a are more than or equal to b, otherwise false.
+                 */
+                bool operator>=(const Attributes::type &a, const Attributes::type &b) {
+                    return *a >= *b;
+                }
+
+                /*! \brief Checks weather attributes are matching
+                 *
+                 *  \param a The first attributes.
+                 *  \param b The second attributes.
+                 *  \return true if all attributes of a are less than b, otherwise false.
+                 */
+                bool operator<(const Attributes::type &a, const Attributes::type &b) {
+                    return *a < *b;
+                }
+
+                /*! \brief Checks weather attributes are matching
+                 *
+                 *  \param a The first attributes.
+                 *  \param b The second attributes.
+                 *  \return true if all attributes of a are more than b, otherwise false.
+                 */
+                bool operator>(const Attributes::type &a, const Attributes::type &b) {
+                    return *a > *b;
+                }
 
             } /* awds */
         } /* nl */

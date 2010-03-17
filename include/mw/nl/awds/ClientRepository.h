@@ -66,15 +66,37 @@ namespace famouso {
                          */
                         typedef ClientRepository type;
 
+                        typedef List<AWDSClient::type> ClientList;
+
                         /*! \brief A famouso Subject.
                          */
                         typedef famouso::mw::Subject SNN;
 
                     private:
 
+                        class Subscriber {
+                            public:
+                                static Subscriber Create(AWDSClient::type c, Attributes::type a) {
+                                    Subscriber res;
+                                    res.client = c;
+                                    res.attribs = a;
+                                    return res;
+                                }
+
+                                AWDSClient::type client;
+                                Attributes::type attribs;
+
+                        };
+
+                        typedef List<Subscriber> SubscriberList;
+
                         /*! \brief A map to assign clients to subjects.
                          */
-                        typedef std::map<SNN, ClientList::type> SNNClientMap;
+                        typedef std::map<SNN, SubscriberList::type> SubscriberMap;
+
+                        /*! \brief A map to assign attributes to subjects.
+                         */
+                        typedef std::map<SNN, Attributes::type> PublisherMap;
 
                         ClientRepository();
 
@@ -124,20 +146,19 @@ namespace famouso {
                          *  \param client The client to register.
                          *  \param subject The subject to register.
                          */
-                        void reg(AWDSClient::type client, SNN subject);
+                        void reg(AWDSClient::type client, SNN subject, Attributes::type attribs = Attributes::create());
 
                         /*! \brief Register a subject to the repository.
                          *
                          *  \param subject The subject to register.
                          */
-                        void reg(SNN subject);
+                        void reg(SNN subject, Attributes::type attribs = Attributes::create());
 
                         /*! \brief Unregister the given client from all known subjects.
                          *
                          *  \param client The client to unregister.
                          */
                         void unreg(AWDSClient::type client);
-
 
                         /*! \brief The maximum time when a client has to be resubscribe.
                          *
@@ -147,9 +168,18 @@ namespace famouso {
                          */
                         void maxAge(int age);
 
+
+                        /*! \brief Update attribute of given client.
+                         *
+                         *  \param client The client to update.
+                         *  \param attribs The new attributes to set.
+                         */
+                        void update(AWDSClient::type client, Attributes::type attribs = Attributes::create());
+
                     private:
-                        SNNClientMap _snnmap;
-                        ClientList::type _clients;
+                        SubscriberMap _snnmap;
+                        SubscriberList::type _clients;
+                        PublisherMap _snnAttribs;
                         int _maxAge;
                 };
 

@@ -122,7 +122,7 @@ namespace famouso {
                 } else {
 
                     // get list of subscriber for the subject
-                    ClientList::type cl = _repo.find(p.snn);
+                    ClientRepository::ClientList::type cl = _repo.find(p.snn);
 
                     // if we have no subscriber, we won't send anything
                     if (cl->size() == 0) {
@@ -165,7 +165,7 @@ namespace famouso {
                         buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
                         // for each client set source mac and send package
-                        for (ClientList::iterator it = cl->begin(); it != cl->end(); it++) {
+                        for (ClientRepository::ClientList::iterator it = cl->begin(); it != cl->end(); it++) {
                             (*it)->mac(awds_header.addr);
                             m_socket.send(buffers);
                         }

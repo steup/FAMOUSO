@@ -41,26 +41,26 @@
 #define __lists_hpp__
 
 #include <list>
-#include <map>
 #include "boost/shared_ptr.hpp"
 #include "boost/noncopyable.hpp"
-#include "mw/nl/awds/AWDSClient.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
 
-                class ClientList: boost::noncopyable {
+                template< class Type >
+                class List: boost::noncopyable {
                     private:
-                        typedef std::list<AWDSClient::type> list;
+                        typedef std::list<Type> list;
 
                     public:
-                        typedef boost::shared_ptr<ClientList> type;
-                        typedef list::iterator iterator;
+                        typedef boost::shared_ptr<List<Type> > type;
+                        typedef typename list::iterator iterator;
+                        typedef typename list::size_type size_type;
 
                         static type Create() {
-                            type res = type(new ClientList());
+                            type res = type(new List<Type>());
                             return res;
                         }
 
@@ -72,15 +72,15 @@ namespace famouso {
                             return _list.end();
                         }
 
-                        list::size_type size() const {
+                        size_type size() const {
                             return _list.size();
                         }
 
-                        void add(AWDSClient::type c) {
+                        void add(Type c) {
                             _list.push_back(c);
                         }
 
-                        void remove(AWDSClient::type c) {
+                        void remove(Type c) {
                             _list.remove(c);
                         }
 
