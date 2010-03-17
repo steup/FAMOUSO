@@ -40,4 +40,7 @@ Bindings/C++/Subscriber-*
 Bindings/C++/Subscriber-*
 tools/ech-awds
 tools/ech-awds-*
-
+tst/experiments/QoS/Publisher
+tst/experiments/QoS/Publisher-*
+tst/experiments/QoS/Subscriber
+tst/experiments/QoS/Subscriber-*
