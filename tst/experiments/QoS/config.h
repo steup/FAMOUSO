@@ -75,6 +75,7 @@ namespace logging {
     }
 }
 
+#define SUBJECTS_MAX 10
 #define SUBJECT(x) { 'T', 'E', 'S', 'T','_','0', '0', (x+'0') }
 
 #endif /* _config_h_ */
