@@ -77,15 +77,15 @@ namespace famouso {
                     ClientList::type result = ClientList::Create();
 
                     // look for registered subject
-                    SubscriberMap::iterator it = _snnmap.find(subject);
+                    SubscriberMap::iterator sit = _snnmap.find(subject);
 
                     // subject not registered, return empty list
-                    if (it == _snnmap.end()) {
+                    if (sit == _snnmap.end()) {
                         log::emit() << "no clients found." << log::endl;
                         return result;
                     }
 
-                    SubscriberList::type cls = (*it).second;
+                    SubscriberList::type cls = sit->second;
 
                     log::emit() << "found " << log::dec << cls->size() << " clients." << log::endl;
 
@@ -93,16 +93,20 @@ namespace famouso {
 
                     int bad_subscribers = 0;
 
+                    // attributes of publischer
                     Attributes::type pubA = _snnAttribs[subject];
 
                     // add  clients to result list
                     for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
+                        // cA are the actual client attributes
                         Attributes::type subA, cA = it->attribs;
 
-                        // find the
+                        // find the attributes of subsciber
                         for (SubscriberList::iterator it2 = _clients->begin(); it2 != _clients->end(); it2++)
-                            if (it2->client == it->client)
+                            if (it2->client == it->client){
                                 subA = it2->attribs;
+                                break; // we dont need to loop the rest
+                            }
 
                         // check age and attributes of clients
                         if ((it->client->elapsed() <= _maxAge) && (cA <= subA) && (subA <= pubA))
@@ -124,8 +128,10 @@ namespace famouso {
 
                     // remove client from client list
                     for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++)
-                        if (it->client == client)
+                        if (it->client == client){
                             _clients->erase(it);
+                            break; // we don't nee to loop the rest
+                        }
                 }
 
                 void ClientRepository::remove(SNN subject) {
@@ -135,7 +141,7 @@ namespace famouso {
 
                     // subject registered, delete it
                     if (it != _snnmap.end()) {
-                        (*it).second->clear();
+                        it->second->clear(); // TODO: Do we have to do this?
                         _snnmap.erase(it);
                     }
                 }
@@ -145,12 +151,10 @@ namespace famouso {
                     // look for clients registered to given subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
 
-                    // subject registered,
-                    if (it == _snnmap.end()) {
+                    // subject not registered
+                    if (it == _snnmap.end())
                         // Temporary workaround until publisher announcing subjects
-                        _snnmap[subject] = SubscriberList::Create();
-                        _snnAttribs[subject] = Attributes::create();
-                    }
+                        reg(subject);
 
                     // add client to subject
                     _snnmap[subject]->add(Subscriber::Create(client, attribs));
@@ -170,11 +174,19 @@ namespace famouso {
 
                 void ClientRepository::unreg(AWDSClient::type client) {
                     log::emit<AWDS>() << "Unregister client from subjects: " << client << log::endl;
-                    // remove client from all subjects
+
+                    // remove client from all subjects, loop over all subjects
                     for (SubscriberMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++) {
+
+                        // loop over all clients registered to subject
                         for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
-                            if (it2->client == client)
-                                it->second->erase(it2);
+
+                            // client is registered to subject, so unregister it
+                            if (it2->client == client){
+                               it->second->erase(it2);
+                               // client could not be registered more than on time
+                               break;
+                            }
                         }
                     }
                 }
