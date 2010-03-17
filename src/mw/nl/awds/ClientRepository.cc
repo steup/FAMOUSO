@@ -154,7 +154,11 @@ namespace famouso {
                     // subject not registered
                     if (it == _snnmap.end()){
                         // TODO: Temporary workaround until publisher announcing subjects
+#ifdef RANDOM_ATTRIBUTES
                         reg(subject, Attributes::createRand());
+#else
+                        reg(subject, Attributes::create());
+#endif
                     }
 
                     // add client to subject

@@ -92,8 +92,10 @@ namespace famouso {
                 max_unicast = param.max_uni;
                 _repo.maxAge(param.max_age);
 
+#ifdef RANDOM_ATTRIBUTES
                 // init random generator for ttl generation
                 srand(time(NULL));
+#endif
 
                 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
                 boost::system::error_code ec;
@@ -228,8 +230,12 @@ namespace famouso {
                             for (uint16_t sub = 0; sub < subs_count; sub++) {
                                 Attributes::type attribs;
 
-                                // TODO: load Attributes from awds_packet
+#ifdef RANDOM_ATTRIBUTES
                                 attribs = Attributes::createRand();
+#else
+                                // TODO: load Attributes from awds_packet
+                                attribs = Attributes::create();
+#endif
 
                                 // get the subject
                                 SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
