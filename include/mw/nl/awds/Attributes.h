@@ -182,7 +182,7 @@ namespace famouso {
                  *  \param b The second attributes.
                  *  \return true if all attributes of a are less than or equal to b, otherwise false.
                  */
-                bool operator<=(const Attributes::type &a, const Attributes::type &b) {
+                inline bool operator<=(const Attributes::type &a, const Attributes::type &b) {
                     return *a <= *b;
                 }
 
@@ -192,7 +192,7 @@ namespace famouso {
                  *  \param b The second attributes.
                  *  \return true if all attributes of a are more than or equal to b, otherwise false.
                  */
-                bool operator>=(const Attributes::type &a, const Attributes::type &b) {
+                inline bool operator>=(const Attributes::type &a, const Attributes::type &b) {
                     return *a >= *b;
                 }
 
@@ -202,7 +202,7 @@ namespace famouso {
                  *  \param b The second attributes.
                  *  \return true if all attributes of a are less than b, otherwise false.
                  */
-                bool operator<(const Attributes::type &a, const Attributes::type &b) {
+                inline bool operator<(const Attributes::type &a, const Attributes::type &b) {
                     return *a < *b;
                 }
 
@@ -212,7 +212,7 @@ namespace famouso {
                  *  \param b The second attributes.
                  *  \return true if all attributes of a are more than b, otherwise false.
                  */
-                bool operator>(const Attributes::type &a, const Attributes::type &b) {
+                inline bool operator>(const Attributes::type &a, const Attributes::type &b) {
                     return *a > *b;
                 }
 
