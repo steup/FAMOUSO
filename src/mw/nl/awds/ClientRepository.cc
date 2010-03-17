@@ -153,7 +153,7 @@ namespace famouso {
 
                     // subject not registered
                     if (it == _snnmap.end())
-                        // Temporary workaround until publisher announcing subjects
+                        // TODO: Temporary workaround until publisher announcing subjects
                         reg(subject);
 
                     // add client to subject

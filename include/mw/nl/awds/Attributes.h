@@ -86,7 +86,6 @@ namespace famouso {
                     public:
                         typedef boost::shared_ptr<Attributes> type;
 
-
                         void set(awds::AWDS_Packet &p) {
                             // if this is not an attributes packet
                             if (p.header.type != AWDS_Packet::constants::packet_type::attributes)
@@ -169,6 +168,17 @@ namespace famouso {
                          */
                         static type create() {
                             type res = type(new Attributes());
+                            return res;
+                        }
+
+                        /*! \brief Creates an empty attributes instance.
+                         *
+                         *  \param p An AWDS_Packet to load attributes from.
+                         *  \return An instance of attributes.
+                         */
+                        static type create(AWDS_Packet &p) {
+                            type res = type(new Attributes());
+                            res->set(p);
                             return res;
                         }
 

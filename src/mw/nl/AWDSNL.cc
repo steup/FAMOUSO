@@ -222,15 +222,32 @@ namespace famouso {
 
                             // for all subjects in package
                             for (uint16_t sub = 0; sub < subs_count; sub++) {
+                                Attributes::type attribs;
                                 // get the subject
                                 SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
                                 log::emit<AWDS>() << "  Subject: " << s << log::endl;
 
+                                // TODO: load Attributes from awds_packet
+                                attribs = Attributes::create();
+
                                 // register client to this subject
-                                _repo.reg(src, s);
+                                _repo.reg(src, s, attribs);
                             }
 
-                            log::emit<AWDS>() << "=============================" << log::endl;
+                            break;
+                        }
+                        case AWDS_Packet::constants::packet_type::attributes: {
+                            log::emit<AWDS>() << "=============================" << log::dec << log::endl;
+
+                            // get the client
+                            MAC mac = MAC::parse(awds_packet.header.addr);
+                            AWDSClient::type src = _repo.find(mac);
+
+
+                            log::emit<AWDS>() << "Updating attributes of client " << src << log::endl;
+
+                            // Update attributes of client
+                            _repo.update(src, Attributes::create(awds_packet));
                             break;
                         }
                         default:
