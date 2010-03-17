@@ -48,6 +48,7 @@
 #include "util/ios.h"
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/AWDS_Packet.h"
+#include "mw/nl/awds/Attributes.h"
 #include "mw/nl/awds/AWDSClient.h"
 #include "mw/nl/awds/ClientRepository.h"
 

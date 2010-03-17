@@ -57,7 +57,8 @@ namespace famouso {
                             enum {
                                 publish_fragment = 0x7B,
                                 publish = 0x7C,
-                                subscribe = 0x7D
+                                subscribe = 0x7D,
+                                attributes = 0x81
                             };
                         };
                     };
