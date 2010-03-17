@@ -24,6 +24,7 @@
 <tool id="org.eclipse.cdt.build.core.settings.holder.217548499" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
 <option id="org.eclipse.cdt.build.core.settings.holder.incpaths.2140403308" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/famouso/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/famouso/externals/include}&quot;"/>
 <listOptionValue builtIn="false" value="/usr/include"/>
 <listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
 </option>
@@ -34,6 +35,7 @@
 <listOptionValue builtIn="false" value="/usr/include"/>
 <listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/famouso/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/famouso/externals/include}&quot;"/>
 </option>
 <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1929025300" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 </tool>
@@ -42,6 +44,7 @@
 <listOptionValue builtIn="false" value="/usr/include"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/famouso/include}&quot;"/>
 <listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/famouso/externals/include}&quot;"/>
 </option>
 <inputType id="org.eclipse.cdt.build.core.settings.holder.inType.2013969376" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 </tool>
