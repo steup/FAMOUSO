@@ -42,6 +42,7 @@
 #define __AWDS_Client__
 
 #include <ctime>
+#include <cstring>
 #include "debug.h"
 
 namespace famouso {
@@ -49,18 +50,18 @@ namespace famouso {
         namespace nl {
             namespace awds {
 
+
+                typedef uint8_t MAC[6];
+
+                bool mac_equals(const MAC m1, const MAC m2){
+                       return std::memcmp(m1, m2, 6) == 0;
+                }
+
                 /*! \brief A client at the AWDS network identified by his MAC address.
                  */
                 class AWDSClient {
 
                     public:
-                        /*! \brief Default constructor which creates an empty client.
-                         */
-                        AWDSClient() :
-                            time(std::time(NULL)) {
-                            for (int idx = 0; idx < 6; idx++)
-                                data[idx] = 0;
-                        }
 
                         /*! \brief Constructor which creates an client with a specific MAC.
                          *
@@ -72,25 +73,9 @@ namespace famouso {
                                 data[idx] = mac[idx];
                         }
 
-                        /*! \brief Default copy constructor which creates a copied client.
-                         *
-                         * \param o The other client.
-                         */
-                        AWDSClient(const AWDSClient &o) {
-                            for (int idx = 0; idx < 6; idx++)
-                                data[idx] = o.data[idx];
-                            time = o.time;
-                        }
 
-                        /*! \brief Allocation operator which creates a copied client.
-                         *
-                         * \param o The other client.
-                         */
-                        AWDSClient &operator =(const AWDSClient &o) {
-                            for (int idx = 0; idx < 6; idx++)
-                                data[idx] = o.data[idx];
-                            time = o.time;
-                            return *this;
+                        ~AWDSClient(){
+
                         }
 
                         /*! \brief The time in seconds when the client was last seen.
