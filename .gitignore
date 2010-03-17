@@ -44,3 +44,4 @@ tst/experiments/QoS/Publisher
 tst/experiments/QoS/Publisher-*
 tst/experiments/QoS/Subscriber
 tst/experiments/QoS/Subscriber-*
+doc/html
