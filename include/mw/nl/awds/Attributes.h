@@ -122,7 +122,7 @@ namespace famouso {
 							return ~0;
 						}
 
-						void set(AttributeType attrib, uint32_t value) {
+						void set(AttributeType attrib, value_t value) {
 							int p = 0;
 							for (; p < num * constants::attrib_size; p += constants::attrib_size) {
 								if (data[p] == attrib) {
