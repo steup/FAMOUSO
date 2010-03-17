@@ -43,6 +43,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <cstdlib>
 
 #include "mw/nl/awds/logging.h"
 
@@ -90,6 +91,9 @@ namespace famouso {
                 interval = param.interval;
                 max_unicast = param.max_uni;
                 _repo.maxAge(param.max_age);
+
+                // init random generator for ttl generation
+                srand(time(NULL));
 
                 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
                 boost::system::error_code ec;
@@ -223,12 +227,13 @@ namespace famouso {
                             // for all subjects in package
                             for (uint16_t sub = 0; sub < subs_count; sub++) {
                                 Attributes::type attribs;
-                                // get the subject
-                                SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
-                                log::emit<AWDS>() << "  Subject: " << s << log::endl;
 
                                 // TODO: load Attributes from awds_packet
-                                attribs = Attributes::create();
+                                attribs = Attributes::createRand();
+
+                                // get the subject
+                                SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
+                                log::emit<AWDS>() << "  Subject: " << s << " (" << attribs << ")" << log::endl;
 
                                 // register client to this subject
                                 _repo.reg(src, s, attribs);
@@ -243,11 +248,13 @@ namespace famouso {
                             MAC mac = MAC::parse(awds_packet.header.addr);
                             AWDSClient::type src = _repo.find(mac);
 
+                            Attributes::type att = Attributes::create(awds_packet);
 
                             log::emit<AWDS>() << "Updating attributes of client " << src << log::endl;
+                            log::emit<AWDS>() << att << log::endl;
 
                             // Update attributes of client
-                            _repo.update(src, Attributes::create(awds_packet));
+                            _repo.update(src, att);
                             break;
                         }
                         default:

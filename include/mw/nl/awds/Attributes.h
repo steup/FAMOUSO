@@ -47,6 +47,8 @@
 #include "mw/nl/awds/AWDS_Packet.h"
 #include "mw/attributes/TTL.h"
 #include "mw/attributes/filter/find.h"
+#include "logging.h"
+#include <cstdlib>
 
 namespace famouso {
     namespace mw {
@@ -162,6 +164,14 @@ namespace famouso {
                             return !(*this == o);
                         }
 
+                        /*! \brief print the attributes to the given stream.
+                         *
+                         *  \param out the output stream to print to.
+                         */
+                        void print(::logging::loggingReturnType &out) {
+                            out << "TTL: " << ::logging::log::dec << (int) ttl.get();
+                        }
+
                         /*! \brief Creates an empty attributes instance.
                          *
                          *  \return An instance of attributes.
@@ -179,6 +189,16 @@ namespace famouso {
                         static type create(AWDS_Packet &p) {
                             type res = type(new Attributes());
                             res->set(p);
+                            return res;
+                        }
+
+                        /*! \brief Creates a random attributes instance.
+                         *
+                         *  \return An instance of attributes.
+                         */
+                        static type createRand() {
+                            type res = type(new Attributes());
+                            res->ttl.set(rand() % 10 + 1);
                             return res;
                         }
 
@@ -230,4 +250,19 @@ namespace famouso {
         } /* nl */
     } /* mw */
 } /* famouso */
+
+namespace logging {
+
+    /*! \brief print the attributes to the given stream.
+     *
+     *  \param out the output stream to print to.
+     *  \param att the attributes to print.
+     *  \return the output stream for chaining.
+     */
+    inline ::logging::loggingReturnType &operator<<(loggingReturnType &out, const famouso::mw::nl::awds::Attributes::type &att) {
+        att->print(out);
+        return out;
+    }
+
+} // namespace logging
 #endif /* _Attributes_h_ */

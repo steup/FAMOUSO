@@ -147,14 +147,15 @@ namespace famouso {
                 }
 
                 void ClientRepository::reg(AWDSClient::type client, SNN subject, Attributes::type attribs) {
-                    log::emit<AWDS>() << "Register client to subject: " << client << " | " << subject << log::endl;
+                    //log::emit<AWDS>() << "Register client to subject: " << client << " | " << subject << log::endl;
                     // look for clients registered to given subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
 
                     // subject not registered
-                    if (it == _snnmap.end())
+                    if (it == _snnmap.end()){
                         // TODO: Temporary workaround until publisher announcing subjects
-                        reg(subject);
+                        reg(subject, Attributes::createRand());
+                    }
 
                     // add client to subject
                     _snnmap[subject]->add(Subscriber::Create(client, attribs));
