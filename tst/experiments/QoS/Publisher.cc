@@ -53,18 +53,22 @@
 // propagation
 #include "config.h"
 
+typedef famouso::config::PEC PEC;
+typedef boost::shared_ptr<PEC> pPEC;
+
 int main(int argc, char **argv) {
 
     famouso::init<famouso::config>();
 
     // create a PublisherEventChannel
     // with a specific Subject
-    famouso::config::PEC pec(famouso::mw::Subject(SUBJECT));
+    char s[] = SUBJECT(0);
+    pPEC pec = pPEC( new PEC(famouso::mw::Subject(s)));
 
     // announce the channel
-    pec.announce();
+    pec->announce();
 
-    famouso::mw::Event e(pec.subject());
+    famouso::mw::Event e(pec->subject());
     e.length = 7;
     e.data = (uint8_t*)"Publish";
 
@@ -72,10 +76,10 @@ int main(int argc, char **argv) {
     // the cpu is much more better for other processes
     // that have something to do
     while (1) {
-        pec.publish(e);
+        pec->publish(e);
         boost::xtime time;
         boost::xtime_get(&time, boost::TIME_UTC);
-        time.sec += 1;
+        time.sec += 3;
         boost::thread::sleep(time);
     }
 }

@@ -49,6 +49,9 @@
 #include "mw/common/Event.h"
 #include "famouso.h"
 
+#include <list>
+#include "boost/shared_ptr.hpp"
+
 namespace famouso {
     class config {
         public:
@@ -58,6 +61,20 @@ namespace famouso {
     };
 }
 
-#define SUBJECT "TEST_001"
+namespace logging {
+
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::Subject &s) {
+        for (uint8_t i = 0; i < 8; ++i) {
+            uint8_t c = s.tab()[i];
+            if ((c < 32) || (c > 126))
+                c = '.'; // only printable characters
+            out << c;
+        }
+        out << " (" << log::hex << s.value() << ")";
+        return out;
+    }
+}
+
+#define SUBJECT(x) { 'T', 'E', 'S', 'T','_','0', '0', (x+'0') }
 
 #endif /* _config_h_ */
