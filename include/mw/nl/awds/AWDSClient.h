@@ -112,26 +112,31 @@ namespace famouso {
 				};
 
 				inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c) {
-					return out << c._mac << " (" << c.elapsed() << ")";
+					return out << c._mac << " (" << ::logging::log::dec << c.elapsed() << ")";
 				}
-			}
+			} /* _awds*/
+
 			namespace awds {
 
 				/*! \brief A client at the AWDS network identified by his MAC address.
 				 */
 				typedef boost::shared_ptr<_awds::AWDSClient> Client_sp;
+			} /* awds */
 
-				/*! \brief Print a client to log.
-				 *
-				 * \param out The log to print to.
-				 * \param c The client to print.
-				 * \return The log to chain print calls.
-				 */
-				inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const Client_sp &c) {
-					return _awds::operator<<(out, *c.get());
-				}
-			}
-		}
+		} /* nl */
+	} /* mw */
+} /* famouso */
+
+namespace logging {
+	/*! \brief Print a client to log.
+	 *
+	 * \param out The log to print to.
+	 * \param c The client to print.
+	 * \return The log to chain print calls.
+	 */
+	inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Client_sp &c) {
+		return famouso::mw::nl::_awds::operator<<(out, *c.get());
 	}
-}
+} /* logging */
+
 #endif /* __AWDS_Client__ */

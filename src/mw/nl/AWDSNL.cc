@@ -120,9 +120,7 @@ namespace famouso {
                 // try to detect subscription channel because in AWDS its get special treatment
                 // this test works only due to the fact that the SNN is equal to the famouso::mw::Subject
                 if (p.snn == famouso::mw::Subject("SUBSCRIBE")) {
-                	SNN s = famouso::mw::Subject(p.data);
-                    subscriptions.push_front(s);
-                    _repo.reg(s);
+                    subscriptions.push_front(famouso::mw::Subject(p.data));
                     subscriptions.sort();
                     subscriptions.unique();
 
@@ -150,14 +148,14 @@ namespace famouso {
                                                 << "checking subscriber: "
                                                 <<  *it << " -> ok" << log::endl;
                         } else {
-                        	// remove bad client from the repository
-                            _repo.remove(*it);
-                            // remove bad client from the actual list
-                            it = cl->erase(it);
-                            bad_subscribers++;
                             log::emit< AWDS >() << log::dec
                                                 << "checking subscriber: "
                                                 <<  *it << " -> old" << log::endl;
+                            // remove bad client from the repository
+                            _repo.remove(*it);
+							// remove bad client from the actual list
+							it = cl->erase(it);
+							bad_subscribers++;
                         }
                     }
 
@@ -245,6 +243,9 @@ namespace famouso {
                             break;
                         }
                         case AWDS_Packet::constants::packet_type::subscribe: {
+
+                            log::emit< AWDS >() << "=============================" << log::dec
+                                    << log::endl;
                             // get the client
                         	MAC mac = MAC::parse(awds_packet.header.addr);
                             Client_sp src = _repo.find(mac);
@@ -252,9 +253,6 @@ namespace famouso {
                             // reset contact time
                             src->reset();
                             _repo.unreg(src);
-
-                            log::emit< AWDS >() << "=============================" << log::dec
-                                    << log::endl;
                             log::emit< AWDS >() << "Subscriber: " << src << log::endl;
 
                             // count the number of subjects in the package

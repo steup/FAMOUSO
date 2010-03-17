@@ -42,12 +42,13 @@
 #define LOGGING_H_
 
 #include "debug.h"
+#include "mw/common/Subject.h"
 
 namespace logging {
 
     /*! \brief Operator to print a %Subject.
      */
-    ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out,
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out,
             const famouso::mw::Subject &s) {
         for (uint8_t i = 0; i < 8; ++i) {
             uint8_t c = s.tab()[i];
