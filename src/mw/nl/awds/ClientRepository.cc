@@ -39,44 +39,94 @@
  ******************************************************************************/
 
 #include "mw/nl/awds/ClientRepository.h"
+#include "mw/nl/awds/AWDSClient.h"
 
 namespace famouso {
-    namespace mw {
-        namespace nl {
-            namespace awds {
+	namespace mw {
+		namespace nl {
+			namespace _awds {
+				using namespace awds;
 
-                ClientRepository & ClientRepository::getInstance() {
-                    static ClientRepository instance;
+				ClientRepository & ClientRepository::getInstance() {
+					static ClientRepository instance;
+					return instance;
+				}
 
-                    return instance;
-                }
+				Client_sp ClientRepository::find(MAC mac) {
+					// look for a client with specified mac
+					for (ClientList::iterator it = _clients.begin(); it != _clients.end(); it++) {
+						if (mac == (*it)->mac())
+							return *it;
+					}
 
-                Client_sp ClientRepository::find(MAC mac) {
-                    for (ClientList::iterator it = _clients.begin(); it
-                            != _clients.end(); it++)
-                        if (mac_equals(mac, (*it)->tab()))
-                            return *it;
+					// client not found, create a new and register
+					Client_sp result = Client_sp(new AWDSClient(mac));
+					_clients.push_back(result);
+					return result;
+				}
 
-                    return Client_sp();
-                }
+				ClientList_sp ClientRepository::find(SNN subject) {
+					ClientList_sp result = ClientList_sp(new ClientList());
 
-                ClientList_sp ClientRepository::find(Subject_sp subject) {
-                    ClientList_sp result = ClientList_sp(new ClientList());
+					// look for clients registered to given subject
+					SNNClientMap::iterator it = _snnmap.find(subject);
 
-                    SNNClientMap::iterator it = _snnmap.find(subject);
+					// subject not registered, return empty list
+					if (it == _snnmap.end())
+						return result;
 
-                    if (it == _snnmap.end())
-                        return result;
+					// subject found, get it
+					ClientList_sp cls = (*it).second;
 
-                    ClientList_sp cls = (*it).second;
+					// add all clients to result list
+					for (ClientList_sp_iterator it2 = cls->begin(); it2 != cls->end(); it2++)
+						result->push_back(*it2);
 
-                    for (ClientList::iterator it2 = cls->begin(); it2
-                            != cls->end(); it2++)
-                        result->push_back(*it2);
+					return result;
+				}
 
-                    return result;
-                }
-            } /* awds */
-        } /* nl */
-    } /* mw */
+				void ClientRepository::remove(Client_sp client) {
+					// unregister client from all subjects
+					unreg(client);
+
+					// remove client from client list
+					_clients.remove(client);
+				}
+
+				void ClientRepository::remove(SNN subject) {
+					SNNClientMap::iterator it = _snnmap.find(subject);
+
+					// subject registered, delete it
+					if (it != _snnmap.end()) {
+						(*it).second->clear();
+						_snnmap.erase(it);
+					}
+				}
+
+				void ClientRepository::reg(Client_sp client, SNN subject) {
+					// look for clients registered to given subject
+					SNNClientMap::iterator it = _snnmap.find(subject);
+
+					// subject registered, add client to subject
+					if (it != _snnmap.end())
+						(*it).second->push_back(client);
+				}
+
+				void ClientRepository::reg(SNN subject) {
+					// look for registered subject
+					SNNClientMap::iterator it = _snnmap.find(subject);
+
+					// subject not registered, register it
+					if (it == _snnmap.end())
+						_snnmap[subject] = ClientList_sp(new ClientList());
+				}
+
+				void ClientRepository::unreg(Client_sp client) {
+					// remove client from all subjects
+					for (SNNClientMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++)
+						(*it).second->remove(client);
+				}
+			} /* _awds */
+		} /* nl */
+	} /* mw */
 } /* famouso */

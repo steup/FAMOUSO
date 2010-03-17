@@ -49,13 +49,13 @@
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/AWDS_Packet.h"
 #include "mw/nl/awds/AWDSClient.h"
+#include "mw/nl/awds/ClientRepository.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
 
-            using awds::AWDS_Packet;
-            using awds::AWDSClient;
+            using namespace awds;
 
             /*! \brief The AWDS network layer provides functionality for sending
              *         packets over the AWDS network.
@@ -80,12 +80,6 @@ namespace famouso {
 
                     // type of a packet
                     typedef Packet< SNN > Packet_t;
-
-                    // list of macs
-                    typedef std::list< AWDSClient > ClientList;
-
-                    // map of subject and corresponding clients
-                    typedef std::map< SNN, ClientList > SNNClientMap;
 
                     /**
                      * \brief default constructor
@@ -162,7 +156,7 @@ namespace famouso {
                     boost::asio::deadline_timer timer_;
                     AWDS_Packet awds_packet;
                     std::list< SNN > subscriptions;
-                    SNNClientMap subscriber;
+                    ClientRepository &_repo;
                     bool next_packet_is_full_packet;
                     int interval;
                     int max_age;

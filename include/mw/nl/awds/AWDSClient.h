@@ -42,97 +42,96 @@
 #define __AWDS_Client__
 
 #include <ctime>
-#include <cstring>
+#include "boost/shared_ptr.hpp"
 #include "debug.h"
+#include "MAC.h"
 
 namespace famouso {
-    namespace mw {
-        namespace nl {
-            namespace awds {
+	namespace mw {
+		namespace nl {
+			namespace _awds {
 
+				/*! \brief A client at the AWDS network identified by his MAC address.
+				 */
+				class AWDSClient {
 
-                typedef uint8_t MAC[6];
+					public:
 
-                bool mac_equals(const MAC m1, const MAC m2){
-                       return std::memcmp(m1, m2, 6) == 0;
-                }
+						/*! \brief Constructor which creates an client with a specific MAC.
+						 *
+						 * \param mac The MAC address of the client.
+						 */
+						AWDSClient(MAC mac) :
+							_mac(mac), _time(std::time(NULL)) {
+						}
 
-                /*! \brief A client at the AWDS network identified by his MAC address.
-                 */
-                class AWDSClient {
+						/*! \brief The time in seconds when the client was last seen.
+						 *
+						 * \return The elapsed time in seconds.
+						 */
+						int elapsed() const {
+							return static_cast<int> (std::time(NULL) - _time);
+						}
 
-                    public:
+						/*! \brief Resets the last seen time stamp.
+						 */
+						void reset() {
+							_time = std::time(NULL);
+						}
 
-                        /*! \brief Constructor which creates an client with a specific MAC.
-                         *
-                         * \param mac The MAC address of the client.
-                         */
-                        AWDSClient(const uint8_t * const mac) :
-                            time(std::time(NULL)) {
-                            for (int idx = 0; idx < 6; idx++)
-                                data[idx] = mac[idx];
-                        }
+						/*! \brief Copy the MAC address of the client to the data pointer.
+						 *
+						 * \param data The data pointer where to copy the mac.
+						 */
+						void mac(void *data) {
+							_mac.copy(data);
+						}
 
+						/*! \brief Get the MAC address of the client.
+						 *
+						 * \return The MAC address of the client.
+						 */
+						MAC mac() const {
+							return _mac;
+						}
 
-                        ~AWDSClient(){
+						/*! \brief The copare operator to compare if clients are same.
+						 *
+						 * \param o The other client to compare to.
+						 * \return Returns true if the clients are the same, false otherwise.
+						 */
+						bool operator==(const AWDSClient& o) {
+							return _mac == o._mac;
+						}
 
-                        }
+						friend ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c);
 
-                        /*! \brief The time in seconds when the client was last seen.
-                         *
-                         * \return The elapsed time in seconds.
-                         */
-                        int elapsed() const {
-                            return static_cast< int > (std::time(NULL) - time);
-                        }
+					private:
+						MAC _mac;
+						clock_t _time;
+				};
 
-                        /*! \brief Resets the last seen time stamp.
-                         */
-                        void reset() {
-                            time = std::time(NULL);
-                        }
+				inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c) {
+					return out << c._mac << " (" << c.elapsed() << ")";
+				}
+			}
+			namespace awds {
 
-                        /*! \brief A pointer to the MAC address of the client.
-                         *
-                         * \return The MAC address of the client.
-                         */
-                        const uint8_t * tab() const {
-                            return data;
-                        }
+				/*! \brief A client at the AWDS network identified by his MAC address.
+				 */
+				typedef boost::shared_ptr<_awds::AWDSClient> Client_sp;
 
-                        /*! \brief The copare operator to compare if clients are same.
-                         *
-                         * \param o The other client to compare to.
-                         * \return Returns true if the clients are the same, false otherwise.
-                         */
-                        bool operator==(const AWDSClient& o) {
-                            for (int idx = 0; idx < 6; idx++)
-                                if (data[idx] != o.data[idx])
-                                    return false;
-                            return true;
-                        }
-
-                    private:
-                        uint8_t data[6];
-                        clock_t time;
-                };
-
-                /*! \brief Print a client to log.
-                 *
-                 * \param out The log to print to.
-                 * \param c The client to print.
-                 * \return The log to chain print calls.
-                 */
-                inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out,
-                        const AWDSClient &c) {
-                    char buffer[30];
-                    const uint8_t *mac = c.tab();
-                    std::sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X (%d)", mac[0], mac[1],
-                            mac[2], mac[3], mac[4], mac[5], c.elapsed());
-                    return out << buffer;
-                }
-            }
-        }
-    }
+				/*! \brief Print a client to log.
+				 *
+				 * \param out The log to print to.
+				 * \param c The client to print.
+				 * \return The log to chain print calls.
+				 */
+				inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const Client_sp &c) {
+					return _awds::operator<<(out, *c.get());
+				}
+			}
+		}
+	}
 }
 #endif /* __AWDS_Client__ */

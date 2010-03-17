@@ -73,6 +73,7 @@ namespace famouso {
             AWDSNL::AWDSNL() :
                 m_socket(famouso::util::ios::instance()),
                          timer_(famouso::util::ios::instance()),
+                         _repo(ClientRepository::getInstance()),
                          next_packet_is_full_packet(false) {
             }
 
@@ -119,56 +120,56 @@ namespace famouso {
                 // try to detect subscription channel because in AWDS its get special treatment
                 // this test works only due to the fact that the SNN is equal to the famouso::mw::Subject
                 if (p.snn == famouso::mw::Subject("SUBSCRIBE")) {
-                    subscriptions.push_front(famouso::mw::Subject(p.data));
+                	SNN s = famouso::mw::Subject(p.data);
+                    subscriptions.push_front(s);
+                    _repo.reg(s);
                     subscriptions.sort();
                     subscriptions.unique();
 
                     timer_.cancel();
                     announce_subscriptions(boost::system::error_code());
                 } else {
-                    // temporary list for good subscribers
-                    static ClientList tmplist;
 
                     // get list of subscriber for the subject
-                    ClientList &cl = subscriber[p.snn];
+                    ClientList_sp cl = _repo.find(p.snn);
 
                     // if we have no subscriber, we won't send anything
-                    if (cl.size() == 0) {
+                    if (cl->size() == 0) {
                         log::emit< AWDS >() << "No subsciber for Subject: " << p.snn << log::endl;
                         return;
                     }
 
+                    int bad_subscribers = 0;
+
                     // check age of clients
-                    tmplist.clear();
-                    for (ClientList::iterator it = cl.begin(); it != cl.end(); it++) {
-                        // add good clients to temp list
-                        if (it->elapsed() < max_age){
-                            tmplist.push_front(*it);
+                    for (ClientList_sp_iterator it = cl->begin(); it != cl->end(); it++) {
+                        if ((*it)->elapsed() < max_age){
+                        	// do nothing with good clients
+                        	// TODO: implement attributes check here
                             log::emit< AWDS >() << log::dec
                                                 << "checking subscriber: "
                                                 <<  *it << " -> ok" << log::endl;
                         } else {
+                        	// remove bad client from the repository
+                            _repo.remove(*it);
+                            // remove bad client from the actual list
+                            it = cl->erase(it);
+                            bad_subscribers++;
                             log::emit< AWDS >() << log::dec
                                                 << "checking subscriber: "
                                                 <<  *it << " -> old" << log::endl;
                         }
                     }
 
-                    log::emit< AWDS >() << log::dec << "Removed old subscribers: " << (cl.size() - tmplist.size()) << log::endl;
-
-                    // add good clients to orig list
-                    cl.clear();
-                    for (ClientList::iterator it = tmplist.begin(); it != tmplist.end(); it++) {
-                        cl.push_front(*it);
-                    }
+                    log::emit< AWDS >() << log::dec << "Removed bad subscribers: " << bad_subscribers << log::endl;
 
                     std::vector< boost::asio::const_buffer > buffers;
                     AWDS_Packet::Header awds_header;
 
                     // only broadcast if we have to much subscribers
-                    if (cl.size() > max_unicast) {
+                    if (cl->size() > max_unicast) {
                         // send as broadcast
-                        log::emit< AWDS >() << "Broadcast (" << cl.size() << ") \t -- Subject: "
+                        log::emit< AWDS >() << "Broadcast (" << cl->size() << ") \t -- Subject: "
                                 << p.snn << log::endl;
 
                         // set the package params
@@ -189,7 +190,7 @@ namespace famouso {
                         m_socket.send(buffers);
                     } else {
                         // send as unicast
-                        log::emit< AWDS >() << "Unicast (" << cl.size() << ") \t -- Subject: "
+                        log::emit< AWDS >() << "Unicast (" << cl->size() << ") \t -- Subject: "
                                 << p.snn << log::endl;
 
                         // set the package params
@@ -201,9 +202,8 @@ namespace famouso {
                         buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
                         // for each client set source mac and send package
-                        for (ClientList::iterator it = cl.begin(); it != cl.end(); it++) {
-                            for (int b = 0; b < 6; b++)
-                                awds_header.addr[b] = it->tab()[b];
+                        for (ClientList_sp_iterator it = cl->begin(); it != cl->end(); it++) {
+                            (*it)->mac(awds_header.addr);
                             m_socket.send(buffers);
                         }
                     }
@@ -246,7 +246,12 @@ namespace famouso {
                         }
                         case AWDS_Packet::constants::packet_type::subscribe: {
                             // get the client
-                            AWDSClient src = AWDSClient(awds_packet.header.addr);
+                        	MAC mac = MAC::parse(awds_packet.header.addr);
+                            Client_sp src = _repo.find(mac);
+
+                            // reset contact time
+                            src->reset();
+                            _repo.unreg(src);
 
                             log::emit< AWDS >() << "=============================" << log::dec
                                     << log::endl;
@@ -263,12 +268,9 @@ namespace famouso {
                                 // get the subject
                                 SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
                                 log::emit< AWDS >() << "  Subject: " << s << log::endl;
-                                // get the client list for this subject
-                                ClientList &snn_clients = subscriber[s];
 
-                                // add the new client (update old)
-                                snn_clients.remove(src);
-                                snn_clients.push_front(src);
+                                // register client to this subject
+                                _repo.reg(src, s);
                             }
 
                             log::emit< AWDS >() << "=============================" << log::endl;
