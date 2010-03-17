@@ -47,16 +47,14 @@
 namespace famouso {
     namespace mw {
         namespace nl {
-            namespace _awds {
+            namespace awds {
 
                 /*! \brief A MAC address representing a client at awds.
                  */
-                struct __attribute__((packed)) _MAC {
-
-                    private:
-                        typedef struct _MAC MAC;
+                class MAC {
 
                     public:
+                        typedef MAC type;
 
                         /*! \brief Parse a pointer and return a MAC address.
                          *
@@ -75,7 +73,7 @@ namespace famouso {
                          *
                          * \param data A pointer where to copy the MAC.
                          */
-                        void copy(void *data) {
+                        void copy(void *data) const {
                             std::memcpy(data, _data, 6);
                         }
 
@@ -88,38 +86,35 @@ namespace famouso {
                             return std::memcmp(_data, o._data, 6) == 0;
                         }
 
-                        friend ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const MAC &mac);
+                        /*! \brief prints the mach to the stream.
+                         *
+                         *  \param out The output stream to print to.
+                         */
+                        void print(::logging::loggingReturnType &out) const {
+                            char buffer[30];
+                            std::sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X", _data[0], _data[1], _data[2], _data[3], _data[4],
+                                         _data[5]);
+                            out << buffer;
+                        }
 
                     private:
                         uint8_t _data[6];
                 };
-
-                /*! \brief A MAC address representing a client at awds.
-                 */
-                typedef struct _MAC MAC;
-
-                /*! \brief Print a MAC to log.
-                 *
-                 * \param out The log to print to.
-                 * \param mac The MAC to print.
-                 * \return The log to chain print calls.
-                 */
-                inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const MAC &mac) {
-                    char buffer[30];
-                    std::sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X", mac._data[0], mac._data[1], mac._data[2], mac._data[3],
-                            mac._data[4], mac._data[5]);
-                    return out << buffer;
-                }
-            } /* _awds */
-
-            namespace awds {
-
-                /*! \brief A MAC address representing a client at awds.
-                 */
-                typedef famouso::mw::nl::_awds::MAC MAC;
-
             } /* awds */
         } /* nl */
     } /* mw */
 } /* famouso */
+
+namespace logging {
+    /*! \brief Print a MAC to log.
+     *
+     * \param out The log to print to.
+     * \param mac The MAC to print.
+     * \return The log to chain print calls.
+     */
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::MAC &mac) {
+        mac.print(out);
+        return out;
+    }
+} // namespace logging
 #endif /* __MAC_hpp__ */

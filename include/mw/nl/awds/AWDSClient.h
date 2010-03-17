@@ -49,14 +49,12 @@
 namespace famouso {
     namespace mw {
         namespace nl {
-            namespace _awds {
+            namespace awds {
 
                 /*! \brief A client at the AWDS network identified by his MAC address.
                  */
                 class AWDSClient {
-
-                    public:
-
+                    private:
                         /*! \brief Constructor which creates an client with a specific MAC.
                          *
                          * \param mac The MAC address of the client.
@@ -64,6 +62,11 @@ namespace famouso {
                         AWDSClient(MAC mac) :
                             _mac(mac), _time(std::time(NULL)) {
                         }
+
+                    public:
+                        /*! \brief A client at the AWDS network identified by his MAC address.
+                         */
+                        typedef boost::shared_ptr<AWDSClient> type;
 
                         /*! \brief The time in seconds when the client was last seen.
                          *
@@ -83,7 +86,7 @@ namespace famouso {
                          *
                          * \param data The data pointer where to copy the mac.
                          */
-                        void mac(void *data) {
+                        void mac(void *data) const {
                             _mac.copy(data);
                         }
 
@@ -104,25 +107,24 @@ namespace famouso {
                             return _mac == o._mac;
                         }
 
-                        friend ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c);
+                        /*! \brief prints a client to the stream.
+                         *
+                         *  \param out The output stream to print to.
+                         */
+                        void print(::logging::loggingReturnType &out) const {
+                            out << _mac << " (" << ::logging::log::dec << elapsed() << ")";
+                        }
+
+                        static type create(MAC mac) {
+                            type res = type(new AWDSClient(mac));
+                            return res;
+                        }
 
                     private:
                         MAC _mac;
                         clock_t _time;
                 };
-
-                inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c) {
-                    return out << c._mac << " (" << ::logging::log::dec << c.elapsed() << ")";
-                }
-            } /* _awds*/
-
-            namespace awds {
-
-                /*! \brief A client at the AWDS network identified by his MAC address.
-                 */
-                typedef boost::shared_ptr<_awds::AWDSClient> Client_sp;
-            } /* awds */
-
+            } /* awds*/
         } /* nl */
     } /* mw */
 } /* famouso */
@@ -134,8 +136,20 @@ namespace logging {
      * \param c The client to print.
      * \return The log to chain print calls.
      */
-    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Client_sp &c) {
-        return famouso::mw::nl::_awds::operator<<(out, *c.get());
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::AWDSClient::type &c) {
+        c->print(out);
+        return out;
+    }
+
+    /*! \brief Print a client to log.
+     *
+     * \param out The log to print to.
+     * \param c The client to print.
+     * \return The log to chain print calls.
+     */
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::AWDSClient &c) {
+        c.print(out);
+        return out;
     }
 } /* logging */
 

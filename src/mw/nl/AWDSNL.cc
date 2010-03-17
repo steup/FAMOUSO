@@ -122,7 +122,7 @@ namespace famouso {
                 } else {
 
                     // get list of subscriber for the subject
-                    ClientList_sp cl = _repo.find(p.snn);
+                    ClientList::type cl = _repo.find(p.snn);
 
                     // if we have no subscriber, we won't send anything
                     if (cl->size() == 0) {
@@ -133,7 +133,7 @@ namespace famouso {
                     int bad_subscribers = 0;
 
                     // check age of clients
-                    for (ClientList_sp_iterator it = cl->begin(); it != cl->end(); it++) {
+                    for (ClientList::iterator it = cl->begin(); it != cl->end(); it++) {
                         if ((*it)->elapsed() < max_age) {
                             // do nothing with good clients
                             // TODO: implement attributes check here
@@ -185,7 +185,7 @@ namespace famouso {
                         buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
                         // for each client set source mac and send package
-                        for (ClientList_sp_iterator it = cl->begin(); it != cl->end(); it++) {
+                        for (ClientList::iterator it = cl->begin(); it != cl->end(); it++) {
                             (*it)->mac(awds_header.addr);
                             m_socket.send(buffers);
                         }
@@ -228,7 +228,7 @@ namespace famouso {
                             log::emit<AWDS>() << "=============================" << log::dec << log::endl;
                             // get the client
                             MAC mac = MAC::parse(awds_packet.header.addr);
-                            Client_sp src = _repo.find(mac);
+                            AWDSClient::type src = _repo.find(mac);
 
                             // reset contact time
                             src->reset();

@@ -45,44 +45,46 @@
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
 #include "mw/common/Subject.h"
-#include "MAC.h"
-#include "AWDSClient.h"
+#include "mw/nl/awds/MAC.h"
+#include "mw/nl/awds/AWDSClient.h"
+#include "mw/nl/awds/Attributes.h"
+#include "mw/nl/awds/lists.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
-            namespace _awds {
-
-                /*! \brief A list of clients at awds.
-                 */
-                typedef std::list<awds::Client_sp> ClientList;
-
-                /*! \brief A famouso Subject.
-                 */
-                typedef famouso::mw::Subject SNN;
-
-                /*! \brief A list of clients at awds.
-                 */
-                typedef boost::shared_ptr<ClientList> ClientList_sp;
-
-                /*! \brief An iterator for the clients list.
-                 */
-                typedef ClientList::iterator ClientList_sp_iterator;
-
-                /*! \brief A map to assign clients to subjects.
-                 */
-                typedef std::map<SNN, ClientList_sp> SNNClientMap;
+            namespace awds {
 
                 /*! \brief A client repository for holding awds clients and register clients to subjects.
                  */
                 class ClientRepository: boost::noncopyable {
 
                     public:
+
+                        /*! \brief A client repository for holding awds clients and register clients to subjects.
+                         *
+                         */
+                        typedef ClientRepository type;
+
+                        /*! \brief A famouso Subject.
+                         */
+                        typedef famouso::mw::Subject SNN;
+
+                    private:
+
+                        /*! \brief A map to assign clients to subjects.
+                         */
+                        typedef std::map<SNN, ClientList::type> SNNClientMap;
+
+                        ClientRepository();
+
+                    public:
+
                         /*! \brief Get the only instance of the clientsrepository.
                          *
                          *  \return A reference to the only instance of the repository.
                          */
-                        static ClientRepository& getInstance();
+                        static type& getInstance();
 
                         /*! \brief Find a client by a given MAC address.
                          *         If the client doesn't exists, it will be created.
@@ -90,7 +92,7 @@ namespace famouso {
                          * \param mac The MAC address to find the client for.
                          * \return The client corresponding to the MAC address.
                          */
-                        awds::Client_sp find(MAC mac);
+                        AWDSClient::type find(MAC mac);
 
                         /*! \brief Find all clients registered to the given Subject.
                          *
@@ -98,14 +100,14 @@ namespace famouso {
                          *  \return A list with clients registered for the given subject.
                          *         The list can be empty, if no client is registered.
                          */
-                        ClientList_sp find(SNN subject);
+                        ClientList::type find(SNN subject);
 
                         /*! \brief Remove a client from the repository.
                          *         It will be removed from all subjects too.
                          *
                          *  \param client The client to remove.
                          */
-                        void remove(awds::Client_sp client);
+                        void remove(AWDSClient::type client);
 
                         /*! \brief Remove a subject from the repository.
                          *         Clients registered to the given subject will
@@ -122,7 +124,7 @@ namespace famouso {
                          *  \param client The client to register.
                          *  \param subject The subject to register.
                          */
-                        void reg(awds::Client_sp client, SNN subject);
+                        void reg(AWDSClient::type client, SNN subject);
 
                         /*! \brief Register a subject to the repository.
                          *
@@ -134,28 +136,13 @@ namespace famouso {
                          *
                          *  \param client The client to unregister.
                          */
-                        void unreg(awds::Client_sp client);
+                        void unreg(AWDSClient::type client);
 
                     private:
                         SNNClientMap _snnmap;
-                        ClientList _clients;
+                        ClientList::type _clients;
                 };
 
-            } /* _awds */
-
-            namespace awds {
-
-                /*! \brief A list of clients at awds.
-                 */
-                typedef _awds::ClientList_sp ClientList_sp;
-
-                /*! \brief An iterator for the clients list.
-                 */
-                typedef _awds::ClientList_sp_iterator ClientList_sp_iterator;
-
-                /*! \brief A client repository for holding awds clients and register clients to subjects.
-                 */
-                typedef _awds::ClientRepository ClientRepository;
             } /* awds */
         } /* nl */
     } /* mw */

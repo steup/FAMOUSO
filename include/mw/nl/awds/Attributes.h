@@ -42,26 +42,35 @@
 #define _Attributes_h_
 
 #include <cstring>
+#include "boost/shared_ptr.hpp"
+#include "boost/noncopyable.hpp"
 #include "mw/nl/awds/AWDS_Packet.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
-            namespace _awds {
+            namespace awds {
 
-                typedef uint16_t value_t;
+                namespace details {
 
-                value_t cast_get(const void *data) {
-                    const value_t *p = static_cast<const value_t *> (data);
-                    return *p;
-                }
+                    template< typename T>
+                    T cast_get(const void *data) {
+                        const T *p = static_cast<const T *> (data);
+                        return *p;
+                    }
 
-                void cast_set(void *data, value_t value) {
-                    value_t *p = static_cast<value_t *> (data);
-                    *p = value;
-                }
+                    template< typename T>
+                    void cast_set(void *data, T value) {
+                        T *p = static_cast<T *> (data);
+                        *p = value;
+                    }
+                } // namespace details
 
-                class Attributes {
+                class Attributes: boost::noncopyable {
+                    public:
+                        typedef boost::shared_ptr<Attributes> type;
+                        typedef uint32_t value_t;
+
                         struct constants {
                                 enum {
                                     payload = awds::AWDS_Packet::constants::packet_size::payload,
@@ -117,7 +126,7 @@ namespace famouso {
                         value_t get(AttributeType attrib) const {
                             for (int p = 0; p < num * constants::attrib_size; p += constants::attrib_size) {
                                 if (data[p] == attrib)
-                                    return ntohl(cast_get(&data[p + 1]));
+                                    return ntohl(details::cast_get<value_t>(&data[p + 1]));
                             }
                             return ~0;
                         }
@@ -127,13 +136,13 @@ namespace famouso {
                             for (; p < num * constants::attrib_size; p += constants::attrib_size) {
                                 if (data[p] == attrib) {
                                     // copy value to data
-                                    cast_set(&data[p + 1], htonl(value));
+                                    details::cast_set(&data[p + 1], htonl(value));
                                     return;
                                 }
                             }
 
                             data[p] = (uint8_t) attrib;
-                            cast_set(&data[p + 1], htonl(value));
+                            details::cast_set(&data[p + 1], htonl(value));
                             num++;
                         }
 
@@ -206,17 +215,20 @@ namespace famouso {
                             return !(*this == o);
                         }
 
+                        /*! \brief Creates an empty attributes instance.
+                         *
+                         *  \return An instance of attributes.
+                         */
+                        static type create(){
+                            type res = type(new Attributes());
+                            return res;
+                        }
+
                     private:
                         uint8_t num;
                         uint8_t data[constants::payload];
                 };
 
-            } /* _awds */
-
-            namespace awds {
-                typedef _awds::Attributes Attributes;
-
-                typedef _awds::value_t value_t;
             } /* awds */
         } /* nl */
     } /* mw */

@@ -48,7 +48,6 @@
 #include "util/ios.h"
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/AWDS_Packet.h"
-#include "mw/nl/awds/Attributes.h"
 #include "mw/nl/awds/AWDSClient.h"
 #include "mw/nl/awds/ClientRepository.h"
 
@@ -155,7 +154,7 @@ namespace famouso {
                     boost::asio::deadline_timer timer_;
                     AWDS_Packet awds_packet;
                     std::list<SNN> subscriptions;
-                    ClientRepository &_repo;
+                    ClientRepository::type &_repo;
                     bool next_packet_is_full_packet;
                     int interval;
                     int max_age;
