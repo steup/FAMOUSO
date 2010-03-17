@@ -47,96 +47,96 @@
 #include "MAC.h"
 
 namespace famouso {
-	namespace mw {
-		namespace nl {
-			namespace _awds {
+    namespace mw {
+        namespace nl {
+            namespace _awds {
 
-				/*! \brief A client at the AWDS network identified by his MAC address.
-				 */
-				class AWDSClient {
+                /*! \brief A client at the AWDS network identified by his MAC address.
+                 */
+                class AWDSClient {
 
-					public:
+                    public:
 
-						/*! \brief Constructor which creates an client with a specific MAC.
-						 *
-						 * \param mac The MAC address of the client.
-						 */
-						AWDSClient(MAC mac) :
-							_mac(mac), _time(std::time(NULL)) {
-						}
+                        /*! \brief Constructor which creates an client with a specific MAC.
+                         *
+                         * \param mac The MAC address of the client.
+                         */
+                        AWDSClient(MAC mac) :
+                            _mac(mac), _time(std::time(NULL)) {
+                        }
 
-						/*! \brief The time in seconds when the client was last seen.
-						 *
-						 * \return The elapsed time in seconds.
-						 */
-						int elapsed() const {
-							return static_cast<int> (std::time(NULL) - _time);
-						}
+                        /*! \brief The time in seconds when the client was last seen.
+                         *
+                         * \return The elapsed time in seconds.
+                         */
+                        int elapsed() const {
+                            return static_cast<int> (std::time(NULL) - _time);
+                        }
 
-						/*! \brief Resets the last seen time stamp.
-						 */
-						void reset() {
-							_time = std::time(NULL);
-						}
+                        /*! \brief Resets the last seen time stamp.
+                         */
+                        void reset() {
+                            _time = std::time(NULL);
+                        }
 
-						/*! \brief Copy the MAC address of the client to the data pointer.
-						 *
-						 * \param data The data pointer where to copy the mac.
-						 */
-						void mac(void *data) {
-							_mac.copy(data);
-						}
+                        /*! \brief Copy the MAC address of the client to the data pointer.
+                         *
+                         * \param data The data pointer where to copy the mac.
+                         */
+                        void mac(void *data) {
+                            _mac.copy(data);
+                        }
 
-						/*! \brief Get the MAC address of the client.
-						 *
-						 * \return The MAC address of the client.
-						 */
-						MAC mac() const {
-							return _mac;
-						}
+                        /*! \brief Get the MAC address of the client.
+                         *
+                         * \return The MAC address of the client.
+                         */
+                        MAC mac() const {
+                            return _mac;
+                        }
 
-						/*! \brief The copare operator to compare if clients are same.
-						 *
-						 * \param o The other client to compare to.
-						 * \return Returns true if the clients are the same, false otherwise.
-						 */
-						bool operator==(const AWDSClient& o) {
-							return _mac == o._mac;
-						}
+                        /*! \brief The copare operator to compare if clients are same.
+                         *
+                         * \param o The other client to compare to.
+                         * \return Returns true if the clients are the same, false otherwise.
+                         */
+                        bool operator==(const AWDSClient& o) {
+                            return _mac == o._mac;
+                        }
 
-						friend ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c);
+                        friend ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c);
 
-					private:
-						MAC _mac;
-						clock_t _time;
-				};
+                    private:
+                        MAC _mac;
+                        clock_t _time;
+                };
 
-				inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c) {
-					return out << c._mac << " (" << ::logging::log::dec << c.elapsed() << ")";
-				}
-			} /* _awds*/
+                inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const AWDSClient &c) {
+                    return out << c._mac << " (" << ::logging::log::dec << c.elapsed() << ")";
+                }
+            } /* _awds*/
 
-			namespace awds {
+            namespace awds {
 
-				/*! \brief A client at the AWDS network identified by his MAC address.
-				 */
-				typedef boost::shared_ptr<_awds::AWDSClient> Client_sp;
-			} /* awds */
+                /*! \brief A client at the AWDS network identified by his MAC address.
+                 */
+                typedef boost::shared_ptr<_awds::AWDSClient> Client_sp;
+            } /* awds */
 
-		} /* nl */
-	} /* mw */
+        } /* nl */
+    } /* mw */
 } /* famouso */
 
 namespace logging {
-	/*! \brief Print a client to log.
-	 *
-	 * \param out The log to print to.
-	 * \param c The client to print.
-	 * \return The log to chain print calls.
-	 */
-	inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Client_sp &c) {
-		return famouso::mw::nl::_awds::operator<<(out, *c.get());
-	}
+    /*! \brief Print a client to log.
+     *
+     * \param out The log to print to.
+     * \param c The client to print.
+     * \return The log to chain print calls.
+     */
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Client_sp &c) {
+        return famouso::mw::nl::_awds::operator<<(out, *c.get());
+    }
 } /* logging */
 
 #endif /* __AWDS_Client__ */

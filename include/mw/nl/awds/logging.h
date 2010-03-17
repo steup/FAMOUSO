@@ -48,8 +48,7 @@ namespace logging {
 
     /*! \brief Operator to print a %Subject.
      */
-    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out,
-            const famouso::mw::Subject &s) {
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::Subject &s) {
         for (uint8_t i = 0; i < 8; ++i) {
             uint8_t c = s.tab()[i];
             if ((c < 32) || (c > 126))

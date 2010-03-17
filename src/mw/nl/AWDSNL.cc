@@ -53,28 +53,26 @@ namespace famouso {
         namespace nl {
             // define command line parameter and default values
             CLP5(AWDSOptions,
-                    "AWDS Network Layer",
-                    "awds,a",
-                    "connection and config parameter for the awds-network in the form of IP:PORT:INTERVAL:MAX_AGE:MAX_UNI\n"
-                    "Values:\n"
-                    "  IP:       \tThe ip-addresse of the ps-awds-deamon\n"
-                    "  PORT:     \tThe port on which the deamon listen\n"
-                    "  INTERVAL: \tThe renew-interval of subsciptions\n"
-                    "  MAX_AGE:  \tThe max age of subsciptions in seconds\n"
-                    "  MAX_UNI:  \tThe max clients count to send unicast packages\n"
-                    "(default 127.0.0.1:8555:60:70:5)",
-                    std::string, ip, "127.0.0.1",
-                    int, port, 8555,
-                    int, interval, 60,
-                    int, max_age, 70,
-                    uint, max_uni, 5)
+                            "AWDS Network Layer",
+                            "awds,a",
+                            "connection and config parameter for the awds-network in the form of IP:PORT:INTERVAL:MAX_AGE:MAX_UNI\n"
+                            "Values:\n"
+                            "  IP:       \tThe ip-addresse of the ps-awds-deamon\n"
+                            "  PORT:     \tThe port on which the deamon listen\n"
+                            "  INTERVAL: \tThe renew-interval of subsciptions\n"
+                            "  MAX_AGE:  \tThe max age of subsciptions in seconds\n"
+                            "  MAX_UNI:  \tThe max clients count to send unicast packages\n"
+                            "(default 127.0.0.1:8555:60:70:5)",
+                            std::string, ip, "127.0.0.1",
+                            int, port, 8555,
+                            int, interval, 60,
+                            int, max_age, 70,
+                            uint, max_uni, 5)
             ;
 
             AWDSNL::AWDSNL() :
-                m_socket(famouso::util::ios::instance()),
-                         timer_(famouso::util::ios::instance()),
-                         _repo(ClientRepository::getInstance()),
-                         next_packet_is_full_packet(false) {
+                m_socket(famouso::util::ios::instance()), timer_(famouso::util::ios::instance()), _repo(ClientRepository::getInstance()),
+                                next_packet_is_full_packet(false) {
             }
 
             AWDSNL::~AWDSNL() throw () {
@@ -93,9 +91,7 @@ namespace famouso {
                 max_age = param.max_age;
                 max_unicast = param.max_uni;
 
-                boost::asio::ip::tcp::endpoint
-                    endpoint(boost::asio::ip::address::from_string(param.ip),
-                             param.port);
+                boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
                 boost::system::error_code ec;
                 m_socket.connect(endpoint, ec);
                 if (ec) {
@@ -103,11 +99,8 @@ namespace famouso {
                     throw "could not connect to AWDS-Network";
                 }
 
-                boost::asio::async_read(m_socket,
-                                        boost::asio::buffer(&awds_packet,
-                                                            sizeof(AWDS_Packet::Header)),
-                                        boost::bind(&AWDSNL::interrupt, this,
-                                                    boost::asio::placeholders::error,
+                boost::asio::async_read(m_socket, boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet::Header)),
+                                        boost::bind(&AWDSNL::interrupt, this, boost::asio::placeholders::error,
                                                     boost::asio::placeholders::bytes_transferred));
 
             }
@@ -133,7 +126,7 @@ namespace famouso {
 
                     // if we have no subscriber, we won't send anything
                     if (cl->size() == 0) {
-                        log::emit< AWDS >() << "No subsciber for Subject: " << p.snn << log::endl;
+                        log::emit<AWDS>() << "No subsciber for Subject: " << p.snn << log::endl;
                         return;
                     }
 
@@ -141,34 +134,29 @@ namespace famouso {
 
                     // check age of clients
                     for (ClientList_sp_iterator it = cl->begin(); it != cl->end(); it++) {
-                        if ((*it)->elapsed() < max_age){
-                        	// do nothing with good clients
-                        	// TODO: implement attributes check here
-                            log::emit< AWDS >() << log::dec
-                                                << "checking subscriber: "
-                                                <<  *it << " -> ok" << log::endl;
+                        if ((*it)->elapsed() < max_age) {
+                            // do nothing with good clients
+                            // TODO: implement attributes check here
+                            log::emit<AWDS>() << log::dec << "checking subscriber: " << *it << " -> ok" << log::endl;
                         } else {
-                            log::emit< AWDS >() << log::dec
-                                                << "checking subscriber: "
-                                                <<  *it << " -> old" << log::endl;
+                            log::emit<AWDS>() << log::dec << "checking subscriber: " << *it << " -> old" << log::endl;
                             // remove bad client from the repository
                             _repo.remove(*it);
-							// remove bad client from the actual list
-							it = cl->erase(it);
-							bad_subscribers++;
+                            // remove bad client from the actual list
+                            it = cl->erase(it);
+                            bad_subscribers++;
                         }
                     }
 
-                    log::emit< AWDS >() << log::dec << "Removed bad subscribers: " << bad_subscribers << log::endl;
+                    log::emit<AWDS>() << log::dec << "Removed bad subscribers: " << bad_subscribers << log::endl;
 
-                    std::vector< boost::asio::const_buffer > buffers;
+                    std::vector<boost::asio::const_buffer> buffers;
                     AWDS_Packet::Header awds_header;
 
                     // only broadcast if we have to much subscribers
                     if (cl->size() > max_unicast) {
                         // send as broadcast
-                        log::emit< AWDS >() << "Broadcast (" << cl->size() << ") \t -- Subject: "
-                                << p.snn << log::endl;
+                        log::emit<AWDS>() << "Broadcast (" << cl->size() << ") \t -- Subject: " << p.snn << log::endl;
 
                         // set the package params
                         awds_header.addr[0] = 0xff;
@@ -179,8 +167,7 @@ namespace famouso {
                         awds_header.addr[5] = 0xff;
                         awds_header.type = type;
                         awds_header.size = htons(p.data_length + sizeof(famouso::mw::Subject));
-                        buffers.push_back(boost::asio::buffer(&awds_header,
-                                sizeof(AWDS_Packet::Header)));
+                        buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
                         buffers.push_back(boost::asio::buffer(&p.snn, sizeof(famouso::mw::Subject)));
                         buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
@@ -188,14 +175,12 @@ namespace famouso {
                         m_socket.send(buffers);
                     } else {
                         // send as unicast
-                        log::emit< AWDS >() << "Unicast (" << cl->size() << ") \t -- Subject: "
-                                << p.snn << log::endl;
+                        log::emit<AWDS>() << "Unicast (" << cl->size() << ") \t -- Subject: " << p.snn << log::endl;
 
                         // set the package params
                         awds_header.type = type;
                         awds_header.size = htons(p.data_length + sizeof(SNN));
-                        buffers.push_back(boost::asio::buffer(&awds_header,
-                                sizeof(AWDS_Packet::Header)));
+                        buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
                         buffers.push_back(boost::asio::buffer(&p.snn, sizeof(SNN)));
                         buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
@@ -219,18 +204,14 @@ namespace famouso {
             }
 
             AWDSNL::SNN AWDSNL::lastPacketSNN() {
-                return *reinterpret_cast< SNN* > (awds_packet.data);
+                return *reinterpret_cast<SNN*> (awds_packet.data);
             }
 
             void AWDSNL::interrupt(const boost::system::error_code& error, size_t bytes_recvd) {
                 if (!error) {
                     if (!next_packet_is_full_packet) {
-                        boost::asio::async_read(m_socket,
-                                                boost::asio::buffer(&awds_packet.data,
-                                                                    ntohs(awds_packet.header.size)),
-                                                boost::bind(&AWDSNL::interrupt,
-                                                            this,
-                                                            boost::asio::placeholders::error,
+                        boost::asio::async_read(m_socket, boost::asio::buffer(&awds_packet.data, ntohs(awds_packet.header.size)),
+                                                boost::bind(&AWDSNL::interrupt, this, boost::asio::placeholders::error,
                                                             boost::asio::placeholders::bytes_transferred));
                         next_packet_is_full_packet = true;
                         return;
@@ -244,53 +225,46 @@ namespace famouso {
                         }
                         case AWDS_Packet::constants::packet_type::subscribe: {
 
-                            log::emit< AWDS >() << "=============================" << log::dec
-                                    << log::endl;
+                            log::emit<AWDS>() << "=============================" << log::dec << log::endl;
                             // get the client
-                        	MAC mac = MAC::parse(awds_packet.header.addr);
+                            MAC mac = MAC::parse(awds_packet.header.addr);
                             Client_sp src = _repo.find(mac);
 
                             // reset contact time
                             src->reset();
                             _repo.unreg(src);
-                            log::emit< AWDS >() << "Subscriber: " << src << log::endl;
+                            log::emit<AWDS>() << "Subscriber: " << src << log::endl;
 
                             // count the number of subjects in the package
-                            uint16_t subs_count =
-                                    *reinterpret_cast< const uint16_t* > (awds_packet.data + 4);
+                            uint16_t subs_count = *reinterpret_cast<const uint16_t*> (awds_packet.data + 4);
                             subs_count = ntohs(subs_count);
-                            log::emit< AWDS >() << "Subjects: " << subs_count << log::endl;
+                            log::emit<AWDS>() << "Subjects: " << subs_count << log::endl;
 
                             // for all subjects in package
                             for (uint16_t sub = 0; sub < subs_count; sub++) {
                                 // get the subject
                                 SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
-                                log::emit< AWDS >() << "  Subject: " << s << log::endl;
+                                log::emit<AWDS>() << "  Subject: " << s << log::endl;
 
                                 // register client to this subject
                                 _repo.reg(src, s);
                             }
 
-                            log::emit< AWDS >() << "=============================" << log::endl;
+                            log::emit<AWDS>() << "=============================" << log::endl;
                             break;
                         }
                         default:
-                            log::emit< AWDS >() << "AWDS_Packet not supported yet" << log::endl;
+                            log::emit<AWDS>() << "AWDS_Packet not supported yet" << log::endl;
                             break;
                     }
 
                     // try receiving the next packet
-                    boost::asio::async_read(m_socket,
-                                            boost::asio::buffer(&awds_packet,
-                                                                sizeof(AWDS_Packet::Header)),
-                                            boost::bind(&AWDSNL::interrupt,
-                                                        this,
-                                                        boost::asio::placeholders::error,
+                    boost::asio::async_read(m_socket, boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet::Header)),
+                                            boost::bind(&AWDSNL::interrupt, this, boost::asio::placeholders::error,
                                                         boost::asio::placeholders::bytes_transferred));
 
                 } else {
-                    log::emit< Error >() << "AWDS-Network : " << error.message().c_str()
-                            << log::endl;
+                    log::emit<Error>() << "AWDS-Network : " << error.message().c_str() << log::endl;
                     throw "AWDS-Network disconnected likely";
                 }
 
@@ -303,7 +277,7 @@ namespace famouso {
 
                     if (subscriptions.size()) {
                         uint16_t count_subj = htons(subscriptions.size());
-                        std::vector< boost::asio::const_buffer > buffers;
+                        std::vector<boost::asio::const_buffer> buffers;
                         uint32_t reserved = htonl(20);
                         AWDS_Packet::Header awds_header;
                         awds_header.addr[0] = 0xff;
@@ -313,15 +287,12 @@ namespace famouso {
                         awds_header.addr[4] = 0xff;
                         awds_header.addr[5] = 0xff;
                         awds_header.type = AWDS_Packet::constants::packet_type::subscribe;
-                        awds_header.size = htons(sizeof(uint32_t) + 2 + ntohs(count_subj)
-                                           * sizeof(famouso::mw::Subject));
+                        awds_header.size = htons(sizeof(uint32_t) + 2 + ntohs(count_subj) * sizeof(famouso::mw::Subject));
                         buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
                         buffers.push_back(boost::asio::buffer(&reserved, sizeof(uint32_t)));
                         buffers.push_back(boost::asio::buffer(&count_subj, sizeof(uint16_t)));
 
-                        for ( std::list< SNN >::const_iterator i = subscriptions.begin();
-                              i!= subscriptions.end();
-                              ++i ) {
+                        for (std::list<SNN>::const_iterator i = subscriptions.begin(); i != subscriptions.end(); ++i) {
                             buffers.push_back(boost::asio::buffer(&(*i), sizeof(famouso::mw::Subject)));
                         }
 
@@ -329,9 +300,7 @@ namespace famouso {
                     }
 
                     timer_.expires_from_now(boost::posix_time::seconds(interval));
-                    timer_.async_wait(boost::bind(&AWDSNL::announce_subscriptions,
-                                                  this,
-                                                  boost::asio::placeholders::error));
+                    timer_.async_wait(boost::bind(&AWDSNL::announce_subscriptions, this, boost::asio::placeholders::error));
                 }
             }
         }

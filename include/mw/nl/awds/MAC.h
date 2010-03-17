@@ -45,80 +45,81 @@
 #include "debug.h"
 
 namespace famouso {
-	namespace mw {
-		namespace nl {
-			namespace _awds {
+    namespace mw {
+        namespace nl {
+            namespace _awds {
 
-				/*! \brief A MAC address representing a client at awds.
-				 */
-				struct __attribute__((packed)) _MAC {
+                /*! \brief A MAC address representing a client at awds.
+                 */
+                struct __attribute__((packed)) _MAC {
 
-					private:
-						typedef struct _MAC MAC;
+                    private:
+                        typedef struct _MAC MAC;
 
-					public:
+                    public:
 
-						/*! \brief Parse a pointer and return a MAC address.
-						 *
-						 * \param data The pointer where the MAC can be located.
-						 * \return A MAC address.
-						 */
-						static MAC parse(void *data) {
-							MAC result;
+                        /*! \brief Parse a pointer and return a MAC address.
+                         *
+                         * \param data The pointer where the MAC can be located.
+                         * \return A MAC address.
+                         */
+                        static MAC parse(void *data) {
+                            MAC result;
 
-							std::memcpy(result._data, data, 6);
+                            std::memcpy(result._data, data, 6);
 
-							return result;
-						}
+                            return result;
+                        }
 
-						/*! \brief Copy the MAC address to a pointer.
-						 *
-						 * \param data A pointer where to copy the MAC.
-						 */
-						void copy(void *data) {
-							std::memcpy(data, _data, 6);
-						}
+                        /*! \brief Copy the MAC address to a pointer.
+                         *
+                         * \param data A pointer where to copy the MAC.
+                         */
+                        void copy(void *data) {
+                            std::memcpy(data, _data, 6);
+                        }
 
-						/*! \brief Compare 2 MAC addresses of equality.
-						 *
-						 * \param o The other MAC address.
-						 * \return true if the MAC addresses are equal, false otherwise.
-						 */
-						bool operator==(const MAC &o) {
-							return std::memcmp(_data, o._data, 6) == 0;
-						}
+                        /*! \brief Compare 2 MAC addresses of equality.
+                         *
+                         * \param o The other MAC address.
+                         * \return true if the MAC addresses are equal, false otherwise.
+                         */
+                        bool operator==(const MAC &o) {
+                            return std::memcmp(_data, o._data, 6) == 0;
+                        }
 
-						friend ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const MAC &mac);
+                        friend ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const MAC &mac);
 
-					private:
-						uint8_t _data[6];
-				};
+                    private:
+                        uint8_t _data[6];
+                };
 
-				/*! \brief A MAC address representing a client at awds.
-				 */
-				typedef struct _MAC MAC;
+                /*! \brief A MAC address representing a client at awds.
+                 */
+                typedef struct _MAC MAC;
 
-				/*! \brief Print a MAC to log.
-				 *
-				 * \param out The log to print to.
-				 * \param mac The MAC to print.
-				 * \return The log to chain print calls.
-				 */
-				inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const MAC &mac) {
-					char buffer[30];
-					std::sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X", mac._data[0], mac._data[1], mac._data[2], mac._data[3], mac._data[4], mac._data[5]);
-					return out << buffer;
-				}
-			} /* _awds */
+                /*! \brief Print a MAC to log.
+                 *
+                 * \param out The log to print to.
+                 * \param mac The MAC to print.
+                 * \return The log to chain print calls.
+                 */
+                inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const MAC &mac) {
+                    char buffer[30];
+                    std::sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X", mac._data[0], mac._data[1], mac._data[2], mac._data[3],
+                            mac._data[4], mac._data[5]);
+                    return out << buffer;
+                }
+            } /* _awds */
 
-			namespace awds {
+            namespace awds {
 
-				/*! \brief A MAC address representing a client at awds.
-				 */
-				typedef famouso::mw::nl::_awds::MAC MAC;
+                /*! \brief A MAC address representing a client at awds.
+                 */
+                typedef famouso::mw::nl::_awds::MAC MAC;
 
-			} /* awds */
-		} /* nl */
-	} /* mw */
+            } /* awds */
+        } /* nl */
+    } /* mw */
 } /* famouso */
 #endif /* __MAC_hpp__ */

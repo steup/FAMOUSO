@@ -64,15 +64,14 @@ namespace famouso {
             class AWDSNL: public BaseNL, boost::noncopyable {
                 public:
 
-                /*! \brief A Struct for holding infomational constants.
-                 */
+                    /*! \brief A Struct for holding infomational constants.
+                     */
                     struct info {
                             enum {
-                                    /*! \brief The maximum payload an AWDS packet can have
-                                     *         (without the subject).
-                                     */
-                                payload = AWDS_Packet::constants::packet_size::payload
-                                        - sizeof(famouso::mw::Subject),
+                                /*! \brief The maximum payload an AWDS packet can have
+                                 *         (without the subject).
+                                 */
+                                payload = AWDS_Packet::constants::packet_size::payload - sizeof(famouso::mw::Subject)
                             };
                     };
 
@@ -80,7 +79,7 @@ namespace famouso {
                     typedef famouso::mw::Subject SNN;
 
                     // type of a packet
-                    typedef Packet< SNN > Packet_t;
+                    typedef Packet<SNN> Packet_t;
 
                     /**
                      * \brief default constructor
@@ -117,8 +116,7 @@ namespace famouso {
                      * \param[in] type describes the packet type and is used for specifying
                      *            a fragmented or normal published packet.
                      */
-                    void deliver(const Packet_t& p, uint8_t type =
-                            AWDS_Packet::constants::packet_type::publish);
+                    void deliver(const Packet_t& p, uint8_t type = AWDS_Packet::constants::packet_type::publish);
 
                     /**
                      * \brief publish
@@ -156,7 +154,7 @@ namespace famouso {
                     boost::asio::ip::tcp::socket m_socket;
                     boost::asio::deadline_timer timer_;
                     AWDS_Packet awds_packet;
-                    std::list< SNN > subscriptions;
+                    std::list<SNN> subscriptions;
                     ClientRepository &_repo;
                     bool next_packet_is_full_packet;
                     int interval;

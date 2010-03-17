@@ -47,32 +47,32 @@ namespace famouso {
             namespace awds {
 
                 struct __attribute__((packed)) AWDS_Packet {
-                    struct constants {
-                        struct packet_size {
-                            enum {
-                                payload = 1400
-                            };
+                        struct constants {
+                                struct packet_size {
+                                        enum {
+                                            payload = 1400
+                                        };
+                                };
+                                struct packet_type {
+                                        enum {
+                                            publish_fragment = 0x7B,
+                                            publish = 0x7C,
+                                            subscribe = 0x7D,
+                                            attributes = 0x81
+                                        };
+                                };
                         };
-                        struct packet_type {
-                            enum {
-                                publish_fragment = 0x7B,
-                                publish = 0x7C,
-                                subscribe = 0x7D,
-                                attributes = 0x81
-                            };
+                        struct __attribute__((packed)) Header {
+                                uint8_t addr[6];
+                                uint8_t type;
+                            private:
+                                uint8_t __pad;
+                            public:
+                                uint16_t size;
                         };
-                    };
-                    struct __attribute__((packed)) Header {
-                        uint8_t addr[6];
-                        uint8_t type;
-                    private:
-                        uint8_t __pad;
-                    public:
-                        uint16_t size;
-                    };
 
-                    Header header;
-                    uint8_t data[constants::packet_size::payload];
+                        Header header;
+                        uint8_t data[constants::packet_size::payload];
                 };
             }
         }
