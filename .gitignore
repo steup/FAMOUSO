@@ -1,0 +1,43 @@
+
+# /
+/depend
+/bin
+/lib
+/module
+
+# /Bindings/C#/
+/Bindings/C#/generated
+
+# /Bindings/Java/
+/Bindings/Java/generated
+
+# /Bindings/Python/pyFAMOUSO/
+/Bindings/Python/pyFAMOUSO/*.pyc
+
+# /Bindings/client/
+/Bindings/client/libfamouso*
+
+# /Bindings/oldSwigPython/
+/Bindings/oldSwigPython/generated
+
+# /externals/
+/externals/Boost*
+/externals/boost*
+externals/include
+
+# /include/
+/include/boost
+/include/boost-trunk
+/include/asio
+/include/asio-cvs
+/include/logging
+
+# tempfiles
+Bindings/C++/Publisher
+Bindings/C++/Publisher-*
+Bindings/C++/Subscriber
+Bindings/C++/Subscriber-*
+Bindings/C++/Subscriber-*
+tools/ech-awds
+tools/ech-awds-*
+
