@@ -103,7 +103,7 @@ namespace famouso {
 
                         // find the attributes of subsciber
                         for (SubscriberList::iterator it2 = _clients->begin(); it2 != _clients->end(); it2++)
-                            if (it2->client == it->client){
+                            if (it2->client == it->client) {
                                 subA = it2->attribs;
                                 break; // we dont need to loop the rest
                             }
@@ -128,7 +128,7 @@ namespace famouso {
 
                     // remove client from client list
                     for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++)
-                        if (it->client == client){
+                        if (it->client == client) {
                             _clients->erase(it);
                             break; // we don't nee to loop the rest
                         }
@@ -182,10 +182,10 @@ namespace famouso {
                         for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
 
                             // client is registered to subject, so unregister it
-                            if (it2->client == client){
-                               it->second->erase(it2);
-                               // client could not be registered more than on time
-                               break;
+                            if (it2->client == client) {
+                                it->second->erase(it2);
+                                // client could not be registered more than on time
+                                break;
                             }
                         }
                     }
@@ -193,6 +193,16 @@ namespace famouso {
 
                 void ClientRepository::maxAge(int age) {
                     _maxAge = age;
+                }
+
+                void ClientRepository::update(AWDSClient::type client, Attributes::type attribs) {
+                    // look for a client with specified mac
+                    for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++) {
+                        if (client == it->client) {
+                            it->attribs = attribs;
+                            break;
+                        }
+                    }
                 }
             } /* awds */
         } /* nl */
