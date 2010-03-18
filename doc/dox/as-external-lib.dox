@@ -61,8 +61,9 @@ FAMOUSO_CONFIG = linux
    \par
         - linux
         - linux/openwrt
-        - windows/cross-mingw
-        - windows/native-mingw
+        - windows/mingw-cross
+        - windows/mingw-native
+        - windows/cygwin
         - avr
 
    If you don't define the variable the current value from

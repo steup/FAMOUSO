@@ -11,8 +11,9 @@ FAMOUSO_INSTALLDIR = ../..
 # supported platforms:
 #     -linux
 #     -linux/openwrt
-#     -windows/cross-mingw
-#     -windows/native-mingw
+#     -windows/mingw-cross
+#     -windows/mingw-native
+#     -windows/cygwin
 #     -avr
 #
 # e.g. FAMOUSO_CONFIG= linux
