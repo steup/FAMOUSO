@@ -83,7 +83,7 @@ the normal g++ compiler a cross-compiler for the used Micro-Controller.
 
 
 
-\section general_build Compiling FAMOUSO in generall
+\section general_build Compiling FAMOUSO in general
 
 %FAMOUSO can be built via two different ways. However, it is recommended using
 the first way if you want compiling for one platform only. The second
