@@ -128,9 +128,9 @@ debian:
 deb: all debian
 	@debuild
 
-#depend: $(DEPENDDIR) $(DEPSPRE)
+depend: $(DEPENDDIR) $(DEPSPRE)
 
-#ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
-#-include $(DEPENDDIR)/*
-#endif
+ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
+-include $(DEPENDDIR)/*
+endif
 

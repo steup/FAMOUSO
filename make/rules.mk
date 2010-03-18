@@ -79,8 +79,8 @@ $(DEPENDDIR)/%.d : %.cc
 	@sed -i -e '$$s/\ \\//' $@
 
 # rule for creating the depend file and
-# # for linking the application and give it
-# # the correct name dependend of the platform
+# for linking the application and give it
+# the correct name dependend of the platform
 %:%.cc
 	@$(RULEECHO) ; \
     $(CXX) -MM $(CXXFLAGS) $< -o $@-$(MACHINETYPE)-$(GCCVERSION).d ;
