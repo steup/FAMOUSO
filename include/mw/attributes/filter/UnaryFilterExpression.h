@@ -49,12 +49,12 @@ namespace famouso {
 
 
                 /*! \brief  UnaryFilterExpression defines an unary lambda
-                 *          filter-expression that is direct callable via
+                 *          filter-expression that is directly callable via
                  *          the overloaded function call operator.
                  *
                  *          It is a runtime construct. It is used to wrap
                  *          template filter-constructs, allowing to call this
-                 *          via usual function call syntag. Furthermore, it
+                 *          via usual function call syntax. Furthermore, it
                  *          is used with overloaded  operators to form lambda
                  *          filter-expressions.
                  *

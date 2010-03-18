@@ -47,7 +47,7 @@ namespace famouso {
 
 
                 /*! \brief  BinaryFilterExpression defines a binary %filter
-                 *          lambda expression that is direct callable via
+                 *          lambda expression that is directly callable via
                  *          the overloaded function call operator.
                  *
                  *          It is a runtime construct used with overloaded
