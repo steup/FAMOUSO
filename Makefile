@@ -119,9 +119,9 @@ properclean: distclean
 	@rm -rf $(EXTERNALSDIR)/boost*
 	@rm -rf $(EXTERNALSDIR)/include
 
-depend: $(DEPENDDIR) $(DEPSPRE)
+#depend: $(DEPENDDIR) $(DEPSPRE)
 
-ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
--include $(DEPENDDIR)/*
-endif
+#ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
+#-include $(DEPENDDIR)/*
+#endif
 

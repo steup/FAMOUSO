@@ -40,8 +40,9 @@
 ifeq ($(CONFIG),)
 CONFIG=linux
 #CONFIG=linux/openwrt
-#CONFIG=windows/cross-mingw
-#CONFIG=windows/native-mingw
+#CONFIG=windows/mingw-cross
+#CONFIG=windows/mingw-native
+#CONFIG=windows/cygwin
 #CONFIG=avr
 endif
 
@@ -51,7 +52,10 @@ COMPILER=$(word 2, $(subst /, ,$(FAMOUSO_CONFIG)))
 PLATFORM=$(word 1, $(subst /, ,$(FAMOUSO_CONFIG)))
 EXTENSION=$(subst /,.,$(FAMOUSO_CONFIG))
 
+ifeq ($(COMPILER),)
+COMPILER=unspecified
+endif
+
 #$(info EX $(EXTENSION))
 #$(info Compiler $(COMPILER))
 #$(info PLatform $(PLATFORM))
-

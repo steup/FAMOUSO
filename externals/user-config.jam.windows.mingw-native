@@ -1,0 +1,6 @@
+using gcc : : gcc ; 
+toolset.add-requirements
+   <toolset>gcc:<target-os>windows
+   <toolset>gcc:<threadapi>win32 ;
+
+

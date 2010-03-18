@@ -33,14 +33,14 @@
 ##    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
 ##
-## $Id$
+## $Id: gcc.mk 1510 2010-02-02 07:18:58Z mschulze $
 ##
 ################################################################################
 
 CC		= gcc
 CXX		= g++
 AR		= ar
-ARFLAGS	= ru
-RANLIB	= ranlib
-LD		= ld
+ARFLAGS		= ru
+RANLIB		= ranlib
+LD		= $(CXX)
 AS		= as

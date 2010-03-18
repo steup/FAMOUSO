@@ -37,11 +37,8 @@
 ##
 ################################################################################
 
-CC		= gcc
-CXX		= g++
-AR		= ar
-ARFLAGS	= ru
-RANLIB	= ranlib
-LD		= $(CXX)
-AS		= as
+# additional taging of the boost thread lib if it is
+# cross-compiled as it is always the case in our
+# development system
+THREADTAG=_win32
 

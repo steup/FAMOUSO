@@ -45,7 +45,7 @@ this_makefile_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 INSTALLDIR := $(patsubst %/make/,%,$(this_makefile_dir))
 endif
 
-ifneq ($(shell test -f $(INSTALLDIR)/make/config.mk && echo success), success)
+ifeq ($(wildcard $(INSTALLDIR)/make/config.mk),)
 # INSTALLDIR is defined wrong
 $(info )
 $(info The INSTALLDIR you gave to FAMOUSO's make-system is wrong. The make-system  )
@@ -62,16 +62,19 @@ endif
 #
 # Definition des Targets und zusaetzlicher Einstellungen lesen
 include $(INSTALLDIR)/make/config.mk
-include $(INSTALLDIR)/make/tags.mk
 
 # einige Definition lesen, die immer gelten
 include $(INSTALLDIR)/make/global.mk
 include $(INSTALLDIR)/make/sources.mk
 
+#default compiler definition
+include $(INSTALLDIR)/make/buildtools.mk
+
 # Definition lesen, die fuer spezielle Targets gelten
 -include $(INSTALLDIR)/make/$(PLATFORM)/defs.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/sources.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/defs.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/tags.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/additional_defs.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/sources.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
 
