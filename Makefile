@@ -1,6 +1,7 @@
 ################################################################################
 ##
 ## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+##               2009-2010 Michael Kriese <kriese@cs.uni-magdeburg.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -65,7 +66,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 
 # --------------------------------------------------------------------------
 # Definition der Targets
-.PHONY: all clean doc
+.PHONY: all clean doc deb
 
 all: $(LIBDIR) $(MODULEDIR) $(DEPENDDIR) $(EXTERNALS) depend $(LIBFAMOUSO)
 
@@ -113,11 +114,19 @@ distclean:
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
 	@make -C $(EXTERNALSDIR)/AVR distclean
+	@debuild clean
+	@rm -f $(INSTALLDIR)/debian
 
 properclean: distclean
 	@rm -rf $(EXTERNALSDIR)/Boost
 	@rm -rf $(EXTERNALSDIR)/boost*
 	@rm -rf $(EXTERNALSDIR)/include
+
+debian:
+	ln -f -s $(INSTALLDIR)/tools/debian $(INSTALLDIR)/debian
+
+deb: all debian
+	@debuild
 
 #depend: $(DEPENDDIR) $(DEPSPRE)
 

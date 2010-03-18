@@ -1,0 +1,26 @@
+Source: famouso
+Section: net
+Priority: extra
+Maintainer: Michael Kriese (FIN) <kriese@cs.uni-magdeburg.de>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.1
+Homepage: http://famouso.sf.net
+
+Package: famouso
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Famouso Middleware
+ FAMOUSO is a publish/subscribe middleware that readopts, substantiates and
+ refines the ideas and concepts of its predecessor COSMIC (COoperating SMart
+ devICes). Additionally, FAMOUSO provides much more features like adaptation to
+ a specific platform or the generic gateway architecture.
+
+Package: famouso-dev
+Section: devel
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Famouso Middleware devel files
+ FAMOUSO is a publish/subscribe middleware that readopts, substantiates and
+ refines the ideas and concepts of its predecessor COSMIC (COoperating SMart
+ devICes). Additionally, FAMOUSO provides much more features like adaptation to
+ a specific platform or the generic gateway architecture.
