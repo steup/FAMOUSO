@@ -106,7 +106,7 @@ include ./make/externals.mk
 clean:
 	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR)
 
-distclean:
+distclean: debian
 	@rm -rf $(LIBBASE) $(MODDIRBASE) $(DEPDIRBASE)
 	@rm -rf ./doc/html
 	@rm -rf ./doc/www/docu
