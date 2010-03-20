@@ -45,9 +45,9 @@ BIN=$(DESTDIR)/usr/bin
 LIB=$(DESTDIR)/usr/lib/famouso
 INC=$(DESTDIR)/usr/include/famouso
 
-debian-all: all debian-build
+debian-all: debian-build
 
-debian-build:
+debian-build: all
 	$(MAKE) -C ECHs ech-awds
 	$(MAKE) -C tst/experiments/QoS Publisher
 	$(MAKE) -C tst/experiments/QoS Subscriber
@@ -68,7 +68,7 @@ debian-install: debian-build
 		install -D include/$$h $(INC)/$$h; \
 	done
 
-debian-clean: clean
+debian-clean: properclean
 	$(MAKE) -C ECHs clean
 	$(MAKE) -C tst/experiments/QoS clean
 

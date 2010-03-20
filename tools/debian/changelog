@@ -1,9 +1,10 @@
 famouso (0.5.2) unstable; urgency=low
 
   * Attributes check implemented
-  * Updated sources
+  * Updated sources 
+  * Updated Boost to 1.42
 
- -- Michael Kriese (FIN) <kriese@cs.uni-magdeburg.de>  Wed, 10 Mar 2010 14:05:22 +0100
+ -- Michael Kriese (FIN) <kriese@cs.uni-magdeburg.de>  Sat, 20 Mar 2010 12:15:17 +0100
 
 famouso (0.5.1) unstable; urgency=low
 

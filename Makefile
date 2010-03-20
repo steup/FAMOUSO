@@ -66,7 +66,7 @@ DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
 
 # --------------------------------------------------------------------------
 # Definition der Targets
-.PHONY: all clean doc deb
+.PHONY: all clean doc deb deb-clean
 
 all: $(LIBDIR) $(MODULEDIR) $(DEPENDDIR) $(EXTERNALS) depend $(LIBFAMOUSO)
 
@@ -106,7 +106,7 @@ include ./make/externals.mk
 clean:
 	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR)
 
-distclean: debian
+distclean:
 	@rm -rf $(LIBBASE) $(MODDIRBASE) $(DEPDIRBASE)
 	@rm -rf ./doc/html
 	@rm -rf ./doc/www/docu
@@ -114,8 +114,6 @@ distclean: debian
 	@find . -name \*~ -exec rm -f {} \;
 	@find . -name "#*#" -exec rm -f {} \;
 	@make -C $(EXTERNALSDIR)/AVR distclean
-	@debuild clean
-	@rm -f $(INSTALLDIR)/debian
 
 properclean: distclean
 	@rm -rf $(EXTERNALSDIR)/Boost
@@ -123,10 +121,14 @@ properclean: distclean
 	@rm -rf $(EXTERNALSDIR)/include
 
 debian:
-	ln -f -s $(INSTALLDIR)/tools/debian $(INSTALLDIR)/debian
+	ln -f -s ./tools/debian $(INSTALLDIR)/debian
 
-deb: all debian
-	@debuild
+deb: debian
+	@debuild -i -I
+
+deb-clean: debian
+	@debuild clean
+	@rm -f $(INSTALLDIR)/debian
 
 depend: $(DEPENDDIR) $(DEPSPRE)
 
