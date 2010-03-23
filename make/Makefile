@@ -73,6 +73,7 @@ include $(INSTALLDIR)/make/buildtools.mk
 # Definition lesen, die fuer spezielle Targets gelten
 -include $(INSTALLDIR)/make/$(PLATFORM)/defs.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/sources.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/gcc.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/tags.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/additional_defs.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/sources.mk
