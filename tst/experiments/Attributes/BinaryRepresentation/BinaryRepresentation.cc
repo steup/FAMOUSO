@@ -89,7 +89,6 @@ void testBitCount__() {
 
 int main() {
 
-	/*
 	testBitCount__<0x0>();
 	testBitCount__<0x1>();
 	testBitCount__<0xFF>();
@@ -134,13 +133,18 @@ int main() {
 	testBitCount<int64_t, -0xFFFF>();
 	testBitCount<int64_t, 0xFFFFFF>();
 	testBitCount<int64_t, -0xFFFFFF>();
-	*/
 
-	a8 a;
+	//a8 a;
 
-	DBG_MSG(a.get());
+	//DBG_MSG(a.get());
 
-	::logging::log::emit() << "Finished." << ::logging::log::endl;
+	//::logging::log::emit() << "Finished." << ::logging::log::endl;
+    
+    int8_t i = -0x1;
+
+    uint64_t u = static_cast<uint64_t>(i);
+
+    DBG_MSG(static_cast<int16_t>(i) << " " << ::logging::log::bin << u);
 }
 
 /*

@@ -34,7 +34,7 @@
  *    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *
- * $Id:
+ * $Id$
  *
  ******************************************************************************/
 
@@ -48,36 +48,48 @@
 #include "boost/mpl/plus.hpp"
 
 template <typename ValueType, ValueType Value>
-struct BitCount {
-	static const uint16_t value = (1 + BitCount<ValueType, (Value >> 1)>::value);
+struct BitCount{
+    typedef ValueType value_type;
+    typedef boost::mpl::integral_c_tag tag;
+    typedef BitCount type;
+    static const uint16_t value = boost::mpl::eval_if_c<
+                                            Value != 0,
+	                                        boost::mpl::plus<
+                                                BitCount<ValueType, (Value >> 1)>,
+                                                boost::mpl::int_<1>
+                                            >,
+                                            boost::mpl::int_<0>
+                                          >::type::value;
 };
-template <>
-struct BitCount<uint8_t, 0> {
-	static const uint16_t value = 0;
-};
-template <>
-struct BitCount<uint16_t, 0> {
-	static const uint16_t value = 0;
-};
-template <>
-struct BitCount<uint32_t, 0> {
-	static const uint16_t value = 0;
-};
-template <>
-struct BitCount<uint64_t, 0> {
-	static const uint16_t value = 0;
-};
+
+//template <>
+//struct BitCount<uint8_t, 0> {
+//	static const uint16_t value = 0;
+//};
+//template <>
+//struct BitCount<uint16_t, 0> {
+//	static const uint16_t value = 0;
+//};
+//template <>
+//struct BitCount<uint32_t, 0> {
+//	static const uint16_t value = 0;
+//};
+//template <>
+//struct BitCount<uint64_t, 0> {
+//	static const uint16_t value = 0;
+//};
+
 template <int8_t Value>
 struct BitCount<int8_t, Value> {
-	static const uint16_t value = (Value < 0) ? (sizeof(int8_t) * 8) : BitCount<uint8_t, static_cast<uint8_t>(Value)>::value;
+	static const uint16_t value = (Value < 0) ? (sizeof(int8_t) * 8) : BitCount<uint64_t, static_cast<uint64_t>(Value)>::value;
 };
 template <int16_t Value>
 struct BitCount<int16_t, Value> {
-	static const uint16_t value = (Value < 0) ? (sizeof(int16_t) * 8) : BitCount<uint16_t, static_cast<uint16_t>(Value)>::value;
+	static const uint16_t value = (Value < 0) ? (sizeof(int16_t) * 8) : BitCount<uint64_t, static_cast<uint64_t>(Value)>::value;
 };
 template <int32_t Value>
 struct BitCount<int32_t, Value> {
-	static const uint16_t value = (Value < 0) ? (sizeof(int32_t) * 8) : BitCount<uint32_t, static_cast<uint32_t>(Value)>::value;
+	static const uint16_t value = (Value < 0) ? (sizeof(int32_t) * 8) : BitCount<uint64_t, static_cast<uint64_t>(Value)>::value;
 };
 template <int64_t Value>
 struct BitCount<int64_t, Value> {

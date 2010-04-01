@@ -34,7 +34,7 @@
  *    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *
- * $Id:
+ * $Id$
  *
  ******************************************************************************/
 
@@ -61,9 +61,9 @@ struct ValueBitCount {
 };
 
 union AttributeElementHeader {
-		enum {
-				nonSystemCategory = 0xF
-		};
+	enum {
+        nonSystemCategory = 0xF
+	};
 
     // For system attributes
     struct {

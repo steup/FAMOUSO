@@ -34,7 +34,7 @@
  *    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *
- * $Id:
+ * $Id$
  *
  ******************************************************************************/
 
@@ -165,6 +165,6 @@ Attr* find(const uint8_t* data) {
 	return (reinterpret_cast<Attr*>(NULL));
 }
 
-};
+}
 
 #endif
