@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -67,12 +68,14 @@ LOGGING_DISABLE_LEVEL(::logging::Info);
 #include <stdlib.h>
 
 /*!
- * \brief Default assert handler
+ * \brief Default FAMOUSO_ASSERT handler
  * \param expr Expression evaluated to false
  * \param file File which contains assert
  * \param line Line which contains assert
+ *
+ * Writes error message to ::logging::log
  */
-static inline void __assert_failed_handler(const char * expr, const char * file, int line) {
+static inline void __famouso_assert_failed_handler(const char * expr, const char * file, int line) {
     using ::logging::log;
     log::emit() << file << ":" << log::dec << line << ": Assertion '" << expr << "' failed." << log::endl;
     abort();
@@ -84,16 +87,13 @@ static inline void __assert_failed_handler(const char * expr, const char * file,
  * This preprocessor symbol may be defined before including
  * debug.h to overwrite the default assert handler function.
  */
-#define ASSERT_FAILED_HANDLER ::__assert_failed_handler
+#define FAMOUSO_ASSERT_FAILED_HANDLER ::__famouso_assert_failed_handler
 
 #endif
 
-#undef assert
-#undef assert_only_def
-
 #if defined(NDEBUG)
-#define assert(expr)
-#define assert_only_def(var_def)
+#define FAMOUSO_ASSERT(expr)
+#define FOR_FAMOUSO_ASSERT_ONLY(code)
 #else
 
 /*!
@@ -114,23 +114,24 @@ static inline void __assert_failed_handler(const char * expr, const char * file,
  * It should never return if you are not interested in undefined
  * behaviour.
  * To get your handler called on assertion failure define the preprocessor
- * symbol ASSERT_FAILED_HANDLER before including debug.h:
- * \code #define ASSERT_FAILED_HANDLER foobar \endcode
+ * symbol FAMOUSO_ASSERT_FAILED_HANDLER before including debug.h:
+ * \code #define FAMOUSO_ASSERT_FAILED_HANDLER foobar \endcode
  */
-#define assert(expr) ((expr) ? ((void)0) : ASSERT_FAILED_HANDLER (#expr, __FILE__, __LINE__))
+#define FAMOUSO_ASSERT(expr) ((expr) ? ((void)0) : FAMOUSO_ASSERT_FAILED_HANDLER (#expr, __FILE__, __LINE__))
 
 /*!
- * \brief Define local variable only used with assert test
- * \param var_def Definition of a variable
+ * \brief Declare code to be needed only for FAMOUSO_ASSERT
+ * \param code Definition or assignment of a variable (or something else),
+ *             only used by assert test.
  *
  * Use this to define variables with meaningful names to
  * to get better assert messages while avoiding the
  * 'unused variable' warning in NDEBUG case.
  *
- * Evaluates to var_def if NDEBUG is not defined.
+ * Evaluates to \c code if NDEBUG is not defined.
  * Evaluates to nothing if NDEBUG is defined.
  */
-#define assert_only_def(var_def) var_def
+#define FOR_FAMOUSO_ASSERT_ONLY(code) code
 
 #endif
 

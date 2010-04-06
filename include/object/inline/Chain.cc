@@ -65,7 +65,7 @@ inline void Chain::select(Chain* item) {
 // Detach next item from this chain instance.
 //
 inline void Chain::detach() {
-    assert(select());
+    FAMOUSO_ASSERT(select());
     select(select()->select());
 }
 

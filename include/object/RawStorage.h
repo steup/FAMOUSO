@@ -134,7 +134,7 @@ namespace object {
 
                     // If this assert fails there is a bug in this code or a buffer overflow
                     // in the code using the memory.
-                    assert(curr_ai == size);
+                    FAMOUSO_ASSERT(curr_ai == size);
 
                     // No block fits
                     return 0;
@@ -163,7 +163,7 @@ namespace object {
 
                 // If this assert fails there is a bug in this code or a buffer overflow
                 // in the code using the memory.
-                assert(*prev_ai_na_p == size);
+                FAMOUSO_ASSERT(*prev_ai_na_p == size);
 
                 return 0;
             }
@@ -231,7 +231,7 @@ namespace object {
                 SizeT * next_allocated = find_allocated_block(p);
 
                 // Check if we found a block (if pointer p is valid)
-                assert_only_def(bool valid_pointer = next_allocated);
+                FOR_FAMOUSO_ASSERT_ONLY(bool valid_pointer = next_allocated);
 #ifdef RAWSTORAGE_LOG_USAGE
                 if (!valid_pointer) {
                     ::logging::log::emit() << "RawStorage: free address "
@@ -240,7 +240,7 @@ namespace object {
                     << ::logging::log::endl;
                 }
 #endif
-                assert(valid_pointer);
+                FAMOUSO_ASSERT(valid_pointer);
 
                 // Alloc info to be freed... do not overwrite it
                 AllocInfo * ai_to_free = get_ai(*next_allocated);
@@ -313,7 +313,7 @@ namespace object {
                     curr_ai = ai->next_allocated;
                     ai = get_ai(curr_ai);
                 }
-                assert(curr_ai == size);
+                FAMOUSO_ASSERT(curr_ai == size);
 
                 ::logging::log::emit() << ::logging::log::endl;
             }
