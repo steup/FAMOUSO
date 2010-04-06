@@ -166,6 +166,106 @@ namespace object {
     };
 
 
+    /*!
+     * \brief Pseudo-allocator supporting only one allocation
+     * \tparam tag Type not used for internal purposes but to allow multiple
+     *             OneBlockAllocators. Allocators with the same
+     *             tag share one buffer (implemented as singleton).
+     * \tparam mem_size Maximum allocateble size
+     * \see object/Allocator.h
+     */
+    template <class tag, uint64_t mem_size>
+    class OneBlockAllocator {
+
+            struct Buffer {
+                FOR_FAMOUSO_ASSERT_ONLY(bool allocated);
+                uint8_t data[mem_size];
+
+                typedef typename SmallestUnsignedTypeSelector<mem_size>::type SizeT;
+
+                Buffer() FOR_FAMOUSO_ASSERT_ONLY(: allocated(false)) {
+                }
+
+                uint8_t * alloc(SizeT n) {
+                    if (!n || n > mem_size)
+                        return 0;
+                    else {
+                        FAMOUSO_ASSERT(!allocated);
+                        FOR_FAMOUSO_ASSERT_ONLY(allocated = true);
+                        return data;
+                    }
+                }
+
+                void free(uint8_t *) {
+                    FAMOUSO_ASSERT(allocated);
+                    FOR_FAMOUSO_ASSERT_ONLY(allocated = false);
+                }
+            };
+
+        public:
+
+            /// Type used for allocation sizes
+            typedef typename Buffer::SizeT SizeT;
+
+        protected:
+
+            /// Singleton instance of Buffer
+            static Buffer & instance() {
+                static Buffer buffer;
+                return buffer;
+            }
+
+        public:
+
+            /*!
+             * \brief Allocate raw memory (no constructor call)
+             * \param bytes Number of bytes to allocate
+             * \return Pointer to uninitialized allocated memory or NULL on error.
+             */
+            static uint8_t * alloc(SizeT bytes) {
+                return instance().alloc(bytes);
+            }
+
+            /*!
+             * \brief Free memory previously allocated by alloc()
+             * \param p Pointer to memory to free
+             */
+            static void free(uint8_t * p) {
+                instance().free(p);
+            }
+
+            /*!
+             * \brief Allocate array (no constructor call)
+             * \tparam T Array element type
+             * \param num Number of T items to allocate
+             * \return Pointer to uninitialized allocated memory or NULL on error.
+             */
+            template <typename T>
+            static T * alloc_array(SizeT num) {
+                return reinterpret_cast<T *>(alloc(sizeof(T) * num));
+            }
+
+            /*!
+             * \brief Free array previously allocated by alloc_array()
+             * \param p Pointer to memory to free
+             * \note Does not call destuctors!
+             */
+            template <typename T>
+            static void free_array(T * p) {
+                return free(reinterpret_cast<uint8_t *>(p));
+            }
+
+            /*!
+             * \brief Destruct and free %object previously allocated by allocator new
+             * \param p Pointer to %object to free
+             */
+            template <typename T>
+            static void destroy(T * p) {
+                p->~T();
+                free(reinterpret_cast<uint8_t *>(p));
+            }
+    };
+
 #ifndef __AVR__
     /*!
      * \brief Allocator using standard C++ new and delete operators

@@ -1,0 +1,170 @@
+/*!
+
+\page afp Adaptive Fragmentation Protocol
+
+Basic concept by Michael Schulze. Details and implementation by Philipp Werner.
+
+\section afp__intro Introduction
+
+The %famouso middleware offers publish/subscribe communication via various networks, but with one unique API. Because events may contain more data than the maximum transmission unit of the underlying network allows, we need a fragmentation concept. AFP is a fragmentation protocol that is does not depend on an underlying network type, but can be adapted to fit the network's characteristics:
+
+- maximum payload of an underlying network's packet (CAN: 8 Bytes, UDP-MultiCast: 8184 Bytes)
+- whether packets may be lost in the channel (send A; never receive A)
+- whether order of packet may change in the channel (send A, send B; receive B, receive A)
+- whether packets may be duplicated in the channel (send A; receive A, receive A)
+
+AFP is also adaptable to other requirements. You may...
+
+- reduce resource consumption for resource-constrained embedded platforms
+- instruct AFP to add redundancy for forward error correction
+- instruct AFP to collect statistics about defragmented events and fragments
+
+AFP follows policy-based design principles to achieve the adaption at compile time. Thus you configure the AFP by selecting policies concerning network characteristics and the other requirements. The MTU and the FEC redundancy quota may be adapted at run time.
+
+AFP is used in the abstract network layer of the %famouso middleware by default (not yet) and may be utilized in the application layer as well.
+
+At the moment AFP supports only one publisher per subject. If multiple publishers' events need to be fragmented, AFP cannot guarantee correct reconstruction of the events.
+
+\subpage afp_header
+*/
+
+//-----------------------------------------------------------------------------
+
+/*!
+
+\page afp_header AFP header desciption
+
+The information needed to reconstruct events from fragments is encoded in the AFP header. The header is optimized for size to be usable as well for network protocols with low payload, like CAN, while keeping header length constant for all fragments of an event.
+
+The AFP header consists of one to multiple sub-headers, depending on the AFP configuration used. The \ref afp_header_basic is always part of the AFP header. It may be followed by one or multiple \ref afp_header_extension .
+
+Numbers are encoded in network byteorder. All fragments execpt the last event data fragment occupy the complete MTU, only this one may be smaller.
+
+
+\section afp_header_basic Basic Fragment Header
+
+The length of the basic AFP header depends of the number of fragments. It's the minimum length necessary to encode the biggest fragment sequence number.
+
+The header contains whether there are extension headers behind the basic header, if the current fragment is the first fragment of an event and the fragment sequence number. The fragment sequence number specifies how many fragments follow behind the current fragment. Thus it's downcounting from fragment_count-1 to 0. The length of the fragment sequence number is encoded in front of it by the number of '1' bits delimeted by a '0' bit.
+
+<table>
+	<tr>
+		<th>Header Bits</th>
+		<th># Bytes Header</th>
+		<th># Bits of fragment sequence number (s)</th>
+	</tr>
+	<tr>
+		<td>ef0s ssss</td>
+		<td>1</td>
+		<td>5</td>
+	</tr>
+	<tr>
+		<td>ef10 ssss | ssss ssss</td>
+		<td>2</td>
+		<td>12</td>
+	</tr>
+	<tr>
+		<td>ef11 0sss | ssss ssss | ssss ssss</td>
+		<td>3</td>
+		<td>19</td>
+	</tr>
+	<tr>
+		<td>ef11 10ss | ssss ssss | ssss ssss | ssss ssss</td>
+		<td>4</td>
+		<td>26</td>
+	</tr>
+	<tr>
+		<td>ef11 110s | ssss ssss | ssss ssss | ssss ssss | ssss ssss</td>
+		<td>5</td>
+		<td>33</td>
+	</tr>
+</table>
+
+- e: extension header?
+- f: first fragment?
+- ssss ....: fragment sequence number = how many fragments will be there behind this fragment (downcounting to zero)
+
+
+
+\section afp_header_extension Extension headers
+
+Both impelented extension headers start with a zero bit followed by a bit that indicates whether there is one more extension header behind the current header and a zero bit that selects implicit size coding. The remaining bits of the first byte selects the header type.
+
+In this implementation all fragments of an event must have the same extension headers and use implicit size coding.
+
+
+
+\subsection afp_header_extension_eseq Event Sequence Numbers
+
+Event sequence numbers are not used to guarantee any order in delivery of events, but only to distinguish between events in networks with packet loss, reordering or duplicates during defragmentation overlapping in time.
+
+Currently AFP supports only 32 bit event sequence numbers.
+
+
+<table>
+	<tr>
+		<th>Header Bits</th>
+		<th># Bytes Header</th>
+		<th># Bits of event sequence number (s)</th>
+	</tr>
+	<tr>
+		<td>0e0<b>0 0000</b> | ssss ssss | ssss ssss | ssss ssss | ssss ssss</td>
+		<td>5</td>
+		<td>32</td>
+	</tr>
+</table>
+
+- e: one more extension header?
+- ssss ....: event sequence number (unique for one publisher for a long time)
+
+
+
+\subsection afp_header_extension_fec Forward Error Correction
+
+AFP provides forward error correction to provide the possibility to increase reliability of event delivery in face of packet loss. For this purpose it uses a block oriented erasure code based on Vandermonde matrices. The current AFP implementation utilizes a FEC library written by Luigi Rizzo that can be found at <a href="http://info.iet.unipi.it/~luigi/fec.html">http://info.iet.unipi.it/~luigi/fec.html</a>. 
+
+To increase the propability that an event consisting of \c k fragments can be reconstructed in face of packet loss, \c (n-k) fragments are added that consist of redundancy information.
+The FEC code used is able to reconstruct the message even if \c (n-k) arbitrary fragments are lost.
+
+The number of event data fragments \c k is included in the FEC header, because this information is only in the \ref afp_header_basic of the first fragment of an event which may be lost.
+
+The header also contains the redundancy quota \c r in percent. It is used to calculate the total number of fragments \c n (sum of event data and redundancy fragment count).
+
+<tt>n = (k * r) / 100 + k</tt>
+
+It has to be calculated using integer arithmetics. The quotient <tt>(k * r) / 100</tt> is an integer devision rounding up.
+
+The header also contains the length of the last non-redundancy (event data) fragment \c  \c ll. In case this fragment is lost we need the information to find out the total length of the reconstructed event.
+
+
+<table>
+	<tr>
+		<th>Header Bits</th>
+		<th># Bytes Header</th>
+	</tr>
+	<tr>
+		<td>0e0<b>1 1001</b> | rrrr rrrr | kkkk kkkk | kkkk kkkk | kkkk kkkk | kkkk kkkk | llll llll | llll llll</td>
+		<td>8</td>
+	</tr>
+	<tr>
+		<td>0e0<b>1 0101</b> | rrrr rrrr | kkkk kkkk | kkkk kkkk | llll llll | llll llll<br><i>Not implemented yet.</i></td>
+		<td>6</td>
+	</tr>
+	<tr>
+		<td>0e0<b>1 0000</b> | rrrr rrrr | kkkk kkkk | llll llll<br><i>Not implemented yet.</i></td>
+		<td>4</td>
+	</tr>
+</table>
+
+- e: one more extension header?
+- rrrr rrrr: redundancy in %
+- kkkk ...: # data / non-redundancy fragments
+- llll ...: length of last data / non-redundancy fragment
+
+
+
+\subsection afp_header_extension_other Others
+
+There may be future extensions.
+
+ */
