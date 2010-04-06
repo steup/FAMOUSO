@@ -59,7 +59,7 @@
 #include "find_.h"
 
 /*!
- * /brief Represents an attribute sequence header which simply
+ * \brief Represents an attribute sequence header which simply
  *  provides a binary representation for the sequence's size,
  *  i.e. the number of elements (attributes in this case) which
  *  are contained.
@@ -72,7 +72,7 @@
  *  next byte) represent the size. In this case sizes up to 32.768
  *  are possible.
  *
- * /tparam seqSize The size which should be represented
+ * \tparam seqSize The size which should be represented
  */
 template <uint16_t seqSize>
 struct SequenceHeaderWriter {
@@ -140,15 +140,15 @@ struct SequenceHeaderWriter {
 };
 
 /*!
- * /brief Represents a sequence of attributes in binary representation
+ * \brief Represents a sequence of attributes in binary representation
  *
  *
  *
- * /tparam AttrSeq The sequence of attributes, the sequence elements
+ * \tparam AttrSeq The sequence of attributes, the sequence elements
  *  should be derived from EmptyAttribute, see this struct's description
  *  for requirements concerning an attribute type
  *
- * /tparam Iter The iterator pointing to the current element of the
+ * \tparam Iter The iterator pointing to the current element of the
  *  attribute sequence, should always be left to the default value from
  *  outside
  */
@@ -187,13 +187,13 @@ struct AttribSequence {
 
 	public:
 		/*!
-		 * /brief This type
+		 * \brief This type
 		 */
 		typedef AttribSequence type;
 
 		enum {
 			/*!
-			 * /brief The size of the complete attribute sequence in binary representation
+			 * \brief The size of the complete attribute sequence in binary representation
 			 *
 			 * This includes the sequence header and every single attribute contained in
 			 *  the sequence.
@@ -214,7 +214,7 @@ struct AttribSequence {
 		};
 
 		/*!
-		 * /brief The member array containing the complete attribute sequence
+		 * \brief The member array containing the complete attribute sequence
 		 *
 		 * This should only be accessed with no specific iterator (i.e. the iterator
 		 *  pointing to first sequence element) given in the type argument list.
@@ -224,7 +224,7 @@ struct AttribSequence {
 		uint8_t data[overallSize];
 
 		/*!
-		 * /brief Constructor creating the binary representation of the attribute sequence
+		 * \brief Constructor creating the binary representation of the attribute sequence
 		 *  into its member array.
 		 *
 		 * Since this class is a recursive structure, the constructor only creates the
@@ -250,9 +250,6 @@ struct AttribSequence {
 			//  the ValueOffsetCalculator for an explanation of the possible binary structures
 			//  of an attribute)
 
-			// TODO: This is the main construction site when the attribute class itself contains
-			//  the header...
-
 			// Construct the current attribute (This is done by instantiating the current
 			//  attribute type into the member array at the correct offset, the correct resulting
 			//  offset is calculated by the ValueOffsetCalculator since the attribute itself should
@@ -267,19 +264,34 @@ struct AttribSequence {
 		}
 
 	private:
+		template <typename T>
+		static void printValue(const T& value) {
+			::logging::log::emit() << value;
+		}
+
+		static void printValue(const uint8_t& value) {
+			::logging::log::emit() << static_cast<uint16_t>(value);
+		}
+
+		static void printValue(const int8_t& value) {
+			::logging::log::emit() << static_cast<int16_t>(value);
+		}
+
 		template <typename S, typename I = typename boost::mpl::begin<S>::type>
 		struct Printer {
 			typedef boost::mpl::deref<I> attrType;
 
 			static void print(const uint8_t* data) {
-				::logging::log::emit() << "[ID=" << static_cast<uint16_t>(attrType::type::id) << "|";
+				::logging::log::emit() << "[ID=" << static_cast<uint16_t>(attrType::type::id);
 
 				typename attrType::type* a = find::template find<typename attrType::type>(data);
 
 				if (a == NULL) {
 					::logging::log::emit() << "|NIL]";
 				} else {
-					::logging::log::emit() << "|Val=" << static_cast<typename attrType::type::valueType>(a->get()) << ']';
+					::logging::log::emit() << "|Val=";
+					printValue(a->get());
+					::logging::log::emit() << ']';
 				}
 
 				Printer<S, typename boost::mpl::next<I>::type>::print(data);
@@ -294,7 +306,6 @@ struct AttribSequence {
 		};
 
 	public:
-
 		void printRT() {
 			Printer<AttrSeq>::print(data);
 		}
@@ -305,7 +316,7 @@ struct AttribSequence {
 			}
 
 			::logging::log::emit() << " [A|";
-			::logging::log::emit() << (curAttr::type::isSystem ? "S" : "N");
+			::logging::log::emit() << (curAttr::type::isSystem ? 'S' : 'N');
 			::logging::log::emit() << "|ID:" << (uint16_t) curAttr::type::id;
 			::logging::log::emit() << "|VAL:" << (uint64_t) curAttr::type::value << ']';
 

@@ -78,11 +78,12 @@ union AttributeElementHeader {
 };
 
 /*!
- * Represents the first byte of the header of the given attribute. As
- *  the attribute header in general consists of up to 3 bytes this
- *  struct is not sufficient on its own.
+ * \brief Represents the first byte of the header of the given attribute.
  *
- * /tparam Attr The attribute to calculate the first header byte for
+ * As the attribute header in general consists of up to 3 bytes this
+ *  struct is not sufficient to be used on its own.
+ *
+ * \tparam Attr The attribute to calculate the first header byte for
  */
 template <typename Attr>
 struct FirstByteOfHeader {
@@ -107,7 +108,9 @@ struct FirstByteOfHeader {
 		static const uint8_t case6 = (0xF << catOffset) | (0x1 << extBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x7); // Length fits extended
 
 	public:
-		// value will be on of the 6 cases above depending on the given Attribute
+		/*!
+		 * The first byte of a header for the given attribute.
+		 */
 		static const uint8_t value = CaseSelector<Attr, uint8_t, case1, case2, case3, case4, case5, case6>::value;
 };
 
@@ -125,11 +128,12 @@ struct AttributeHeaderWriter {
 		enum {
 			writeLowerLengthBits     = 0x10,
 			writeType                = 0x11,
-			writeLowerLenBitsAndType = 0x12
+			writeLowerLenBitsAndType = 0x12,
+			nothingMore              = 0x13
 		};
 
 		// We use this to decide in the code below if further bytes must be manipulated
-		static const uint8_t toWrite = CaseSelector<Attr, uint8_t, 0, 0, 0, writeLowerLengthBits, writeType, writeLowerLenBitsAndType>::value;
+		static const uint8_t toWrite = CaseSelector<Attr, uint8_t, nothingMore, nothingMore, nothingMore, writeLowerLengthBits, writeType, writeLowerLenBitsAndType>::value;
 
 		uint8_t data[size];
 
@@ -143,8 +147,6 @@ struct AttributeHeaderWriter {
 			} else {
 				data[0] = (FirstByteOfHeader<Attr>::value);
 			}
-
-			printCase<Attr>();
 
 			// Handle eventually further written bytes (depending on extension, VOL etc.)
 			if (toWrite == writeLowerLengthBits) {

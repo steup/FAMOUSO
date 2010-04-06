@@ -97,7 +97,7 @@ typedef TTL<255> World;
 typedef OmissionDegree<0> None;
 
 typedef ExtendedAttribute<uint8_t,  0x3,       1, true>::type a1;
-typedef ExtendedAttribute<uint8_t,  0x8,       2, true>::type a2;
+typedef ExtendedAttribute<uint8_t,  0x9,       2, true>::type a2;
 typedef ExtendedAttribute<uint16_t, 0x3FF,     3, true>::type a3;
 typedef ExtendedAttribute<uint16_t, 0x4FF,     4, true>::type a4;
 typedef ExtendedAttribute<uint64_t, 0x1FFFFFF, 5, true>::type a5;

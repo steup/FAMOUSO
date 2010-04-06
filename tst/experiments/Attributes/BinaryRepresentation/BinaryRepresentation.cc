@@ -66,85 +66,72 @@ void testFind(const Event& ev) {
 	::logging::log::emit() << ::logging::log::endl;
 }
 
-template <typename T, T V>
-void testBitCount() {
-	const uint16_t bc = BitCount<T, V>::value;
-	const uint16_t bt = ByteCount<T, V>::value;
+template <typename Attr, typename Event>
+void testSet(const Event& ev, const typename Attr::value_type newValue) {
+	printCase<Attr>();
 
-	DBG_MSG(V << " - " << bc << " (" << bt << ')');
-}
+	Attr* a = ev.template find<Attr>();
 
-template <int8_t V>
-void testBitCount_() {
-	const uint16_t bc = BitCount<int8_t, V>::value;
+	if (a != NULL) {
+		TO_HEX;
+		DBG_MSG("Attribute: " << reinterpret_cast<size_t>(a));
 
-	DBG_MSG(static_cast<int16_t>(V) << " - " << bc);
-}
-template <uint8_t V>
-void testBitCount__() {
-	const uint16_t bc = BitCount<uint8_t, V>::value;
-
-	DBG_MSG(static_cast<uint16_t>(V) << " - " << bc);
+		if (a->set(newValue)) {
+			DBG_MSG((uint64_t) newValue << " set successfully, look: " << (uint64_t) a->get());
+		} else {
+			DBG_MSG("Setting value to " << (uint64_t) newValue << " failed!");
+		}
+	} else {
+		DBG_MSG("Attribute with ID " << static_cast<uint16_t>(Attr::id) << " not found!");
+	}
 }
 
 int main() {
+	typedef boost::mpl::list<a1, a2, a3, a4, a5, a6, a7, a8>::type attribList;
+	typedef ExtendedEvent<16, attribList>                          eventType;
 
-	testBitCount__<0x0>();
-	testBitCount__<0x1>();
-	testBitCount__<0xFF>();
+	TO_HEX;
 
+	famouso::mw::Subject sub(0x01);
+
+	eventType ev(sub);
+
+	AttribSequence<attribList>& sequence = *(reinterpret_cast<AttribSequence<attribList>*>(ev.data));
+
+	print(sequence.data, sizeof(sequence.data));
 	DBG_MSG("");
+	sequence.printRT();
 
-	testBitCount<uint16_t, 0x0>();
-	testBitCount<uint16_t, 0xFF>();
-	testBitCount<uint16_t, 0x1FF>();
-	testBitCount<uint16_t, 0xFFFF>();
+	testFind<a1, eventType>(ev);
+	testFind<a2, eventType>(ev);
+	testFind<a3, eventType>(ev);
+	testFind<a4, eventType>(ev);
+	testFind<a5, eventType>(ev);
+	testFind<a6, eventType>(ev);
+	testFind<a7, eventType>(ev);
+	testFind<a8, eventType>(ev);
 
+	testSet<a1, eventType>(ev, 1);
+
+	testSet<a2, eventType>(ev, 2);
+
+	testSet<a3, eventType>(ev, 0xFF);
+	testSet<a3, eventType>(ev, 0xFFF); // Fails, 0xFFF does not fit, 0x3FF is maximum
+
+	testSet<a4, eventType>(ev, 0xFEDC);
+	testSet<a4, eventType>(ev, 0x1);
+
+	testSet<a5, eventType>(ev, 0x1);
+
+	testSet<a6, eventType>(ev, 0x1);
+
+	testSet<a7, eventType>(ev, 0x1);
+
+	testSet<a8, eventType>(ev, -0x1);
+
+	print(sequence.data, sizeof(sequence.data));
 	DBG_MSG("");
-
-	testBitCount<uint32_t, 0xFF>();
-	testBitCount<uint32_t, 0x1FF>();
-	testBitCount<uint32_t, 0x1FFFF>();
-	testBitCount<uint32_t, 0x1FFFFFF>();
-
-	DBG_MSG("");
-
-	testBitCount<uint64_t, 0xFF>();
-	testBitCount<uint64_t, 0x1FF>();
-	testBitCount<uint64_t, 0x1FFFF>();
-	testBitCount<uint64_t, 0x1FFFFFF>();
-	testBitCount<uint64_t, 0x1FFFFFFFFull>();
-	testBitCount<uint64_t, 0x1FFFFFFFFFFull>();
-
-	DBG_MSG("");
-	DBG_MSG("");
-
-	testBitCount_<0x0>();
-	testBitCount_<0x1>();
-	testBitCount_<-0x1>();
-
-	DBG_MSG("");
-
-	testBitCount<int64_t, 0x0>();
-	testBitCount<int64_t, -0x0>();
-	testBitCount<int64_t, 0xFF>();
-	testBitCount<int64_t, -0xFF>();
-	testBitCount<int64_t, 0xFFFF>();
-	testBitCount<int64_t, -0xFFFF>();
-	testBitCount<int64_t, 0xFFFFFF>();
-	testBitCount<int64_t, -0xFFFFFF>();
-
-	//a8 a;
-
-	//DBG_MSG(a.get());
-
-	//::logging::log::emit() << "Finished." << ::logging::log::endl;
-    
-    int8_t i = -0x1;
-
-    uint64_t u = static_cast<uint64_t>(i);
-
-    DBG_MSG(static_cast<int16_t>(i) << " " << ::logging::log::bin << u);
+	sequence.printRT();
 }
 
 /*
