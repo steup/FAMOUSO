@@ -38,9 +38,12 @@
 ################################################################################
 INSTALLDIR=$(FAMOUSO_INSTALLDIR)
 include $(INSTALLDIR)/make/config.mk
-include $(INSTALLDIR)/make/tags.mk
 include $(INSTALLDIR)/make/global.mk
+include $(INSTALLDIR)/make/buildtools.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/defs.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/gcc.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/tags.mk
+-include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/additional_defs.mk
 -include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
 
 FAMOUSO_COMPILER_OPTIONS_MUST_HAVE := $(CXXFLAGS) -I$(INSTALLDIR)/Bindings/include $(LDFLAGS)
