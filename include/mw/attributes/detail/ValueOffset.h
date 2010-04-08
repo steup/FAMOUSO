@@ -38,56 +38,45 @@
  *
  ******************************************************************************/
 
-#ifndef _Attribute_Asserts_
-#define _Attribute_Asserts_
+#ifndef _Value_Offset_
+#define _Value_Offset_
 
 #include <stdint.h>
 
-#include "boost/mpl/assert.hpp"
-
-#include "ByteCount.h"
+#include "ValueByteCount.h"
+#include "CaseSelector.h"
 
 namespace famouso {
-	namespace mw {
-		namespace attributes {
+    namespace mw {
+        namespace attributes {
+            namespace detail {
 
-			/*!
-			 * \brief Struct to statically assert that only the integral primitive types are
-			 *  used in the attribute framework
-			 *
-			 * \tparam ValueType The type which should be asserted to be an integral primitive
-			 */
-			template <typename ValueType>
-			struct ValueTypeAssert {
-				private:
-					BOOST_MPL_ASSERT_MSG(false, only_primitive_integral_types_allowed, (ValueType));
-			};
-			template <> struct ValueTypeAssert<bool>     {};
-			template <> struct ValueTypeAssert<uint8_t>  {};
-			template <> struct ValueTypeAssert<int8_t>   {};
-			template <> struct ValueTypeAssert<uint16_t> {};
-			template <> struct ValueTypeAssert<int16_t>  {};
-			template <> struct ValueTypeAssert<uint32_t> {};
-			template <> struct ValueTypeAssert<int32_t>  {};
-			template <> struct ValueTypeAssert<uint64_t> {};
-			template <> struct ValueTypeAssert<int64_t>  {};
+            /*!
+             * \brief Calculates the index of the byte in the binary representation of
+             *  the given attribute where the first part of the attribute's value is
+             *  contained.
+             *
+             * \tparam Attr The attribute type of which the value offset should be
+             *  calculated
+             */
+            template <typename Attr>
+            struct ValueOffset {
+                private:
+                    // For the second case (value fits extended) it is necessary to check if
+                    //  the value only needs one byte, which would mean that it is simply written
+                    //  into the second byte
+                    static const uint8_t res2 = (ValueBitCount<Attr>::value < 9) ? 1 : 0;
 
-			/*!
-			 * \brief Struct to statically assert that an ID of a system attribute only has 4 bits.
-			 *
-			 * \tparam IsSystem True if it is a system attribute
-			 * \tparam ID The identifier of the attribute
-			 */
-			template <bool IsSystem, uint8_t ID>
-			struct IdBitCountAssert {
-				private:
-					static const bool cond = ((!IsSystem) || (famouso::util::BitCount<uint8_t, ID>::value < 5));
+                public:
+                    /*!
+                     * The calculated value offset
+                     */
+                    static const uint8_t value = CaseSelector<Attr, uint8_t, 0, res2, 1, 2, 2, 3>::value;
+            };
 
-					BOOST_MPL_ASSERT_MSG(cond, system_attribute_ID_cannot_have_more_than_4_bits, (boost::mpl::int_<ID>, boost::mpl::int_<famouso::util::BitCount<uint8_t, ID>::value>));
-			};
-
-		} // end namespace attributes
-	} // end namespace mw
+            } // end namespace detail
+        } // end namespace attributes
+    } // end namespace mw
 } // end namespace famouso
 
-#endif // _Attribute_Asserts_
+#endif // _Value_Offset_

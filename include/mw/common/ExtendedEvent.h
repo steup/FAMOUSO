@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -35,66 +36,72 @@
  *
  * $Id$
  *
- ******************************************************************************/
+ *****************************************************************************/
 
-#ifndef __ExtendedEvent_h__
-#define __ExtendedEvent_h__
+#ifndef _Extended_Event_
+#define _Extended_Event_
 
+#include <stdint.h>
+
+#include "boost/mpl/list.hpp"
+
+#include "object/PlacementNew.h"
+
+#include "mw/common/Subject.h"
 #include "mw/common/Event.h"
-#include "mw/attributes/EmptyAttribute.h"
+
+#include "mw/attributes/AttributeSequence.h"
 
 namespace famouso {
     namespace mw {
-        /*!\brief definition of an extended event with attributes
-         *
-         * the binary representation is as follows
-         \verbatim
-           |C-AB|0..255 A|EP|
-            C-AB -- number of attribute bytes
-            A    -- the attributes in binary representation
-            EP   -- event data/payload
-         \endverbatim
-         *
-         * \tparam s is the size of the event payload
-         * \tparam Attr is an attribute attached to the event
-         *
-         * \todo at the moment only one attribute is attachable. This
-         *      should change to a list of attributes to be added.
-         */
-        template< uint16_t s=0,
-                  typename Attr=::famouso::mw::attributes::EmptyAttribute
-                >
-        class ExtendedEvent : public ::famouso::mw::Event {
-          public:
-            enum {
-                attr_length=Attr::size
-            };
 
-          private:
-            /*!\brief the whole event with attributes and payload
-             */
-            uint8_t _edata[1+attr_length+s];
+        template <famouso::mw::Event::Type payLoadSize = 0, typename AttrList = boost::mpl::list<> >
+        class ExtendedEvent: public famouso::mw::Event {
+            private:
+                typedef attributes::AttributeSequence<AttrList> attrSeq;
 
-          public:
-            ExtendedEvent (const famouso::mw::Subject &sub) : Event(sub) {
-                _edata[0]=attr_length;
-                new (&_edata[1]) Attr;
-                length=s+1+attr_length;
-                data=_edata;
-            }
+            public:
+                typedef ExtendedEvent type;
 
-            /*!\brief payload setting as simple as possible
-             */
-            void operator = (const char* str) {
-                uint16_t i=0;
-                while( str[i] && (i<s)) {
-                    _edata[1+attr_length+i]=str[i];
-                    ++i;
+            private:
+                static const famouso::mw::Event::Type attribsLen = attrSeq::overallSize;
+
+                // the whole event with attributes and payload
+                uint8_t _edata[attribsLen + payLoadSize];
+
+            public:
+                ExtendedEvent(const famouso::mw::Subject& sub) :
+                    Event(sub) {
+                    // Construct the attributes
+                    new (&_edata[0]) attrSeq;
+
+                    // Set the base class' members
+                    length = attribsLen + payLoadSize;
+                    data   = _edata;
                 }
-            }
+
+                // payload setting as simple as possible
+                void operator =(const char* str) {
+                    Type i = 0;
+
+                    while (str[i] && (i < payLoadSize)) {
+                        _edata[attribsLen + i] = str[i];
+                        ++i;
+                    }
+                }
+
+                template <typename Attr>
+                Attr* find() {
+                    return ((reinterpret_cast<attrSeq*>(_edata))->find<Attr>());
+                }
+
+                template <typename Attr>
+                const Attr* find() const {
+                    return ((reinterpret_cast<attrSeq*>(_edata))->find<Attr>());
+                }
         };
 
-    } /* mw */
-} /* famouso */
+    } // end namespace mw
+} // end namespace famouso
 
-#endif
+#endif // _Extended_Event_

@@ -43,32 +43,34 @@
 
 #include <stdint.h>
 
-#include "ValueByteCount.h"
-#include "CaseSelector.h"
+#include "mw/attributes/detail/ValueByteCount.h"
+#include "mw/attributes/detail/CaseSelector.h"
 
 namespace famouso {
 	namespace mw {
 		namespace attributes {
+		    namespace detail {
 
-			/*!
-			 * \brief Calculates the overall number of bytes used by the binary representation
-			 *  of the given attribute, that is, the header and the value.
-			 *
-			 * \tparam Attr The attribute type of which the overall size should be
-			 *  calculated
-			 */
-			template <typename Attr>
-			struct AttributeSize {
-				private:
-					static const uint16_t byteCount = ValueByteCount<Attr>::value;
+                /*!
+                 * \brief Calculates the overall number of bytes used by the binary representation
+                 *  of the given attribute, that is, the header and the value.
+                 *
+                 * \tparam Attr The attribute type of which the overall size should be
+                 *  calculated
+                 */
+                template <typename Attr>
+                struct AttributeSize {
+                    private:
+                        static const uint16_t byteCount = ValueByteCount<Attr>::value;
 
-				public:
-					/*!
-					 * \brief The calculated overall attribute size in bytes
-					 */
-					static const uint16_t value = CaseSelector<Attr, uint16_t, 1, 2, (1 + byteCount), (2 + byteCount), (1 + 1 + byteCount), (2 + 1 + byteCount)>::value;
-			};
+                    public:
+                        /*!
+                         * \brief The calculated overall attribute size in bytes
+                         */
+                        static const uint16_t value = CaseSelector<Attr, uint16_t, 1, 2, (1 + byteCount), (2 + byteCount), (1 + 1 + byteCount), (2 + 1 + byteCount)>::value;
+                };
 
+		    } // end namespace detail
 		} // end namespace attributes
 	} // end namespace mw
 } // end namespace famouso

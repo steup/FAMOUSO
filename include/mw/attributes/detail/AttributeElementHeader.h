@@ -38,38 +38,38 @@
  *
  ******************************************************************************/
 
-#ifndef _Value_Offset_
-#define _Value_Offset_
+#ifndef _Attribute_Element_Header_
+#define _Attribute_Element_Header_
+
+#include <stdint.h>
 
 namespace famouso {
-	namespace mw {
-		namespace attributes {
+    namespace mw {
+        namespace attributes {
+            namespace detail {
 
-			/*!
-			 * \brief Calculates the index of the byte in the binary representation of
-			 *  the given attribute where the first part of the attribute's value is
-			 *  contained.
-			 *
-			 * \tparam Attr The attribute type of which the value offset should be
-			 *  calculated
-			 */
-			template <typename Attr>
-			struct ValueOffset {
-				private:
-					// For the second case (value fits extended) it is necessary to check if
-					//  the value only needs one byte, which would mean that it is simply written
-					//  into the second byte
-					static const uint8_t res2 = (ValueBitCount<Attr>::value < 9) ? 1 : 0;
+                /**
+                 * \brief Represents the structure a single attribute's header.
+                 */
+                union AttributeElementHeader {
+                        enum {
+                            nonSystemCategory = 0xF
+                        };
 
-				public:
-					/*!
-					 * The calculated value offset
-					 */
-					static const uint8_t value = CaseSelector<Attr, uint8_t, 0, res2, 1, 2, 2, 3>::value;
-			};
+                        // For system attributes
+                        struct {
+                                uint8_t valueOrLength :2;
+                                uint8_t valueOrLengthSwitch :1;
+                                uint8_t extension :1;
+                                uint8_t category :4;
+                        }__attribute__((packed));
 
-		} // end namespace attributes
-	} // end namespace mw
+                        // For non system attributes
+                        uint8_t length :3;
+                };
+            } // end namespace attributes
+        } // end namespace attributes
+    } // end namespace mw
 } // end namespace famouso
 
-#endif // _Value_Offset_
+#endif // _Attribute_Element_Header_

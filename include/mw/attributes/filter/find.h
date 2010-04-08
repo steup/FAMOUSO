@@ -42,6 +42,8 @@
 
 #include "mw/common/Event.h"
 
+#include "mw/attributes/detail/find.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -53,22 +55,12 @@ namespace famouso {
                  *
                  *  \returns a pointer to the location of attribute A
                  *           within the event, and NULL else
-                 *
-                 *  \todo this function has to be adapted if the binary
-                 *        representation of attributes within event
-                 *        change
-                 *
-                 *  \todo at the moment, only the first attribute is
-                 *        checked
                  */
                 template<typename A>
                 static inline
                 A* find(const famouso::mw::Event& e) {
-                    uint8_t *d=e.data;
-                    if (d[0] && (d[1] == A::base_type::id))
-                        return reinterpret_cast<A*>(&d[1]);
-                    else
-                        return reinterpret_cast<A*>(0);
+                    // Simply use the find method from the detail name space
+                    return (famouso::mw::attributes::detail::find<A>(e.data));
                 }
 
             } /* filter */

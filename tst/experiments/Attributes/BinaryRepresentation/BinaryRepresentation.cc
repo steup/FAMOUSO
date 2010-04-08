@@ -40,17 +40,18 @@
 
 #include <stdint.h>
 
-#include "mw/attributes/EmptyAttribute.h"
+#include "mw/attributes/Attribute.h"
+#include "mw/attributes/filter/find.h"
+#include "mw/attributes/AttributeSequence.h"
 
-#include "AttribTests.h"
-
-#include "AttributeSequence.h"
-#include "ExtendedEvent.h"
+#include "mw/common/ExtendedEvent.h"
 
 #include "logging/logging.h"
 
+#include "AttribTests.h"
+
 template <typename Attr, typename Event>
-void testFind(const Event& ev) {
+void testFind(Event& ev) {
 	Attr* a = ev.template find<Attr>();
 
 	if (a != NULL) {
@@ -64,7 +65,7 @@ void testFind(const Event& ev) {
 }
 
 template <typename Attr, typename Event>
-void testSet(const Event& ev, const typename Attr::value_type newValue) {
+void testSet(Event& ev, const typename Attr::value_type newValue) {
 	printCase<Attr>();
 
 	Attr* a = ev.template find<Attr>();
@@ -96,7 +97,7 @@ int main() {
 
 	eventType ev(sub);
 
-	print(ev.data, sizeof(ev.data));
+	print(ev.data, sizeof(eventType));
 	DBG_MSG("");
 
 	testFind<a1, eventType>(ev);
@@ -126,6 +127,6 @@ int main() {
 
 	testSet<a8, eventType>(ev, -0x1);
 
-	print(ev.data, sizeof(ev.data));
+	print(ev.data, sizeof(eventType));
 	DBG_MSG("");
 }

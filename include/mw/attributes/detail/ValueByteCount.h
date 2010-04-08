@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -36,45 +37,38 @@
  * $Id$
  *
  ******************************************************************************/
-#ifndef __EmptyAttribute_h__
-#define __EmptyAttribute_h__
 
-#include <stdlib.h>
+#ifndef _Value_Byte_Count_
+#define _Value_Byte_Count_
 
-#include "mw/attributes/tags/AttributeTag.h"
-#include "mw/attributes/tags/IntegralConstTag.h"
+#include <stdint.h>
+
+#include "config/type_traits/ByteCount.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
+            namespace detail {
 
-            /*! \brief defines an empty attribute that should be the base
-             *         of all %attributes
-             */
-            struct EmptyAttribute {
-                typedef tags::attribute_tag       type_tag;
-                typedef tags::integral_const_tag  compare_tag;
-                typedef EmptyAttribute            base_type;
-                typedef EmptyAttribute            type;
-
-                /*! \brief the placement new operator can be used to
-                 *         construct an attribute on a provided part
-                 *         of memory
+                /*!
+                 * Attribute-related convenience struct for ByteCount.
                  */
-                void* operator new(size_t, void* __p) {
-                     return __p;
-                }
-
-                /*! \brief an EmptyAttribute has no size
-                 */
-                enum {
-                    size = 0
+                template <typename Attr>
+                struct ValueByteCount {
+                        static const uint16_t value = famouso::config::ByteCount<typename Attr::value_type, Attr::value>::value;
                 };
-            };
+                /*!
+                 * Attribute-related convenience struct for BitCount.
+                 */
+                template <typename Attr>
+                struct ValueBitCount {
+                        static const uint16_t value = famouso::config::BitCount<typename Attr::value_type, Attr::value>::value;
+                };
 
-        } /* attributes */
-    } /* mw */
-} /* famouso */
+            } // end namespace detail
+        } // end namespace attributes
+    } // end namespace mw
+} // end namespace famouso
 
-#endif
 
+#endif // _Value_Byte_Count_
