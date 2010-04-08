@@ -45,9 +45,31 @@
 
 #include "logging/logging.h"
 
-#include "AttrHeader.h"
+#include "AttributeHeader.h"
 #include "EmptyAttribute.h"
-#include "AttribSequence.h"
+#include "AttributeSequence.h"
+
+#define TO_HEX ::logging::log::emit() << ::logging::log::hex
+#define TO_DEC ::logging::log::emit() << ::logging::log::dec
+#define DBG_MSG(x) ::logging::log::emit() << x << ::logging::log::endl
+
+void print(const uint8_t* array, uint8_t length) {
+	::logging::log::emit() << ::logging::log::hex;
+
+	for (uint8_t i = 0; i < length; ++i) {
+		::logging::log::emit() << '{' << reinterpret_cast<size_t>(&array[i]) << "}=";
+		::logging::log::emit() << '[' << static_cast<uint16_t>(array[i]) << ']';
+	}
+
+	::logging::log::emit() << ::logging::log::endl;
+
+	// ::logging::log::emit() << ::logging::log::dec;
+}
+
+template <typename Attr>
+void printCase() {
+	::logging::log::emit() << "Selected case " << static_cast<uint16_t>(famouso::mw::attributes::CaseSelector<Attr, uint16_t, 1, 2, 3, 4, 5, 6>::value) << ::logging::log::endl;
+}
 
 template <typename AttrType>
 void testAttribute(const char* text = "") {
@@ -57,22 +79,22 @@ void testAttribute(const char* text = "") {
 	::logging::log::emit() << ::logging::log::dec;
 	::logging::log::emit() << ::logging::log::endl;
 
-	uint8_t data[SizeCalculator<AttrType>::value];
+	uint8_t data[famouso::mw::attributes::AttributeSize<AttrType>::value];
 
-	::logging::log::emit() << "Value offset: " << ValueOffsetCalculator<AttrType>::value << ::logging::log::endl;
+	::logging::log::emit() << "Value offset: " << famouso::mw::attributes::ValueOffset<AttrType>::value << ::logging::log::endl;
 	::logging::log::emit() << ::logging::log::endl;
 
 	// Construct the attribute into the data array at the correct offset
-	new (&data[ValueOffsetCalculator<AttrType>::value]) AttrType;
+	new (&data[famouso::mw::attributes::ValueOffset<AttrType>::value]) AttrType;
 
-	::logging::log::emit() << "Attribute size     : " << SizeCalculator<AttrType>::value << ::logging::log::endl;
-	::logging::log::emit() << "Attribute bit count: " << ValueBitCount<AttrType>::value << ::logging::log::endl;
+	::logging::log::emit() << "Attribute size     : " << famouso::mw::attributes::AttributeSize<AttrType>::value << ::logging::log::endl;
+	::logging::log::emit() << "Attribute bit count: " << famouso::mw::attributes::ValueBitCount<AttrType>::value << ::logging::log::endl;
 	::logging::log::emit() << ::logging::log::endl;
 
 	// Now construct the header into the array
-	new (&data[0]) AttributeHeaderWriter<AttrType>;
+	new (&data[0]) famouso::mw::attributes::AttributeHeader<AttrType>;
 
-	::logging::log::emit() << "Header size: " << (int) AttributeHeaderWriter<AttrType>::size << ::logging::log::endl;
+	::logging::log::emit() << "Header size: " << (int) famouso::mw::attributes::AttributeHeader<AttrType>::size << ::logging::log::endl;
 	::logging::log::emit() << ::logging::log::endl;
 
 	print(data, sizeof(data));
@@ -82,13 +104,13 @@ void testAttribute(const char* text = "") {
 }
 
 template <uint8_t ttl>
-struct TTL : public ExtendedAttribute<uint8_t, ttl, 0, true> { };
+struct TTL : public famouso::mw::attributes::ExtendedAttribute<uint8_t, ttl, 0, true> { };
 
 template <uint16_t delay>
-struct Delay : public ExtendedAttribute<uint16_t, delay, 1, true> { };
+struct Delay : public famouso::mw::attributes::ExtendedAttribute<uint16_t, delay, 1, true> { };
 
 template <uint16_t omission>
-struct OmissionDegree : public ExtendedAttribute<uint16_t, omission, 2, true> { };
+struct OmissionDegree : public famouso::mw::attributes::ExtendedAttribute<uint16_t, omission, 2, true> { };
 
 typedef TTL<0>   Local;
 typedef TTL<1>   Body;
@@ -96,15 +118,15 @@ typedef TTL<255> World;
 
 typedef OmissionDegree<0> None;
 
-typedef ExtendedAttribute<uint8_t,  0x3,       1, true>::type a1;
-typedef ExtendedAttribute<uint8_t,  0x9,       2, true>::type a2;
-typedef ExtendedAttribute<uint16_t, 0x3FF,     3, true>::type a3;
-typedef ExtendedAttribute<uint16_t, 0x4FF,     4, true>::type a4;
-typedef ExtendedAttribute<uint64_t, 0x1FFFFFF, 5, true>::type a5;
+typedef famouso::mw::attributes::ExtendedAttribute<uint8_t,  0x3,       1, true>::type a1;
+typedef famouso::mw::attributes::ExtendedAttribute<uint8_t,  0x9,       2, true>::type a2;
+typedef famouso::mw::attributes::ExtendedAttribute<uint16_t, 0x3FF,     3, true>::type a3;
+typedef famouso::mw::attributes::ExtendedAttribute<uint16_t, 0x4FF,     4, true>::type a4;
+typedef famouso::mw::attributes::ExtendedAttribute<uint64_t, 0x1FFFFFF, 5, true>::type a5;
 
-typedef ExtendedAttribute<uint8_t, 2, 6, false>::type                     a6;
-typedef ExtendedAttribute<uint64_t, 0x1FFFFFFFFFFFFFFull, 7, false>::type a7;
+typedef famouso::mw::attributes::ExtendedAttribute<uint8_t, 2, 6, false>::type                     a6;
+typedef famouso::mw::attributes::ExtendedAttribute<uint64_t, 0x1FFFFFFFFFFFFFFull, 7, false>::type a7;
 
-typedef ExtendedAttribute<int16_t, -20, 8, false>::type a8;
+typedef famouso::mw::attributes::ExtendedAttribute<int16_t, -20, 8, false>::type a8;
 
 #endif

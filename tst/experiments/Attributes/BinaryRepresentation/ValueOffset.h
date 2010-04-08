@@ -36,62 +36,40 @@
  *
  * $Id$
  *
- *****************************************************************************/
+ ******************************************************************************/
 
-#ifndef _Extended_Event_
-#define _Extended_Event_
-
-#include "boost/mpl/list.hpp"
-
-#include "mw/common/Subject.h"
-#include "mw/common/Event.h"
-
-#include "AttributeSequence.h"
+#ifndef _Value_Offset_
+#define _Value_Offset_
 
 namespace famouso {
 	namespace mw {
+		namespace attributes {
 
-		template<famouso::mw::Event::Type payLoadSize = 0, typename AttrList = boost::mpl::list<> >
-		class ExtendedEvent : public famouso::mw::Event {
-			private:
-				typedef attributes::AttributeSequence<AttrList> attrSeq;
+			/*!
+			 * \brief Calculates the index of the byte in the binary representation of
+			 *  the given attribute where the first part of the attribute's value is
+			 *  contained.
+			 *
+			 * \tparam Attr The attribute type of which the value offset should be
+			 *  calculated
+			 */
+			template <typename Attr>
+			struct ValueOffset {
+				private:
+					// For the second case (value fits extended) it is necessary to check if
+					//  the value only needs one byte, which would mean that it is simply written
+					//  into the second byte
+					static const uint8_t res2 = (ValueBitCount<Attr>::value < 9) ? 1 : 0;
 
-			public:
-				typedef ExtendedEvent type;
+				public:
+					/*!
+					 * The calculated value offset
+					 */
+					static const uint8_t value = CaseSelector<Attr, uint8_t, 0, res2, 1, 2, 2, 3>::value;
+			};
 
-			private:
-				static const famouso::mw::Event::Type attribsLen = attrSeq::overallSize;
-
-				// the whole event with attributes and payload
-				uint8_t _edata[attribsLen + payLoadSize];
-
-			public:
-				ExtendedEvent(const famouso::mw::Subject& sub) : Event(sub) {
-					// Construct the attributes
-					new (&_edata[0]) attrSeq;
-
-					// Set the base class' members
-					length = attribsLen + payLoadSize;
-					data   = _edata;
-				}
-
-				// payload setting as simple as possible
-				void operator = (const char* str) {
-					Type i = 0;
-
-					while(str[i] && (i < payLoadSize)) {
-						_edata[attribsLen + i] = str[i];
-						++i;
-					}
-				}
-
-				template <typename Attr>
-				Attr* find() const {
-					return ((reinterpret_cast<const attrSeq*>(static_cast<const uint8_t*>(_edata)))->find<Attr>());
-				}
-		};
-
+		} // end namespace attributes
 	} // end namespace mw
 } // end namespace famouso
 
-#endif // _Extended_Event_
+#endif // _Value_Offset_

@@ -36,62 +36,58 @@
  *
  * $Id$
  *
- *****************************************************************************/
+ ******************************************************************************/
 
-#ifndef _Extended_Event_
-#define _Extended_Event_
+#ifndef _Attribute_Asserts_
+#define _Attribute_Asserts_
 
-#include "boost/mpl/list.hpp"
+#include <stdint.h>
 
-#include "mw/common/Subject.h"
-#include "mw/common/Event.h"
+#include "boost/mpl/assert.hpp"
 
-#include "AttributeSequence.h"
+#include "ByteCount.h"
 
 namespace famouso {
 	namespace mw {
+		namespace attributes {
 
-		template<famouso::mw::Event::Type payLoadSize = 0, typename AttrList = boost::mpl::list<> >
-		class ExtendedEvent : public famouso::mw::Event {
-			private:
-				typedef attributes::AttributeSequence<AttrList> attrSeq;
+			/*!
+			 * \brief Struct to statically assert that only the integral primitive types are
+			 *  used in the attribute framework
+			 *
+			 * \tparam ValueType The type which should be asserted to be an integral primitive
+			 */
+			template <typename ValueType>
+			struct ValueTypeAssert {
+				private:
+					BOOST_MPL_ASSERT_MSG(false, only_primitive_integral_types_allowed, (ValueType));
+			};
+			template <> struct ValueTypeAssert<bool>     {};
+			template <> struct ValueTypeAssert<uint8_t>  {};
+			template <> struct ValueTypeAssert<int8_t>   {};
+			template <> struct ValueTypeAssert<uint16_t> {};
+			template <> struct ValueTypeAssert<int16_t>  {};
+			template <> struct ValueTypeAssert<uint32_t> {};
+			template <> struct ValueTypeAssert<int32_t>  {};
+			template <> struct ValueTypeAssert<uint64_t> {};
+			template <> struct ValueTypeAssert<int64_t>  {};
 
-			public:
-				typedef ExtendedEvent type;
+			/*!
+			 * \brief Struct to statically assert that an ID of a system attribute only has 4 bits.
+			 *
+			 * \tparam IsSystem True if it is a system attribute
+			 * \tparam ID The identifier of the attribute
+			 */
+			template <bool IsSystem, uint8_t ID>
+			struct IdBitCountAssert {
+				private:
+					static const bool cond = ((!IsSystem) || (famouso::util::BitCount<uint8_t, ID>::value < 5));
 
-			private:
-				static const famouso::mw::Event::Type attribsLen = attrSeq::overallSize;
+					BOOST_MPL_ASSERT_MSG(cond, system_attribute_ID_cannot_have_more_than_4_bits, (boost::mpl::int_<ID>, boost::mpl::int_<famouso::util::BitCount<uint8_t, ID>::value>));
+			};
 
-				// the whole event with attributes and payload
-				uint8_t _edata[attribsLen + payLoadSize];
-
-			public:
-				ExtendedEvent(const famouso::mw::Subject& sub) : Event(sub) {
-					// Construct the attributes
-					new (&_edata[0]) attrSeq;
-
-					// Set the base class' members
-					length = attribsLen + payLoadSize;
-					data   = _edata;
-				}
-
-				// payload setting as simple as possible
-				void operator = (const char* str) {
-					Type i = 0;
-
-					while(str[i] && (i < payLoadSize)) {
-						_edata[attribsLen + i] = str[i];
-						++i;
-					}
-				}
-
-				template <typename Attr>
-				Attr* find() const {
-					return ((reinterpret_cast<const attrSeq*>(static_cast<const uint8_t*>(_edata)))->find<Attr>());
-				}
-		};
-
+		} // end namespace attributes
 	} // end namespace mw
 } // end namespace famouso
 
-#endif // _Extended_Event_
+#endif // _Attribute_Asserts_

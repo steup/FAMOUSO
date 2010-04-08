@@ -36,62 +36,41 @@
  *
  * $Id$
  *
- *****************************************************************************/
+ ******************************************************************************/
 
-#ifndef _Extended_Event_
-#define _Extended_Event_
+#ifndef _Attribute_Size_
+#define _Attribute_Size_
 
-#include "boost/mpl/list.hpp"
+#include <stdint.h>
 
-#include "mw/common/Subject.h"
-#include "mw/common/Event.h"
-
-#include "AttributeSequence.h"
+#include "ValueByteCount.h"
+#include "CaseSelector.h"
 
 namespace famouso {
 	namespace mw {
+		namespace attributes {
 
-		template<famouso::mw::Event::Type payLoadSize = 0, typename AttrList = boost::mpl::list<> >
-		class ExtendedEvent : public famouso::mw::Event {
-			private:
-				typedef attributes::AttributeSequence<AttrList> attrSeq;
+			/*!
+			 * \brief Calculates the overall number of bytes used by the binary representation
+			 *  of the given attribute, that is, the header and the value.
+			 *
+			 * \tparam Attr The attribute type of which the overall size should be
+			 *  calculated
+			 */
+			template <typename Attr>
+			struct AttributeSize {
+				private:
+					static const uint16_t byteCount = ValueByteCount<Attr>::value;
 
-			public:
-				typedef ExtendedEvent type;
+				public:
+					/*!
+					 * \brief The calculated overall attribute size in bytes
+					 */
+					static const uint16_t value = CaseSelector<Attr, uint16_t, 1, 2, (1 + byteCount), (2 + byteCount), (1 + 1 + byteCount), (2 + 1 + byteCount)>::value;
+			};
 
-			private:
-				static const famouso::mw::Event::Type attribsLen = attrSeq::overallSize;
-
-				// the whole event with attributes and payload
-				uint8_t _edata[attribsLen + payLoadSize];
-
-			public:
-				ExtendedEvent(const famouso::mw::Subject& sub) : Event(sub) {
-					// Construct the attributes
-					new (&_edata[0]) attrSeq;
-
-					// Set the base class' members
-					length = attribsLen + payLoadSize;
-					data   = _edata;
-				}
-
-				// payload setting as simple as possible
-				void operator = (const char* str) {
-					Type i = 0;
-
-					while(str[i] && (i < payLoadSize)) {
-						_edata[attribsLen + i] = str[i];
-						++i;
-					}
-				}
-
-				template <typename Attr>
-				Attr* find() const {
-					return ((reinterpret_cast<const attrSeq*>(static_cast<const uint8_t*>(_edata)))->find<Attr>());
-				}
-		};
-
+		} // end namespace attributes
 	} // end namespace mw
 } // end namespace famouso
 
-#endif // _Extended_Event_
+#endif // _Attribute_Size_

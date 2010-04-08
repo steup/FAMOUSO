@@ -36,62 +36,35 @@
  *
  * $Id$
  *
- *****************************************************************************/
+ ******************************************************************************/
 
-#ifndef _Extended_Event_
-#define _Extended_Event_
+#ifndef _Value_Byte_Count_
+#define _Value_Byte_Count_
 
-#include "boost/mpl/list.hpp"
-
-#include "mw/common/Subject.h"
-#include "mw/common/Event.h"
-
-#include "AttributeSequence.h"
+#include "ByteCount.h"
 
 namespace famouso {
 	namespace mw {
+		namespace attributes {
 
-		template<famouso::mw::Event::Type payLoadSize = 0, typename AttrList = boost::mpl::list<> >
-		class ExtendedEvent : public famouso::mw::Event {
-			private:
-				typedef attributes::AttributeSequence<AttrList> attrSeq;
+			/*!
+			 * Attribute-related convenience struct for ByteCount.
+			 */
+			template <typename Attr>
+			struct ValueByteCount {
+				static const uint16_t value = famouso::util::ByteCount<typename Attr::value_type, Attr::value>::value;
+			};
+			/*!
+			 * Attribute-related convenience struct for BitCount.
+			 */
+			template <typename Attr>
+			struct ValueBitCount {
+				static const uint16_t value = famouso::util::BitCount<typename Attr::value_type, Attr::value>::value;
+			};
 
-			public:
-				typedef ExtendedEvent type;
-
-			private:
-				static const famouso::mw::Event::Type attribsLen = attrSeq::overallSize;
-
-				// the whole event with attributes and payload
-				uint8_t _edata[attribsLen + payLoadSize];
-
-			public:
-				ExtendedEvent(const famouso::mw::Subject& sub) : Event(sub) {
-					// Construct the attributes
-					new (&_edata[0]) attrSeq;
-
-					// Set the base class' members
-					length = attribsLen + payLoadSize;
-					data   = _edata;
-				}
-
-				// payload setting as simple as possible
-				void operator = (const char* str) {
-					Type i = 0;
-
-					while(str[i] && (i < payLoadSize)) {
-						_edata[attribsLen + i] = str[i];
-						++i;
-					}
-				}
-
-				template <typename Attr>
-				Attr* find() const {
-					return ((reinterpret_cast<const attrSeq*>(static_cast<const uint8_t*>(_edata)))->find<Attr>());
-				}
-		};
-
+		} // end namespace attributes
 	} // end namespace mw
 } // end namespace famouso
 
-#endif // _Extended_Event_
+
+#endif // _Value_Byte_Count_

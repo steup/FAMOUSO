@@ -42,15 +42,12 @@
 
 #include "mw/attributes/EmptyAttribute.h"
 
-#include "Utils.h"
 #include "AttribTests.h"
 
-#include "AttribSequence.h"
+#include "AttributeSequence.h"
 #include "ExtendedEvent.h"
 
 #include "logging/logging.h"
-
-#include "Utils.h"
 
 template <typename Attr, typename Event>
 void testFind(const Event& ev) {
@@ -86,9 +83,12 @@ void testSet(const Event& ev, const typename Attr::value_type newValue) {
 	}
 }
 
+using namespace famouso::mw;
+using namespace famouso::mw::attributes;
+
 int main() {
 	typedef boost::mpl::list<a1, a2, a3, a4, a5, a6, a7, a8>::type attribList;
-	typedef ExtendedEvent<16, attribList>                          eventType;
+	typedef ExtendedEvent<16, attribList> eventType;
 
 	TO_HEX;
 
@@ -96,11 +96,8 @@ int main() {
 
 	eventType ev(sub);
 
-	AttribSequence<attribList>& sequence = *(reinterpret_cast<AttribSequence<attribList>*>(ev.data));
-
-	print(sequence.data, sizeof(sequence.data));
+	print(ev.data, sizeof(ev.data));
 	DBG_MSG("");
-	sequence.printRT();
 
 	testFind<a1, eventType>(ev);
 	testFind<a2, eventType>(ev);
@@ -129,65 +126,6 @@ int main() {
 
 	testSet<a8, eventType>(ev, -0x1);
 
-	print(sequence.data, sizeof(sequence.data));
+	print(ev.data, sizeof(ev.data));
 	DBG_MSG("");
-	sequence.printRT();
 }
-
-/*
-int main() {
-	typedef boost::mpl::list<a1, a2, a3, a4, a5, a6, a7>::type attribList;
-	typedef ExtendedEvent<16, attribList>                      eventType;
-
-	AttribSequence<attribList> sequence;
-
-	sequence.printRT();
-
-	sequence.print();
-
-	// print(sequence.data, sizeof(sequence.data));
-
-	famouso::mw::Subject sub(0x01);
-
-	eventType ev(sub);
-
-	testFind<a1, eventType>(ev);
-	testFind<a2, eventType>(ev);
-	testFind<a7, eventType>(ev);
-
-	//a3* a = NULL;
-	//a = ev.find<a3>(a);
-
-	// a->set(0x01);
-
-	testFind<a3, eventType>(ev);
-
-	testFind<Local, eventType>(ev);
-
-	return (0);
-
-	// Test cases:
-
-	// I. System attributes
-
-	// 1. Value fits unextended
-	testAttribute<a1>("val unex");
-	// 2. Value fits extended (but has less than 9 bits itself)
-	testAttribute<a2>("val ex1");
-	// 3. Value fits extended (but has at least 9 bits itself)
-	testAttribute<a3>("val ex2");
-	// 4. Length fits unextended
-	testAttribute<a4>("len unex");
-	// 5. Length fits extended
-	testAttribute<a5>("len ex");
-
-	// II. Non-system attributes
-
-	// 1. Length fits unextended
-	testAttribute<a6>();
-	// 2. Length fits extended
-	testAttribute<a7>();
-
-}
-
-*/

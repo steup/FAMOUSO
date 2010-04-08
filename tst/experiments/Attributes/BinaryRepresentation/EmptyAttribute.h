@@ -42,522 +42,286 @@
 #define _EmptyAttribute_
 
 #include <stdint.h>
-#include <string>
-
-#include "debug.h"
 
 #include "boost/mpl/integral_c.hpp"
-#include "boost/mpl/assert.hpp"
-#include "boost/mpl/list.hpp"
 
 #include "util/endianness.h"
 
-#include "AttrHeader.h"
+#include "AttributeSize.h"
+#include "AttributeAsserts.h"
+#include "ValueOffset.h"
+#include "ValueByteCount.h"
+#include "AttributeHeader.h"
+#include "AttributeElementHeader.h"
+#include "ByteCount.h"
+#include "generic_endianess.h"
 
-/*!
- * Calculates the overall number of bytes used by the binary representation
- *  of the given attribute, that is, the header and the value.
- *
- * \tparam Attr The attribute type of which the overall size should be
- *  calculated
- */
-template <typename Attr>
-struct SizeCalculator {
-	private:
-		static const uint16_t byteCount = ValueByteCount<Attr>::value;
+namespace famouso {
+	namespace mw {
+		namespace attributes {
 
-	public:
-		/*!
-		 * The calculated overall attribute size in bytes
-		 */
-		static const uint16_t value = CaseSelector<Attr, uint16_t, 1, 2, (1 + byteCount), (2 + byteCount), (1 + 1 + byteCount), (2 + 1 + byteCount)>::value;
-};
+			/*!
+			 * \brief Represents an attribute as a part of the FAMOUSO generic attribute
+			 *  framework.
+			 *
+			 * This is the central entity of the attribute framework. It can be attached to
+			 *  disseminated events in order to be transmitted in a compact binary
+			 *  representation. Further attributes can also be attached to event channels
+			 *  and network driver implementation to provide means for performing compile
+			 *  time composability checks. Attribute attachment is generally done using
+			 *  type lists containing the specific attribute types.
+			 * An attribute is defined by being either a system or a non-system attribute
+			 *  and having a specific identifier. Related to this unique type an
+			 *  attribute has a specific value type describing the range of values it can
+			 *  have.
+			 * An attribute class always has the value attached which was provided at compile
+			 *  time. This value is used when an instance of the specific class is created
+			 *  and the attribute is written to its binary representation. Nevertheless the
+			 *  runtime value, i.e. the value contained in the binary representation, can be
+			 *  accessed and, with limitations, even changed.
+			 *
+			 * \tparam ValueType The type of this attribute's value
+			 * \tparam Value The compile time value of this attribute
+			 * \tparam ID The identifier of this attribute
+			 * \tparam IsSystem True, if this is a system attribute
+			 */
+			template <typename ValueType, ValueType Value, uint8_t ID, bool IsSystem = false>
+			class ExtendedAttribute {
+				public:
+					// The boost tag type, declaring the attribute class to be an integral constant
+					typedef boost::mpl::integral_c_tag tag;
 
-/*!
- * \brief Calculates the index of the byte in the binary representation of
- *  the given attribute where the first part of the attribute's value is
- *  contained.
- *
- * \tparam Attr The attribute type of which the value offset should be
- *  calculated
- */
-template <typename Attr>
-struct ValueOffsetCalculator {
-	private:
-		// For the second case (value fits extended) it is necessary to check if
-		//  the value only needs one byte, which would mean that it is simply written
-		//  into the second byte
-		static const uint8_t res2 = (ValueBitCount<Attr>::value < 9) ? 1 : 0;
+					// This type
+					typedef ExtendedAttribute type;
 
-	public:
-		/*!
-		 * The calculated value offset
-		 */
-		static const uint8_t value = CaseSelector<Attr, uint8_t, 0, res2, 1, 2, 2, 3>::value;
-};
+					// The type of the attribute's value
+					typedef ValueType value_type;
 
-/*!
- * \brief Struct to statically assert that only the integral primitive types are
- *  used in the attribute framework
- *
- * \tparam ValueType The type which should be asserted to be an integral primitive
- */
-template <typename ValueType>
-struct ValueTypeAssert {
-	private:
-		BOOST_MPL_ASSERT_MSG(false, only_primitive_integral_types_allowed, (ValueType));
-};
-template <> struct ValueTypeAssert<bool>     {};
-template <> struct ValueTypeAssert<uint8_t>  {};
-template <> struct ValueTypeAssert<int8_t>   {};
-template <> struct ValueTypeAssert<uint16_t> {};
-template <> struct ValueTypeAssert<int16_t>  {};
-template <> struct ValueTypeAssert<uint32_t> {};
-template <> struct ValueTypeAssert<int32_t>  {};
-template <> struct ValueTypeAssert<uint64_t> {};
-template <> struct ValueTypeAssert<int64_t>  {};
+					// The static value of this attribute
+					static const ValueType value = Value;
 
-/*!
- * \brief Struct to statically assert that an ID of a system attribute only has 4 bits.
- *
- * \tparam IsSystem True if it is a system attribute
- * \tparam ID The identifier of the attribute
- */
-template <bool IsSystem, uint8_t ID>
-struct IdBitCountAssert {
-	private:
-		static const bool cond = ((!IsSystem) || (BitCount<uint8_t, ID>::value < 5));
+					// The ID (aka category for system attributes) of this attribute
+					static const uint8_t id = ID;
 
-		BOOST_MPL_ASSERT_MSG(cond, system_attribute_ID_cannot_have_more_than_4_bits, (boost::mpl::int_<ID>, boost::mpl::int_<BitCount<uint8_t, ID>::value>));
-};
+					// Determines whether this attribute is a system attribute
+					static const bool isSystem = IsSystem;
 
-// Generic host to network conversion
+					// The data array contains the binary representation of this attribute (header + value)
+					uint8_t data[AttributeSize<type>::value];
 
-/*!
- * \brief Conversion from host to network byte order for generic
- *  data types
- *
- * \tparam ValType The data type of which a value should be
- *  converted
- *
- * \param value The value which should be converted
- *
- * \return The converted value
- */
-template <typename ValType>
-inline const ValType hton(const ValType& value);
+				private:
+					// Static dummy instances
+					static const ValueTypeAssert<value_type>    valueTypeAssert;
+					static const IdBitCountAssert<isSystem, id> idBitCountAssert;
 
-template <> inline const uint8_t hton<uint8_t>(const uint8_t& value) {
-	return (value);
-}
-template <> inline const int8_t hton<int8_t>(const int8_t& value) {
-	return (value);
-}
-template <> inline const uint16_t hton<uint16_t>(const uint16_t& value) {
-	return (htons(value));
-}
-template <> inline const int16_t hton<int16_t>(const int16_t& value) {
-	return (hton(reinterpret_cast<const uint16_t&>(value)));
-}
-template <> inline const uint32_t hton<uint32_t>(const uint32_t& value) {
-	return (htonl(value));
-}
-template <> inline const int32_t hton<int32_t>(const int32_t& value) {
-	return (hton(reinterpret_cast<const uint32_t&>(value)));
-}
-template <> inline const uint64_t hton<uint64_t>(const uint64_t& value) {
-	return (htonll(value));
-}
-template <> inline const int64_t hton<int64_t>(const int64_t& value) {
-	return (hton(reinterpret_cast<const uint64_t&>(value)));
-}
+				public:
+					ExtendedAttribute() {
+						// Initialize the member array "data" to the binary representation
+						//  of this attribute
 
-// Generic network to host conversion
+						// Get a big endian representation of the value
+						const ValueType bigEndian = famouso::util::hton(static_cast<ValueType>(value));
+						// Get a pointer to the value
+						const uint8_t*  ptr       = reinterpret_cast<const uint8_t*>(&bigEndian);
+						// Move the pointer to the last byte
+						ptr += sizeof(ValueType) - 1;
 
-/*!
- * \brief Conversion from network to host byte order for generic
- *  data types
- *
- * \tparam ValType The data type of which a value should be
- *  converted
- *
- * \param value The value which should be converted
- *
- * \return The converted value
- */
-template <typename ValType>
-inline const ValType ntoh(const ValType& value);
+						// The index where we start writing the value (starts at the last byte which will be
+						//  written and will then be decremented)
+						uint16_t i = ValueOffset<type>::value + ValueByteCount<type>::value - 1;
 
-template <> inline const uint8_t ntoh<uint8_t>(const uint8_t& value) {
-	return (value);
-}
-template <> inline const int8_t ntoh<int8_t>(const int8_t& value) {
-	return (value);
-}
-template <> inline const uint16_t ntoh<uint16_t>(const uint16_t& value) {
-	return (ntohs(value));
-}
-template <> inline const int16_t ntoh<int16_t>(const int16_t& value) {
-	return (ntoh(reinterpret_cast<const uint16_t&>(value)));
-}
-template <> inline const uint32_t ntoh<uint32_t>(const uint32_t& value) {
-	return (ntohl(value));
-}
-template <> inline const int32_t ntoh<int32_t>(const int32_t& value) {
-	return (ntoh(reinterpret_cast<const uint32_t&>(value)));
-}
-template <> inline const uint64_t ntoh<uint64_t>(const uint64_t& value) {
-	return (ntohll(value));
-}
-template <> inline const int64_t ntoh<int64_t>(const int64_t& value) {
-	return (ntoh(reinterpret_cast<const uint64_t&>(value)));
-}
-
-/*!
- * \brief Represents an attribute as a part of the FAMOUSO generic attribute
- *  framework.
- *
- * This is the central entity of the attribute framework. It can be attached to
- *  disseminated events in order to be transmitted in a compact binary
- *  representation. Further attributes can also be attached to event channels
- *  and network driver implementation to provide means for performing compile
- *  time composability checks. Attribute attachment is generally done using
- *  type lists containing the specific attribute types.
- * An attribute is defined by being either a system or a non-system attribute
- *  and having a specific identifier. Related to this unique type an
- *  attribute has a specific value type describing the range of values it can
- *  have.
- * An attribute class always has the value attached which was provided at compile
- *  time. This value is used when an instance of the specific class is created
- *  and the attribute is written to its binary representation. Nevertheless the
- *  runtime value, i.e. the value contained in the binary representation, can be
- *  accessed and, with limitations, even changed.
- *
- * \tparam ValueType The type of this attribute's value
- * \tparam Value The compile time value of this attribute
- * \tparam ID The 4-bit identifier of this attribute
- * \tparam IsSystem True, if this is a system attribute
- */
-template <typename ValueType, ValueType Value, uint8_t ID, bool IsSystem = false>
-class ExtendedAttribute {
-	public:
-		// The boost tag type, declaring the attribute class to be an integral constant
-		typedef boost::mpl::integral_c_tag tag;
-
-		// This type
-		typedef ExtendedAttribute type;
-
-		// The type of the attribute's value
-		typedef ValueType value_type;
-
-		// The static value of this attribute
-		static const ValueType value = Value;
-
-		// The ID (aka category for system attributes) of this attribute
-		static const uint8_t id = ID;
-
-		// Determines whether this attribute is a system attribute
-		static const bool isSystem = IsSystem;
-
-		// The data array contains the binary representation of this attribute (header + value)
-		uint8_t data[SizeCalculator<type>::value];
-
-	private:
-		// Static dummy instances
-		static const ValueTypeAssert<value_type>    valueTypeAssert;
-		static const IdBitCountAssert<isSystem, id> idBitCountAssert;
-
-	public:
-		ExtendedAttribute() {
-			// Initialize the member array "data" to the binary representation
-			//  of this attribute
-
-			// Get a big endian representation of the value
-			const ValueType bigEndian = hton(static_cast<ValueType>(value));
-			// Get a pointer to the value
-			const uint8_t*  ptr       = reinterpret_cast<const uint8_t*>(&bigEndian);
-			// Move the pointer to the last byte
-			ptr += sizeof(ValueType) - 1;
-
-			// The index where we start writing the value (starts at the last byte which will be
-			//  written and will then be decremented)
-			uint16_t i = ValueOffsetCalculator<type>::value + ValueByteCount<type>::value - 1;
-
-			// Copy as many bytes as either fit the range where the value is supposed to be written or
-			//  as the value itself has (as sizeof() determines)
-			for (uint16_t j = 0; (i > ValueOffsetCalculator<type>::value - 1) && (j < sizeof(ValueType)); --i, ++j) {
-				data[i] = *ptr--;
-			}
-
-			// Write the header
-			// (It is essential to do that now, since the algorithm above does not care for an eventually pre-written
-			//  header, but the header writer itself cares for a value possibly already written)
-			new (&data[0]) AttributeHeaderWriter<type>;
-		}
-
-		// TODO: The System-VOL-not-set and Non-System paths of the get() and set() method are fairly equal
-		//  each, so find a suitable way to unify them
-		// For the get() method:
-		//  The mentioned paths always return at the end of the method after the copy operation
-		//   in all other cases this is not reached and the method returns earlier
-		//  So only the "other" cases should be handled as implemented right now and the other
-		//   part should be handled generically dependent on the static attribute properties (ID & IsSystem)
-		// For the set() method a similar approach can be applied
-
-		/*!
-		 * \brief Returns the value from the binary representation of
-		 *  this attribute instance.
-		 *
-		 * The value is parsed from the binary representation of this attribute.
-		 *  That means this attribute's static properties are not used except for
-		 *  the type and the is-system-flag.
-		 *
-		 * \return This attribute's value
-		 */
-		const ValueType get() const {
-			// The result (in big endian order first, it will be converted when it is returned)
-			ValueType res = ValueType();
-
-			// Pointer to the attribute value
-			const uint8_t* val;
-			// Number of bytes to copy from the val-array
-			uint16_t length;
-
-			const AttributeElementHeader* const header = reinterpret_cast<const AttributeElementHeader* const>(data);
-
-			if (isSystem) {
-				if (header->valueOrLengthSwitch) {
-					if (header->extension) {
-						if (sizeof(ValueType) == 1) {
-							// If the value type has only one byte, the two remaining bits of the
-							//  header byte are zero, since all 8 bits of the value fit the extended byte
-							res = static_cast<ValueType>(data[1]);
-						} else {
-							// In all other cases the 10 bits must be copied manually into the result
-
-							// Get a pointer to the last byte of the result
-							uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&res) + sizeof(ValueType) - 1;
-
-							// Copy the extended byte
-							*tmp       = data[1];
-							// Copy the remaining 2 bits
-							*(tmp - 1) = data[0] & 0x3;
-						}
-					} else {
-						res = static_cast<ValueType>(data[0] & 0x3);
-					}
-
-					// Everything is already done here, so we can (must) return
-					return (ntoh(res));
-				} else {
-					// Read the length in big-endian order
-					uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&length);
-					if (header->extension) {
-						tmp[0] = data[0] & 0x3;
-						tmp[1] = data[1];
-
-						val    = &data[2];
-					} else {
-						tmp[0] = 0x00;
-						tmp[1] = data[0] & 0x3;
-
-						val    = &data[1];
-					}
-
-					// Convert byte order of the length to host-order
-					length = ntohs(length);
-				}
-			} else {
-				// Read the length in big-endian order
-				uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&length);
-				if (header->extension) {
-					tmp[0] = data[0] & 0x7;
-					tmp[1] = data[1];
-
-					val = &data[3];
-				} else {
-					tmp[0] = 0x00;
-					tmp[1] = data[0] & 0x7;
-
-					val = &data[2];
-				}
-
-				// The val pointer just skipped one byte, since we are not interested in
-				//  the ID at this point
-
-				// Convert byte order of the length to host-order
-				length = ntohs(length);
-			}
-
-			// Interpret the result as a byte array to copy every single byte
-			uint8_t* const resPtr = reinterpret_cast<uint8_t* const>(&res);
-
-			// Copy the data from the determined pointer into the result
-			for (uint16_t i = sizeof(ValueType) - 1, j = length - 1, counter = length; counter > 0; --i, --j, --counter) {
-				resPtr[i] = val[j];
-			}
-
-			return (ntoh(res));
-		}
-
-		/*!
-		 * \brief Sets the value in the binary representation of
-		 *  this attribute to the given one.
-		 *
-		 * Since the binary representation of attribute's value has
-		 *  some restrictions in size it could be the case that it
-		 *  is not possible to apply the given value. This could for
-		 *  example be the case if the current value is written
-		 *  unextended and the new value would demand to be written
-		 *  extended.
-		 *
-		 * \param newValue The new value to set
-		 *
-		 * \return True if the value could properly be set, false
-		 *  if the value could not be set and the attribute keeps
-		 *  its previous value
-		 */
-		const bool set(const ValueType newValue) {
-			// Determine the bit count of the value to set
-			const uint16_t newBitCount = getBitCount(newValue);
-
-			AttributeElementHeader* const header = reinterpret_cast<AttributeElementHeader* const>(data);
-
-			if (isSystem) {
-				if (header->valueOrLengthSwitch) {
-					if (header->extension) {
-						if (newBitCount > 10) {
-							return (false);
+						// Copy as many bytes as either fit the range where the value is supposed to be written or
+						//  as the value itself has (as sizeof() determines)
+						for (uint16_t j = 0; (i > ValueOffset<type>::value - 1) && (j < sizeof(ValueType)); --i, ++j) {
+							data[i] = *ptr--;
 						}
 
-						if (sizeof(ValueType) == 1) {
-							// If the given value has only one byte, the 2 bits of the header must be
-							//  cleared and the extended byte is set to the given value
+						// Write the header
+						// (It is essential to do that now, since the algorithm above does not care for an eventually pre-written
+						//  header, but the header writer itself cares for a value possibly already written)
+						new (&data[0]) AttributeHeader<type>;
+					}
 
-							header->valueOrLength = 0x0;
+					/*!
+					 * \brief Returns the value from the binary representation of
+					 *  this attribute instance.
+					 *
+					 * The value is parsed from the binary representation of this attribute.
+					 *  That means this attribute's static properties are not used except for
+					 *  the type and the is-system-flag.
+					 *
+					 * \return This attribute's value
+					 */
+					const ValueType get() const {
+						// The result (in big endian order first, it will be converted when it is returned)
+						ValueType res = ValueType();
 
-							data[1] = static_cast<uint8_t>(newValue);
+						// Pointer to the attribute value
+						const uint8_t* val;
+
+						const AttributeElementHeader* const header = reinterpret_cast<const AttributeElementHeader* const>(data);
+
+						if ((isSystem) && (header->valueOrLengthSwitch)) {
+							if (header->extension) {
+								if (sizeof(ValueType) == 1) {
+									// If the value type has only one byte, the two remaining bits of the
+									//  header byte are zero, since all 8 bits of the value fit the extended byte
+									res = static_cast<ValueType>(data[1]);
+								} else {
+									// In all other cases the 10 bits must be copied manually into the result
+
+									// Get a pointer to the last byte of the result
+									uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&res) + sizeof(ValueType) - 1;
+
+									// Copy the extended byte
+									*tmp       = data[1];
+									// Copy the remaining 2 bits
+									*(tmp - 1) = data[0] & 0x3;
+								}
+							} else {
+								res = static_cast<ValueType>(data[0] & 0x3);
+							}
 						} else {
-							// This case can never be reached by a negative value (it would have taken 16 bits, which is not allowed here)
+							// Number of bytes to copy from the val-array
+							uint16_t length;
+
+							// Read the length in big-endian order
+							uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&length);
+							if (header->extension) {
+								tmp[0] = data[0] & (isSystem ? 0x3 : 0x7);
+								tmp[1] = data[1];
+
+								val    = &data[(isSystem ? 2 : 3)];
+							} else {
+								tmp[0] = 0x00;
+								tmp[1] = data[0] & (isSystem ? 0x3 : 0x7);
+
+								val    = &data[(isSystem ? 1 : 2)];
+							}
+
+							// Convert byte order of the length to host-order
+							length = ntohs(length);
+
+							// Interpret the result as a byte array to copy every single byte
+							uint8_t* const resPtr = reinterpret_cast<uint8_t* const>(&res);
+
+							// Copy the data from the determined pointer into the result
+							for (uint16_t i = sizeof(ValueType) - 1, j = length - 1, counter = length; counter > 0; --i, --j, --counter) {
+								resPtr[i] = val[j];
+							}
+						}
+
+						return (famouso::util::ntoh(res));
+					}
+
+					/*!
+					 * \brief Sets the value in the binary representation of
+					 *  this attribute to the given one.
+					 *
+					 * Since the binary representation of attribute's value has
+					 *  some restrictions in size it could be the case that it
+					 *  is not possible to apply the given value. This could for
+					 *  example be the case if the current value is written
+					 *  unextended and the new value would demand to be written
+					 *  extended.
+					 *
+					 * \param newValue The new value to set
+					 *
+					 * \return True if the value could properly be set, false
+					 *  if the value could not be set and the attribute keeps
+					 *  its previous value
+					 */
+					const bool set(const ValueType newValue) {
+						// Determine the bit count of the value to set
+						const uint16_t newBitCount = famouso::util::getBitCount(newValue);
+
+						AttributeElementHeader* const header = reinterpret_cast<AttributeElementHeader* const>(data);
+
+						if ((isSystem) && (header->valueOrLengthSwitch)) {
+							if (header->extension) {
+								if (newBitCount > 10) return (false);
+
+								if (sizeof(ValueType) == 1) {
+									// If the given value has only one byte, the 2 bits of the header must be
+									//  cleared and the extended byte is set to the given value
+
+									header->valueOrLength = 0x0;
+
+									data[1] = static_cast<uint8_t>(newValue);
+								} else {
+									// This case can never be reached by a negative value (it would have taken 16 bits, which is not allowed here)
+
+									// Convert the given value to big endian order
+									const ValueType bigEndian = famouso::util::hton(newValue);
+
+									// In all other cases the lower 10 bits of the given value must be copied
+									//  into the binary representation
+									// Retrieve a pointer and move it to the last byte of the value
+									const uint8_t* const tmp = reinterpret_cast<const uint8_t* const>(&bigEndian) + sizeof(ValueType) - 1;
+
+									// Copy into the extended byte
+									data[1] =  *tmp;
+									// Copy the lowest 2 bits of the header
+									header->valueOrLength = (*(tmp - 1) & 0x3);
+								}
+							} else {
+								if (newBitCount > 2) return (false);
+
+								// This case can never be reached by a negative value (it takes 8 bits at least)
+								//  so it is legal to simply mask the lowest 2 bits
+
+								// Simply write the lowest 3 bits to the header
+								header->valueOrLength = (newValue & 0x3);
+							}
+						} else {
+							// Determine the byte count needed by the new value (this is necessary since
+							//  we only write whole bytes if the VOL flag isn't set)
+							const uint16_t newByteCount = famouso::util::bitCountToByteCount(newBitCount);
+
+							// The pointer where to start copying the bytes of the new value (depends on the extension flag)
+							uint8_t* targetPtr;
+							// The length read
+							uint16_t length;
+
+							// Read the length in big-endian order
+							uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&length);
+							if (header->extension) {
+								tmp[0] = data[0] & (isSystem ? 0x3 : 0x7);
+								tmp[1] = data[1];
+
+								targetPtr = &data[(isSystem ? 2 : 3)];
+							} else {
+								tmp[0] = 0x00;
+								tmp[1] = data[0] & (isSystem ? 0x3 : 0x7);
+
+								targetPtr = &data[(isSystem ? 1 : 2)];
+							}
+
+							// Convert byte order of the length to host-order
+							length = ntohs(length);
+
+							// Check if the new byte count does not violate the old one
+							if (newByteCount > length) return (false);
 
 							// Convert the given value to big endian order
-							const ValueType bigEndian = hton(newValue);
+							const ValueType bigEndian = famouso::util::hton(newValue);
+							// Get a pointer to the big endian representation
+							const uint8_t* const newValPtr = reinterpret_cast<const uint8_t*>(&bigEndian) + (sizeof(ValueType) - length);
 
-							// In all other cases the lower 10 bits of the given value must be copied
-							//  into the binary representation
-							// Retrieve a pointer and move it to the last byte of the value
-							const uint8_t* const tmp = reinterpret_cast<const uint8_t* const>(&bigEndian) + sizeof(ValueType) - 1;
-
-							// Copy into the extended byte
-							data[1] =  *tmp;
-							// Copy the lowest 2 bits of the header
-							header->valueOrLength = (*(tmp - 1) & 0x3);
-						}
-					} else {
-						if (newBitCount > 2) {
-							return (false);
+							// Copy the value (we even copy the possible zero bytes of the new value to
+							//  zero out the bytes not needed, the length must not be decreased since
+							//	it would make iterating over the byte sequence impossible)
+							for (uint16_t i = 0; i < length; ++i) {
+								targetPtr[i] = newValPtr[i];
+							}
 						}
 
-						// This case can never be reached by a negative value (it takes 8 bits at least)
-						//  so it is legal to simply mask the lowest 2 bits
-
-						// Simply write the lowest 3 bits to the header
-						header->valueOrLength = (newValue & 0x3);
+						return (true);
 					}
-				} else {
-					// Determine the byte count needed by the new value (this is necessary since
-					//  we only write whole bytes if the VOL flag isn't set)
-					const uint16_t newByteCount = bitCountToByteCount(newBitCount);
+			};
 
-					// The pointer where to start copying the bytes of the new value (depends on the extension flag)
-					uint8_t* targetPtr;
-
-					uint16_t length;
-
-					// Read the length in big-endian order
-					uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&length);
-					if (header->extension) {
-						tmp[0] = data[0] & 0x3;
-						tmp[1] = data[1];
-
-						targetPtr = &data[2];
-					} else {
-						tmp[0] = 0x00;
-						tmp[1] = data[0] & 0x3;
-
-						targetPtr = &data[1];
-					}
-
-					// Convert byte order of the length to host-order
-					length = ntohs(length);
-
-					// Check if the new byte count does not violate the old one
-					if (newByteCount > length) {
-						return (false);
-					}
-
-					// Convert the given value to big endian order
-					const ValueType bigEndian = hton(newValue);
-					// Get a pointer to the big endian representation
-					const uint8_t* newValPtr = reinterpret_cast<const uint8_t*>(&bigEndian);
-
-					newValPtr += sizeof(ValueType) - length;
-
-					// Copy the value (we even copy the possible zero bytes of the new value to
-					//  zero out the bytes not needed, the length must not be decreased since
-					//	it would make iterating over the byte sequence impossible)
-					for (uint16_t i = 0; i < length; ++i) {
-						targetPtr[i] = newValPtr[i];
-					}
-				}
-			} else {
-				// Determine the byte count needed by the new value
-				const uint16_t newByteCount = bitCountToByteCount(newBitCount);
-
-				// The pointer where to start copying the bytes of the new value (depends on the extension flag)
-				uint8_t* targetPtr;
-
-				uint16_t length;
-
-				// Read the length in big-endian order
-				uint8_t* const tmp = reinterpret_cast<uint8_t* const>(&length);
-				if (header->extension) {
-					tmp[0] = data[0] & 0x7;
-					tmp[1] = data[1];
-
-					targetPtr = &data[3];
-				} else {
-					tmp[0] = 0x00;
-					tmp[1] = data[0] & 0x7;
-
-					targetPtr = &data[2];
-				}
-
-				// Convert byte order of the length to host-order
-				length = ntohs(length);
-
-				// Check if the new byte count does not violate the old one
-				if (newByteCount > length) {
-					return (false);
-				}
-
-				// Convert the given value to big endian order
-				const ValueType bigEndian = hton(newValue);
-				// Get a pointer to the big endian representation
-				const uint8_t* newValPtr = reinterpret_cast<const uint8_t*>(&bigEndian);
-
-				newValPtr += sizeof(ValueType) - length;
-
-				// Copy the value (we even copy the possible zero bytes of the new value to
-				//  zero out the bytes not needed, the length must not be decreased since
-				//	it would make iterating over the byte sequence impossible)
-				for (uint16_t i = 0; i < length; ++i) {
-					targetPtr[i] = newValPtr[i];
-				}
-			}
-
-			return (true);
-		}
-};
+		} // end namespace attributes
+	} // end namespace mw
+} // end namespace famouso
 
 #endif // _EmptyAttribute_
