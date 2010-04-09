@@ -131,22 +131,32 @@ namespace famouso {
                         // Initialize the member array "data" to the binary representation
                         //  of this attribute
 
-                        // Get a big endian representation of the value
-                        const ValueType bigEndian = famouso::util::hton(value);
-                        // Get a pointer to the value
-                        const uint8_t* ptr = reinterpret_cast<const uint8_t*> (&bigEndian);
-                        // Move the pointer to the last byte
-                        ptr += sizeof(ValueType) - 1;
+                        // The complex initialization (i.e. copying the bytes into the array)
+                        //  only applies if the value takes at least one bit (e.g. 0 does not)
+                        if (famouso::config::BitCount<value_type, value>::value > 0) {
+                            // Get a big endian representation of the value
+                            const ValueType bigEndian = famouso::util::hton(value);
+                            // Get a pointer to the value
+                            const uint8_t* ptr = reinterpret_cast<const uint8_t*> (&bigEndian);
+                            // Move the pointer to the last byte
+                            ptr += sizeof(ValueType) - 1;
 
-                        // The index where we start writing the value (starts at the last
-                        //  byte which will be written and will then be decremented)
-                        uint16_t i = detail::ValueOffset<type>::value + detail::ValueByteCount<type>::value - 1;
+                            // The index where we start writing the value (starts at the last
+                            //  byte which will be written and will then be decremented)
+                            uint16_t i = detail::ValueOffset<type>::value + detail::ValueByteCount<type>::value - 1;
 
-                        // Copy as many bytes as either fit the range where the value is
-                        //  supposed to be written or as the value itself has (as sizeof()
-                        //  determines)
-                        for (uint16_t j = 0; (i > detail::ValueOffset<type>::value - 1) && (j < sizeof(ValueType)); --i, ++j) {
-                            data[i] = *ptr--;
+                            // Copy as many bytes as either fit the range where the value is
+                            //  supposed to be written or as the value itself has (as sizeof()
+                            //  determines)
+                            for (uint16_t j = 0; (i > detail::ValueOffset<type>::value - 1) && (j < sizeof(ValueType)); --i, ++j) {
+                                data[i] = *ptr--;
+                            }
+                        } else {
+                            // If the value' representation does not need any bit we simply zero
+                            //  out the member array, the header will overwrite everythinh needed
+                            for (uint8_t i = 0; i < sizeof(data); ++i) {
+                                data[i] = 0x00;
+                            }
                         }
 
                         // Write the header
