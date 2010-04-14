@@ -61,10 +61,10 @@ bool filter_event(const F& f, T e) {
 }
 template<typename F>
 void filter_tester(const F& f) {
-    famouso::mw::ExtendedEvent<0, TTL<0> > e0(famouso::mw::Subject(0xf1));
-    famouso::mw::ExtendedEvent<0, TTL<1> > e1(famouso::mw::Subject(0xf1));
-    famouso::mw::ExtendedEvent<0, TTL<2> > e2(famouso::mw::Subject(0xf1));
-    famouso::mw::ExtendedEvent<0, TTL<3> > e3(famouso::mw::Subject(0xf1));
+    famouso::mw::ExtendedEvent<0, boost::mpl::list<TTL<0> > > e0(famouso::mw::Subject(0xf1));
+    famouso::mw::ExtendedEvent<0, boost::mpl::list<TTL<1> > > e1(famouso::mw::Subject(0xf1));
+    famouso::mw::ExtendedEvent<0, boost::mpl::list<TTL<2> > > e2(famouso::mw::Subject(0xf1));
+    famouso::mw::ExtendedEvent<0, boost::mpl::list<TTL<3> > > e3(famouso::mw::Subject(0xf1));
     famouso::mw::ExtendedEvent<0 > e4(famouso::mw::Subject(0xf1));
 
     ::logging::log::emit() << "sizeof((f))="<< sizeof(f) << ::logging::log::endl;

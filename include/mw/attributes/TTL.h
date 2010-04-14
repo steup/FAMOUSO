@@ -41,7 +41,7 @@
 #define __TTL_h__
 
 #include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/EmptyAttribute.h"
+#include "mw/attributes/Attribute.h"
 
 namespace famouso {
     namespace mw {
@@ -59,28 +59,11 @@ namespace famouso {
              *          generic, or resource optimal solution.
              */
             template<uint8_t ttl>
-            class TTL : public EmptyAttribute {
+            class TTL : public Attribute<uint8_t, ttl, 1, true > {
             public:
                 typedef TTL<0>                      base_type;
                 typedef tags::integral_const_tag    compare_tag;
                 typedef TTL                         type;
-                enum {
-                    size = 2,
-                    id='T'
-                };
-                static uint8_t value() {
-                    return ttl;
-                }
-
-                TTL() {
-                    data[0]=id;
-                    data[1]=value();
-                }
-
-                uint8_t get() const { return data[1];}
-                void set(uint8_t tmp) { data[1]=tmp;}
-            private:
-                uint8_t data[size];
             };
 
         } /* attributes */

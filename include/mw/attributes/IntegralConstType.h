@@ -40,7 +40,6 @@
 #ifndef __IntegralConstType_h__
 #define __IntegralConstType_h__
 
-#include "mw/attributes/EmptyAttribute.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
 
 namespace famouso {
@@ -49,7 +48,7 @@ namespace famouso {
 
             /*! \brief defines the base type of an integral constant
              */
-            struct IntegralConstType : EmptyAttribute {
+            struct IntegralConstType {
                 typedef IntegralConstType           base_type;
                 typedef tags::integral_const_tag    compare_tag;
                 typedef IntegralConstType           type;
