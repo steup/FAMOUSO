@@ -44,6 +44,8 @@
 
 #include "debug.h"
 
+#include "mw/afp/defrag/detail/VarHeaderLength.h"
+
 #include <string.h>
 
 
@@ -71,6 +73,7 @@ namespace famouso {
 
                         typedef class AFPDC::DefragStatistics Statistics;
                         typedef class AFPDC::Allocator Allocator;
+                        typedef detail::VarHeaderLength<AFPDC> VHL;
 
                     public:
 
@@ -78,7 +81,8 @@ namespace famouso {
 
                     protected:
 
-                        uint8_t * event_data;             ///< Restored data block
+                        uint8_t * event_data;             ///< Points to restored data block
+                        uint8_t * behind_event_data;      ///< Points behind restored data block
                         elen_t event_length;              ///< Length of the currently restored data (sum of put fragment's length)
 
                         bool event_fragment_count_final;  ///< false, if first fragment did not arrive (yet)
@@ -86,7 +90,7 @@ namespace famouso {
 
                         fcount_t arrived_fragment_count;  ///< Count of data chunks collected.
 
-                        flen_t max_fragment_length;       ///< Maximum fragment payload length (MTU - header). Zero encodes error status of this object.
+                        flen_t no_ext_mtu;                ///< MTU minus extension header's length. Zero encodes error status of this object.
 
 
                         /*!
@@ -94,13 +98,13 @@ namespace famouso {
                          * \param new_fragment_count New number of fragments event_data must be able to store
                          */
                         void realloc_event_data(fcount_t new_fragment_count) {
-                            elen_t old_len = event_fragment_count * max_fragment_length;
-                            elen_t new_len = new_fragment_count * max_fragment_length;
+                            elen_t old_len = behind_event_data - event_data;
+                            elen_t new_len = VHL::get_payload(new_fragment_count, no_ext_mtu);
 
                             uint8_t * new_data = Allocator::alloc(new_len);
                             if (!new_data) {
                                 ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
-                                max_fragment_length = 0;
+                                no_ext_mtu = 0;
                                 return;
                             }
 
@@ -108,18 +112,19 @@ namespace famouso {
                             Allocator::free(event_data);
 
                             event_data = new_data;
+                            behind_event_data = new_data + new_len;
                             event_fragment_count = new_fragment_count;
                         }
                     public:
 
                         /*!
                          * \brief Constructor
-                         * \param max_chunk_length Maximum payload of fragment (MTU - header)
+                         * \param no_ext_mtu    MTU minus extension header's length
                          */
-                        OutOfOrderEventDataReconstructor(flen_t max_chunk_length)
+                        OutOfOrderEventDataReconstructor(flen_t no_ext_mtu)
                                 : event_data(0), event_length(0),
                                 event_fragment_count_final(false), event_fragment_count(0),
-                                arrived_fragment_count(0), max_fragment_length(max_chunk_length) {
+                                arrived_fragment_count(0), no_ext_mtu(no_ext_mtu) {
                         }
 
                         /// Destructor
@@ -131,7 +136,7 @@ namespace famouso {
                                 // There is no derived class
 
                                 // ... this check may have to be done in derived class
-                                if (get_data() == 0)
+                                if (!is_complete())
                                     Statistics::event_incomplete();
 
                                 Statistics::fragments_currently_expected_sub(event_fragment_count - arrived_fragment_count);
@@ -148,11 +153,11 @@ namespace famouso {
                          */
                         void put_fragment(const Headers<AFPDC> & header, const uint8_t * data, flen_t length) {
                             // Only last fragment may be smaller than maximum
-                            FOR_FAMOUSO_ASSERT_ONLY(bool wrong_mtu = length != max_fragment_length && header.fseq != 0);
-                            FAMOUSO_ASSERT(!wrong_mtu);             // Wrong MTU will lead to undefined behaviour
-                            FAMOUSO_ASSERT(!get_data());            // Event should not be already complete
+                            FOR_FAMOUSO_ASSERT_ONLY(bool wrong_mtu_or_frag_len = length != no_ext_mtu - VHL::get_basic_header_len(header.fseq) && header.fseq != 0);
+                            FAMOUSO_ASSERT(!wrong_mtu_or_frag_len); // Wrong MTU will lead to undefined behaviour
+                            FAMOUSO_ASSERT(!is_complete());         // Event should not be already complete
 
-                            if (max_fragment_length == 0)   // Do nothing on error status
+                            if (no_ext_mtu == 0)            // Do nothing on error status
                                 return;
                             if (header.fec.occurs()) {      // Cannot handle events using FEC -> error
                                 ::logging::log::emit< ::logging::Warning>() << "AFP: FEC not supported -> drop" << ::logging::log::endl;
@@ -166,11 +171,13 @@ namespace famouso {
                                 // put_fragment() called first time
                                 event_fragment_count = header.fseq + (header.first_fragment ? 1 : 2);
 
-                                event_data = Allocator::alloc(event_fragment_count * max_fragment_length);
+                                elen_t buffer_length = VHL::get_payload(event_fragment_count, no_ext_mtu);
+                                event_data = Allocator::alloc(buffer_length);
                                 if (!event_data) {
                                     ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
                                     goto set_error;
                                 }
+                                behind_event_data = event_data + buffer_length;
 
                                 Statistics::fragments_expected(event_fragment_count);
                                 Statistics::fragments_currently_expected_add(event_fragment_count - 1);
@@ -192,35 +199,45 @@ namespace famouso {
                             }
 
                             // Copy into event_data buffer
-                            memcpy(event_data + (event_fragment_count - header.fseq - 1) * max_fragment_length, data, length);
+                            memcpy(behind_event_data - VHL::get_payload(header.fseq + 1, no_ext_mtu), data, length);
 
                             arrived_fragment_count++;
                             event_length += length;
 
                             Statistics::fragment_used();
 
-                            if (get_data() != 0)
+                            if (is_complete())
                                 Statistics::event_complete();
 
                             return;
 
                         set_error:
-                            max_fragment_length = 0;
+                            no_ext_mtu = 0;
                             return;
                         }
 
-
                         /*!
-                         * \brief Returns the defragmented data block if event is complete, NULL otherwise.
+                         *  \brief  Returns whether the event already got reconstructed completely.
                          */
-                        uint8_t * get_data() {
-                            return (arrived_fragment_count == event_fragment_count && event_fragment_count_final && !error()) ? event_data : 0;
+                        bool is_complete() {
+                            return arrived_fragment_count == event_fragment_count && event_fragment_count_final && !error();
                         }
 
                         /*!
-                         * \brief Returns the length of the event's data. Only valid if get_data() != 0.
+                         * \brief Returns the defragmented data block
+                         * \pre is_complete() returns true
+                         */
+                        uint8_t * get_data() {
+                            FAMOUSO_ASSERT(is_complete());
+                            return event_data;
+                        }
+
+                        /*!
+                         * \brief Returns the length of the event's data.
+                         * \pre is_complete() returns true
                          */
                         elen_t get_length() {
+                            FAMOUSO_ASSERT(is_complete());
                             return event_length;
                         }
 
@@ -228,7 +245,7 @@ namespace famouso {
                          * \brief Returns true if an error occured and event cannot be reconstructed for sure.
                          */
                         bool error() {
-                            return max_fragment_length == 0;
+                            return no_ext_mtu == 0;
                         }
                 };
 

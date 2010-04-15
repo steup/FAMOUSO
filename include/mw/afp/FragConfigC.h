@@ -46,13 +46,11 @@
 
 
 // Policies
+#include "mw/afp/frag/NoFECFragmenter.h"
+#include "mw/afp/frag/FECFragmenter.h"
+
 #include "mw/afp/frag/Use32BitEventSeq.h"
 #include "mw/afp/frag/UseNoEventSeq.h"
-
-#include "mw/afp/frag/UseNoFEC.h"
-#ifndef __AVR__
-#include "mw/afp/frag/UseFEC.h"
-#endif
 
 #include "mw/afp/frag/RedundancyAttribute.h"
 
@@ -115,7 +113,7 @@ namespace famouso {
                 typedef SizeProperties SizeProp;
 
                 typedef frag::UseNoEventSeq<FragConfigC> EventSeqUsagePolicy;
-                typedef frag::UseNoFEC<FragConfigC> FECUsagePolicy;
+                typedef frag::NoFECFragmenter<FragConfigC> FragImplPolicy;
 
                 typedef AllocatorType Allocator;
                 typedef OverflowErrorCheckingPolicy OverflowErrorChecking;
@@ -137,7 +135,7 @@ namespace famouso {
                 typedef SizeProperties SizeProp;
 
                 typedef frag::Use32BitEventSeq<FragConfigC> EventSeqUsagePolicy;
-                typedef frag::UseNoFEC<FragConfigC> FECUsagePolicy;
+                typedef frag::NoFECFragmenter<FragConfigC> FragImplPolicy;
 
                 typedef AllocatorType Allocator;
                 typedef OverflowErrorCheckingPolicy OverflowErrorChecking;
@@ -161,7 +159,7 @@ namespace famouso {
                 typedef SizeProperties SizeProp;
 
                 typedef frag::UseNoEventSeq<FragConfigC> EventSeqUsagePolicy;
-                typedef frag::UseFEC<FragConfigC> FECUsagePolicy;
+                typedef frag::FECFragmenter<FragConfigC> FragImplPolicy;
 
                 typedef typename UseFEC<RedAttrib>::RedundancyAttrib FECRedundancy;
 
@@ -186,7 +184,7 @@ namespace famouso {
                 typedef SizeProperties SizeProp;
 
                 typedef frag::Use32BitEventSeq<FragConfigC> EventSeqUsagePolicy;
-                typedef frag::UseFEC<FragConfigC> FECUsagePolicy;
+                typedef frag::FECFragmenter<FragConfigC> FragImplPolicy;
 
                 typedef typename UseFEC<RedAttrib>::RedundancyAttrib FECRedundancy;
 

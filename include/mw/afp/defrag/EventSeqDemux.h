@@ -336,7 +336,7 @@ namespace famouso {
                                 // Unknown key
                                 // -> create new event defragmenter
                                 FAMOUSO_ASSERT(mtu > header.length());
-                                event = new (Allocator()) Event<KeyType>(mtu - header.length(), event_key);
+                                event = new (Allocator()) Event<KeyType>(mtu - header.ext_length(), event_key);
                                 if (!event || event->status == Event<KeyType>::event_outdated) {
                                     ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
                                     return 0;
@@ -352,7 +352,7 @@ namespace famouso {
                             event = *it;
                             FAMOUSO_ASSERT(event->key == event_key);
 
-                            if (event->status == Event<KeyType>::event_outdated || event->def->get_event_data()) {
+                            if (event->status == Event<KeyType>::event_outdated || event->def->is_event_complete()) {
                                 // Event was already processed, dropped or is complete (late fragment of already dropped event, duplicate or FEC redundancy fragment not needed)
                                 // -> drop fragment
                                 ::logging::log::emit< ::logging::Info>()

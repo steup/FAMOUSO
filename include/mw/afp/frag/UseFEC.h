@@ -69,13 +69,10 @@ namespace famouso {
 
 
                 /*!
-                 * \brief Policy: Fragmentation with forward error correction
+                 * \brief Fragmentation with forward error correction
                  *
                  * Currently not supported on AVR platform.
                  *
-                 * Alternative policies: UseNoFEC
-                 *
-                 * TODO Only write FEC header when FEC is used.
                  * TODO Error handling (new), allocator
                  */
                 template <class AFPFC>
@@ -194,7 +191,6 @@ namespace famouso {
                          * \param more_headers True if there will be another header behind this one
                          */
                         void get_header(uint8_t * data, bool more_headers) {
-                            // TODO: Only write FEC header when FEC is used. (Needs restructuring of policy interface)
                             Header1001 * h = reinterpret_cast<Header1001 *>(data);
                             h->head = (more_headers ? 0x40 | 0x29 : 0x29);
                             h->red = Redundancy::value();

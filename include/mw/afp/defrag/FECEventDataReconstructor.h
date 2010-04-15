@@ -48,6 +48,7 @@
 #include "debug.h"
 
 #include "mw/afp/defrag/OutOfOrderEventDataReconstructor.h"
+#include "mw/afp/defrag/detail/VarHeaderLength.h"
 #include "mw/afp/shared/expandrange_cast.h"
 #include "mw/afp/shared/div_round_up.h"
 
@@ -90,6 +91,7 @@ namespace famouso {
 
                         typedef class AFPDC::DefragStatistics Statistics;
                         typedef class AFPDC::Allocator Allocator;
+                        typedef detail::VarHeaderLength<AFPDC> VHL;
 
                     public:
 
@@ -105,6 +107,8 @@ namespace famouso {
 
                         void * fec_code;           ///< Code descriptor of the used library
 
+                        flen_t payload_length;     ///< Payload per fragment (constant, payload of first fragment)
+
                         /// Calculates n-k from k and redundancy level (in %)
                         static fcount_t get_redundancy_fragment_count(fcount_t k, uint8_t redundancy) {
                             return shared::div_round_up(shared::expandrange_cast(k) * redundancy,
@@ -115,10 +119,10 @@ namespace famouso {
 
                         /*!
                          * \brief Constructor
-                         * \param payload_length Maximum payload length per fragment
+                         * \param no_ext_mtu    MTU minus extension header's length
                          */
-                        FECEventDataReconstructor(flen_t payload_length)
-                                : Base(payload_length), fragments_data(0), k(1), fec_code(0) {
+                        FECEventDataReconstructor(flen_t no_ext_mtu)
+                                : Base(no_ext_mtu), fragments_data(0), fragments_order(0), k(1), fec_code(0), payload_length(0) {
                         }
 
                         /// Destructor
@@ -126,7 +130,7 @@ namespace famouso {
                             // The check cannot be done in base class. Thats why this class have to
                             // communicate with the base class to avoid double increment on
                             // statistics. Problem solved with a hack... see below.
-                            if (get_data() == 0)
+                            if (!is_complete())
                                 Statistics::event_incomplete();
 
                             Statistics::fragments_currently_expected_sub(Base::event_fragment_count - Base::arrived_fragment_count);
@@ -162,9 +166,9 @@ namespace famouso {
                          * \param length Payload data length of the fragment
                          */
                         void put_fragment(const Headers<AFPDC> & header, const uint8_t * data, flen_t length) {
-                            FAMOUSO_ASSERT(!get_data());                  // Event should not be already complete
+                            FAMOUSO_ASSERT(!is_complete());       // Event should not be already complete
 
-                            if (Base::max_fragment_length == 0)   // Do nothing on error status
+                            if (Base::error())                    // Do nothing on error status
                                 return;
 
                             if (!header.fec.occurs()) {           // Enter non FEC mode
@@ -179,7 +183,8 @@ namespace famouso {
                                 // put_fragment() called first time... init parameters from header
                                 k = header.fec.get_k();
                                 Base::event_fragment_count = k + get_redundancy_fragment_count(k, header.fec.get_red());
-                                Base::event_length = (k - 1) * Base::max_fragment_length + header.fec.get_len_rest();
+                                payload_length = Base::no_ext_mtu - VHL::get_basic_header_len(Base::event_fragment_count - 1);
+                                Base::event_length = (k - 1) * payload_length + header.fec.get_len_rest();
 
                                 Statistics::fragments_expected(Base::event_fragment_count);
                                 Statistics::fragments_currently_expected_add(Base::event_fragment_count);
@@ -195,18 +200,18 @@ namespace famouso {
 
                                 memset(fragments_data, 0, k * sizeof(uint8_t *));
 
-                                ::logging::log::emit< ::logging::Info>() << "AFP: FEC: payload length " << ::logging::log::dec << (unsigned int)Base::max_fragment_length << ", k " << (unsigned int)k << ", n " << (unsigned int)Base::event_fragment_count << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Info>() << "AFP: FEC: payload length " << ::logging::log::dec << (unsigned int)payload_length << ", k " << (unsigned int)k << ", n " << (unsigned int)Base::event_fragment_count << ::logging::log::endl;
                             }
 
                             // Wrong MTU will lead to undefined behaviour...
                             // Only last non-redundancy fragment may be smaller than maximum
                             {
-                                FOR_FAMOUSO_ASSERT_ONLY(bool wrong_mtu = length != Base::max_fragment_length && header.fseq != Base::event_fragment_count - k);
-                                FAMOUSO_ASSERT(!wrong_mtu);
+                                FOR_FAMOUSO_ASSERT_ONLY(bool wrong_mtu_or_frag_len = length != payload_length && header.fseq != Base::event_fragment_count - k);
+                                FAMOUSO_ASSERT(!wrong_mtu_or_frag_len);
                             }
 
                             // Collect data
-                            fragments_data[Base::arrived_fragment_count] = Allocator::alloc(Base::max_fragment_length);
+                            fragments_data[Base::arrived_fragment_count] = Allocator::alloc(payload_length);
                             if (!fragments_data[Base::arrived_fragment_count]) {
                                 // Do not set error... may be reconstructable although we have to drop this fragment
                                 ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
@@ -214,8 +219,8 @@ namespace famouso {
                             }
 
                             memcpy(fragments_data[Base::arrived_fragment_count], data, length);
-                            if (Base::max_fragment_length > length)
-                                memset(fragments_data[Base::arrived_fragment_count] + length, 0, Base::max_fragment_length - length);
+                            if (payload_length > length)
+                                memset(fragments_data[Base::arrived_fragment_count] + length, 0, payload_length - length);
 
                             fragments_order[Base::arrived_fragment_count] = Base::event_fragment_count - header.fseq - 1;
 
@@ -224,28 +229,39 @@ namespace famouso {
                             Statistics::fragments_currently_expected_sub(1);
                             Statistics::fragment_used();
 
-                            if (get_data() != 0)
+                            if (is_complete())
                                 Statistics::event_complete();
 
                             return;
 
                         set_error:
-                            Base::max_fragment_length = 0;
+                            Base::no_ext_mtu = 0;
                             return;
                         }
 
 
                         /*!
-                         * \brief Returns the defragmented data block if event is complete, NULL otherwise.
+                         *  \brief  Returns whether the event can be reconstructed completely.
+                         */
+                        bool is_complete() {
+                            // In non FEC mode ask base class
+                            if (k == 0)
+                                return Base::is_complete();
+
+                            // If we have less than k fragments, reconstruction is not possible (yet).
+                            return Base::arrived_fragment_count >= k && !Base::error();
+                        }
+
+                        /*!
+                         * \brief Returns the defragmented data block
+                         * \pre is_complete() returns true
                          */
                         uint8_t * get_data() {
                             // In non FEC mode ask base class
                             if (k == 0)
                                 return Base::get_data();
 
-                            // If we have less than k fragments, reconstruction is not possible (yet). On error status return 0 too.
-                            if (Base::arrived_fragment_count < k || Base::max_fragment_length == 0)
-                                return 0;
+                            FAMOUSO_ASSERT(is_complete());
 
                             if (!Base::event_data) {
                                 // Decode data
@@ -254,7 +270,7 @@ namespace famouso {
                                                                           const_cast<uint8_t **>(fragments_data)
                                                                       ),
                                                                       fragments_order,
-                                                                      Base::max_fragment_length);
+                                                                      payload_length);
                                 if (err != 0) {
                                     ::logging::log::emit< ::logging::Warning>() << "AFP: FEC decode error -> drop" << ::logging::log::endl;
                                     goto set_error;
@@ -269,16 +285,25 @@ namespace famouso {
 
                                 uint8_t * p = Base::event_data;
                                 fcount_t km1 =  k - 1;
-                                for (fcount_t i = 0; i < km1; i++, p += Base::max_fragment_length)
-                                    memcpy(p, fragments_data[i], Base::max_fragment_length);
-                                memcpy(p, fragments_data[km1], Base::event_length - (km1 * Base::max_fragment_length));
+                                for (fcount_t i = 0; i < km1; i++, p += payload_length)
+                                    memcpy(p, fragments_data[i], payload_length);
+                                memcpy(p, fragments_data[km1], Base::event_length - (km1 * payload_length));
                             }
 
                             return Base::event_data;
 
                         set_error:
-                            Base::max_fragment_length = 0;
+                            Base::no_ext_mtu = 0;
                             return 0;
+                        }
+
+                        /*!
+                         * \brief Returns the length of the event's data.
+                         * \pre is_complete() returns true
+                         */
+                        elen_t get_length() {
+                            FAMOUSO_ASSERT(is_complete());
+                            return Base::event_length;
                         }
                 };
 

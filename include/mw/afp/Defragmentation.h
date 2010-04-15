@@ -113,9 +113,11 @@ namespace famouso {
                                 // Free event data if this event cannot be reconstructed for sure.
                                 demux.free_defragmenter(ds.defragmenter_handle);
                             } else {
-                                // Return event reconstruction status (and data if event is complete)
-                                ds.event_data = defrag->get_event_data();
-                                ds.event_length = defrag->get_event_length();
+                                // Check event reconstruction status and return data if event is complete
+                                if (defrag->is_event_complete()) {
+                                    ds.event_data = defrag->get_event_data();
+                                    ds.event_length = defrag->get_event_length();
+                                }
                             }
                         } else {
                             // This fragment is outdated. The event it belongs to
@@ -175,7 +177,7 @@ namespace famouso {
                     /*!
                      * \brief Get data of kept event.
                      * \param event_handle Handle returned by keep_event().
-                     * \return Data pointer or NULL if event is incomplete.
+                     * \return Data pointer
                      */
                     uint8_t * kept_get_event_data(void * event_handle) {
                         defrag::Defragmenter<AFPDC> * defrag = DefragmentationProcessor<AFPDC>::demux.get_kept_defragmenter(event_handle);
@@ -185,7 +187,7 @@ namespace famouso {
                     /*!
                      * \brief Get length of kept event.
                      * \param event_handle Handle returned by keep_event().
-                     * \return Data length if kept_get_event_data() returns not NULL.
+                     * \return Data length
                      */
                     elen_t kept_get_event_length(void * event_handle) {
                         defrag::Defragmenter<AFPDC> * defrag = DefragmentationProcessor<AFPDC>::demux.get_kept_defragmenter(event_handle);

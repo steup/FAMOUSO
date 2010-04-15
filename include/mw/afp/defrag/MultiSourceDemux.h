@@ -207,7 +207,7 @@ namespace famouso {
                                 // Unknown or recently freed key
                                 // -> create new event defragmenter
                                 FAMOUSO_ASSERT(mtu > header.length());
-                                event = new (Allocator()) Event<KeyType>(mtu - header.length(), event_key);
+                                event = new (Allocator()) Event<KeyType>(mtu - header.ext_length(), event_key);
 
                                 if (!event)
                                     goto out_of_mem_error;

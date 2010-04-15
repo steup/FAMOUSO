@@ -46,11 +46,11 @@
 
 
 // Policies
+#include "mw/afp/frag/NoFECFragmenter.h"
+#include "mw/afp/frag/FECFragmenter.h"
+
 #include "mw/afp/frag/Use32BitEventSeq.h"
 #include "mw/afp/frag/UseNoEventSeq.h"
-
-#include "mw/afp/frag/UseNoFEC.h"
-#include "mw/afp/frag/UseFEC.h"
 
 #include "mw/afp/frag/RedundancyAttribute.h"
 
@@ -94,12 +94,12 @@ namespace famouso {
                             frag::Use32BitEventSeq<ThisType>
                         >::type EventSeqUsagePolicy;
 
-                /// FEC policy
+                /// Fragmentation/FEC usage policy
                 typedef typename if_select_type<
                             use_fec,
-                            frag::UseFEC<ThisType>,
-                            frag::UseNoFEC<ThisType>
-                        >::type FECUsagePolicy;
+                            frag::FECFragmenter<ThisType>,
+                            frag::NoFECFragmenter<ThisType>
+                        >::type FragImplPolicy;
 
                 /// FEC redundancy attribute (access to redundancy at run-time)
                 typedef typename if_select_type<

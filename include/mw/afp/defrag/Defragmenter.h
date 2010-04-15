@@ -109,8 +109,15 @@ namespace famouso {
                         }
 
                         /*!
+                         * \brief Returns whether the event already got reconstructed completely.
+                         */
+                        bool is_event_complete() {
+                            return event_reconst.is_complete();
+                        }
+
+                        /*!
                          * \brief Get data of the reconstructed event.
-                         * \return Null pointer if data could not be reconstructed yet, otherwise the data pointer (internal buffer).
+                         * \pre is_event_complete() returns true
                          */
                         uint8_t * get_event_data() {
                             return event_reconst.get_data();
@@ -118,8 +125,7 @@ namespace famouso {
 
                         /*!
                          * \brief Get length of the reconstructed event.
-                         *
-                         * This information should be only used if get_event_data() returns no null pointer.
+                         * \pre is_event_complete() returns true
                          */
                         elen_t get_event_length() {
                             return event_reconst.get_length();

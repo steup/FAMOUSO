@@ -140,7 +140,7 @@ namespace famouso {
 
                                 // Start new defragmentation
                                 FAMOUSO_ASSERT(mtu > header.length());
-                                curr_defrag = new(_defragmenter) Defragmenter<AFPDC>(mtu - header.length());
+                                curr_defrag = new(_defragmenter) Defragmenter<AFPDC>(mtu - header.ext_length());
                             } else {
                                 // Not first fragment: if we are defragmenting an event return
                                 // the current defragmenter, otherwise drop this fragment by

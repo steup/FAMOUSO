@@ -71,11 +71,11 @@ namespace famouso {
 
                     protected:
 
-                        /// Length of all headers
+                        /// Length of all headers, zero encodes that an error occured while reading headers
                         flen_t all_header_length;
 
-                        /// True if an error occurs while reading headers
-                        bool header_error;
+                        /// Length of the extension headers
+                        flen_t ext_header_length;
 
                     public:
 
@@ -98,41 +98,42 @@ namespace famouso {
                          * Check for errors via error() afterwards.
                          */
                         Headers(const uint8_t * data) {
-                            header_error = false;
+                            all_header_length = 0;      // Default: error status
+                            ext_header_length = 0;
 
                             // Read basic header
-                            flen_t header_length = 1;
                             uint8_t h = data[0];
-                            while (h & 0x80) {
-                                header_length++;
+
+                            bool one_more_header = h & 0x80;
+                            first_fragment = h & 0x40;
+
+                            flen_t b_header_length = 1;
+                            while (h & 0x20) {
+                                b_header_length++;
                                 h <<= 1;
                             }
 
-                            bool one_more_header = h & 0x40;
-                            first_fragment = h & 0x20;
-
-                            if (header_length > sizeof(fseq)) {
+                            if (b_header_length > sizeof(fseq)) {
                                 ::logging::log::emit< ::logging::Warning>() << "AFP: Receiving to large event! Dropping fragment!" << ::logging::log::endl;
-                                header_error = true;
                                 return;
                             }
 
                             // Read fragment sequence number
-                            fseq = data[0] & (0x3f >> header_length);
-                            for (uint8_t i = 1; i < header_length; i++) {
+                            fseq = data[0] & (0x3f >> b_header_length);
+                            for (uint8_t i = 1; i < b_header_length; i++) {
                                 fseq <<= 8;
                                 fseq |= data[i];
                             }
 
-                            all_header_length = header_length;
-                            data += header_length;
+                            data += b_header_length;
 
                             // Read extension headers
+                            flen_t e_header_length;
                             while (one_more_header) {
                                 if (eseq.check(data))
-                                    header_length = eseq.read_header(data);
+                                    e_header_length = eseq.read_header(data);
                                 else if (fec.check(data))
-                                    header_length = fec.read_header(data);
+                                    e_header_length = fec.read_header(data);
                                 else {
                                     // Header not supported
                                     ::logging::log::emit< ::logging::Error>() << "AFP: Unknown or unsupported extension header "
@@ -141,27 +142,34 @@ namespace famouso {
 #ifndef __AVR__
                                     afp::shared::hexdump(data, 8);
 #endif
-                                    header_error = true;
                                     return;
                                 }
-                                if (!header_length) {
+                                if (!e_header_length) {
                                     // Error reading header
-                                    header_error = true;
+                                    return;
                                 }
                                 one_more_header = *data & 0x40;
-                                all_header_length += header_length;
-                                data += header_length;
+                                ext_header_length += e_header_length;
+                                data += e_header_length;
                             }
+
+                            // Set value removing error status
+                            all_header_length = b_header_length + ext_header_length;
                         }
 
                         /// Returns true if an error occured while reading headers
                         bool error() const {
-                            return header_error;
+                            return all_header_length == 0;
                         }
 
-                        /// Returns length of headers
+                        /// Returns length of all headers (basic + extension headers)
                         flen_t length() const {
                             return all_header_length;
+                        }
+
+                        /// Returns length of extension headers
+                        flen_t ext_length() const {
+                            return ext_header_length;
                         }
                 };
 
