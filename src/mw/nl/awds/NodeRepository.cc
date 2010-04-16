@@ -39,79 +39,92 @@
  ******************************************************************************/
 
 #include "mw/nl/awds/logging.h"
-#include "mw/nl/awds/ClientRepository.h"
+#include "mw/nl/awds/NodeRepository.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
 
-                ClientRepository & ClientRepository::getInstance() {
-                    static ClientRepository instance;
+                NodeRepository & NodeRepository::getInstance() {
+                    static NodeRepository instance;
                     return instance;
                 }
 
-                ClientRepository::ClientRepository() :
-                    _clients(SubscriberList::Create()), _maxAge(70) {
+                NodeRepository::NodeRepository() :
+                    _nodes(SubscriberList::Create()), _maxAge(70) {
                 }
 
-                AWDSClient::type ClientRepository::find(MAC mac) {
-                    log::emit<AWDS>() << "Searching client ... ";
-                    // look for a client with specified mac
-                    for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++) {
-                        if (mac == it->client->mac()) {
-                            log::emit() << "found: " << it->client << log::endl;
-                            return it->client;
+                Node::type NodeRepository::find(MAC mac) {
+                    log::emit<AWDS>() << "Searching node ... ";
+                    // look for a node with specified mac
+                    for (SubscriberList::iterator it = _nodes->begin(); it != _nodes->end(); it++) {
+                        if (mac == it->node->mac()) {
+                            log::emit() << "found: " << it->node << log::endl;
+                            return it->node;
                         }
                     }
 
-                    // client not found, create a new and register
-                    AWDSClient::type result = AWDSClient::create(mac);
+                    // node not found, create a new and register
+                    Node::type result = Node::create(mac);
                     log::emit() << "not found: " << result << log::endl;
-                    _clients->add(Subscriber::Create(result, Attributes::create()));
+                    _nodes->add(Subscriber::Create(result, Attributes::create()));
                     return result;
                 }
 
-                ClientRepository::ClientList::type ClientRepository::find(SNN subject) {
-                    log::emit<AWDS>() << "Searching clients for subject (" << subject << ") ... ";
-                    ClientList::type result = ClientList::Create();
+                NodeRepository::NodeList::type NodeRepository::find(SNN subject) {
+                    log::emit<AWDS>() << "Searching nodes for subject (" << subject << ") ... " << log::endl;
+
+                    // list of subscribers which match all attributes
+                    NodeList::type result = NodeList::Create();
 
                     // look for registered subject
                     SubscriberMap::iterator sit = _snnmap.find(subject);
 
                     // subject not registered, return empty list
                     if (sit == _snnmap.end()) {
-                        log::emit() << "no clients found." << log::endl;
+                        log::emit<AWDS>() << "no nodes found." << log::endl;
                         return result;
                     }
 
+                    // list of all subscribers to the given subject
                     SubscriberList::type cls = sit->second;
 
-                    log::emit() << "found " << log::dec << cls->size() << " clients." << log::endl;
+                    log::emit<AWDS>() << "found " << log::dec << cls->size() << " nodes." << log::endl;
 
-                    log::emit<AWDS>() << "Checking clients ... " << log::endl;
+                    log::emit<AWDS>() << "Checking nodes ... " << log::endl;
 
+                    // counter for debugging, counts nodes which doesn't match attributes
                     int bad_subscribers = 0;
 
                     // attributes of publischer
-                    Attributes::type pubA = _snnAttribs[subject];
+                    Attributes::type pubAttr = _snnAttribs[subject];
 
-                    // add  clients to result list
+                    // add clients to result list
                     for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
-                        // cA are the actual client attributes
-                        Attributes::type subA, cA = it->attribs;
+                        // nodeA are the actual network attributes, subAttr are the subscriber attributes
+                        Attributes::type subAttr, nodeAttr = it->attribs;
 
-                        // find the attributes of subsciber
-                        for (SubscriberList::iterator it2 = _clients->begin(); it2 != _clients->end(); it2++)
-                            if (it2->client == it->client) {
-                                subA = it2->attribs;
+                        // check if node is to old or network attributes doesn't match publisher attributes
+                        if ((it->node->elapsed() > _maxAge) || !(nodeAttr <= pubAttr)) {
+                            // ignore subscriber
+                            bad_subscribers++;
+                            continue; // we don't have to check subscriber attributes
+                        }
+
+                        // find the attributes of subscriber
+                        for (SubscriberList::iterator it2 = _nodes->begin(); it2 != _nodes->end(); it2++) {
+                            if (it2->node == it->node) {
+                                // attributes of subscriber found
+                                subAttr = it2->attribs;
                                 break; // we dont need to loop the rest
                             }
+                        }
 
-                        // check age and attributes of clients
-                        if ((it->client->elapsed() <= _maxAge) && (cA <= subA) && (subA <= pubA))
-                            // add good client
-                            result->add(it->client);
+                        // match network attributes to subscriber attributes
+                        if (nodeAttr <= subAttr)
+                            // add good node
+                            result->add(it->node);
                         else
                             bad_subscribers++;
                     }
@@ -121,20 +134,20 @@ namespace famouso {
                     return result;
                 }
 
-                void ClientRepository::remove(AWDSClient::type client) {
-                    log::emit<AWDS>() << "Remove client: " << client << log::endl;
-                    // unregister client from all subjects
-                    unreg(client);
+                void NodeRepository::remove(Node::type node) {
+                    log::emit<AWDS>() << "Remove node: " << node << log::endl;
+                    // unregister node from all subjects
+                    unreg(node);
 
-                    // remove client from client list
-                    for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++)
-                        if (it->client == client) {
-                            _clients->erase(it);
+                    // remove node from node list
+                    for (SubscriberList::iterator it = _nodes->begin(); it != _nodes->end(); it++)
+                        if (it->node == node) {
+                            _nodes->erase(it);
                             break; // we don't nee to loop the rest
                         }
                 }
 
-                void ClientRepository::remove(SNN subject) {
+                void NodeRepository::remove(SNN subject) {
                     log::emit<AWDS>() << "Remove subject: " << subject << log::endl;
 
                     SubscriberMap::iterator it = _snnmap.find(subject);
@@ -146,13 +159,13 @@ namespace famouso {
                     }
                 }
 
-                void ClientRepository::reg(AWDSClient::type client, SNN subject, Attributes::type attribs) {
-                    //log::emit<AWDS>() << "Register client to subject: " << client << " | " << subject << log::endl;
+                void NodeRepository::reg(Node::type client, SNN subject, Attributes::type attribs) {
+                    //log::emit<AWDS>() << "Register node to subject: " << node << " | " << subject << log::endl;
                     // look for clients registered to given subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
 
                     // subject not registered
-                    if (it == _snnmap.end()){
+                    if (it == _snnmap.end()) {
                         // TODO: Temporary workaround until publisher announcing subjects
 #ifdef RANDOM_ATTRIBUTES
                         reg(subject, Attributes::createRand());
@@ -161,11 +174,11 @@ namespace famouso {
 #endif
                     }
 
-                    // add client to subject
+                    // add node to subject
                     _snnmap[subject]->add(Subscriber::Create(client, attribs));
                 }
 
-                void ClientRepository::reg(SNN subject, Attributes::type attribs) {
+                void NodeRepository::reg(SNN subject, Attributes::type attribs) {
                     log::emit<AWDS>() << "Register subject: " << subject << log::endl;
                     // look for registered subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
@@ -177,33 +190,33 @@ namespace famouso {
                     }
                 }
 
-                void ClientRepository::unreg(AWDSClient::type client) {
-                    log::emit<AWDS>() << "Unregister client from subjects: " << client << log::endl;
+                void NodeRepository::unreg(Node::type node) {
+                    log::emit<AWDS>() << "Unregister node from subjects: " << node << log::endl;
 
-                    // remove client from all subjects, loop over all subjects
+                    // remove node from all subjects, loop over all subjects
                     for (SubscriberMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++) {
 
                         // loop over all clients registered to subject
                         for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
 
-                            // client is registered to subject, so unregister it
-                            if (it2->client == client) {
+                            // node is registered to subject, so unregister it
+                            if (it2->node == node) {
                                 it->second->erase(it2);
-                                // client could not be registered more than on time
+                                // node could not be registered more than on time
                                 break;
                             }
                         }
                     }
                 }
 
-                void ClientRepository::maxAge(int age) {
+                void NodeRepository::maxAge(int age) {
                     _maxAge = age;
                 }
 
-                void ClientRepository::update(AWDSClient::type client, Attributes::type attribs) {
-                    // look for a client with specified mac
-                    for (SubscriberList::iterator it = _clients->begin(); it != _clients->end(); it++) {
-                        if (client == it->client) {
+                void NodeRepository::update(Node::type node, Attributes::type attribs) {
+                    // look for a node with specified mac
+                    for (SubscriberList::iterator it = _nodes->begin(); it != _nodes->end(); it++) {
+                        if (node == it->node) {
                             it->attribs = attribs;
                             break;
                         }

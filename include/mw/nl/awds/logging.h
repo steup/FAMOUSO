@@ -47,6 +47,10 @@
 namespace logging {
 
     /*! \brief Operator to print a %Subject.
+     *
+     * \param out The output stream to print to.
+     * \param s The Subject to print.
+     * \return The output stream for chaining calls.
      */
     inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::Subject &s) {
         for (uint8_t i = 0; i < 8; ++i) {

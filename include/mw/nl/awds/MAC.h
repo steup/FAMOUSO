@@ -41,80 +41,20 @@
 #ifndef __MAC_hpp__
 #define __MAC_hpp__
 
-#include <cstring>
-#include "debug.h"
+#include "mw/nl/NetworkID.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
 
-                /*! \brief A MAC address representing a client at awds.
+                /*! \brief A MAC address representing a node at awds.
                  */
-                class MAC {
+                typedef NetworkID<6> MAC;
 
-                    public:
-                        typedef MAC type;
+            } /* namespace awds */
+        } /* namespace nl */
+    } /* namespace mw */
+} /* namespace famouso */
 
-                        /*! \brief Parse a pointer and return a MAC address.
-                         *
-                         * \param data The pointer where the MAC can be located.
-                         * \return A MAC address.
-                         */
-                        static MAC parse(void *data) {
-                            MAC result;
-
-                            std::memcpy(result._data, data, 6);
-
-                            return result;
-                        }
-
-                        /*! \brief Copy the MAC address to a pointer.
-                         *
-                         * \param data A pointer where to copy the MAC.
-                         */
-                        void copy(void *data) const {
-                            std::memcpy(data, _data, 6);
-                        }
-
-                        /*! \brief Compare 2 MAC addresses of equality.
-                         *
-                         * \param o The other MAC address.
-                         * \return true if the MAC addresses are equal, false otherwise.
-                         */
-                        bool operator==(const MAC &o) {
-                            return std::memcmp(_data, o._data, 6) == 0;
-                        }
-
-                        /*! \brief prints the mach to the stream.
-                         *
-                         *  \param out The output stream to print to.
-                         */
-                        void print(::logging::loggingReturnType &out) const {
-                            char buffer[30];
-                            std::sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X", _data[0], _data[1], _data[2], _data[3], _data[4],
-                                         _data[5]);
-                            out << buffer;
-                        }
-
-                    private:
-                        uint8_t _data[6];
-                };
-            } /* awds */
-        } /* nl */
-    } /* mw */
-} /* famouso */
-
-namespace logging {
-    /*! \brief Print a MAC to log.
-     *
-     * \param out The log to print to.
-     * \param mac The MAC to print.
-     * \return The log to chain print calls.
-     */
-    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::MAC &mac) {
-        mac.print(out);
-        return out;
-    }
-} // namespace logging
-#endif /* __MAC_hpp__ */
+#endif /* __MACD_hpp__ */

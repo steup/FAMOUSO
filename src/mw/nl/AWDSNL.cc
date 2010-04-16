@@ -43,7 +43,10 @@
 
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+
+#ifdef RANDOM_ATTRIBUTES
 #include <cstdlib>
+#endif
 
 #include "mw/nl/awds/logging.h"
 
@@ -71,8 +74,11 @@ namespace famouso {
                             uint, max_uni, 5)
             ;
 
+            // broacast address to send a paket to all nodes
+            static uint8_t BROADCAST_ADDR[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+
             AWDSNL::AWDSNL() :
-                m_socket(famouso::util::ios::instance()), timer_(famouso::util::ios::instance()), _repo(ClientRepository::getInstance()),
+                m_socket(famouso::util::ios::instance()), timer_(famouso::util::ios::instance()), _repo(NodeRepository::getInstance()),
                                 next_packet_is_full_packet(false) {
             }
 
@@ -93,18 +99,20 @@ namespace famouso {
                 _repo.maxAge(param.max_age);
 
 #ifdef RANDOM_ATTRIBUTES
-                // init random generator for ttl generation
+                // init random generator for attributes generation
                 srand(time(NULL));
 #endif
 
+                // AWDS endpoint to connect to
                 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(param.ip), param.port);
                 boost::system::error_code ec;
-                m_socket.connect(endpoint, ec);
+                m_socket.connect(endpoint, ec); // connect to AWDS
                 if (ec) {
                     // An error occurred.
                     throw "could not connect to AWDS-Network";
                 }
 
+                // start getting data from AWDS
                 boost::asio::async_read(m_socket, boost::asio::buffer(&awds_packet, sizeof(AWDS_Packet::Header)),
                                         boost::bind(&AWDSNL::interrupt, this, boost::asio::placeholders::error,
                                                     boost::asio::placeholders::bytes_transferred));
@@ -128,7 +136,7 @@ namespace famouso {
                 } else {
 
                     // get list of subscriber for the subject
-                    ClientRepository::ClientList::type cl = _repo.find(p.snn);
+                    NodeRepository::NodeList::type cl = _repo.find(p.snn);
 
                     // if we have no subscriber, we won't send anything
                     if (cl->size() == 0) {
@@ -145,12 +153,7 @@ namespace famouso {
                         log::emit<AWDS>() << "Broadcast (" << cl->size() << ") \t -- Subject: " << p.snn << log::endl;
 
                         // set the package params
-                        awds_header.addr[0] = 0xff;
-                        awds_header.addr[1] = 0xff;
-                        awds_header.addr[2] = 0xff;
-                        awds_header.addr[3] = 0xff;
-                        awds_header.addr[4] = 0xff;
-                        awds_header.addr[5] = 0xff;
+                        awds_header.addr = MAC::parse(BROADCAST_ADDR);
                         awds_header.type = type;
                         awds_header.size = htons(p.data_length + sizeof(famouso::mw::Subject));
                         buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
@@ -170,9 +173,9 @@ namespace famouso {
                         buffers.push_back(boost::asio::buffer(&p.snn, sizeof(SNN)));
                         buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
-                        // for each client set source mac and send package
-                        for (ClientRepository::ClientList::iterator it = cl->begin(); it != cl->end(); it++) {
-                            (*it)->mac(awds_header.addr);
+                        // for each node set source mac and send package
+                        for (NodeRepository::NodeList::iterator it = cl->begin(); it != cl->end(); it++) {
+                            awds_header.addr = (*it)->mac(); // because of shared_ptr we have to double dereference
                             m_socket.send(buffers);
                         }
                     }
@@ -212,9 +215,8 @@ namespace famouso {
                         case AWDS_Packet::constants::packet_type::subscribe: {
 
                             log::emit<AWDS>() << "=============================" << log::dec << log::endl;
-                            // get the client
-                            MAC mac = MAC::parse(awds_packet.header.addr);
-                            AWDSClient::type src = _repo.find(mac);
+                            // get the node
+                            Node::type src = _repo.find(awds_packet.header.addr);
 
                             // reset contact time
                             src->reset();
@@ -241,7 +243,7 @@ namespace famouso {
                                 SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
                                 log::emit<AWDS>() << "  Subject: " << s << " (" << attribs << ")" << log::endl;
 
-                                // register client to this subject
+                                // register node to this subject
                                 _repo.reg(src, s, attribs);
                             }
 
@@ -250,16 +252,15 @@ namespace famouso {
                         case AWDS_Packet::constants::packet_type::attributes: {
                             log::emit<AWDS>() << "=============================" << log::dec << log::endl;
 
-                            // get the client
-                            MAC mac = MAC::parse(awds_packet.header.addr);
-                            AWDSClient::type src = _repo.find(mac);
+                            // get the node
+                            Node::type src = _repo.find(awds_packet.header.addr);
 
                             Attributes::type att = Attributes::create(awds_packet);
 
-                            log::emit<AWDS>() << "Updating attributes of client " << src << log::endl;
+                            log::emit<AWDS>() << "Updating attributes of node " << src << log::endl;
                             log::emit<AWDS>() << att << log::endl;
 
-                            // Update attributes of client
+                            // Update attributes of node
                             _repo.update(src, att);
                             break;
                         }
@@ -290,12 +291,7 @@ namespace famouso {
                         std::vector<boost::asio::const_buffer> buffers;
                         uint32_t reserved = htonl(20);
                         AWDS_Packet::Header awds_header;
-                        awds_header.addr[0] = 0xff;
-                        awds_header.addr[1] = 0xff;
-                        awds_header.addr[2] = 0xff;
-                        awds_header.addr[3] = 0xff;
-                        awds_header.addr[4] = 0xff;
-                        awds_header.addr[5] = 0xff;
+                        awds_header.addr = MAC::parse(BROADCAST_ADDR);
                         awds_header.type = AWDS_Packet::constants::packet_type::subscribe;
                         awds_header.size = htons(sizeof(uint32_t) + 2 + ntohs(count_subj) * sizeof(famouso::mw::Subject));
                         buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));

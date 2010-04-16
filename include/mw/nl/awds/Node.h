@@ -38,37 +38,37 @@
  *
  ******************************************************************************/
 
-#ifndef __AWDS_Client__
-#define __AWDS_Client__
+#ifndef __Node__
+#define __Node__
 
 #include <ctime>
 #include "boost/shared_ptr.hpp"
 #include "debug.h"
-#include "MAC.h"
+#include "mw/nl/awds/MAC.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
 
-                /*! \brief A client at the AWDS network identified by his MAC address.
+                /*! \brief A node at the AWDS network identified by his MAC address.
                  */
-                class AWDSClient {
+                class Node {
                     private:
-                        /*! \brief Constructor which creates an client with a specific MAC.
+                        /*! \brief Constructor which creates an node with a specific MAC.
                          *
-                         * \param mac The MAC address of the client.
+                         * \param mac The MAC address of the node.
                          */
-                        AWDSClient(MAC mac) :
+                        Node(MAC mac) :
                             _mac(mac), _time(std::time(NULL)) {
                         }
 
                     public:
-                        /*! \brief A client at the AWDS network identified by his MAC address.
+                        /*! \brief A node at the AWDS network identified by his MAC address.
                          */
-                        typedef boost::shared_ptr<AWDSClient> type;
+                        typedef boost::shared_ptr<Node> type;
 
-                        /*! \brief The time in seconds when the client was last seen.
+                        /*! \brief The time in seconds when the node was last seen.
                          *
                          * \return The elapsed time in seconds.
                          */
@@ -82,32 +82,24 @@ namespace famouso {
                             _time = std::time(NULL);
                         }
 
-                        /*! \brief Copy the MAC address of the client to the data pointer.
+                        /*! \brief Get the MAC address of the node.
                          *
-                         * \param data The data pointer where to copy the mac.
+                         * \return The MAC address of the node.
                          */
-                        void mac(void *data) const {
-                            _mac.copy(data);
-                        }
-
-                        /*! \brief Get the MAC address of the client.
-                         *
-                         * \return The MAC address of the client.
-                         */
-                        MAC mac() const {
+                        const MAC &mac() const {
                             return _mac;
                         }
 
                         /*! \brief The copare operator to compare if clients are same.
                          *
-                         * \param o The other client to compare to.
+                         * \param o The other node to compare to.
                          * \return Returns true if the clients are the same, false otherwise.
                          */
-                        bool operator==(const AWDSClient& o) {
+                        bool operator==(const Node& o) const {
                             return _mac == o._mac;
                         }
 
-                        /*! \brief prints a client to the stream.
+                        /*! \brief prints a node to the stream.
                          *
                          *  \param out The output stream to print to.
                          */
@@ -116,7 +108,7 @@ namespace famouso {
                         }
 
                         static type create(MAC mac) {
-                            type res = type(new AWDSClient(mac));
+                            type res = type(new Node(mac));
                             return res;
                         }
 
@@ -130,27 +122,27 @@ namespace famouso {
 } /* famouso */
 
 namespace logging {
-    /*! \brief Print a client to log.
+    /*! \brief Print a node to log.
      *
      * \param out The log to print to.
-     * \param c The client to print.
+     * \param c The node to print.
      * \return The log to chain print calls.
      */
-    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::AWDSClient::type &c) {
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Node::type &c) {
         c->print(out);
         return out;
     }
 
-    /*! \brief Print a client to log.
+    /*! \brief Print a node to log.
      *
      * \param out The log to print to.
-     * \param c The client to print.
+     * \param c The node to print.
      * \return The log to chain print calls.
      */
-    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::AWDSClient &c) {
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Node &c) {
         c.print(out);
         return out;
     }
 } /* logging */
 
-#endif /* __AWDS_Client__ */
+#endif /* __Node__ */

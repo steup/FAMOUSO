@@ -49,51 +49,93 @@ namespace famouso {
         namespace nl {
             namespace awds {
 
-                template< class Type >
-                class List: boost::noncopyable {
-                    private:
-                        typedef std::list<Type> list;
+                /*! \brief a generic iterable container secured by a shared pointer.
+                 *
+                 *  This container can only be used within a shared pointer.
+                 *
+                 *  \tparam Type The type which the container should take.
+                 *  \tparam ContainerType The type of the real container holding the elements.
+                 */
+                template< class Type, typename ContainerType=std::list<Type> >
+                class Container: boost::noncopyable {
 
                     public:
-                        typedef boost::shared_ptr<List<Type> > type;
-                        typedef typename list::iterator iterator;
-                        typedef typename list::size_type size_type;
+                        /*! \copydoc Container
+                         */
+                        typedef boost::shared_ptr<Container<Type> > type;
 
+                        /** \brief An iterator to loop over all elements contained. */
+                        typedef typename ContainerType::iterator iterator;
+
+                        /** \brief The type for the size of the container. */
+                        typedef typename ContainerType::size_type size_type;
+
+                        /** \brief Create a new Container secured by a shared pointer.
+                         *
+                         * \return A new instance to a container packed in a shared pointer.
+                         */
                         static type Create() {
-                            type res = type(new List<Type>());
+                            type res = type(new Container<Type> ());
                             return res;
                         }
 
+                        /** \brief Returns an iterator which points to the first element of the container.
+                         *
+                         *  \return An iterator to the first element.
+                         */
                         iterator begin() {
                             return _list.begin();
                         }
 
+                        /** \brief Returns an iterator which points behind the last element of the container.
+                         *
+                         *  \return An iterator behind the last element.
+                         */
                         iterator end() {
                             return _list.end();
                         }
 
+                        /** \brief Returns the number of elements contained.
+                         *
+                         *  \return The number of elements contained.
+                         */
                         size_type size() const {
                             return _list.size();
                         }
 
+                        /** \brief Add an element to the container.
+                         *
+                         * \param c The element to add.
+                         */
                         void add(Type c) {
                             _list.push_back(c);
                         }
 
+                        /** \brief Remove an element from the container.
+                         *
+                         *  \param c The element to remove.
+                         */
                         void remove(Type c) {
                             _list.remove(c);
                         }
 
+                        /** \brief Remove the element from the container to which the iterator points.
+                         *
+                         * \param it An iterator which has to point to an element of the container.
+                         * \return The iterator pointing to the next element after the removed element, or to the end
+                         */
                         iterator erase(iterator it) {
                             return _list.erase(it);
                         }
 
+                        /** \brief Removes all elements from the container.
+                         */
                         void clear() {
                             _list.clear();
                         }
 
                     private:
-                        list _list;
+                        ContainerType _list; /**< The real container holding the elements */
                 };
 
             } /* awds */

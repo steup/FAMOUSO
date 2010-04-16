@@ -41,39 +41,55 @@
 #ifndef __AWDS_Packet_hpp__
 #define __AWDS_Packet_hpp__
 
+#include "mw/nl/awds/MAC.h"
+
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
 
-                struct __attribute__((packed)) AWDS_Packet {
+                /** \brief A Paket for the IPC communication between Famouso and AWDS.
+                 */
+                struct AWDS_Packet {
+                        /** \brief Constants for the paket.
+                         */
                         struct constants {
+                                /** \brief Constants for the paket size.
+                                 */
                                 struct packet_size {
                                         enum {
                                             payload = 1400
+                                        /** < The maximum payload a paket can hold. */
                                         };
                                 };
+                                /** \brief Constants for the paket type.
+                                 */
                                 struct packet_type {
                                         enum {
-                                            publish_fragment = 0x7B,
-                                            publish = 0x7C,
-                                            subscribe = 0x7D,
+                                            publish_fragment = 0x7B, /**< The paket contains a fragment of a published message. */
+                                            publish = 0x7C, /**< The packet contains a published message. */
+                                            subscribe = 0x7D, /**< The paket contains subjects of a node. */
                                             attributes = 0x81
+                                        /**< The paket contains attributes of a node. */
                                         };
                                 };
                         };
-                        struct __attribute__((packed)) Header {
-                                uint8_t addr[6];
-                                uint8_t type;
+                        /** \brief A header of the AWDS_Paket.
+                         *
+                         * The header defines the address (can be source or destination), the paket type and the size of the payload.
+                         */
+                        struct Header {
+                                MAC addr; /**< The source or destination of the paket. */
+                                uint8_t type; /**< The type of the paket. */
                             private:
-                                uint8_t __pad;
+                                uint8_t __pad; /**< A pad for paket alignment */
                             public:
-                                uint16_t size;
-                        };
+                                uint16_t size; /**< The size of the payload in network-byte-order. */
+                        }__attribute__((packed));
 
-                        Header header;
-                        uint8_t data[constants::packet_size::payload];
-                };
+                        Header header; /**< The header of the paket. */
+                        uint8_t data[constants::packet_size::payload]; /**< The payload of the paket. */
+                }__attribute__((packed));
             }
         }
     }

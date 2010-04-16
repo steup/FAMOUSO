@@ -45,7 +45,7 @@
 
 SOURCES  += \
 src/mw/nl/UDPMultiCastNL.cc \
-src/mw/nl/awds/ClientRepository.cc \
+src/mw/nl/awds/NodeRepository.cc \
 src/mw/nl/AWDSNL.cc \
 src/util/ios.cc \
 src/util/Idler.cc \

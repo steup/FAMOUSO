@@ -37,8 +37,8 @@
  * $Id$
  *
  ******************************************************************************/
-#ifndef __ClientRepository_hpp__
-#define __ClientRepository_hpp__
+#ifndef __NodeRepository_hpp__
+#define __NodeRepository_hpp__
 
 #include <list>
 #include <map>
@@ -46,7 +46,7 @@
 #include "boost/shared_ptr.hpp"
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/MAC.h"
-#include "mw/nl/awds/AWDSClient.h"
+#include "mw/nl/awds/Node.h"
 #include "mw/nl/awds/Attributes.h"
 #include "mw/nl/awds/lists.h"
 
@@ -55,18 +55,20 @@ namespace famouso {
         namespace nl {
             namespace awds {
 
-                /*! \brief A client repository for holding awds clients and register clients to subjects.
+                /*! \brief A node repository for holding AWDS nodes and register nodes to subjects.
+                 *
+                 * \todo We can't handle multiple publisher with same subject and different attributes.
+                 *       We use the attributes of latest announce for now.
                  */
-                class ClientRepository: boost::noncopyable {
+                class NodeRepository: boost::noncopyable {
 
                     public:
 
-                        /*! \brief A client repository for holding awds clients and register clients to subjects.
-                         *
-                         */
-                        typedef ClientRepository type;
+                        /** \copydoc NodeRepository */
+                        typedef NodeRepository type;
 
-                        typedef List<AWDSClient::type> ClientList;
+                        /** \brief A List for holding Nodes */
+                        typedef Container<Node::type> NodeList;
 
                         /*! \brief A famouso Subject.
                          */
@@ -74,21 +76,31 @@ namespace famouso {
 
                     private:
 
+                        /*! \brief A class for mapping attributes to a node.
+                         */
                         class Subscriber {
                             public:
-                                static Subscriber Create(AWDSClient::type c, Attributes::type a) {
+                                /** \brief Creates a new Subcriber with the given parameters.
+                                 *
+                                 * \param c The node on which the subscriber resides.
+                                 * \param a Attributes, which can be from network or subscriber.
+                                 * \return A new Subscriber instance.
+                                 */
+                                static Subscriber Create(Node::type c, Attributes::type a) {
                                     Subscriber res;
-                                    res.client = c;
+                                    res.node = c;
                                     res.attribs = a;
                                     return res;
                                 }
 
-                                AWDSClient::type client;
-                                Attributes::type attribs;
+                                Node::type node; /**<  The node on which the subscriber resides. */
+                                Attributes::type attribs; /**< The attributes from network or subscriber */
 
                         };
 
-                        typedef List<Subscriber> SubscriberList;
+                        /*! \brief A list to hold subscribers with their attributes.
+                         */
+                        typedef Container<Subscriber> SubscriberList;
 
                         /*! \brief A map to assign clients to subjects.
                          */
@@ -98,38 +110,38 @@ namespace famouso {
                          */
                         typedef std::map<SNN, Attributes::type> PublisherMap;
 
-                        ClientRepository();
-
                     public:
 
-                        /*! \brief Get the only instance of the clientsrepository.
+                        /*! \brief Get the only instance of the node repository.
                          *
                          *  \return A reference to the only instance of the repository.
                          */
                         static type& getInstance();
 
-                        /*! \brief Find a client by a given MAC address.
-                         *         If the client doesn't exists, it will be created.
+                        /*! \brief Find a node by a given MAC address.
+                         *         If the node doesn't exists, it will be created.
                          *
-                         * \param mac The MAC address to find the client for.
-                         * \return The client corresponding to the MAC address.
+                         *  \param mac The MAC address to find the node for.
+                         *  \return The node corresponding to the MAC address.
                          */
-                        AWDSClient::type find(MAC mac);
+                        Node::type find(MAC mac);
 
-                        /*! \brief Find all clients registered to the given Subject.
+                        /*! \brief Find all nodes registered to the given Subject wich match the required attributes.
+                         *         The attributes can be defined by publisher or subscriber.
                          *
-                         *  \param subject The subject to find clients for.
-                         *  \return A list with clients registered for the given subject.
-                         *         The list can be empty, if no client is registered.
+                         *  \param subject The subject to find nodes for.
+                         *  \return A list of nodes registered for the given subject.
+                         *          The list can be empty, if no node is registered or no node match the required
+                         *          attributes.
                          */
-                        ClientList::type find(SNN subject);
+                        NodeList::type find(SNN subject);
 
-                        /*! \brief Remove a client from the repository.
+                        /*! \brief Remove a node from the repository.
                          *         It will be removed from all subjects too.
                          *
-                         *  \param client The client to remove.
+                         *  \param node The node to remove.
                          */
-                        void remove(AWDSClient::type client);
+                        void remove(Node::type node);
 
                         /*! \brief Remove a subject from the repository.
                          *         Clients registered to the given subject will
@@ -139,28 +151,30 @@ namespace famouso {
                          */
                         void remove(SNN subject);
 
-                        /*! \brief Register a client to a subject.
-                         *         If the subject isn't registered, this function
-                         *         does nothing.
+                        /*! \brief Register a node to a subject.
                          *
-                         *  \param client The client to register.
+                         *  \param node The node to register.
                          *  \param subject The subject to register.
+                         *  \param attribs The attributes which the subscriber requires.
+                         *
+                         *  \todo If the subject is not registered, this function should do nothing.
                          */
-                        void reg(AWDSClient::type client, SNN subject, Attributes::type attribs = Attributes::create());
+                        void reg(Node::type node, SNN subject, Attributes::type attribs = Attributes::create());
 
                         /*! \brief Register a subject to the repository.
                          *
                          *  \param subject The subject to register.
+                         *  \param attribs The attributes which the publisher requires.
                          */
                         void reg(SNN subject, Attributes::type attribs = Attributes::create());
 
-                        /*! \brief Unregister the given client from all known subjects.
+                        /*! \brief Unregister the given node from all known subjects.
                          *
-                         *  \param client The client to unregister.
+                         *  \param node The node to unregister.
                          */
-                        void unreg(AWDSClient::type client);
+                        void unreg(Node::type node);
 
-                        /*! \brief The maximum time when a client has to be resubscribe.
+                        /*! \brief The maximum time when a node has to be resubscribe.
                          *
                          *         The default value is 70 seconds.
                          *
@@ -168,23 +182,23 @@ namespace famouso {
                          */
                         void maxAge(int age);
 
-
-                        /*! \brief Update attribute of given client.
+                        /*! \brief Update attribute of given node.
                          *
-                         *  \param client The client to update.
+                         *  This function saves the given network attributes to the given node.
+                         *  \param node The node to update.
                          *  \param attribs The new attributes to set.
                          */
-                        void update(AWDSClient::type client, Attributes::type attribs = Attributes::create());
+                        void update(Node::type node, Attributes::type attribs = Attributes::create());
 
                     private:
-                        SubscriberMap _snnmap;
-                        SubscriberList::type _clients;
-                        PublisherMap _snnAttribs;
-                        int _maxAge;
+                        SubscriberMap _snnmap; /**< A map to assign nodes with attributes to subjects. */
+                        SubscriberList::type _nodes; /**< A list wich hold all known nodes at the AWDS network. */
+                        PublisherMap _snnAttribs; /**< A map to assign attributes to a subject. */
+                        int _maxAge /**< The timespan in seconds when a node is marked as offline. */;
                 };
 
-            } /* awds */
-        } /* nl */
-    } /* mw */
-} /* famouso */
+            } /* namespace awds */
+        } /* namespace nl */
+    } /* namespace mw */
+} /* namespace famouso */
 #endif /* __ClientRepository_hpp__ */

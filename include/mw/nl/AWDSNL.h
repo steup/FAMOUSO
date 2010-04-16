@@ -48,11 +48,15 @@
 #include "util/ios.h"
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/AWDS_Packet.h"
-#include "mw/nl/awds/ClientRepository.h"
+#include "mw/nl/awds/NodeRepository.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
+
+            /** \namespace famouso::mw::nl::awds
+             *  \brief The namespace awds holds classes, structures and functions for the AWDS network.
+             */
 
             using namespace awds;
 
@@ -62,7 +66,7 @@ namespace famouso {
             class AWDSNL: public BaseNL, boost::noncopyable {
                 public:
 
-                    /*! \brief A Struct for holding infomational constants.
+                    /*! \brief A Struct for holding informational constants.
                      */
                     struct info {
                             enum {
@@ -73,10 +77,10 @@ namespace famouso {
                             };
                     };
 
-                    // type of an address
+                    /** \brief type of an address */
                     typedef famouso::mw::Subject SNN;
 
-                    // type of a packet
+                    /** \brief type of a packet */
                     typedef Packet<SNN> Packet_t;
 
                     /**
@@ -106,7 +110,7 @@ namespace famouso {
                     void bind(const famouso::mw::Subject &s, SNN &snn);
 
                     /**
-                     * \brief deliver
+                     * \brief deliver a packet.
                      *
                      * Sends the given packet.
                      *
@@ -117,7 +121,7 @@ namespace famouso {
                     void deliver(const Packet_t& p, uint8_t type = AWDS_Packet::constants::packet_type::publish);
 
                     /**
-                     * \brief publish
+                     * \brief deliver a fragment of a packet.
                      *
                      * Sends the given packet.
                      *
@@ -139,6 +143,7 @@ namespace famouso {
                      */
                     SNN lastPacketSNN();
 
+                private:
                     /**
                      * \brief handle called on receive
                      *
@@ -146,21 +151,25 @@ namespace famouso {
                      */
                     void interrupt(const boost::system::error_code& error, size_t bytes_recvd);
 
-                private:
+                    /**
+                     * \brief Notifies other nodes about subscribers on this node.
+                     *
+                     * \param error a reference to an error.
+                     */
                     void announce_subscriptions(const boost::system::error_code& error);
 
-                    boost::asio::ip::tcp::socket m_socket;
-                    boost::asio::deadline_timer timer_;
-                    AWDS_Packet awds_packet;
-                    std::list<SNN> subscriptions;
-                    ClientRepository::type &_repo;
-                    bool next_packet_is_full_packet;
-                    int interval;
-                    uint max_unicast;
+                    boost::asio::ip::tcp::socket m_socket; /**< The socket for the IPC connettion with AWDS. */
+                    boost::asio::deadline_timer timer_; /**< The timer for subscribtion renewval. */
+                    AWDS_Packet awds_packet; /**< The actual packet to work on */
+                    std::list<SNN> subscriptions; /**< A list of subjects from all local subscribers. */
+                    NodeRepository::type &_repo; /**< The node repository for registering and checking nodes before publishing. */
+                    bool next_packet_is_full_packet; /**< With the next data from AWDS the packet is full. */
+                    int interval; /**< Refresh time in secods to renew subscribtions to other nodes. */
+                    uint max_unicast; /**< Maximum number of subscriber to send as unicast packet. If there are more subscriber the packet will be send as broadcast. */
             };
 
-        }
-    }
-} // namespaces
+        } // namespace nl
+    } // namespace mw
+} // namespace famouso
 
 #endif /* __AWDSNL_hpp__ */
