@@ -59,7 +59,8 @@ namespace famouso {
 
                     struct info {
                         enum {
-                            payload = 8192 - sizeof(famouso::mw::Subject),
+                            mtu = 8192,
+                            payload = mtu - sizeof(famouso::mw::Subject),
                         };
                     };
 
@@ -147,7 +148,7 @@ namespace famouso {
                     boost::asio::ip::udp::socket m_socket;
                     boost::asio::ip::udp::endpoint m_endpoint_listen;
                     boost::asio::ip::udp::endpoint m_endpoint_from;
-                    uint8_t m_buffer[sizeof(famouso::mw::Subject)+info::payload];   // Subject and Payload have to be sent
+                    uint8_t m_buffer[info::mtu];   // Subject and Payload have to be sent
                     Packet_t m_incoming_packet;
             };
 

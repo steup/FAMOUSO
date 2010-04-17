@@ -81,7 +81,7 @@ namespace famouso {
                 m_socket.bind(m_endpoint_listen);
 
                 m_socket.async_receive_from(
-                    boost::asio::buffer(m_buffer, info::payload), m_endpoint_from,
+                    boost::asio::buffer(m_buffer, info::mtu), m_endpoint_from,
                     boost::bind(&UDPMultiCastNL::interrupt, this,
                                 boost::asio::placeholders::error,
                                 boost::asio::placeholders::bytes_transferred
@@ -125,7 +125,7 @@ namespace famouso {
                     famouso::mw::el::IncommingEventFromNL(this);
 
                     m_socket.async_receive_from(
-                        boost::asio::buffer(m_buffer, info::payload), m_endpoint_from,
+                        boost::asio::buffer(m_buffer, info::mtu), m_endpoint_from,
                         boost::bind(&UDPMultiCastNL::interrupt, this,
                                     boost::asio::placeholders::error,
                                     boost::asio::placeholders::bytes_transferred
