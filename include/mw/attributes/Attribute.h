@@ -133,7 +133,7 @@ namespace famouso {
 
                         // The complex initialization (i.e. copying the bytes into the array)
                         //  only applies if the value takes at least one bit (e.g. 0 does not)
-                        if (famouso::config::BitCount<value_type, value>::value > 0) {
+                        if (BitCount<value_type, value>::value > 0) {
                             // Get a big endian representation of the value
                             const ValueType bigEndian = famouso::util::hton(value);
                             // Get a pointer to the value
@@ -265,7 +265,7 @@ namespace famouso {
                      */
                     const bool set(const ValueType newValue) {
                         // Determine the bit count of the value to set
-                        const uint16_t newBitCount = famouso::config::getBitCount(newValue);
+                        const uint16_t newBitCount = getBitCount(newValue);
 
                         detail::AttributeElementHeader* const header =
                                 reinterpret_cast<detail::AttributeElementHeader* const>(data);
@@ -312,7 +312,7 @@ namespace famouso {
                         } else {
                             // Determine the byte count needed by the new value (this is necessary since
                             //  we only write whole bytes if the VOL flag isn't set)
-                            const uint16_t newByteCount = famouso::config::bitCountToByteCount(newBitCount);
+                            const uint16_t newByteCount = bitCountToByteCount(newBitCount);
 
                             // The pointer where to start copying the bytes of the new value
                             //  (depends on the extension flag)

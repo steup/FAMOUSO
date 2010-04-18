@@ -106,7 +106,7 @@ namespace famouso {
                         typedef uint8_t dummy;
 
                     private:
-                        static const uint16_t bitCount = famouso::config::BitCount<uint8_t, ID>::value;
+                        static const uint16_t bitCount = BitCount<uint8_t, ID>::value;
 
                         static const bool cond = ((!IsSystem) || (bitCount < 5));
 

@@ -47,8 +47,8 @@
 #include "boost/mpl/int.hpp"
 #include "boost/mpl/plus.hpp"
 
-namespace famouso {
-    namespace config {
+//namespace famouso {
+//    namespace config {
 
         /*!
          * \brief Calculates the least number of bits needed to represent the
@@ -266,7 +266,7 @@ namespace famouso {
             return (((value & 0x7) == 0) ? (value >> 3) : ((value >> 3) + 1));
         }
 
-    } // end namespace config
-} // end namespace famouso
+//    } // end namespace config
+//} // end namespace famouso
 
 #endif

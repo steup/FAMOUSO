@@ -71,11 +71,11 @@ namespace famouso {
                 struct CaseSelector {
                     private:
                         // The number of bits used by the attribute's value
-                        static const uint16_t bitCount = famouso::config::BitCount<typename Attr::value_type,
+                        static const uint16_t bitCount = BitCount<typename Attr::value_type,
                                                                                    Attr::value>::value;
 
                         // The whole bytes used by the attribute's value
-                        static const uint16_t byteCount = famouso::config::ByteCount<typename Attr::value_type,
+                        static const uint16_t byteCount = ByteCount<typename Attr::value_type,
                                                                                      Attr::value>::value;
 
                     public:
