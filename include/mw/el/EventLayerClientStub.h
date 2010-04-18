@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>,
- *                          Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                         Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -71,11 +71,11 @@ namespace famouso {
                         uint8_t recvBuffer[BUFSIZE];
                         int recvMsgSize;
                         try {
-                            while ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, 13))) > 0) {
+                            while ((recvMsgSize = boost::asio::read(*sec.snn(), boost::asio::buffer(recvBuffer, 13))) > 0) {
                                 // ermitteln der Laenge des Events
                                 unsigned int len = ntohl(*(uint32_t *) & (recvBuffer[9]));
                                 // und den Rest aus dem Socket holen
-                                if ((recvMsgSize = sec.snn()->receive(boost::asio::buffer(recvBuffer, len))) > 0) {
+                                if ((recvMsgSize = boost::asio::read(*sec.snn(), boost::asio::buffer(recvBuffer, len))) > 0) {
                                     // Event aufbauen und veroeffentlichen
                                     Event e(sec.subject());
                                     e.length = len;
