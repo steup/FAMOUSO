@@ -42,9 +42,14 @@
 #define _Attributes_h_
 
 #include <cstring>
-#include "boost/shared_ptr.hpp"
-#include "boost/noncopyable.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/mpl/list.hpp>
+#include <boost/type_traits.hpp>
 #include "mw/nl/awds/AWDS_Packet.h"
+#include "mw/attributes/tags/IntegralConstTag.h"
+#include "mw/attributes/Attribute.h"
+#include "mw/attributes/AttributeSequence.h"
 #include "mw/attributes/TTL.h"
 #include "mw/attributes/filter/find.h"
 #include "logging.h"
@@ -59,220 +64,275 @@ namespace famouso {
             namespace awds {
                 /** \brief This namepsace contains helper functions and classes for the attributes.
                  *
-                 * \todo This namepsace is temporary and should be removed later.
+                 * \todo The Attributes should be replaced by typedefs or usings later. They should not be deleted,
+                 *       because they are uses at AWDS Famouso module. Or youz have to change the AWDS module accordingly.
                  */
                 namespace detail {
+                    using famouso::mw::attributes::Attribute;
+                    using famouso::mw::attributes::TTL;
+                    using famouso::mw::attributes::tags::integral_const_tag;
 
-                    /*! \brief try to find the Attribute A in a data pointer
+                    /*!\brief   defines a configurable Latency attribute.
                      *
-                     *  \tparam A is the type of the attribute
-                     *
-                     *  \returns a pointer to the location of attribute A
-                     *           within the event, and NULL else
-                     *
-                     *  \todo this function has to be adapted if the binary
-                     *        representation of attributes within event
-                     *        change                     *
+                     * \tparam  lat describes the initial value to be set
                      */
-                    template< typename A, typename B >
-                    static inline A* find(B *data) {
-                        for (uint16_t p = 0; p < AWDS_Packet::constants::packet_size::payload; p++) {
-                            if (data[p] == A::base_type::id)
-                                return reinterpret_cast<A*> (&data[p]);
-                        }
-                        return reinterpret_cast<A*> (0);
-                    }
-
-                    /*!\brief   defines a configurable attribute
-                     *
-                     * \tparam  v describes the initial value to be set
-                     */
-                    template< uint8_t t, uint8_t v >
-                    class Attribute: public attributes::EmptyAttribute {
-                        public:
-                            typedef Attribute<t, 0> base_type;
-                            typedef attributes::tags::integral_const_tag compare_tag;
-                            typedef Attribute type;
-                            enum {
-                                size = 2,
-                                id = t
-                            };
-                            static uint8_t value() {
-                                return v;
-                            }
-
-                            Attribute() {
-                                data[0] = id;
-                                data[1] = value();
-                            }
-
-                            uint8_t get() const {
-                                return data[1];
-                            }
-                            void set(uint8_t tmp) {
-                                data[1] = tmp;
-                            }
-                        private:
-                            uint8_t data[size];
+                    template< uint16_t lat >
+                    class Latency: public Attribute<uint16_t, lat, 2, true> {
                     };
 
-                } // namespace detail
+                    /*!\brief defines a configurable Bandwith attribute.
+                     *
+                     * \tparam bw describes the initial value to be set
+                     */
+                    template< uint32_t bw >
+                    class Bandwidth: public Attribute<uint32_t, bw, 3, true> {
+                    };
 
-                /* \brief A class for holding attributes of publisher, subscriber or network.
-                 *
-                 * \todo This class will be deleted and replaced by attributes framewok in future.
-                 */
-                class Attributes: boost::noncopyable {
-                    private:
-                        typedef attributes::TTL<0> TTL; /**< The time-to-live or hop-count to the node. */
-                        typedef detail::Attribute<'L', 0> Latency; /**< The latency or half round trip time to the node. */
-                        typedef detail::Attribute<'B', 0> Bandwidth; /**< The bandwith to the node in bytes per second. */
-                        typedef detail::Attribute<'P', 0> PaketLoss; /**< The packet loss rate to the node in percent. */
+                    /*!\brief defines a configurable Packet-Loss-Rate attribute.
+                     *
+                     * \tparam pl describes the initial value to be set
+                     */
+                    template< uint16_t pl >
+                    class PacketLoss: public Attribute<uint16_t, pl, 4, true> {
+                    };
 
-                        /* \brief Copy the data and search for attributes
-                         *
-                         * \param d the data pointer
-                         * \param s the size of the data
-                         *
-                         * \todo Copy only attributes, and not the whole data.
-                         */
-                        void set(uint8_t *d, uint16_t s) {
+                    /** A list of AWDS Attributes */
+                    typedef boost::mpl::list<TTL<0xFF> , Latency<0xFFFF> , Bandwidth<0xFFFFFFFF> , PacketLoss<0xFFFF> >::type
+                                    AWDSAttributesList;
 
-                            std::memcpy(data, d, s);
+                    /* \brief A class for holding attributes of publisher, subscriber or network.
+                     *
+                     * \tparam AttrSeq A list of attributes.
+                     */
+                    template< class AttrSeq >
+                    class Attributes: boost::noncopyable {
+                        private:
+                            /** A attributes sequence for finding attributes in some data. */
+                            typedef typename famouso::mw::attributes::AttributeSequence<AttrSeq>::type attr_seq;
 
-                            ttl = detail::find<TTL>(data);
-                            lat = detail::find<Latency>(data);
-                            band = detail::find<Bandwidth>(data);
-                            ploss = detail::find<PaketLoss>(data);
-                        }
+                            /**
+                             * An iterator for printing and checking a list of attributes.
+                             *
+                             * \tparam Seq A list of attributes.
+                             * \tparam Itr An iterator to Seq.
+                             */
+                            template< class Seq, class Itr = typename boost::mpl::begin<Seq>::type >
+                            class AttributeIterator {
 
-                    public:
-                        /** \copydoc Attributes */
-                        typedef boost::shared_ptr<Attributes> type;
+                                    /** The actual attribute type */
+                                    typedef typename boost::mpl::deref<Itr>::type attrib;
 
-                        /**
-                         * \brief Copy the attributes from the packet to this attribute instance.
-                         *
-                         * \param p The packet to copy from.
-                         */
-                        void set(awds::AWDS_Packet &p) {
-                            // if this is not an attributes packet
-                            if (p.header.type != AWDS_Packet::constants::packet_type::attributes)
-                                return;
+                                    /** The type of the last attribute in the list Seq. */
+                                    typedef typename boost::mpl::end<Seq>::type end;
 
-                            set(p.data, ntohs(p.header.size));
-                        }
+                                    /* \brief Checks weather the given attributes are matching.
+                                     *
+                                     * \param a The attribute wich has to be less or equal to the b.
+                                     * \param b The attribute wich has to be more or equal to a or null.
+                                     * \return Returns true if b is null or a is less or equal to b, otherwise false.
+                                     */
+                                    static bool match(attrib *a, attrib *b) {
+                                        // if attrib b is empty check is always true
+                                        if (!b)
+                                            return true;
 
-                        /* \brief Checks weather the given attributes are matching.
-                         *
-                         * \param a The attribute wich has to be less or equal to the b.
-                         * \param b The attribute wich has to be more or equal to a or null.
-                         * \return Returns true if b is null or a is less or equalt to b, otherwise false.
-                         */
-                        template< typename Attrib >
-                        bool match(Attrib *a, Attrib *b) const {
-                            // if attrib b is empty check is always true
-                            if (!b)
-                                return true;
+                                        // if attrib b is not empty, attrib a has to be not empty too, so check if it matches
+                                        if (a && a->get() <= b->get())
+                                            return true;
 
-                            // if attrib b is not empty, attrib a has to be not empty too, so check if it matches
-                            if (a && a->get() <= b->get())
-                                return true;
+                                        // attributes doesn't match
+                                        return false;
+                                    }
 
-                            // attributes doesn't match
-                            return false;
-                        }
+                                public:
 
-                        /*! \brief Checks weather all attributes are matching
-                         *
-                         *  if an attribute in o is null, the check for this attribute will always match.
-                         *
-                         *  \param o The other attributes.
-                         *  \return true if all attributes of this are less than or equal to o, otherwise false.
-                         */
-                        bool operator<=(const Attributes & o) const {
-                            // check if ttl is matched
-                            if (!match(ttl, o.ttl))
-                                return false;
+                                    /**
+                                     * Iterates over the attributes and check them against the two given lists.
+                                     * The first list should be the actual network attributes and the second list can be the
+                                     * publisher or subscriber defined attributes.
+                                     *
+                                     * \param a The first attribute list.
+                                     * \param b The second attribute list.
+                                     * \return true if all attributes match, otherwise false.
+                                     */
+                                    static bool test(attr_seq &a, attr_seq &b) {
+                                        // find attributes
+                                        attrib *l = a.template find<attrib> ();
+                                        attrib *r = b.template find<attrib> ();
 
-                            // check if latency is matched
-                            if (!match(lat, o.lat))
-                                return false;
+                                        // match attribute
+                                        if (!match(l, r))
+                                            return false; // if attribs not match
 
-                            // check if latency is matched
-                            if (!match(band, o.band))
-                                return false;
+                                        // Check the next attribute in list
+                                        return AttributeIterator<Seq, typename boost::mpl::next<Itr>::type>::test(a, b);
+                                    }
 
-                            // check if latency is matched
-                            if (!match(ploss, o.ploss))
-                                return false;
+                                    /**
+                                     * Prints all attributes to the output stream.
+                                     *
+                                     * \param out The output stream.
+                                     * \param a The attribute list.
+                                     */
+                                    static void print(::logging::loggingReturnType &out, attr_seq &a) {
+                                        // find the attribute
+                                        attrib *attr = a.template find<attrib> ();
+                                        if (attr) {
+                                            // found, so get value
+                                            typename attrib::value_type val = attr->get();
+                                            // print name and value
+                                            out << " [" << typeid(attrib).name() << "]={" << val << "}";
+                                        }
 
-                            return true;
-                        }
+                                        // print next attribute in list
+                                        AttributeIterator<Seq, typename boost::mpl::next<Itr>::type>::print(out, a);
+                                    }
+                            };
 
-                        /*! \brief print the attributes to the given stream.
-                         *
-                         *  \param out the output stream to print to.
-                         */
-                        void print(::logging::loggingReturnType &out) const {
-                            out << ::logging::log::dec;
-                            if (ttl)
-                                out << " TTL: " << (int) ttl->get();
-                            if (lat)
-                                out << " Latency: " << (int) lat->get();
-                            if (band)
-                                out << " Bandwidth: " << (int) band->get();
-                            if (ploss)
-                                out << " PaketLoss: " << (int) ploss->get();
-                        }
+                            /**
+                             * Specialized template for end of recursion.
+                             *
+                             * \tparam Seq The attribute list.
+                             */
+                            template< class Seq >
+                            class AttributeIterator<Seq, typename boost::mpl::end<Seq>::type> {
+                                public:
 
-                        /*! \brief Creates an empty attributes instance.
-                         *
-                         *  \return An instance of attributes.
-                         */
-                        static type create() {
-                            type res = type(new Attributes());
-                            return res;
-                        }
+                                    static bool test(attr_seq &a, attr_seq &b) {
+                                        return true;
+                                    }
 
-                        /*! \brief Creates an empty attributes instance.
-                         *
-                         *  \param p An AWDS_Packet to load attributes from.
-                         *  \return An instance of attributes.
-                         */
-                        static type create(AWDS_Packet &p) {
-                            type res = type(new Attributes());
-                            res->set(p);
-                            return res;
-                        }
+                                    static void print(::logging::loggingReturnType &out, attr_seq &a) {
+                                    }
+                            };
+
+                            /* \brief Copy the data and search for attributes
+                             *
+                             * \param d the data pointer
+                             * \param s the size of the data
+                             *
+                             * \todo Copy only attributes, and not the whole data.
+                             */
+                            void set(uint8_t *d, uint16_t s) {
+
+                                std::memcpy(data, d, s);
+
+                                attribs = reinterpret_cast<attr_seq*> (data);
+                            }
+
+                        public:
+                            /** \copydoc Attributes */
+                            typedef boost::shared_ptr<Attributes> type;
+
+                            /**
+                             * \brief Copy the attributes from the packet to this attribute instance.
+                             *
+                             * \param p The packet to copy from.
+                             */
+                            void set(awds::AWDS_Packet &p) {
+                                // if this is not an attributes packet
+                                if (p.header.type != AWDS_Packet::constants::packet_type::attributes)
+                                    return;
+
+                                set(p.data, ntohs(p.header.size));
+                            }
+
+                            /*! \brief Checks weather all attributes are matching
+                             *
+                             *  If an attribute in o is null, the check for this attribute will always match.
+                             *  The left hand parameter should be the actual network attributes, the right hand parameter
+                             *  should be the publisher or subscriber defined attributes.
+                             *
+                             *  \param o The other attributes.
+                             *  \return true if all attributes of this are less than or equal to o, otherwise false.
+                             */
+                            bool operator<=(const Attributes & o) const {
+                                return AttributeIterator<AttrSeq>::test(*attribs, *o.attribs);
+                            }
+
+                            /*! \brief print the attributes to the given stream.
+                             *
+                             *  \param out the output stream to print to.
+                             */
+                            void print(::logging::loggingReturnType &out) const {
+                                out << ::logging::log::dec;
+                                AttributeIterator<AttrSeq>::print(out, *attribs);
+                            }
+
+                            /*! \brief Creates an empty attributes instance.
+                             *
+                             *  \return An instance of attributes.
+                             */
+                            static type create() {
+                                type res = type(new Attributes());
+                                return res;
+                            }
+
+                            /*! \brief Creates an empty attributes instance.
+                             *
+                             *  \param p An AWDS_Packet to load attributes from.
+                             *  \return An instance of attributes.
+                             */
+                            static type create(AWDS_Packet &p) {
+                                type res = type(new Attributes());
+                                res->set(p);
+                                return res;
+                            }
 
 #ifdef RANDOM_ATTRIBUTES
-                        /*! \brief Creates a random attributes instance.
-                         *
-                         *  \return An instance of attributes.
-                         */
-                        static type createRand() {
-                            type res = type(new Attributes());
-                            uint8_t data[8] = { 'T', (rand() % 10 + 1), 'L', (rand() % 10 + 1), 'P', (rand() % 10 + 1), 'B', (rand() % 10
-                                            + 1) };
-                            res->set(data, 8);
-                            return res;
-                        }
+                            /*! \brief Creates a random attributes instance.
+                             *
+                             *  \return An instance of attributes.
+                             */
+                            static type createRand() {
+                                type res = type(new Attributes());
+
+                                attr_seq *as = new (&res->data[0]) attr_seq();
+
+                                if (rand() % 2 == 0) {
+                                    TTL *ttl = as->find();
+                                    if (ttl)
+                                        ttl->set(rand() % 20 + 1);
+                                }
+
+                                if (rand() % 2 == 0) {
+                                    Latency *l = as->find();
+                                    if (l)
+                                        l->set(rand() % 50 + 20);
+                                }
+
+                                if (rand() % 2 == 0) {
+                                    Bandwidth *b = as->find();
+                                    if (b)
+                                        b->set(rand() % 1000 + 1000);
+                                }
+
+                                if (rand() % 2 == 0) {
+                                    PacketLoss *p = as->find();
+                                    if (p)
+                                        p->set(rand() % 20 + 1);
+                                }
+
+                                return res;
+                            }
 #endif
 
-                    private:
-                        uint8_t data[AWDS_Packet::constants::packet_size::payload]; /**< The data where the attributes are stored. */
-                        TTL *ttl; /**< A pointer to the TTL attribute. */
-                        Latency *lat; /**< A pointer to the latency attribute. */
-                        Bandwidth *band; /**< A pointer to the bandwidth attribute. */
-                        PaketLoss *ploss; /**< A pointer to the packet loss rate attribute. */
-                };
+                        private:
+                            uint8_t data[AWDS_Packet::constants::packet_size::payload]; /**< The data where the attributes are stored. */
+                            attr_seq *attribs;
+                    };
+                } // namespace detail
+
+                typedef detail::Attributes<detail::AWDSAttributesList> Attributes;
 
                 /*! \brief Checks weather attributes are matching
                  *
+                 *  The left hand parameter should be the actual network attributes, the right hand parameter
+                 *  should be the publisher or subscriber defined attributes.
+                 *
                  *  Attributes::type is a typedef of boost::shared_ptr<Attributes>.
-                 *  \param a The first attributes.
-                 *  \param b The second attributes.
+                 *  \param a A shared pointer to the first attributes.
+                 *  \param b A shared pointer to the second attributes.
                  *  \return true if all attributes of a are less than or equal to b, otherwise false.
                  */
                 inline bool operator<=(const Attributes::type &a, const Attributes::type &b) {

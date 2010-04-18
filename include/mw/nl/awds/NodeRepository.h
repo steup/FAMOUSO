@@ -110,6 +110,9 @@ namespace famouso {
                          */
                         typedef std::map<SNN, Attributes::type> PublisherMap;
 
+                        /** \brief Constructor to init lists. */
+                        NodeRepository();
+
                     public:
 
                         /*! \brief Get the only instance of the node repository.
