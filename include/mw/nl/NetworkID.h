@@ -84,18 +84,27 @@ namespace famouso {
                      *  \param out The output stream to print to.
                      */
                     void print(::logging::loggingReturnType &out) const {
-                        char buffer[5];
+                        uint8_t tmp;
                         for (uint16_t i = 0; i < size; i++) {
                             if (i > 0)
                                 out << ":";
-                            std::sprintf(buffer, "%02X", _data[i]);
-                            out << buffer;
+                            // upper 4 BIT
+                            tmp = _data[i] >> 4;
+                            out << (tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
+
+                            // lower 4 BIT
+                            tmp = _data[i] & 0xF;
+                            out << (tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
                         }
+                    }
+
+                    const uint8_t *tab() const {
+                        return _data;
                     }
 
                 private:
                     uint8_t _data[size];
-            } __attribute__((packed));
+            }__attribute__((packed));
         } /* nl */
     } /* mw */
 } /* famouso */
@@ -107,7 +116,7 @@ namespace logging {
      * \param id The Network ID to print.
      * \return The log to chain print calls.
      */
-    template< uint16_t size>
+    template< uint16_t size >
     inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::NetworkID<size> &id) {
         id.print(out);
         return out;
