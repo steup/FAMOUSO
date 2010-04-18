@@ -102,7 +102,7 @@ namespace famouso {
                             return false;
                         }
 
-                        afp::Fragmenter<AFPFC> f(e.data, e.length, _mtu);
+                        afp::Fragmenter<AFPFC, _mtu> f(e.data, e.length);
 
                         if (f.error())
                             return false;

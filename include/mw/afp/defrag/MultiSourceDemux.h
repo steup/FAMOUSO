@@ -201,7 +201,7 @@ namespace famouso {
                                 // packet loss or reordering and current event is not complete while
                                 // we get first fragment of the next event drop incomplete event.
                                 if (it != events.end()) {
-                                    free_defragmenter(event->to_handle());
+                                    free_defragmenter((*it)->to_handle());
                                 }
 
                                 // Unknown or recently freed key
@@ -216,7 +216,7 @@ namespace famouso {
 
                                 ::logging::log::emit< ::logging::Info>()
                                         << "AFP: defrag fragment " << ::logging::log::dec << (unsigned int)header.fseq
-                                        << " of NEW event " << (unsigned int)event_key.eseq << ::logging::log::endl;
+                                        << " of NEW event" << ::logging::log::endl;
                             } else {
                                 // Not first fragment: If we found a defragmenter fitting the key,
                                 // return it. Otherwise (missing frist fragment) drop this fragment.
@@ -232,7 +232,7 @@ namespace famouso {
 
                                 ::logging::log::emit< ::logging::Info>()
                                         << "AFP: defrag fragment " << ::logging::log::dec << (unsigned int)header.fseq
-                                        << " of event " << (unsigned int)event_key.eseq << ::logging::log::endl;
+                                        << " of event" << ::logging::log::endl;
                             }
 
                             return event->to_handle();
@@ -244,7 +244,7 @@ namespace famouso {
 
                         /// Return Defragmenter from handle
                         Defragmenter<AFPDC> * get_defragmenter(void * handle) {
-                            return Event<KeyType>::from_handle(handle)->def;
+                            return & Event<KeyType>::from_handle(handle)->def;
                         }
 
                         /*!

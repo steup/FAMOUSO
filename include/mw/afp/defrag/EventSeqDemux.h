@@ -104,13 +104,12 @@ namespace famouso {
                     bool operator<(const EseqSubjectDemuxKey & v2) const {
                         if (eseq < v2.eseq)
                             return true;
-                        if (eseq > v2.eseq)
+                        else
                             return false;
-                        return subject < v2.subject;
                     }
 
                     bool operator==(const EseqSubjectDemuxKey & v2) const {
-                        return eseq ==  v2.eseq && subject < v2.subject;
+                        return eseq == v2.eseq && subject == v2.subject;
                     }
 
                     EseqSubjectDemuxKey(const Headers<AFPDC> & header, const Subject_t & subj) :

@@ -46,6 +46,7 @@
 #include "debug.h"
 
 #include "mw/afp/shared/div_round_up.h"
+#include "config/type_traits/ExpandedRangeTypeSelector.h"
 
 #include "boost/mpl/assert.hpp"
 
@@ -142,7 +143,7 @@ namespace famouso {
                             fcount_t max_frag_count = 32;
 
                             payload_length = mtu - header_length;
-                            elen_t curr_hl_payload = curr_hl_frag_count * payload_length;
+                            typename ExpandedRangeTypeSelector<elen_t>::type curr_hl_payload = curr_hl_frag_count * payload_length;
                             overflow_err.check_equal(curr_hl_payload / payload_length, curr_hl_frag_count);
 
                             while (event_length > curr_hl_payload &&
