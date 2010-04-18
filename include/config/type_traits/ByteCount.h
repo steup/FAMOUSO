@@ -181,7 +181,7 @@ namespace famouso {
          *
          * \return The number of bits needed to represent the given value
          */
-        const uint16_t getBitCount(uint64_t value) {
+        inline const uint16_t getBitCount(uint64_t value) {
             uint16_t result = 0;
 
             while (value > 0) {
@@ -259,7 +259,7 @@ namespace famouso {
          *
          * \return The number of whole bytes needed
          */
-        const uint16_t bitCountToByteCount(const uint16_t value) {
+        inline const uint16_t bitCountToByteCount(const uint16_t value) {
             // Similar to
             //  return (((value % 8) == 0) ? (value / 8) : ((value / 8) + 1));
             //
