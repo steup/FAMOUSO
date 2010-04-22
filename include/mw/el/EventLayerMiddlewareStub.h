@@ -45,6 +45,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/pool/pool.hpp>
+#include <string.h>
 
 #include "debug.h"
 
@@ -196,7 +197,7 @@ namespace famouso {
                              *  \brief Constructs EventChannelConnection. Use create to get a new instance.
                              */
                             EventChannelConnection()
-                                    : socket_(famouso::util::ios::instance()), incomplete_async_writes(0) {
+                                    : socket_(famouso::util::ios::instance()), incomplete_async_write_bytes(0) {
                             }
 
                             /*!
@@ -301,21 +302,20 @@ namespace famouso {
                                                typename EventMemoryPool::pointer event_preamble,
                                                const boost::system::error_code & error,
                                                size_t bytes_transferred) {
-                                incomplete_async_writes--;
+                                incomplete_async_write_bytes -= bytes_transferred;
                             }
 
                             /*!
                              *  \brief Subscriber channel callback that forwards events to client app (subscriber connections)
                              *  \param cbd  Callback data (event to forward to this subscriber)
-                             *  \todo Comparing incomplete_async_writes with constant is insufficient for crash detection...
-                             *        the time passed since last decrease of incomplete_async_writes should be crucial
+                             *  \todo   Remove copying of events from network layer (with buffers provided by application layer!?)
                              */
                             void cb(famouso::mw::api::SECCallBackData & cbd) {
-                                if (incomplete_async_writes < 1000) {
+                                if (incomplete_async_write_bytes < 400000) {
                                     // Idea: performance improvement for
                                     //       multiple subscribers: alloc and
                                     //       init preamble once in
-                                    //       get_event_data() like event_data
+                                    //       get_event_data() like event_data (not usable for events from NL!!!)
                                     typename EventMemoryPool::pointer sp_preamble = EventMemoryPool::alloc(13);
                                     uint8_t * preamble = sp_preamble.get();
                                     preamble[0] = FAMOUSO::PUBLISH;
@@ -323,21 +323,37 @@ namespace famouso {
                                     for (uint8_t i = 0;i < 8;++i)
                                         preamble[i+1] = cbd.subject.tab()[i];
                                     *len = htonl(cbd.length);
-                                    boost::array<boost::asio::const_buffer, 2> bufs = {{
+
+                                    incomplete_async_write_bytes += cbd.length + 13;
+                                    if (current_event_data()) {
+                                        // Event published by get_event_data() (published locally). That is why
+                                        // bufs memory is owned by the shared_ptr current_event_data (and sp_preamble)
+                                        // which are passed to write_handler()
+                                        boost::array<boost::asio::const_buffer, 2> bufs = {{
                                             boost::asio::buffer(preamble, 13),
                                             boost::asio::buffer(cbd.data, cbd.length)
-                                        }
-                                    };
-
-                                    incomplete_async_writes++;
-                                    // bufs memory owned by shared_ptr current_event_data and sp_preamble passed
-                                    // to write_handler()
-                                    boost::asio::async_write(socket(), bufs, boost::asio::transfer_all(),
-                                                             boost::bind(&EventChannelConnection::write_handler, this->shared_from_this(),
-                                                                         current_event_data(),
-                                                                         sp_preamble,
-                                                                         boost::asio::placeholders::error,
-                                                                         boost::asio::placeholders::bytes_transferred));
+                                        }};
+                                        boost::asio::async_write(socket(), bufs, boost::asio::transfer_all(),
+                                                                 boost::bind(&EventChannelConnection::write_handler, this->shared_from_this(),
+                                                                             current_event_data(),
+                                                                             sp_preamble,
+                                                                             boost::asio::placeholders::error,
+                                                                             boost::asio::placeholders::bytes_transferred));
+                                    } else {
+                                        // Event comes from network layer... copy data to enable async write
+                                        typename EventMemoryPool::pointer sp_event_data = EventMemoryPool::alloc(cbd.length);
+                                        memcpy(sp_event_data.get(), cbd.data, cbd.length);
+                                        boost::array<boost::asio::const_buffer, 2> bufs = {{
+                                            boost::asio::buffer(preamble, 13),
+                                            boost::asio::buffer(sp_event_data.get(), cbd.length)
+                                        }};
+                                        boost::asio::async_write(socket(), bufs, boost::asio::transfer_all(),
+                                                                 boost::bind(&EventChannelConnection::write_handler, this->shared_from_this(),
+                                                                             sp_event_data,
+                                                                             sp_preamble,
+                                                                             boost::asio::placeholders::error,
+                                                                             boost::asio::placeholders::bytes_transferred));
+                                    }
                                 } else {
                                     // Too many incomplete writes... assume that the client is crashed or
                                     // blocking inside the callback. Drop current event to prevent flooding
@@ -399,8 +415,8 @@ namespace famouso {
                             /// TCP socket used for communication with the client's event layer stub
                             boost::asio::ip::tcp::socket socket_;
 
-                            /// Number of asynchronous writes to the client not yet completed
-                            unsigned int incomplete_async_writes;
+                            /// Amount data pending for asynchronous writes to the client
+                            unsigned int incomplete_async_write_bytes;
 
                             /// Buffer used to store data received from the client
                             boost::array<uint8_t, 13> event_head;
