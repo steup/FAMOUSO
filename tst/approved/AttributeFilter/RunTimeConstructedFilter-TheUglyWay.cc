@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
             > DEf1;
     DEf1    def1(f1(1));
 
-    // third term is TTL >= 1
+    // third term is TTL <= 2
     typedef filter::RelationalOperatorFilter<
                 filter::exists<
                     TTL<1>
