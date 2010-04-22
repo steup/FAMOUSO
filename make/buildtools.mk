@@ -33,7 +33,7 @@
 ##    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
 ##
-## $Id: gcc.mk 1510 2010-02-02 07:18:58Z mschulze $
+## $Id$
 ##
 ################################################################################
 
