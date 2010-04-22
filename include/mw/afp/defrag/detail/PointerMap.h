@@ -57,17 +57,13 @@ namespace famouso {
                     // Stellt nicht die eindeutigkeit sicher
                     template <class KeyT, class ItemT, unsigned int N>
                     class PointerMap {
-
                             /// Item pointer array
                             ItemT * array[N];
 
                             /// Get first non-empty item starting from i
                             ItemT ** get_next(ItemT ** i) {
-                                while (i != &array[N]) {
-                                    if (*i != 0)
-                                        break;
-                                    else
-                                        i++;
+                                while (i != &array[N] && *i == 0) {
+                                    i++;
                                 }
                                 return i;
                             }
@@ -90,15 +86,16 @@ namespace famouso {
                                     }
 
                                     /// Prefix increment iterator
-                                    iterator operator ++ () {
+                                    iterator & operator ++ () {
                                         item = pm.get_next(item + 1);
-                                        return iterator(pm, item);
+                                        return *this;
                                     }
 
                                     /// Postfix increment iterator
                                     iterator operator ++ (int) {
+                                        ItemT ** old = item;
                                         item = pm.get_next(item + 1);
-                                        return iterator(pm, item);
+                                        return iterator(pm, old);
                                     }
 
                                     /// Check for equality

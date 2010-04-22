@@ -47,6 +47,7 @@
 
 #include "boost/mpl/assert.hpp"
 
+#include "mw/afp/Config.h"
 #include "mw/afp/FragPolicySelector.h"
 
 
@@ -71,11 +72,13 @@ namespace famouso {
 
                     typedef FragPolicySelector<AFPFC> FCP;
 
+                    typedef class FCP::FragImplPolicy FragmenterImpl;
+
+                public:
+
                     typedef typename FCP::SizeProp::elen_t   elen_t;
                     typedef typename FCP::SizeProp::flen_t   flen_t;
                     typedef typename FCP::SizeProp::fcount_t fcount_t;
-
-                    typedef class FCP::FragImplPolicy FragmenterImpl;
 
                 protected:
 
@@ -125,6 +128,60 @@ namespace famouso {
                     }
             };
 
+
+            /*!
+             *  \brief  Empty version of Fragmenter for disabling fragmentation in the ANL
+             */
+            template < unsigned int mtu_compile_time >
+            class Fragmenter<Disable, mtu_compile_time> {
+
+                public:
+
+                    typedef uint16_t elen_t;
+                    typedef uint16_t flen_t;
+                    typedef uint16_t fcount_t;
+
+                    /*!
+                     * \brief Construct a new fragmenter for an event (if mtu_compile_time template parameter is set)
+                     * \param[in] event_data Buffer containing the data to be fragmented
+                     * \param[in] event_length Length of event_data buffer
+                     */
+                    Fragmenter(const uint8_t * event_data, elen_t event_length) {
+                        ::logging::log::emit< ::logging::Warning>()
+                            << "Event is to big to deliver at once and fragmentation is disabled."
+                            << ::logging::log::endl;
+                    }
+
+                    /*!
+                     * \brief Construct a new fragmenter for an event
+                     * \param[in] event_data Buffer containing the data to be fragmented
+                     * \param[in] event_length Length of event_data buffer
+                     * \param[in] mtu  Maximum length of constructed fragments (header + payload)
+                     */
+                    Fragmenter(const uint8_t * event_data, elen_t event_length, flen_t mtu) {
+                        ::logging::log::emit< ::logging::Warning>()
+                            << "Event is to big to deliver at once and fragmentation is disabled."
+                            << ::logging::log::endl;
+                    }
+
+                    /*!
+                     * \brief Returns whether an error occured.
+                     *
+                     * Check this after construction.
+                     */
+                    bool error() {
+                        return true;
+                    }
+
+                    /*!
+                     * \brief Write next fragment to fragment_data buffer.
+                     * \param[in] fragment_data Output buffer for fragment (at least mtu Bytes)
+                     * \returns Length of data put into fragment buffer
+                     */
+                    flen_t get_fragment(uint8_t * fragment_data) {
+                        return 0;
+                    }
+            };
 
         } // namespace afp
     } // namespace mw

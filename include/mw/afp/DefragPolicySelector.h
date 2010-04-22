@@ -74,6 +74,7 @@ namespace famouso {
         namespace afp {
 
 
+            IF_CONTAINS_SELECT_TYPE_(SubjectType);
             IF_CONTAINS_SELECT_TYPE_(DefragStatistics);
 
             // TODO: support multiple publishers per subject
@@ -116,7 +117,10 @@ namespace famouso {
                 /// Internal subject type (EmptyType if only one subject)
                 typedef typename if_select_type<
                             Config::multiple_subjects,
-                            famouso::mw::Subject,                           // Multiple subjects
+                            typename if_contains_select_type_SubjectType<   // Multiple subjects
+                                Config,
+                                famouso::mw::Subject
+                            >::type,
                             EmptyType                                       // Don't care about subjects
                         >::type SubjectType;
 

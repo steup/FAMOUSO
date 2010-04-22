@@ -46,6 +46,7 @@
 
 #include "debug.h"
 
+#include "mw/afp/Config.h"
 #include "mw/afp/DefragPolicySelector.h"
 #include "mw/afp/defrag/Defragmenter.h"
 #include "mw/afp/defrag/Headers.h"
@@ -72,6 +73,8 @@ namespace famouso {
             template <class AFPDC>
             class DefragmentationProcessor {
 
+                protected:
+
                     typedef DefragPolicySelector<AFPDC> DCP;
 
                     typedef typename DCP::SizeProp::elen_t elen_t;
@@ -81,7 +84,6 @@ namespace famouso {
                     typedef class DCP::DemuxPolicy DemuxPolicy;
                     typedef class DCP::DefragStatistics Statistics;
 
-                protected:
 
                     /// Event demultiplexer
                     DemuxPolicy demux;
@@ -218,6 +220,100 @@ namespace famouso {
 
 
             /*!
+             * \brief Defragmentation processor adapted to the needs of the ANL
+             *
+             * Provides single-thread-only interface not needing the DefragmentationStep
+             * for freeing an event.
+             *
+             * \tparam AFPDC AFP defragmentation config
+             * \see DefragmentationStep
+             */
+            template <class AFPDC>
+            class DefragmentationProcessorANL : private DefragmentationProcessor<AFPDC> {
+
+                    typedef DefragmentationProcessor<AFPDC> Base;
+                    typedef typename Base::flen_t flen_t;
+
+                protected:
+
+                    /// Defragmenter handle of last complete event.
+                    /// Zero if there is none or it was already freed.
+                    void * last_defragmenter_handle;
+
+                public:
+
+                    /*!
+                     * \brief Constrcutor
+                     * \param mtu Maximum transmission unit (max. size of fragment inclusive AFP headers)
+                     */
+                    DefragmentationProcessorANL(flen_t mtu)
+                            : Base(mtu), last_defragmenter_handle(0) {
+                    }
+
+
+                    /*!
+                     * \brief Processes fragment.
+                     * \param ds Contains fragment data.
+                     *
+                     * After returning an event may be complete (check ds.event_complete()).
+                     */
+                    void process_fragment(DefragmentationStep<AFPDC> & ds) {
+                        Base::process_fragment(ds);
+                        if (ds.event_complete())
+                            last_defragmenter_handle = ds.defragmenter_handle;
+                    }
+
+                    /*!
+                     * \brief Free last completed event. Call this after data of an complete event was processed.
+                     *
+                     * Checks whether there is something to free. Thus, it can be always called after processing
+                     */
+                    void last_event_processed() {
+                        if (last_defragmenter_handle) {
+                            Base::demux.free_defragmenter(last_defragmenter_handle);
+                            last_defragmenter_handle = 0;
+                        }
+                    }
+            };
+
+            /*!
+             *  \brief  Empty version of DefragmentationProcessorANL for disabling defragmentation in the ANL
+             */
+            template <>
+            class DefragmentationProcessorANL<Disable>  {
+
+                    typedef uint64_t flen_t;
+
+                public:
+
+                    /*!
+                     * \brief Constrcutor
+                     * \param mtu Maximum transmission unit (max. size of fragment inclusive AFP headers)
+                     */
+                    DefragmentationProcessorANL(flen_t mtu) {
+                    }
+
+
+                    /*!
+                     * \brief Processes fragment.
+                     * \param ds Contains fragment data.
+                     *
+                     * After returning an event may be complete (check ds.event_complete()).
+                     */
+                    void process_fragment(DefragmentationStep<Disable> & ds) {
+                    }
+
+                    /*!
+                     * \brief Free last complete event. Call this after data of an complete event was processed.
+                     *
+                     * Checks whether there is something to free. Thus, it can be always called after processing
+                     */
+                    void last_event_processed() {
+                    }
+            };
+
+
+            /*!
              * \brief Contains temporary data needed for a single defragmentation step
              *        (reading fragments header, processing fragment and if
              *        event is complete returning buffer, process event, free event)
@@ -263,13 +359,16 @@ namespace famouso {
 
                     friend class DefragmentationProcessor<AFPDC>;
                     friend class DefragmentationProcessorKeepEventSupport<AFPDC>;
+                    friend class DefragmentationProcessorANL<AFPDC>;
 
                 public:
 
                     /*!
                      * \brief Construct object and read header
                      *
-                     * Use this constructor for multiple subject configurations
+                     * Use this constructor for multiple subject configurations.
+                     * If you use this constructor for one subject configurations,
+                     * the subject parameter will be ignored.
                      */
                     DefragmentationStep(const uint8_t * fdata, flen_t flength, const SubjectType & subject /* TODO: Absender-Knoten */) :
                             fragment_header(fdata),
@@ -279,7 +378,6 @@ namespace famouso {
                             defragmenter_handle(0),
                             event_data(0),
                             event_length(0) {
-                        BOOST_MPL_ASSERT_MSG(DemuxKeyType::uses_subject, wrong_constructor_for_single_subject_configurations, ());
                     }
 
                     /*!
@@ -322,6 +420,70 @@ namespace famouso {
                     /// Returns length of the event.
                     elen_t get_event_length() const {
                         return event_length;
+                    }
+            };
+
+
+            /*!
+             *  \brief  Empty version of DefragmentationStep for disabling defragmentation in the ANL
+             */
+            template <>
+            class DefragmentationStep<Disable> {
+
+                    typedef uint64_t elen_t;
+                    typedef uint64_t flen_t;
+
+                public:
+
+                    /*!
+                     * \brief Construct object and read header
+                     *
+                     * Use this constructor for multiple subject configurations.
+                     * If you use this constructor for one subject configurations,
+                     * the subject parameter will be ignored.
+                     */
+                    template <typename SubjectType>
+                    DefragmentationStep(const uint8_t * fdata, flen_t flength, const SubjectType & subject /* TODO: Absender-Knoten */) {
+                        ::logging::log::emit< ::logging::Warning>()
+                            << "Dropping fragment. Defragmentation"
+                            << "is disabled." << ::logging::log::endl;
+                    }
+
+                    /*!
+                     * \brief Construct object and read header
+                     *
+                     * Use this constructor for one subject configurations
+                     */
+                    DefragmentationStep(const uint8_t * fdata, flen_t flength /* TODO: Absender-Knoten */) {
+                        ::logging::log::emit< ::logging::Warning>()
+                            << "Dropping fragment. Defragmentation"
+                            << "is disabled." << ::logging::log::endl;
+                    }
+
+                    /*!
+                     * \brief Return whether an error occured while reading header.
+                     *
+                     * DefragmentationProcessor::process() checks this as well.
+                     * You needn't call this if you are not interested whether an error
+                     * occured or not.
+                     */
+                    bool error() const {
+                        return true;
+                    }
+
+                    /// Returns whether an event is complete after fragment has been processed.
+                    bool event_complete() const {
+                        return false;
+                    }
+
+                    /// Returns pointer to event data or NULL if event is not complete yet.
+                    uint8_t * get_event_data() const {
+                        return 0;
+                    }
+
+                    /// Returns length of the event.
+                    elen_t get_event_length() const {
+                        return 0;
                     }
             };
 

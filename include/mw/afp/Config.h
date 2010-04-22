@@ -38,8 +38,8 @@
  ******************************************************************************/
 
 
-#ifndef __DEFAULTCONFIG_H_6D03524A376067__
-#define __DEFAULTCONFIG_H_6D03524A376067__
+#ifndef __CONFIG_H_6D03524A376067__
+#define __CONFIG_H_6D03524A376067__
 
 
 namespace famouso {
@@ -74,5 +74,5 @@ namespace famouso {
 } // namespace famouso
 
 
-#endif // __DEFAULTCONFIG_H_6D03524A376067__
+#endif // __CONFIG_H_6D03524A376067__
 

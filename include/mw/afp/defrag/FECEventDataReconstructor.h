@@ -203,6 +203,8 @@ namespace famouso {
                                 ::logging::log::emit< ::logging::Info>() << "AFP: FEC: payload length " << ::logging::log::dec << (unsigned int)payload_length << ", k " << (unsigned int)k << ", n " << (unsigned int)Base::event_fragment_count << ::logging::log::endl;
                             }
 
+                            FAMOUSO_ASSERT(header.fseq < Base::event_fragment_count);
+
                             // Wrong MTU will lead to undefined behaviour...
                             // Only last non-redundancy fragment may be smaller than maximum
                             {

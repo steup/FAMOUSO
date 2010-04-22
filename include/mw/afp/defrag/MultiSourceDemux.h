@@ -175,7 +175,7 @@ namespace famouso {
                         ~MultiSourceDemux() {
                             typename EventMap::iterator it = events.begin();
                             Event<KeyType> * event;
-                            for (; it != events.end(); it++) {
+                            for (; it != events.end(); ++it) {
                                 event = *it;
                                 Allocator::destroy(event);
                             }

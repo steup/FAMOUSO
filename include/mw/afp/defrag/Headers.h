@@ -98,6 +98,7 @@ namespace famouso {
                          * Check for errors via error() afterwards.
                          */
                         Headers(const uint8_t * data) {
+                            // TODO: security: check fragment_length (additional parameter before reading from data)
                             all_header_length = 0;      // Default: error status
                             ext_header_length = 0;
 

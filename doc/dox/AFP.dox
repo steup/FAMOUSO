@@ -25,7 +25,27 @@ AFP is used in the abstract network layer of the %famouso middleware by default 
 
 At the moment AFP supports only one publisher per subject. If multiple publishers' events need to be fragmented, AFP cannot guarantee correct reconstruction of the events.
 
-\subpage afp_header
+\section afp__content Content
+
+- \subpage afp_header
+- \subpage afp_usage
+- \subpage afp_config
+
+*/
+
+//-----------------------------------------------------------------------------
+
+/*!
+
+\page afp_usage AFP usage
+
+API
+AL/ANL
+
+\page afp_config AFP configuration
+
+
+
 */
 
 //-----------------------------------------------------------------------------

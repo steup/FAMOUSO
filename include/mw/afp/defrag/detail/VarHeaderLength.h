@@ -42,6 +42,7 @@
 
 
 #include "debug.h"
+#include "config/type_traits/ExpandedRangeTypeSelector.h"
 
 
 namespace famouso {
@@ -60,17 +61,21 @@ namespace famouso {
 
                         public:
 
+                            /// Return type of get_payload()
+                            typedef typename ExpandedRangeTypeSelector<elen_t>::type eelen_t;
+
                             /*!
                              *  \brief  Returns maximum payload of an event
                              *  \param  frag_count  Count of fragments the event consists of
                              *  \param  no_ext_mtu  MTU minus extension header's length
-                             *  \returns    Maximum payload of an event with given paramters
+                             *  \returns    Maximum payload of an event with given parameters (may exceed the
+                             *              range of elen_t)
                              *
                              *  This function assumes variable basic header length, constant extension header length
                              *  and variable payload per fragment (the full MTU is used except for the last fragment).
                              */
-                            static elen_t get_payload(fcount_t frag_count, flen_t no_ext_mtu) {
-                                elen_t p = 0;           // payload
+                            static eelen_t get_payload(fcount_t frag_count, flen_t no_ext_mtu) {
+                                eelen_t p = 0;          // payload
                                 flen_t h = 1;           // header length
                                 fcount_t c_h = 32;      // max. fragment count for header length = h
                                 fcount_t c_max = 32;    // max. fragment count for header length <= h

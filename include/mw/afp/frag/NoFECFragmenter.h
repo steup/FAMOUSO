@@ -206,6 +206,13 @@ namespace famouso {
 
                             remaining_fragments--;
 
+                            // Reduce header length? (and increase payload?)
+                            if (remaining_fragments == next_header_shorten_fseq) {
+                                basic_header_length--;
+                                payload_length++;
+                                next_header_shorten_fseq = get_next_header_shorten_fseq(remaining_fragments);
+                                FAMOUSO_ASSERT(basic_header_length > 0);
+                            }
 
                             // Insert header
                             flen_t fragment_length = get_header(fragment_data);
@@ -279,14 +286,6 @@ namespace famouso {
                             // Write basic header
                             {
                                 fcount_t fseq = remaining_fragments;
-
-                                // Reduce header length?
-                                if (fseq == next_header_shorten_fseq) {
-                                    basic_header_length--;
-                                    payload_length++;
-                                    next_header_shorten_fseq = get_next_header_shorten_fseq(fseq);
-                                    FAMOUSO_ASSERT(basic_header_length > 0);
-                                }
 
                                 // TODO: support 8 byte basic header if (sizeof(fcount_t) > 4)
 

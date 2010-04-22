@@ -74,6 +74,7 @@ namespace famouso {
                         typedef class DCP::DefragStatistics Statistics;
                         typedef class DCP::Allocator Allocator;
                         typedef detail::VarHeaderLength<DCP> VHL;
+                        typedef typename VHL::eelen_t eelen_t;
 
                     public:
 
@@ -98,8 +99,8 @@ namespace famouso {
                          * \param new_fragment_count New number of fragments event_data must be able to store
                          */
                         void realloc_event_data(fcount_t new_fragment_count) {
-                            elen_t old_len = behind_event_data - event_data;
-                            elen_t new_len = VHL::get_payload(new_fragment_count, no_ext_mtu);
+                            eelen_t old_len = behind_event_data - event_data;
+                            eelen_t new_len = VHL::get_payload(new_fragment_count, no_ext_mtu);
 
                             uint8_t * new_data = Allocator::alloc(new_len);
                             if (!new_data) {
@@ -171,7 +172,7 @@ namespace famouso {
                                 // put_fragment() called first time
                                 event_fragment_count = header.fseq + (header.first_fragment ? 1 : 2);
 
-                                elen_t buffer_length = VHL::get_payload(event_fragment_count, no_ext_mtu);
+                                eelen_t buffer_length = VHL::get_payload(event_fragment_count, no_ext_mtu);
                                 event_data = Allocator::alloc(buffer_length);
                                 if (!event_data) {
                                     ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;

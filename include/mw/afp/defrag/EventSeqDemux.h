@@ -222,8 +222,8 @@ namespace famouso {
                         flen_t mtu;
 
                         // TODO use dynamic data structures if possible
-                        typedef detail::PointerMap < KeyType, Event<KeyType>, 100 /*TODO config param*/ > EventMap;
-                        typedef object::RingBuffer < Event<KeyType> *, 100 /*TODO config param*/ > OutdatedQueue;
+                        typedef detail::PointerMap < KeyType, Event<KeyType>, 500 /*TODO config param*/ > EventMap;
+                        typedef object::RingBuffer < Event<KeyType> *, 500 /*TODO config param*/ > OutdatedQueue;
 
                         /// Assigns events to event keys (sequence numbers and/or subject
                         EventMap events;
@@ -300,7 +300,7 @@ namespace famouso {
                                     events.erase(it++);
                                     Allocator::destroy(e);
                                 } else {
-                                    it++;
+                                    ++it;
                                 }
                             }
                         }
@@ -315,7 +315,7 @@ namespace famouso {
                         /// Destructor
                         ~EventSeqDemux() {
                             typename EventMap::iterator it = events.begin();
-                            for (; it != events.end(); it++)
+                            for (; it != events.end(); ++it)
                                 Allocator::destroy(*it);
                         }
 
@@ -336,11 +336,10 @@ namespace famouso {
                                 // -> create new event defragmenter
                                 FAMOUSO_ASSERT(mtu > header.length());
                                 event = new (Allocator()) Event<KeyType>(mtu - header.ext_length(), event_key);
-                                if (!event || event->status == Event<KeyType>::event_outdated) {
+                                if (!event || event->status == Event<KeyType>::event_outdated || !events.insert(event)) {
                                     ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
                                     return 0;
                                 }
-                                events.insert(event);
                                 ::logging::log::emit< ::logging::Info>()
                                         << "AFP: defrag fragment " << ::logging::log::dec << (unsigned int)header.fseq
                                         << " of NEW event " << (unsigned int)event_key.eseq << ::logging::log::endl;

@@ -88,11 +88,11 @@ typedef afp::DefragmentationStep<MyAFPDefragConfig> DefragmentationStep;
 
 DefragmentationProcessor dp(16);
 
-char VideoSubject[] = "_famcat_";
+char subject[] = "_famcat_";
 
 
 
-void VideoCB(famouso::mw::api::SECCallBackData& cbd) {
+void CB(famouso::mw::api::SECCallBackData& cbd) {
 
     fprintf(stderr, "Incoming fragment (%u Bytes):\n", cbd.length);
     afp::shared::hexdump(cbd.data, cbd.length);
@@ -120,8 +120,8 @@ int main(int argc, char **argv) {
     famouso::init<famouso::config>();
     printf("FAMOUSO -- Initialization successful.\n");
 
-    famouso::config::SEC sec(VideoSubject);
-    sec.callback.bind<VideoCB>();
+    famouso::config::SEC sec(subject);
+    sec.callback.bind<CB>();
     sec.subscribe();
 
     Idler::idle();

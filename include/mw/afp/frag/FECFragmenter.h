@@ -190,6 +190,13 @@ namespace famouso {
 
                             Base::remaining_fragments--;
 
+                            // Reduce header length?
+                            if (Base::remaining_fragments == Base::next_header_shorten_fseq) {
+                                Base::basic_header_length--;
+                                Base::next_header_shorten_fseq = Base::get_next_header_shorten_fseq(Base::remaining_fragments);
+                                FAMOUSO_ASSERT(Base::basic_header_length > 0);
+                            }
+
                             // Insert header (basic and non-FEC extension headers)
                             flen_t fragment_length = Base::get_header(fragment_data, true);
                             fragment_data += fragment_length;
