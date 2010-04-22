@@ -59,10 +59,10 @@ namespace famouso {
                  *
                  * Alternatice policies: NoEventSeqHeaderSupport
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class EventSeqHeaderSupport {
 
-                        typedef typename AFPDC::SizeProp::flen_t   flen_t;
+                        typedef typename DCP::SizeProp::flen_t   flen_t;
 
                         /// true if the value of seq is valid
                         bool seq_valid;

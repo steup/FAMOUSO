@@ -57,10 +57,10 @@ namespace famouso {
                  *
                  * Alternative policies: EventSeqHeaderSupport
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class NoEventSeqHeaderSupport {
 
-                        typedef typename AFPDC::SizeProp::flen_t   flen_t;
+                        typedef typename DCP::SizeProp::flen_t   flen_t;
 
                     public:
 

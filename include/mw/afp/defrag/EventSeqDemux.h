@@ -66,7 +66,7 @@ namespace famouso {
                 /*!
                  * \brief Demux key type with event sequence number, one subject and one publisher
                  */
-                template <typename AFPDC, class Subject_t>
+                template <typename DCP, class Subject_t>
                 struct EseqDemuxKey {
                     const uint32_t eseq;
                     const bool eseq_header;      /// True if header did contain an event sequence number
@@ -81,7 +81,7 @@ namespace famouso {
                         return eseq == v2.eseq;
                     }
 
-                    EseqDemuxKey(const Headers<AFPDC> & header, const Subject_t & subj) :
+                    EseqDemuxKey(const Headers<DCP> & header, const Subject_t & subj) :
                             eseq(header.eseq.occurs() ?
                                  header.eseq.get_eseq() :
                                  0xffffffff),
@@ -93,7 +93,7 @@ namespace famouso {
                 /*!
                  * \brief Demux key type with event sequence number, multiple subjects and one publisher per subject
                  */
-                template <typename AFPDC, class Subject_t>
+                template <typename DCP, class Subject_t>
                 struct EseqSubjectDemuxKey {
                     const uint32_t eseq;
                     const Subject_t subject;
@@ -112,7 +112,7 @@ namespace famouso {
                         return eseq == v2.eseq && subject == v2.subject;
                     }
 
-                    EseqSubjectDemuxKey(const Headers<AFPDC> & header, const Subject_t & subj) :
+                    EseqSubjectDemuxKey(const Headers<DCP> & header, const Subject_t & subj) :
                             eseq(header.eseq.occurs() ?
                                  header.eseq.get_eseq() :
                                  0xffffffff),
@@ -128,19 +128,19 @@ namespace famouso {
                  *
                  * Alternatives: SingleEventDemux, MultiSourceDemux
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class EventSeqDemux {
 
-                        typedef typename AFPDC::SizeProp::elen_t   elen_t;
-                        typedef typename AFPDC::SizeProp::flen_t   flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::elen_t   elen_t;
+                        typedef typename DCP::SizeProp::flen_t   flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                        typedef typename AFPDC::EventDemuxKey KeyType;
-                        typedef typename AFPDC::Allocator Allocator;
+                        typedef typename DCP::EventDemuxKey KeyType;
+                        typedef typename DCP::Allocator Allocator;
 
                     public:
 
-                        typedef EventSeqHeaderSupport<AFPDC> EventSeqHeaderPolicy;
+                        typedef EventSeqHeaderSupport<DCP> EventSeqHeaderPolicy;
 
                     private:
 
@@ -151,12 +151,12 @@ namespace famouso {
                         template <class KeyType>
                         class Event {
 
-                                typedef typename AFPDC::SizeProp::flen_t   flen_t;
+                                typedef typename DCP::SizeProp::flen_t   flen_t;
 
                             public:
                                 /// Defragmenter of the event
                                 // TODO: def nicht mehr mit new, sondern free_resources() funktion, bei keep event mit aufgehoben
-                                Defragmenter<AFPDC> * def;
+                                Defragmenter<DCP> * def;
 
                                 /// Unique key identifying the event (equal to map key)
                                 const KeyType key;
@@ -182,7 +182,7 @@ namespace famouso {
 
                                 /// Constructor
                                 Event(flen_t max_payload, const KeyType & key) :
-                                        def(new (Allocator()) Defragmenter<AFPDC>(max_payload)),
+                                        def(new (Allocator()) Defragmenter<DCP>(max_payload)),
                                         key(key), status(def ? event_incomplete : event_outdated) {
                                     touch();
                                 }
@@ -322,7 +322,7 @@ namespace famouso {
                         /*!
                          * \returns Defragmenter handle, zero to drop the fragment.
                          */
-                        void * get_defragmenter_handle(const Headers<AFPDC> & header, const KeyType & event_key) {
+                        void * get_defragmenter_handle(const Headers<DCP> & header, const KeyType & event_key) {
                             // Call cleanup function for every 10th fragment (TODO: place this somewhere else... quite expensive)
                             static int call = 0;
                             if (++call % 10 == 0)
@@ -372,7 +372,7 @@ namespace famouso {
                         }
 
                         /// Return Defragmenter from handle
-                        Defragmenter<AFPDC> * get_defragmenter(void * handle) {
+                        Defragmenter<DCP> * get_defragmenter(void * handle) {
                             return Event<KeyType>::from_handle(handle)->def;
                         }
 
@@ -406,7 +406,7 @@ namespace famouso {
                             // Keep Defragmenter instance seperated from Event marked as processed.
                             // It will be deleted in free_kept_defragmenter.
                             Event<KeyType> * e = Event<KeyType>::from_handle(handle);
-                            Defragmenter<AFPDC> * def = e->def;
+                            Defragmenter<DCP> * def = e->def;
                             set_event_outdated(e);
                             return static_cast<void *>(def);
                         }
@@ -416,8 +416,8 @@ namespace famouso {
                          * \param handle Handle returned by keep_defragmenter.
                          * \return Defragmenter
                          */
-                        Defragmenter<AFPDC> * get_kept_defragmenter(void * handle) {
-                            return static_cast<Defragmenter<AFPDC> *>(handle);
+                        Defragmenter<DCP> * get_kept_defragmenter(void * handle) {
+                            return static_cast<Defragmenter<DCP> *>(handle);
                         }
 
                         /*!
@@ -450,15 +450,15 @@ namespace famouso {
         namespace afp {
             namespace defrag {
 
-                template <typename AFPDC, class Subject_t>
+                template <typename DCP, class Subject_t>
                 struct EseqDemuxKey {
                 };
 
-                template <typename AFPDC, class Subject_t>
+                template <typename DCP, class Subject_t>
                 struct EseqSubjectDemuxKey {
                 };
 
-                template <class AFPDC>
+                template <class DCP>
                 class EventSeqDemux {
                     BOOST_MPL_ASSERT_MSG(false, Event_Seq_Demux_currently_not_supported_on_AVR, ());
                 };

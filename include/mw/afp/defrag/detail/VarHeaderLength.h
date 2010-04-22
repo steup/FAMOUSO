@@ -51,12 +51,12 @@ namespace famouso {
                 namespace detail {
 
 
-                    template <class AFPDC>
+                    template <class DCP>
                     class VarHeaderLength {
 
-                            typedef typename AFPDC::SizeProp::elen_t elen_t;
-                            typedef typename AFPDC::SizeProp::flen_t flen_t;
-                            typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                            typedef typename DCP::SizeProp::elen_t elen_t;
+                            typedef typename DCP::SizeProp::flen_t flen_t;
+                            typedef typename DCP::SizeProp::fcount_t fcount_t;
 
                         public:
 

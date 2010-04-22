@@ -59,15 +59,15 @@ namespace famouso {
                 /*!
                  * \brief AFP Headers of a received fragment
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class Headers {
 
-                        typedef typename AFPDC::SizeProp::elen_t   elen_t;
-                        typedef typename AFPDC::SizeProp::flen_t   flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::elen_t   elen_t;
+                        typedef typename DCP::SizeProp::flen_t   flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                        typedef class AFPDC::DemuxPolicy::EventSeqHeaderPolicy EventSeqHeader;
-                        typedef class AFPDC::EventDataReconstructionPolicy::FECHeaderPolicy FECHeader;
+                        typedef class DCP::DemuxPolicy::EventSeqHeaderPolicy EventSeqHeader;
+                        typedef class DCP::EventDataReconstructionPolicy::FECHeaderPolicy FECHeader;
 
                     protected:
 

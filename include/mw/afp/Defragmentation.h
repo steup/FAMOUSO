@@ -46,6 +46,7 @@
 
 #include "debug.h"
 
+#include "mw/afp/DefragPolicySelector.h"
 #include "mw/afp/defrag/Defragmenter.h"
 #include "mw/afp/defrag/Headers.h"
 #include "mw/afp/EmptyType.h"
@@ -60,17 +61,25 @@ namespace famouso {
 
 
             /*!
-             * \brief Processes defragmentation steps
+             * \brief Defragmentation engine that processes defragmentation steps
+             *
+             * Contains pool of events whose reconstruction is in progress.
+             * Create one permanent instance per channel or network.
+             *
+             * \tparam AFPDC AFP defragmentation config
+             * \see DefragmentationStep
              */
             template <class AFPDC>
             class DefragmentationProcessor {
 
-                    typedef typename AFPDC::SizeProp::elen_t elen_t;
-                    typedef typename AFPDC::SizeProp::flen_t flen_t;
-                    typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                    typedef DefragPolicySelector<AFPDC> DCP;
 
-                    typedef class AFPDC::DemuxPolicy DemuxPolicy;
-                    typedef class AFPDC::DefragStatistics Statistics;
+                    typedef typename DCP::SizeProp::elen_t elen_t;
+                    typedef typename DCP::SizeProp::flen_t flen_t;
+                    typedef typename DCP::SizeProp::fcount_t fcount_t;
+
+                    typedef class DCP::DemuxPolicy DemuxPolicy;
+                    typedef class DCP::DefragStatistics Statistics;
 
                 protected:
 
@@ -105,7 +114,7 @@ namespace famouso {
                         ds.defragmenter_handle = demux.get_defragmenter_handle(ds.fragment_header, ds.event_demux_key);
 
                         if (ds.defragmenter_handle) {
-                            defrag::Defragmenter<AFPDC> * defrag = demux.get_defragmenter(ds.defragmenter_handle);
+                            defrag::Defragmenter<DCP> * defrag = demux.get_defragmenter(ds.defragmenter_handle);
 
                             defrag->put_fragment(ds.fragment_header, ds.fragment_payload, ds.fragment_payload_length);
 
@@ -142,12 +151,16 @@ namespace famouso {
 
             /*!
              * \brief Defragmentation processor that supports keeping events available for later delivery.
+             *
+             * \tparam AFPDC AFP defragmentation config
              */
             template <class AFPDC>
             class DefragmentationProcessorKeepEventSupport : public DefragmentationProcessor<AFPDC> {
 
-                    typedef typename AFPDC::SizeProp::flen_t flen_t;
-                    typedef typename AFPDC::SizeProp::elen_t elen_t;
+                    typedef DefragPolicySelector<AFPDC> DCP;
+
+                    typedef typename DCP::SizeProp::flen_t flen_t;
+                    typedef typename DCP::SizeProp::elen_t elen_t;
 
                 public:
 
@@ -210,21 +223,25 @@ namespace famouso {
              *        event is complete returning buffer, process event, free event)
              *
              * Create a new instance (on the stack) for every fragment you receive.
+             *
+             * \tparam AFPDC AFP defragmentation config
              */
             template <class AFPDC>
             class DefragmentationStep {
 
-                    typedef typename AFPDC::SizeProp::elen_t elen_t;
-                    typedef typename AFPDC::SizeProp::flen_t flen_t;
-                    typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                    typedef DefragPolicySelector<AFPDC> DCP;
 
-                    typedef typename AFPDC::SubjectType SubjectType;
-                    typedef typename AFPDC::EventDemuxKey DemuxKeyType;
+                    typedef typename DCP::SizeProp::elen_t elen_t;
+                    typedef typename DCP::SizeProp::flen_t flen_t;
+                    typedef typename DCP::SizeProp::fcount_t fcount_t;
+
+                    typedef typename DCP::SubjectType SubjectType;
+                    typedef typename DCP::EventDemuxKey DemuxKeyType;
 
                 protected:
 
                     /// Header of the fragment
-                    defrag::Headers<AFPDC> fragment_header;
+                    defrag::Headers<DCP> fragment_header;
 
                     /// Pointer to fragment's payload
                     const uint8_t * fragment_payload;

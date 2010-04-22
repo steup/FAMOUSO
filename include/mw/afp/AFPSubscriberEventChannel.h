@@ -61,8 +61,8 @@ namespace famouso {
 
             /*!
              * \brief Subscriber Event Channel with fragmentation support in the application layer
-             * \param AFPDC AFP defragmentation config
-             * \param SEC Subscriber Event Channel
+             * \tparam AFPDC AFP defragmentation config
+             * \tparam SEC Subscriber Event Channel
              */
             template < class SEC, class AFPDC, class EventType = Event >
             class AFPSubscriberEventChannel {

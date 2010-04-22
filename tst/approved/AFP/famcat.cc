@@ -54,10 +54,9 @@ LOGGING_DEFINE_OUTPUT( ::logging::config::StdErrLogType )
 
 #include "famouso_bindings.h"
 
-#include "mw/afp/FragConfig.h"
-#include "mw/afp/DefragConfig.h"
 #include "mw/afp/AFPPublisherEventChannel.h"
 #include "mw/afp/AFPSubscriberEventChannel.h"
+#include "mw/afp/Config.h"
 #include "mw/afp/shared/hexdump.h"
 
 #include "LargeEvent.h"
@@ -67,22 +66,17 @@ using famouso::mw::afp::LargeEvent;
 
 using namespace famouso::mw;
 
-struct CustomPolicies {
+
+struct MyAFPConfig : afp::DefaultConfig {
+    enum {
+        event_seq = true,
+        reordering = true,
+        duplicates = true,
+        FEC = true
+    };
     typedef afp::LargeEventSizeProp SizeProperties;
 };
 
-typedef afp::DefragConfig <
-    afp::one_subject |
-    afp::packet_loss | afp::reordering | afp::duplicates |
-    afp::FEC,
-    CustomPolicies
-> MyAFPDefragConfig;
-
-typedef afp::FragConfig <
-    afp::packet_loss | afp::reordering | afp::duplicates |
-    afp::FEC,
-    CustomPolicies
-> MyAFPFragConfig;
 
 
 const char * const default_channel_subject = "_famcat_";
@@ -185,7 +179,7 @@ int main(int argc, char ** argv) {
 
         if (operation == subscribe) {
 
-            afp::AFPSubscriberEventChannel<famouso::config::SEC, MyAFPDefragConfig, LargeEvent> sec(channel_subject, channel_mtu);
+            afp::AFPSubscriberEventChannel<famouso::config::SEC, MyAFPConfig, LargeEvent> sec(channel_subject, channel_mtu);
             sec.callback.bind<ReceiveCallback>();
             sec.subscribe();
 
@@ -196,7 +190,7 @@ int main(int argc, char ** argv) {
         } else if (operation == publish) {
 
             // Announce
-            afp::AFPPublisherEventChannel<famouso::config::PEC, MyAFPFragConfig, 0, LargeEvent> pec(channel_subject, channel_mtu);
+            afp::AFPPublisherEventChannel<famouso::config::PEC, MyAFPConfig, 0, LargeEvent> pec(channel_subject, channel_mtu);
             pec.announce();
 
             // Read data from stdin

@@ -43,6 +43,7 @@
 
 
 #include "mw/afp/Fragmenter.h"
+#include "mw/afp/CommonPolicySelector.h"
 
 #include "debug.h"
 #include "mw/common/Event.h"
@@ -69,7 +70,11 @@ namespace famouso {
             template < class PEC, class AFPFC, uint32_t mtu, class EventType = Event >
             class AFPPublisherEventChannel : public PEC  {
 
-                    BOOST_MPL_ASSERT_MSG(mtu == (typename AFPFC::SizeProp::flen_t)mtu,
+                    /// Fragmenter config policies
+                    typedef CommonPolicySelector<AFPFC> FCP;
+
+                    /// Check if MTU fits to config
+                    BOOST_MPL_ASSERT_MSG(mtu == (typename FCP::SizeProp::flen_t)mtu,
                                          MTU_too_large_for_used_SizeProperties, ());
 
                     /// Maximum fragment size
@@ -97,7 +102,7 @@ namespace famouso {
                         Event fragment_e(e.subject);
                         fragment_e.data = _buffer;
 
-                        if (e.length != (typename AFPFC::SizeProp::elen_t) e.length) {
+                        if (e.length != (typename FCP::SizeProp::elen_t) e.length) {
                             ::logging::log::emit< ::logging::Error>() << "AFP: Cannot publish event... too large." << ::logging::log::endl;
                             return false;
                         }
@@ -125,7 +130,11 @@ namespace famouso {
             template <class PEC, class AFPFC, class EventType>
             class AFPPublisherEventChannel<PEC, AFPFC, 0, EventType> : public PEC  {
 
-                    typedef typename AFPFC::Allocator Allocator;
+                    /// Fragmenter config policies
+                    typedef CommonPolicySelector<AFPFC> FCP;
+
+                    /// Allocator to use
+                    typedef typename FCP::Allocator Allocator;
 
                     /// Maximum fragment size
                     uint32_t _mtu;
@@ -168,7 +177,7 @@ namespace famouso {
                         Event fragment_e(e.subject);
                         fragment_e.data = _buffer;
 
-                        if (e.length != (typename AFPFC::SizeProp::elen_t) e.length) {
+                        if (e.length != (typename FCP::SizeProp::elen_t) e.length) {
                             ::logging::log::emit< ::logging::Error>() << "AFP: Cannot publish event... too large." << ::logging::log::endl;
                             return false;
                         }

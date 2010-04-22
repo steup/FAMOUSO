@@ -38,11 +38,11 @@
  ******************************************************************************/
 
 
-#ifndef __DEFRAGCONFIG_H_113525CAC772E0__
-#define __DEFRAGCONFIG_H_113525CAC772E0__
+#ifndef __DEFRAGPOLICYSELECTOR_H_113525CAC772E0__
+#define __DEFRAGPOLICYSELECTOR_H_113525CAC772E0__
 
 
-#include "mw/afp/CommonConfig.h"
+#include "mw/afp/CommonPolicySelector.h"
 #include "mw/afp/EmptyType.h"
 
 
@@ -79,25 +79,16 @@ namespace famouso {
             // TODO: support multiple publishers per subject
 
             // config: not only underlying net, but what to support
-            template <ConfigFlagsType config, typename NonDefaultPolicies = EmptyType>
-            struct DefragConfig {
-                typedef DefragConfig ThisType;
-                typedef CommonConfig<config, NonDefaultPolicies> Common;
-
-                enum {
-                    has_packet_loss = config & packet_loss,
-                    has_duplicates = config & duplicates,
-                    has_reordering = config & reordering,
-                    is_ideal_net = !has_packet_loss && !has_reordering && !has_duplicates,
-                    support_fec = config & FEC,
-                    support_multiple_subjects = !(config & one_subject)
-                };
+            template <typename Config>
+            struct DefragPolicySelector {
+                typedef DefragPolicySelector ThisType;
+                typedef CommonPolicySelector<Config> Common;
 
                 /// Demultiplexing policy
                 typedef typename if_select_type<
-                            is_ideal_net || (config & no_event_overlap),
+                            !Config::event_seq,
                             typename if_select_type<
-                                        support_multiple_subjects,
+                                        Config::multiple_subjects,
                                         defrag::MultiSourceDemux<ThisType>,   // no eseq and multiple subjects
                                         defrag::SingleEventDemux<ThisType>    // no eseq and one subject
                             >::type,
@@ -106,17 +97,17 @@ namespace famouso {
 
                 /// Duplicate checking policy
                 typedef typename if_select_type<
-                            has_duplicates,
+                            Config::duplicates,
                             defrag::DuplicateChecker<ThisType>,               // dupliactes
                             defrag::NoDuplicateChecker<ThisType>              // no duplicates
                         >::type DuplicateCheckingPolicy;
 
                 /// Event data reconstruction policy
                 typedef typename if_select_type<
-                            support_fec,
+                            Config::FEC,
                             defrag::FECEventDataReconstructor<ThisType>,                    // FEC support
                             typename if_select_type<
-                                        has_reordering,
+                                        Config::reordering,
                                         defrag::OutOfOrderEventDataReconstructor<ThisType>, // reordering
                                         defrag::InOrderEventDataReconstructor<ThisType>     // no reordering
                             >::type
@@ -124,21 +115,21 @@ namespace famouso {
 
                 /// Internal subject type (EmptyType if only one subject)
                 typedef typename if_select_type<
-                            support_multiple_subjects,
+                            Config::multiple_subjects,
                             famouso::mw::Subject,                           // Multiple subjects
                             EmptyType                                       // Don't care about subjects
                         >::type SubjectType;
 
                 /// Event demultiplexing key type (used to distinguish events)
                 typedef typename if_select_type<
-                            is_ideal_net || (config & no_event_overlap),
+                            !Config::event_seq,
                             typename if_select_type<
-                                        support_multiple_subjects,
+                                        Config::multiple_subjects,
                                         defrag::SubjectDemuxKey<ThisType, SubjectType>, // ideal net and multiple subjects
                                         defrag::EmptyDemuxKey<ThisType, SubjectType>    // ideal net and one subject
                             >::type,
                             typename if_select_type<
-                                        support_multiple_subjects,
+                                        Config::multiple_subjects,
                                         defrag::EseqSubjectDemuxKey<ThisType, SubjectType>, // non ideal net and multiple subjects
                                         defrag::EseqDemuxKey<ThisType, SubjectType>         // non ideal net and one subject
                             >::type
@@ -147,12 +138,12 @@ namespace famouso {
 
                 /// Defragmentation statistics policy
                 typedef typename if_select_type<
-                            config & defrag_statistics,
+                            Config::defrag_statistics,
                             typename if_contains_select_type_DefragStatistics<
-                                NonDefaultPolicies,                     // Return NonDefaultPolicies::DefragStatistics if defined
-                                defrag::Statistics<EmptyType>           // Default statistics tagged with EmptyType otherwise
+                                Config,                         // Return Config::DefragStatistics if defined
+                                defrag::Statistics<EmptyType>   // Default statistics tagged with EmptyType otherwise
                             >::type,
-                            defrag::NoStatistics                        // No statistics
+                            defrag::NoStatistics                // No statistics
                         >::type DefragStatistics;
 
                 /// Overflow error checking policy
@@ -162,7 +153,7 @@ namespace famouso {
                 typedef typename Common::Allocator Allocator;
 
                 /// SizeProperties
-                typedef typename Common::SizeProperties SizeProp;
+                typedef typename Common::SizeProp SizeProp;
             };
 
         } // namespace afp
@@ -170,5 +161,5 @@ namespace famouso {
 } // namespace famouso
 
 
-#endif // __DEFRAGCONFIG_H_113525CAC772E0__
+#endif // __DEFRAGPOLICYSELECTOR_H_113525CAC772E0__
 

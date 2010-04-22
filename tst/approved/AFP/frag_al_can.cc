@@ -1,11 +1,7 @@
 #define CPU_FREQUENCY 16000000
 
-#ifdef AFP_CLASSIC_CONFIG
-#include "mw/afp/FragConfigC.h"
-#else
-#include "mw/afp/FragConfig.h"
-#endif
 #include "mw/afp/AFPPublisherEventChannel.h"
+#include "mw/afp/Config.h"
 
 #include "famouso.h"
 
@@ -50,19 +46,13 @@ namespace famouso {
 
 using namespace famouso::mw;
 
-#ifdef AFP_CLASSIC_CONFIG
-typedef afp::FragConfigC <
-    afp::UseNoEventSeq,
-    afp::UseNoFEC,
-    afp::MinimalSizeProp
-> MinFragConfig;
-#else
-typedef afp::FragConfig <
-    afp::one_subject | afp::ideal_network |
-    afp::max_event_length_255 | afp::no_overflow_error_checking
-> MinFragConfig;
-#endif
 
+struct AFPConfig : afp::DefaultConfig {
+    enum {
+        overflow_error_checking = false
+    };
+    typedef afp::MinimalSizeProp SizeProperties;
+};
 
 
 
@@ -71,7 +61,7 @@ int main() {
 
     famouso::init<famouso::config>();
 
-    afp::AFPPublisherEventChannel<famouso::config::PEC, MinFragConfig, mtu> pec("SUBJECT_");
+    afp::AFPPublisherEventChannel<famouso::config::PEC, AFPConfig, mtu> pec("SUBJECT_");
     pec.announce();
 
     Event event(pec.subject());

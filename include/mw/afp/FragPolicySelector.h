@@ -38,11 +38,11 @@
  ******************************************************************************/
 
 
-#ifndef __FRAGCONFIG_H_7C0434F7D77B7E__
-#define __FRAGCONFIG_H_7C0434F7D77B7E__
+#ifndef __FRAGPOLICYSELECTOR_H_7C0434F7D77B7E__
+#define __FRAGPOLICYSELECTOR_H_7C0434F7D77B7E__
 
 
-#include "mw/afp/CommonConfig.h"
+#include "mw/afp/CommonPolicySelector.h"
 
 
 // Policies
@@ -74,42 +74,34 @@ namespace famouso {
             IF_CONTAINS_SELECT_TYPE_(RedundancyAttribute);
 
             // TODO: support multiple publishers per subject
-            template <ConfigFlagsType config, typename NonDefaultPolicies = EmptyType>
-            struct FragConfig {
-                typedef FragConfig ThisType;
-                typedef CommonConfig<config, NonDefaultPolicies> Common;
-
-                enum {
-                    has_packet_loss = config & packet_loss,
-                    has_duplicates = config & duplicates,
-                    has_reordering = config & reordering,
-                    is_ideal_net = !has_packet_loss && !has_reordering && !has_duplicates,
-                    use_fec = config & FEC,
-                };
+            template <typename Config>
+            struct FragPolicySelector {
+                typedef FragPolicySelector ThisType;
+                typedef CommonPolicySelector<Config> Common;
 
                 /// Event sequence numbering policy
                 typedef typename if_select_type<
-                            is_ideal_net || (config & no_event_overlap),
-                            frag::UseNoEventSeq<ThisType>,
-                            frag::Use32BitEventSeq<ThisType>
+                            Config::event_seq,
+                            frag::Use32BitEventSeq<ThisType>,
+                            frag::UseNoEventSeq<ThisType>
                         >::type EventSeqUsagePolicy;
 
                 /// Fragmentation/FEC usage policy
                 typedef typename if_select_type<
-                            use_fec,
+                            Config::FEC,
                             frag::FECFragmenter<ThisType>,
                             frag::NoFECFragmenter<ThisType>
                         >::type FragImplPolicy;
 
                 /// FEC redundancy attribute (access to redundancy at run-time)
                 typedef typename if_select_type<
-                            use_fec,
+                            Config::FEC,
                             typename if_contains_select_type_RedundancyAttribute<
-                                NonDefaultPolicies,                 // If NonDefaultPolicies contains RedundancyAttribute
-                                                                    // return it
-                                FragmentationRedundancy             // Otherwise return default redundancy attribute
+                                Config,                     // If Config contains RedundancyAttribute
+                                                            // return it
+                                FragmentationRedundancy     // Otherwise return default redundancy attribute
                             >::type,
-                            EmptyType                               // No FEC. FECRedundancy unused...
+                            EmptyType                       // No FEC. FECRedundancy unused...
                         >::type FECRedundancy;
 
                 /// Overflow error checking policy
@@ -119,7 +111,7 @@ namespace famouso {
                 typedef typename Common::Allocator Allocator;
 
                 /// SizeProperties
-                typedef typename Common::SizeProperties SizeProp;
+                typedef typename Common::SizeProp SizeProp;
             };
 
         } // namespace afp
@@ -127,5 +119,5 @@ namespace famouso {
 } // namespace famouso
 
 
-#endif // __FRAGCONFIG_H_7C0434F7D77B7E__
+#endif // __FRAGPOLICYSELECTOR_H_7C0434F7D77B7E__
 

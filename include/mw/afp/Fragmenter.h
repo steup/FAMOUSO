@@ -47,6 +47,7 @@
 
 #include "boost/mpl/assert.hpp"
 
+#include "mw/afp/FragPolicySelector.h"
 
 
 namespace famouso {
@@ -68,11 +69,13 @@ namespace famouso {
             template < class AFPFC, unsigned int mtu_compile_time = 0 >
             class Fragmenter {
 
-                    typedef typename AFPFC::SizeProp::elen_t   elen_t;
-                    typedef typename AFPFC::SizeProp::flen_t   flen_t;
-                    typedef typename AFPFC::SizeProp::fcount_t fcount_t;
+                    typedef FragPolicySelector<AFPFC> FCP;
 
-                    typedef class AFPFC::FragImplPolicy FragmenterImpl;
+                    typedef typename FCP::SizeProp::elen_t   elen_t;
+                    typedef typename FCP::SizeProp::flen_t   flen_t;
+                    typedef typename FCP::SizeProp::fcount_t fcount_t;
+
+                    typedef class FCP::FragImplPolicy FragmenterImpl;
 
                 protected:
 

@@ -55,7 +55,7 @@ namespace famouso {
                  *
                  * Alternative policies: DuplicateChecker
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class NoDuplicateChecker {
 
                     public:
@@ -65,7 +65,7 @@ namespace famouso {
                          * \param header AFP header of the fragment
                          * \returns True if this is a new fragment. False if it's a duplicate.
                          */
-                        bool new_fragment(const Headers<AFPDC> & header) {
+                        bool new_fragment(const Headers<DCP> & header) {
                             return true;
                         }
                 };

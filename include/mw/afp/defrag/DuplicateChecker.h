@@ -61,7 +61,7 @@ namespace famouso {
 
                  * Alternative policies: NoDuplicateChecker
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class DuplicateChecker {
 
                         /// Which fragments already arrived?
@@ -74,7 +74,7 @@ namespace famouso {
                          * \param header AFP header of the fragment
                          * \returns True if this is a new fragment. False if it's a duplicate.
                          */
-                        bool new_fragment(const Headers<AFPDC> & header) {
+                        bool new_fragment(const Headers<DCP> & header) {
                             if (fragment_arrived.size() <= header.fseq) {
                                 // This will be called as rarely as reordering happens, because
                                 // fragments with highest fseq are sent first.
@@ -106,7 +106,7 @@ namespace famouso {
     namespace mw {
         namespace afp {
             namespace defrag {
-                template <class AFPDC>
+                template <class DCP>
                 class DuplicateChecker {
                     BOOST_MPL_ASSERT_MSG(false, Duplicate_checking_currently_not_supported_on_AVR, ());
                 };

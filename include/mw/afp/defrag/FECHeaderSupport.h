@@ -59,11 +59,11 @@ namespace famouso {
                  *
                  * Alternative policies: NoFECHeaderSupport
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class FECHeaderSupport {
 
-                        typedef typename AFPDC::SizeProp::flen_t   flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::flen_t   flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
                         /// FEC header structure
                         struct __attribute__((packed)) Header1001 {

@@ -1,11 +1,7 @@
 #define CPU_FREQUENCY 16000000
 
-#ifdef AFP_CLASSIC_CONFIG
-#include "mw/afp/DefragConfigC.h"
-#else
-#include "mw/afp/DefragConfig.h"
-#endif
 #include "mw/afp/AFPSubscriberEventChannel.h"
+#include "mw/afp/Config.h"
 
 #include "famouso.h"
 #include "util/Idler.h"
@@ -49,21 +45,12 @@ namespace famouso {
 
 using namespace famouso::mw;
 
-#ifdef AFP_CLASSIC_CONFIG
-typedef afp::DefragConfigC <
-    afp::OneSubject,
-    afp::NoEventSeqSupport,
-    afp::NoDuplicateChecking,
-    afp::NoReorderingSupport,
-    afp::NoFECSupport,
-    afp::MinimalSizeProp
-> MinDefragConfig;
-#else
-typedef afp::DefragConfig <
-    afp::one_subject | afp::ideal_network |
-    afp::max_event_length_255 | afp::no_overflow_error_checking
-> MinDefragConfig;
-#endif
+struct AFPConfig : afp::DefaultConfig {
+    enum {
+        overflow_error_checking = false
+    };
+    typedef afp::MinimalSizeProp SizeProperties;
+};
 
 
 
@@ -75,7 +62,7 @@ int main() {
     enum { mtu = 8 };
     famouso::init<famouso::config>();
 
-    afp::AFPSubscriberEventChannel<famouso::config::SEC, MinDefragConfig, Event> sec("SUBJECT_", mtu);
+    afp::AFPSubscriberEventChannel<famouso::config::SEC, AFPConfig, Event> sec("SUBJECT_", mtu);
     sec.callback.bind<ReceiveCallback>();
     sec.subscribe();
 

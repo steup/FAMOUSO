@@ -38,50 +38,41 @@
  ******************************************************************************/
 
 
-#ifndef __CONFIGDECL_H_6D03524A376067__
-#define __CONFIGDECL_H_6D03524A376067__
-
-
-#include <stdint.h>
+#ifndef __DEFAULTCONFIG_H_6D03524A376067__
+#define __DEFAULTCONFIG_H_6D03524A376067__
 
 
 namespace famouso {
     namespace mw {
         namespace afp {
 
-            enum AFPProperties {
-                ideal_network = 0,
-                packet_loss = 1,
-                reordering = 2,
-                duplicates = 4,
+            enum { dynamic = 0 };
 
-                no_event_overlap = 8,
-                event_overlap = 0,
+            struct DefaultConfig {
+                enum {
+                    event_seq = false,
+                    reordering = false,
+                    duplicates = false,
+                    FEC = false,                        // defrag: support
+                    overflow_error_checking = true,
 
-                one_subject = 16,
-                multiple_subjects = 0,
+                    // Defrag only
 
-                FEC = 32,                ///< nur sinnvoll bei packet_loss
-                NoFEC = 0,
-
-                defrag_statistics = 64,
-                no_defrag_statistics = 0,
-
-                ///
-                no_overflow_error_checking = 128,
-                overflow_error_checking = 0,
-
-                /// nur, wenn in NonDefaultPolicies kein SizeProperties
-                max_event_length_255 = 256,
-
+                    multiple_subjects = false,
+                    defrag_statistics = false,
+                    concurrent_events = 1,
+                    old_event_ids = 10
+                };
             };
 
-            typedef uint32_t ConfigFlagsType;
+            struct Disable;
+            typedef Disable NoFragmentation;
+            typedef Disable NoDefragmentation;
 
         } // namespace afp
     } // namespace mw
 } // namespace famouso
 
 
-#endif // __CONFIGDECL_H_6D03524A376067__
+#endif // __DEFAULTCONFIG_H_6D03524A376067__
 

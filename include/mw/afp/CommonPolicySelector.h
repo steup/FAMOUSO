@@ -38,22 +38,19 @@
  ******************************************************************************/
 
 
-#ifndef __COMMONCONFIG_H_1CE3B933BD15F0__
-#define __COMMONCONFIG_H_1CE3B933BD15F0__
+#ifndef __COMMONPOLICYSELECTOR_H_1CE3B933BD15F0__
+#define __COMMONPOLICYSELECTOR_H_1CE3B933BD15F0__
 
-
-#include "mw/afp/ConfigDecl.h"
 
 #include "config/type_traits/if_contains_select_type.h"
 #include "config/type_traits/if_select_type.h"
 
 #include "boost/mpl/assert.hpp"
 
-#include <stdint.h>
-
 #include "object/Allocator.h"
 #include "mw/afp/shared/OverflowErrorChecking.h"
 #include "mw/afp/SizeProperties.h"
+#include "mw/afp/EmptyType.h"
 
 
 namespace famouso {
@@ -65,36 +62,36 @@ namespace famouso {
             IF_CONTAINS_SELECT_TYPE_(SizeProperties);
 
 
-            template <ConfigFlagsType config, typename NonDefaultPolicies>
-            struct CommonConfig {
+            template <typename Config>
+            struct CommonPolicySelector {
                 /// Error checking policy
                 typedef typename if_select_type<
-                            config & no_overflow_error_checking,
-                            shared::NoOverflowErrorChecking,        // Reduced error checking
-                            shared::OverflowErrorChecking           // Full overflow checking
+                            Config::overflow_error_checking,
+                            shared::OverflowErrorChecking,          // Full overflow checking
+                            shared::NoOverflowErrorChecking         // Reduced error checking
                         >::type OverflowErrorChecking;
 
                 /// Allocator to use
                 typedef typename if_contains_select_type_Allocator<
-                            NonDefaultPolicies,                     // If NonDefaultPolicies contains type Allocator,
+                            Config,                                 // If Config contains type Allocator,
                                                                     // return it (user defined allocator)
                             object::Allocator                       // Else use default allocator
                         >::type Allocator;
 
                 /// SizeProperties (data types used for fragment count, length and event length)
                 typedef typename if_contains_select_type_SizeProperties<
-                            NonDefaultPolicies,                     // If NonDefaultPolicies contains type SizeProperties,
+                            Config,                                 // If Config contains type SizeProperties,
                                                                     // return it (user defined size properties)
-                            typename if_select_type<                // Otherwise select default
-                                config & max_event_length_255,
-                                MinimalSizeProp,                    // All size types uint8_t
-                                DefaultEventSizeProp                // Size types working for all valid events (default event type)
-                            >::type
-                        >::type SizeProperties;
+                            DefaultEventSizeProp                    // Size types working for all valid events (default event type)
+                        >::type SizeProp;
 
-                BOOST_MPL_ASSERT_MSG(sizeof(typename SizeProperties::flen_t) <= sizeof(typename SizeProperties::elen_t),
+                BOOST_MPL_ASSERT_MSG(sizeof(typename SizeProp::flen_t) <= sizeof(typename SizeProp::elen_t),
                                      invalid_SizeProperties__event_length_type_smaller_than_fragment_length_type,
-                                     (SizeProperties));
+                                     (SizeProp));
+
+                BOOST_MPL_ASSERT_MSG((Config::concurrent_events == 1) || Config::event_seq,
+                                     invalid_config__event_seq_necessary_to_defrag_multiple_events_concurrently,
+                                     ());
             };
 
 
@@ -102,5 +99,5 @@ namespace famouso {
     } // namespace mw
 } // namespace famouso
 
-#endif // __COMMONCONFIG_H_1CE3B933BD15F0__
+#endif // __COMMONPOLICYSELECTOR_H_1CE3B933BD15F0__
 

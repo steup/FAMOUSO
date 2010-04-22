@@ -80,22 +80,22 @@ namespace famouso {
                  *
                  * Alternative policies: OutOfOrderEventDataReconstructor, InOrderEventDataReconstructor
                  */
-                template <class AFPDC>
-                class FECEventDataReconstructor : public OutOfOrderEventDataReconstructor<AFPDC> {
+                template <class DCP>
+                class FECEventDataReconstructor : public OutOfOrderEventDataReconstructor<DCP> {
 
-                        typedef OutOfOrderEventDataReconstructor<AFPDC> Base;
+                        typedef OutOfOrderEventDataReconstructor<DCP> Base;
 
-                        typedef typename AFPDC::SizeProp::elen_t elen_t;
-                        typedef typename AFPDC::SizeProp::flen_t flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::elen_t elen_t;
+                        typedef typename DCP::SizeProp::flen_t flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                        typedef class AFPDC::DefragStatistics Statistics;
-                        typedef class AFPDC::Allocator Allocator;
-                        typedef detail::VarHeaderLength<AFPDC> VHL;
+                        typedef class DCP::DefragStatistics Statistics;
+                        typedef class DCP::Allocator Allocator;
+                        typedef detail::VarHeaderLength<DCP> VHL;
 
                     public:
 
-                        typedef FECHeaderSupport<AFPDC> FECHeaderPolicy;
+                        typedef FECHeaderSupport<DCP> FECHeaderPolicy;
 
                     private:
 
@@ -165,7 +165,7 @@ namespace famouso {
                          * \param data Payload data of the fragment
                          * \param length Payload data length of the fragment
                          */
-                        void put_fragment(const Headers<AFPDC> & header, const uint8_t * data, flen_t length) {
+                        void put_fragment(const Headers<DCP> & header, const uint8_t * data, flen_t length) {
                             FAMOUSO_ASSERT(!is_complete());       // Event should not be already complete
 
                             if (Base::error())                    // Do nothing on error status
@@ -323,7 +323,7 @@ namespace famouso {
     namespace mw {
         namespace afp {
             namespace defrag {
-                template <class AFPDC>
+                template <class DCP>
                 class FECEventDataReconstructor {
                     BOOST_MPL_ASSERT_MSG(false, FEC_not_supported_on_AVR, ());
                 };

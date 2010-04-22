@@ -48,11 +48,7 @@
 
 #include "famouso_bindings.h"
 
-#ifdef AFP_CLASSIC_CONFIG
-#include "mw/afp/FragConfigC.h"
-#else
-#include "mw/afp/FragConfig.h"
-#endif
+#include "mw/afp/Config.h"
 #include "mw/afp/Fragmenter.h"
 
 #include "mw/afp/shared/hexdump.h"
@@ -69,41 +65,23 @@ class RedundancyTag;
 typedef afp::frag::RedundancyAttribute<RedundancyTag, 0> PublishFECRedundancy;
 
 
-#ifdef AFP_CLASSIC_CONFIG
 #if (AFP_CONFIG == 1)
-typedef afp::FragConfigC <
-    afp::UseEventSeq,
-    afp::UseFEC<PublishFECRedundancy>
-> MyAFPFragConfig;
-#elif (AFP_CONFIG == 2)
-typedef afp::FragConfigC <
-    afp::UseEventSeq,
-    afp::UseNoFEC
-> MyAFPFragConfig;
-#else
-typedef afp::FragConfigC <
-    afp::UseNoEventSeq,
-    afp::UseNoFEC
-> MyAFPFragConfig;
-#endif
-#else
-#if (AFP_CONFIG == 1)
-struct SpecialPolicies {
+struct MyAFPFragConfig : afp::DefaultConfig {
     typedef PublishFECRedundancy RedundancyAttribute;
+    enum {
+        event_seq = true,
+        FEC = true
+    };
 };
-typedef afp::FragConfig <
-    afp::packet_loss | afp::FEC,
-    SpecialPolicies
-> MyAFPFragConfig;
 #elif (AFP_CONFIG == 2)
-typedef afp::FragConfig <
-    afp::packet_loss
-> MyAFPFragConfig;
+struct MyAFPFragConfig : afp::DefaultConfig {
+    enum {
+        event_seq = true,
+        FEC = false
+    };
+};
 #else
-typedef afp::FragConfig <
-    afp::ideal_network
-> MyAFPFragConfig;
-#endif
+typedef afp::DefaultConfig MyAFPFragConfig;
 #endif
 
 

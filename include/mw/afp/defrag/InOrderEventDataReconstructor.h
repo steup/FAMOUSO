@@ -62,20 +62,20 @@ namespace famouso {
                  *
                  * Alternative policies: OutOfOrderEventDataReconstructor, FECEventDataReconstructor
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class InOrderEventDataReconstructor {
 
-                        typedef typename AFPDC::SizeProp::elen_t elen_t;
-                        typedef typename AFPDC::SizeProp::flen_t flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::elen_t elen_t;
+                        typedef typename DCP::SizeProp::flen_t flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                        typedef class AFPDC::DefragStatistics Statistics;
-                        typedef class AFPDC::Allocator Allocator;
-                        typedef detail::VarHeaderLength<AFPDC> VHL;
+                        typedef class DCP::DefragStatistics Statistics;
+                        typedef class DCP::Allocator Allocator;
+                        typedef detail::VarHeaderLength<DCP> VHL;
 
                     public:
 
-                        typedef NoFECHeaderSupport<AFPDC> FECHeaderPolicy;
+                        typedef NoFECHeaderSupport<DCP> FECHeaderPolicy;
 
                     private:
 
@@ -119,7 +119,7 @@ namespace famouso {
                          * \param data Payload data of the fragment
                          * \param length Payload data length of the fragment
                          */
-                        void put_fragment(const Headers<AFPDC> & header, const uint8_t * data, flen_t length) {
+                        void put_fragment(const Headers<DCP> & header, const uint8_t * data, flen_t length) {
                             // Only last fragment may be smaller than maximum
                             FOR_FAMOUSO_ASSERT_ONLY(bool wrong_mtu_or_frag_len = length != no_ext_mtu - VHL::get_basic_header_len(header.fseq) && header.fseq != 0);
                             FAMOUSO_ASSERT(!wrong_mtu_or_frag_len); // Wrong MTU will lead to undefined behaviour

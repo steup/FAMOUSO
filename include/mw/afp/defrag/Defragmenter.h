@@ -51,7 +51,7 @@ namespace famouso {
             namespace defrag {
 
 
-                template <class AFPDC> class Headers;
+                template <class DCP> class Headers;
 
 
                 /*!
@@ -59,17 +59,17 @@ namespace famouso {
                  *
                  * Includes fragment duplicate checking (if configured by policy) and event data reconstruction.
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class Defragmenter {
 
-                        typedef typename AFPDC::SizeProp::elen_t elen_t;
-                        typedef typename AFPDC::SizeProp::flen_t flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::elen_t elen_t;
+                        typedef typename DCP::SizeProp::flen_t flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                        typedef class AFPDC::EventDataReconstructionPolicy EventDataReconstructionPolicy;
-                        typedef class AFPDC::DuplicateCheckingPolicy DuplicateCheckingPolicy;
+                        typedef class DCP::EventDataReconstructionPolicy EventDataReconstructionPolicy;
+                        typedef class DCP::DuplicateCheckingPolicy DuplicateCheckingPolicy;
 
-                        typedef class AFPDC::DefragStatistics Statistics;
+                        typedef class DCP::DefragStatistics Statistics;
 
                     private:
 
@@ -97,7 +97,7 @@ namespace famouso {
                          *
                          * Includes duplicate checking if you do not use NoDuplicateChecking policy.
                          */
-                        void put_fragment(const Headers<AFPDC> & header, const uint8_t * data, flen_t length) {
+                        void put_fragment(const Headers<DCP> & header, const uint8_t * data, flen_t length) {
                             // Is this fragment a duplicate?
                             if (!dup_check.new_fragment(header)) {
                                 Statistics::fragment_duplicate();

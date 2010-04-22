@@ -47,12 +47,8 @@
 #include "famouso_bindings.h"
 #include "util/Idler.h"
 
-#ifdef AFP_CLASSIC_CONFIG
-#include "mw/afp/DefragConfigC.h"
-#else
-#include "mw/afp/DefragConfig.h"
-#endif
 #include "mw/afp/Defragmentation.h"
+#include "mw/afp/Config.h"
 #include "mw/afp/shared/hexdump.h"
 
 
@@ -63,50 +59,26 @@
 
 using namespace famouso::mw;
 
-#ifdef AFP_CLASSIC_CONFIG
 #if (AFP_CONFIG == 1)
-typedef afp::DefragConfigC <
-    afp::OneSubject,
-    afp::EventSeqSupport,
-    afp::DuplicateChecking,
-    afp::ReorderingSupport,
-    afp::FECSupport
-> MyAFPDefragConfig;
+struct MyAFPDefragConfig : afp::DefaultConfig {
+    enum {
+        event_seq = true,
+        reordering = true,
+        duplicates = true,
+        multiple_subjects = false,
+        FEC = true
+    };
+};
 #elif (AFP_CONFIG == 2)
-typedef afp::DefragConfigC <
-    afp::OneSubject,
-    afp::EventSeqSupport,
-    afp::NoDuplicateChecking,
-    afp::ReorderingSupport,
-    afp::NoFECSupport
-> MyAFPDefragConfig;
+struct MyAFPDefragConfig : afp::DefaultConfig {
+    enum {
+        event_seq = true,
+        reordering = true,
+        multiple_subjects = false
+    };
+};
 #else
-typedef afp::DefragConfigC <
-    afp::OneSubject,
-    afp::NoEventSeqSupport,
-    afp::NoDuplicateChecking,
-    afp::NoReorderingSupport,
-    afp::NoFECSupport
-> MyAFPDefragConfig;
-#endif
-#else
-#if (AFP_CONFIG == 1)
-typedef afp::DefragConfig <
-    afp::one_subject |
-    afp::packet_loss | afp::reordering | afp::duplicates |
-    afp::FEC
-> MyAFPDefragConfig;
-#elif (AFP_CONFIG == 2)
-typedef afp::DefragConfig <
-    afp::one_subject |
-    afp::packet_loss | afp::reordering
-> MyAFPDefragConfig;
-#else
-typedef afp::DefragConfig <
-    afp::one_subject |
-    afp::ideal_network
-> MyAFPDefragConfig;
-#endif
+typedef afp::DefaultConfig MyAFPDefragConfig;
 #endif
 
 

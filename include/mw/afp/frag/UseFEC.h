@@ -75,15 +75,15 @@ namespace famouso {
                  *
                  * TODO Error handling (new), allocator
                  */
-                template <class AFPFC>
+                template <class FCP>
                 class UseFEC {
 
-                        typedef typename AFPFC::SizeProp::elen_t   elen_t;
-                        typedef typename AFPFC::SizeProp::flen_t   flen_t;
-                        typedef typename AFPFC::SizeProp::fcount_t fcount_t;
+                        typedef typename FCP::SizeProp::elen_t   elen_t;
+                        typedef typename FCP::SizeProp::flen_t   flen_t;
+                        typedef typename FCP::SizeProp::fcount_t fcount_t;
 
-                        typedef typename AFPFC::FECRedundancy Redundancy;
-                        typedef typename AFPFC::Allocator Allocator;
+                        typedef typename FCP::FECRedundancy Redundancy;
+                        typedef typename FCP::Allocator Allocator;
 
 
                         /// Length of event to be fragmented
@@ -266,7 +266,7 @@ namespace famouso {
     namespace mw {
         namespace afp {
             namespace frag {
-                template <class AFPFC>
+                template <class FCP>
                 class UseFEC {
                     BOOST_MPL_ASSERT_MSG(false, FEC_not_supported_on_AVR, ());
                 };

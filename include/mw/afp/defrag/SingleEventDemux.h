@@ -58,11 +58,11 @@ namespace famouso {
                 /*!
                  * \brief Demux key type with one subject and one publisher, no event sequence number
                  */
-                template <typename AFPDC, class Subject_t>
+                template <typename DCP, class Subject_t>
                 struct EmptyDemuxKey {
                     enum { uses_subject = 0 };
 
-                    EmptyDemuxKey(const Headers<AFPDC> & header, const Subject_t & subj) {
+                    EmptyDemuxKey(const Headers<DCP> & header, const Subject_t & subj) {
                     }
                 };
 
@@ -86,18 +86,18 @@ namespace famouso {
                  *
                  * Alternatives: MultiSourceDemux, EventSeqDemux
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class  SingleEventDemux {
 
-                        typedef typename AFPDC::SizeProp::elen_t   elen_t;
-                        typedef typename AFPDC::SizeProp::flen_t   flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::elen_t   elen_t;
+                        typedef typename DCP::SizeProp::flen_t   flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                        typedef typename AFPDC::EventDemuxKey KeyType;
+                        typedef typename DCP::EventDemuxKey KeyType;
 
                     public:
 
-                        typedef NoEventSeqHeaderSupport<AFPDC> EventSeqHeaderPolicy;
+                        typedef NoEventSeqHeaderSupport<DCP> EventSeqHeaderPolicy;
 
                     private:
 
@@ -105,10 +105,10 @@ namespace famouso {
                         flen_t mtu;
 
                         /// Memory for one defragmenter object
-                        uint8_t _defragmenter[sizeof(Defragmenter<AFPDC>)];
+                        uint8_t _defragmenter[sizeof(Defragmenter<DCP>)];
 
                         /// Defragmenter of currently received event
-                        Defragmenter<AFPDC> * curr_defrag;
+                        Defragmenter<DCP> * curr_defrag;
 
                     public:
 
@@ -120,11 +120,11 @@ namespace famouso {
                         /// Destructor
                         ~SingleEventDemux() {
                             if (curr_defrag)
-                                curr_defrag->~Defragmenter<AFPDC>();
+                                curr_defrag->~Defragmenter<DCP>();
                         }
 
                         // Event must have been processed before you can start receiving a new event.
-                        void * get_defragmenter_handle(const Headers<AFPDC> & header, const KeyType & key) {
+                        void * get_defragmenter_handle(const Headers<DCP> & header, const KeyType & key) {
                             // Start new defragmentation only with first fragment.
                             if (header.first_fragment) {
                                 // First fragment!
@@ -140,7 +140,7 @@ namespace famouso {
 
                                 // Start new defragmentation
                                 FAMOUSO_ASSERT(mtu > header.length());
-                                curr_defrag = new(_defragmenter) Defragmenter<AFPDC>(mtu - header.ext_length());
+                                curr_defrag = new(_defragmenter) Defragmenter<DCP>(mtu - header.ext_length());
                             } else {
                                 // Not first fragment: if we are defragmenting an event return
                                 // the current defragmenter, otherwise drop this fragment by
@@ -150,13 +150,13 @@ namespace famouso {
                             return curr_defrag;
                         }
 
-                        Defragmenter<AFPDC> * get_defragmenter(void * handle) {
+                        Defragmenter<DCP> * get_defragmenter(void * handle) {
                             return curr_defrag;
                         }
 
                         // Event must have been processed before you can start receiving a new event.
                         void free_defragmenter(void * handle) {
-                            curr_defrag->~Defragmenter<AFPDC>();
+                            curr_defrag->~Defragmenter<DCP>();
                             curr_defrag = 0;
                         }
 

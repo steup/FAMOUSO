@@ -58,7 +58,7 @@ namespace famouso {
                 /*!
                  * \brief Demux key type with multiple subjects and one publisher per subject, no event sequence numbers
                  */
-                template <typename AFPDC, class Subject_t>
+                template <typename DCP, class Subject_t>
                 struct SubjectDemuxKey {
                     const Subject_t subject;
 
@@ -72,7 +72,7 @@ namespace famouso {
                         return subject == v2.subject;
                     }
 
-                    SubjectDemuxKey(const Headers<AFPDC> & header, const Subject_t & subj) :
+                    SubjectDemuxKey(const Headers<DCP> & header, const Subject_t & subj) :
                             subject(subj) {
                     }
                 };
@@ -99,19 +99,19 @@ namespace famouso {
                  *
                  * Alternatives: SingleEventDemux, EventSeqDemux
                  */
-                template <class AFPDC>
+                template <class DCP>
                 class MultiSourceDemux {
 
-                        typedef typename AFPDC::SizeProp::elen_t   elen_t;
-                        typedef typename AFPDC::SizeProp::flen_t   flen_t;
-                        typedef typename AFPDC::SizeProp::fcount_t fcount_t;
+                        typedef typename DCP::SizeProp::elen_t   elen_t;
+                        typedef typename DCP::SizeProp::flen_t   flen_t;
+                        typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                        typedef typename AFPDC::EventDemuxKey KeyType;
-                        typedef typename AFPDC::Allocator Allocator;
+                        typedef typename DCP::EventDemuxKey KeyType;
+                        typedef typename DCP::Allocator Allocator;
 
                     public:
 
-                        typedef NoEventSeqHeaderSupport<AFPDC> EventSeqHeaderPolicy;
+                        typedef NoEventSeqHeaderSupport<DCP> EventSeqHeaderPolicy;
 
                     private:
 
@@ -122,11 +122,11 @@ namespace famouso {
                         template <class KeyType>
                         class Event {
 
-                                typedef typename AFPDC::SizeProp::flen_t   flen_t;
+                                typedef typename DCP::SizeProp::flen_t   flen_t;
 
                             public:
                                 /// Defragmenter of the event
-                                Defragmenter<AFPDC> def;
+                                Defragmenter<DCP> def;
 
                                 /// Unique key identifying the event (equal to map key)
                                 KeyType key;
@@ -187,7 +187,7 @@ namespace famouso {
                          * \param event_key Event key to distingush events
                          * \returns Defragmenter handle, zero to drop the fragment.
                          */
-                        void * get_defragmenter_handle(const Headers<AFPDC> & header, const KeyType & event_key) {
+                        void * get_defragmenter_handle(const Headers<DCP> & header, const KeyType & event_key) {
                             typename EventMap::iterator it = events.find(event_key);
                             Event<KeyType> * event;
 
@@ -243,7 +243,7 @@ namespace famouso {
                         }
 
                         /// Return Defragmenter from handle
-                        Defragmenter<AFPDC> * get_defragmenter(void * handle) {
+                        Defragmenter<DCP> * get_defragmenter(void * handle) {
                             return & Event<KeyType>::from_handle(handle)->def;
                         }
 
