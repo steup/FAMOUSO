@@ -208,8 +208,12 @@ namespace famouso {
                                 // if event was fetched, meaning we have a matching
                                 // of subjects, publish it locally to the respective
                                 // subscribers and then we are done.
-                                publish_local(e);
-                                return;
+
+                                // If the packet was a fragment the event may not be complete
+                                if (e.data)
+                                    publish_local(e);
+
+                                break;
                             }
                             sec = static_cast<ec_t*>(sec->select());
                         }

@@ -81,6 +81,7 @@ namespace famouso {
 
                     typedef Packet<SNN> Packet_t;
 
+
                     CANNL() : tx_node(0) {}
                     ~CANNL() {}
 
@@ -109,6 +110,9 @@ namespace famouso {
                         snn = etagBP.bind_subject(s, tx_node, driver);
                     }
 
+                    /*!
+                     *  \todo   transmit p.fragment
+                     */
                     void deliver(const Packet_t& p) {
                         // senden des CAN Paketes
                         TRACE_FUNCTION;
@@ -126,11 +130,9 @@ namespace famouso {
                         driver.transmit(m);
                     }
 
-                    void deliver_fragment(const Packet_t& p) {
-                        // Fragmentierung wird zur Zeit noch nicht unterstuetzt
-                        TRACE_FUNCTION;
-                    }
-
+                    /*!
+                     *  \todo   transmit p.fragment
+                     */
                     void fetch(Packet_t& p) {
                         // ist das Auslesen eines einzelnen Paketes
                         TRACE_FUNCTION;

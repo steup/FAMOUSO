@@ -41,8 +41,8 @@
 #include "mw/el/EventLayerCallBack.h"
 
 #include "debug.h"
-#include <vector>
-#include <boost/tokenizer.hpp>
+#include <string>
+#include <boost/bind.hpp>
 #include "util/CommandLineParameterGenerator.h"
 
 namespace famouso {
@@ -119,8 +119,9 @@ namespace famouso {
                 if (!error) {
                     m_incoming_packet.snn.snn = boost::asio::ip::address(m_endpoint_from.address());
                     m_incoming_packet.snn.s = famouso::mw::Subject(m_buffer) ;
-                    m_incoming_packet.data = m_buffer + sizeof(famouso::mw::Subject);
-                    m_incoming_packet.data_length = bytes_recvd - sizeof(famouso::mw::Subject);
+                    m_incoming_packet.fragment = *(bool *)(m_buffer + sizeof(famouso::mw::Subject));
+                    m_incoming_packet.data = m_buffer + sizeof(famouso::mw::Subject) + sizeof(bool);
+                    m_incoming_packet.data_length = bytes_recvd - sizeof(famouso::mw::Subject) - sizeof(bool);
 
                     famouso::mw::el::IncommingEventFromNL(this);
 
@@ -144,9 +145,11 @@ namespace famouso {
             }
 
             void UDPMultiCastNL::deliver(const Packet_t& p) {
-                std::vector<boost::asio::const_buffer> buffers;
-                buffers.push_back(boost::asio::buffer(&p.snn.s, sizeof(famouso::mw::Subject)));
-                buffers.push_back(boost::asio::buffer(p.data, p.data_length));
+                boost::array<boost::asio::const_buffer, 3> buffers = {{
+                    boost::asio::buffer(&p.snn.s, sizeof(famouso::mw::Subject)),
+                    boost::asio::buffer(&p.fragment, sizeof(bool)),
+                    boost::asio::buffer(p.data, p.data_length)
+                }};
 
                 m_socket.send_to(buffers, boost::asio::ip::udp::endpoint(p.snn.snn, m_endpoint_listen.port()));
             }

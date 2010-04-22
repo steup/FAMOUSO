@@ -41,9 +41,7 @@
 #define __UDPMultiCastNL_hpp__
 
 #include <stdio.h>
-#include <boost/bind.hpp>
 #include <boost/utility.hpp>
-#include <string>
 
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
@@ -60,7 +58,7 @@ namespace famouso {
                     struct info {
                         enum {
                             mtu = 8192,
-                            payload = mtu - sizeof(famouso::mw::Subject),
+                            payload = mtu - sizeof(famouso::mw::Subject) - sizeof(bool),
                         };
                     };
 
@@ -111,15 +109,6 @@ namespace famouso {
                      * @param p packet
                      */
                     void deliver(const Packet_t& p);
-
-                    /**
-                     * @brief Sends the given packet.
-                     *
-                     * @param p packet
-                     */
-                    void deliver_fragment(const Packet_t& p) {
-                        deliver(p);
-                    };
 
                     /**
                      * @brief processes incoming packets

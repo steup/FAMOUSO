@@ -65,7 +65,6 @@ namespace famouso {
 
                     typedef Packet<SNN> Packet_t;
 
-
                     UDPBroadCastNL() { }
                     ~UDPBroadCastNL() {}
 
@@ -82,10 +81,6 @@ namespace famouso {
                     }
 
                     void deliver(const Packet_t& p) {
-                        TRACE_FUNCTION;
-                    }
-
-                    void deliver_fragment(const Packet_t& p) {
                         TRACE_FUNCTION;
                     }
 

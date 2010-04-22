@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ *                    Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,72 +38,71 @@
  *
  ******************************************************************************/
 
-#ifndef __voidNL_h__
-#define __voidNL_h__
+#ifndef __AFPCONFIG_H_6E4D6E109554C6__
+#define __AFPCONFIG_H_6E4D6E109554C6__
 
-#include "mw/nl/BaseNL.h"
-#include "mw/nl/Packet.h"
-#include "mw/common/NodeID.h"
-#include "mw/common/Subject.h"
-#include "mw/api/EventChannel.h"
-#include "debug.h"
-#include <stdio.h>
+#include "mw/afp/Config.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
 
-            class voidNL : public BaseNL {
-                public:
-                    struct info {
-                        enum {
-                            payload = 65534
-                        };
-                    };
+            template< class CAN_Driver, class CCP, class BP >
+            class CANNL;
 
-                    typedef uint16_t SNN;
+            class voidNL;
 
-                    typedef Packet<SNN> Packet_t;
-
-
-                    voidNL() {}
-                    ~voidNL() {}
-
-                    void init() {
-                        init(UID());
-                    }
-                    void init(const NodeID &i) {
-                        TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Info>()
-                            << " Configuration 64Bit NodeID=" << i.value()
-                            << ::logging::log::endl;
-                    }
-
-                    // bind Subject to specific networks name
-                    void bind(const Subject &s, SNN &snn) {
-                        TRACE_FUNCTION;
-                        snn = 0x1;
-                    }
-
-                    void deliver(const Packet_t& p) {
-                        TRACE_FUNCTION;
-                    }
-
-                    void fetch(Packet_t& p) {
-                        TRACE_FUNCTION;
-                    }
-
-                    void interrupt() {
-                        TRACE_FUNCTION;
-                    }
-
-                    SNN lastPacketSNN() {
-                        return 0xff;
-                    }
-            };
         } // namespace nl
+
+
+        namespace anl {
+
+            /*!
+             *  \brief  Base class for all ANL AFP configs
+             *  \tparam SNN     type to distinguish between different
+             *                  fragment sources (subjects)
+             */
+            template < typename SNN >
+            struct AFPBaseConfig : afp::DefaultConfig {
+                enum {
+                    multiple_subjects = true
+                };
+                typedef SNN SubjectType;
+            };
+
+            /*!
+             *  \brief  Default ANL AFP config (all network layers without specialization)
+             */
+            template < class NL >
+            struct AFPConfig {
+                struct type : AFPBaseConfig<typename NL::SNN> {
+                    enum {
+                        event_seq = true,
+                        reordering = true,
+                        duplicates = true
+                    };
+                };
+            };
+
+            /*!
+             *  \brief  Default ANL AFP config (CANNL)
+             */
+            template < class CD, class CCP, class BP>
+            struct AFPConfig< nl::CANNL<CD,CCP,BP> > {
+                typedef AFPBaseConfig<typename nl::CANNL<CD,CCP,BP>::SNN> type;
+            };
+
+            /*!
+             *  \brief  Default ANL AFP config (voidNL)
+             */
+            template <>
+            struct AFPConfig<nl::voidNL> {
+                typedef afp::Disable type;
+            };
+
+        } // namespace anl
     } // namespace mw
 } //namespace famouso
 
-#endif /* __voidNL_h__ */
+#endif // __AFPCONFIG_H_6E4D6E109554C6__
 

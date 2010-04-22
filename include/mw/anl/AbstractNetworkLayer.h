@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -43,6 +44,9 @@
 #include "debug.h"
 #include "mw/common/Event.h"
 #include "mw/nl/BaseNL.h"
+#include "mw/anl/AFPConfig.h"
+#include "mw/afp/Fragmenter.h"
+#include "mw/afp/Defragmentation.h"
 
 namespace famouso {
     namespace mw {
@@ -56,14 +60,21 @@ namespace famouso {
              *          also the aspects of quality of service or attribute management.
              *
              *  \tparam NL the network layer see prerequisites.
+             *  \tparam AFP_FragConfig  the AFP fragmentation %config, see \ref afp_config
+             *  \tparam AFP_DefragConfig  the AFP defragmentation %config, see \ref afp_config
              *
              *  \pre    The type of template parameters can be an famouso::mw::nl::CANNL,
              *          famouso::mw::nl::AWDSNL, famouso::mw::nl::UDPMultiCastNL,
              *          famouso::mw::nl::UDPBroadCastNL or an famouso::mw::nl::VoidNL dependent
-             *          on the configuration of the middleware stack
+             *          on the %configuration of the middleware stack
              */
-            template < class NL >
+            template < class NL, class AFP_FragConfig = typename AFPConfig<NL>::type, class AFP_DefragConfig = typename AFPConfig<NL>::type >
             class AbstractNetworkLayer : public NL {
+
+                    /*! \brief  defragmentation data and algorithms
+                     */
+                    afp::DefragmentationProcessorANL<AFP_DefragConfig> defrag;
+
                 public:
 
                     /*! \brief  short network representation of the subject
@@ -74,6 +85,12 @@ namespace famouso {
                      *          that is used for announcing subscribtion network-wide
                      */
                     SNN   subscribe_SNN;
+
+                    /*! \brief  constructor
+                     */
+                    AbstractNetworkLayer() :
+                            defrag(NL::info::payload) {
+                    }
 
                     /*! \brief Initalizes the sub networks and bind the subscription
                      *         management channel.
@@ -100,16 +117,39 @@ namespace famouso {
                      *
                      *  \param[in]  snn the short network name of the subject
                      *  \param[in]  e the event that has to be published
+                     *
+                     *  \todo   Save copy operation in fragmentation case (needs
+                     *          AFP interface extension returning AFP header and
+                     *          payload separately and Packet/NL adaption)
                      */
                     void publish(const SNN &snn, const Event &e) {
                         TRACE_FUNCTION;
-                        typename NL::Packet_t p(snn, &e[0], e.length);
-                        if (e.length <= NL::info::payload)
+                        if (e.length <= NL::info::payload) {
+                            typename NL::Packet_t p(snn, &e[0], e.length);
                             NL::deliver(p);
-                        else
-                            ::logging::log::emit< ::logging::Warning>()
-                                << "Event is to big to deliver at once and fragmentation"
-                                << "is not supported at the moment" << ::logging::log::endl;
+                        } else {
+                            // Fragmentation using AFP (if disabled, a warning is emitted to the log)
+                            typedef afp::Fragmenter<AFP_FragConfig, NL::info::payload> Frag;
+
+                            if (e.length != (typename Frag::elen_t) e.length) {
+                                ::logging::log::emit< ::logging::Warning>()
+                                    << "AFP: Cannot publish event... too large."
+                                    << ::logging::log::endl;
+                                return;
+                            }
+
+                            Frag frag(e.data, e.length);
+
+                            if (frag.error())
+                                return;
+
+                            uint8_t buffer [NL::info::payload];
+                            typename Frag::flen_t length;
+                            while ( (length = frag.get_fragment(buffer)) ) {
+                                typename NL::Packet_t p(snn, buffer, length, true);
+                                NL::deliver(p);
+                            }
+                        }
                     }
 
                     /*! \brief  subscribe a subject and get its short network representation
@@ -136,7 +176,9 @@ namespace famouso {
                      *          name is equal to the short network name of the arosen packet.
                      *
                      *  \param[in]  snn the short network name of the subject
-                     *  \param[out] e the event that has to be published
+                     *  \param[out] e   The event that has to be published. If there is no event to
+                     *                  fetch (the arosen packet was a fragment not completing an
+                     *                  event), e.data is set to NULL.
                      *  \param[in]  bnl the sub network in that the event \e e will be published.
                      *
                      *  \return \li \b true if \e snn and the snn of the last arosen packet are equal
@@ -147,8 +189,20 @@ namespace famouso {
                         if (snn == NL::lastPacketSNN()) {
                             typename NL::Packet_t p;
                             NL::fetch(p);
-                            e.length = p.data_length;
-                            e.data = p.data;
+                            if (!p.fragment) {
+                                e.length = p.data_length;
+                                e.data = p.data;
+                            } else {
+                                // Apply AFP
+                                afp::DefragmentationStep<AFP_DefragConfig> ds(p.data, p.data_length, NL::lastPacketSNN());
+                                defrag.process_fragment(ds);
+                                if (ds.event_complete()) {
+                                    e.data = ds.get_event_data();
+                                    e.length = ds.get_event_length();
+                                } else {
+                                    e.data = 0;
+                                }
+                            }
                             return true;
                         } else {
                             return false;
@@ -167,6 +221,7 @@ namespace famouso {
                      *         the event is processed now.
                      */
                     void event_processed() {
+                        defrag.last_event_processed();
                     }
 
             };

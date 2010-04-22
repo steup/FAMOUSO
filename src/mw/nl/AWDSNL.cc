@@ -123,7 +123,7 @@ namespace famouso {
                 snn = s;
             }
 
-            void AWDSNL::deliver(const Packet_t& p, uint8_t type) {
+            void AWDSNL::deliver(const Packet_t& p) {
                 // try to detect subscription channel because in AWDS its get special treatment
                 // this test works only due to the fact that the SNN is equal to the famouso::mw::Subject
                 if (p.snn == famouso::mw::Subject("SUBSCRIBE")) {
@@ -143,6 +143,10 @@ namespace famouso {
                         log::emit<AWDS>() << "No subsciber for Subject: " << p.snn << log::endl;
                         return;
                     }
+
+                    // determine type of packet
+                    uint8_t type = p.fragment ? AWDS_Packet::constants::packet_type::publish_fragment :
+                                                AWDS_Packet::constants::packet_type::publish;
 
                     std::vector<boost::asio::const_buffer> buffers;
                     AWDS_Packet::Header awds_header;
@@ -180,10 +184,6 @@ namespace famouso {
                         }
                     }
                 }
-            }
-
-            void AWDSNL::deliver_fragment(const Packet_t& p) {
-                deliver(p, AWDS_Packet::constants::packet_type::publish_fragment);
             }
 
             void AWDSNL::fetch(Packet_t& p) {

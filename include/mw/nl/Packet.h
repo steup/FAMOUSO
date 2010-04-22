@@ -48,14 +48,15 @@ struct Packet {
     T snn; // short network name representation
     uint8_t* data; // pointer to data
     uint16_t data_length; // size of data
+    bool fragment;          ///< True if this packet is a fragment (not a complete event)
 
-    Packet() : data(0), data_length(0) {};
+    Packet() : data(0), data_length(0), fragment(false) {};
 
     Packet(const Packet<T>& p)
-            : snn(p.snn), data(p.data), data_length(p.data_length) {}
+            : snn(p.snn), data(p.data), data_length(p.data_length), fragment(p.fragment) {}
 
-    Packet(T address, uint8_t *d, uint16_t length)
-            : snn(address), data(d), data_length(length) {}
+    Packet(T address, uint8_t *d, uint16_t length, bool fragment = false)
+            : snn(address), data(d), data_length(length), fragment(fragment) {}
 };
 
 

@@ -121,6 +121,7 @@ namespace famouso {
                     /*! \brief  Publishes messages that are within the available payload of the driver used.
                      *
                      *  \param[in] p  packet to be published
+                     *  \todo   transmit p.fragment
                      */
                     void deliver(const Packet_t& p) {
                         TRACE_FUNCTION;
@@ -138,18 +139,11 @@ namespace famouso {
                         driver.send(buffer.data, buffer.size);
                     }
 
-                    /*! \brief  Publishes a fragment of a message that exceeds the available payload.
-                     *
-                     *  \param[in] p  packet of the fragment to be published
-                     */
-                    void deliver_fragment(const Packet_t& p) {
-                        TRACE_FUNCTION;
-                    }
-
                     /*! \brief  Transfers the data of the last received message into a packet
                      *          for further use.
                      *
                      *  \param[out] p   packet that is going to contain the received data
+                     *  \todo   transmit p.fragment
                      */
                     void fetch(Packet_t& p) {
                         TRACE_FUNCTION;

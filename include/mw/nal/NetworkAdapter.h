@@ -192,6 +192,10 @@ namespace famouso {
                      *  \param[in]  bnl the sub network-ID from where the request came.
                      */
                     void event_process_request(famouso::mw::nl::BaseNL * const bnl) {
+                        if (_ANL_A.id() == bnl)
+                            return _ANL_A.event_process_request(bnl);
+                        else
+                            return _ANL_B.event_process_request(bnl);
                         _bnl = bnl;
                     }
 
@@ -199,6 +203,10 @@ namespace famouso {
                      *         the event is processed now.
                      */
                     void event_processed() {
+                        if (_ANL_A.id() == _bnl)
+                            return _ANL_A.event_processed();
+                        else
+                            return _ANL_B.event_processed();
                         _bnl = 0;
                     }
             };

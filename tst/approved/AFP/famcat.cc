@@ -80,13 +80,21 @@ struct MyAFPConfig : afp::DefaultConfig {
 
 
 const char * const default_channel_subject = "_famcat_";
-const unsigned int default_mtu = 32;
+const unsigned int default_mtu = 0xffff;
 
 
 volatile unsigned int received_events = 0;
 unsigned int subscribe_events_num = 1;
 
-void ReceiveCallback(const afp::LargeEvent & event) {
+void ReceiveCallbackLE(const afp::LargeEvent & event) {
+    if (received_events < subscribe_events_num) {
+        fwrite(event.data, event.length, 1, stdout);
+        fflush(stdout);
+        received_events++;
+    }
+}
+
+void ReceiveCallback(famouso::mw::api::SECCallBackData & event) {
     if (received_events < subscribe_events_num) {
         fwrite(event.data, event.length, 1, stdout);
         fflush(stdout);
@@ -95,8 +103,7 @@ void ReceiveCallback(const afp::LargeEvent & event) {
 }
 
 
-
-void EchoCallback(famouso::mw::api::SECCallBackData& cbd) {
+void EchoCallback(famouso::mw::api::SECCallBackData & cbd) {
     fprintf(stderr, "Fragment (%u Bytes):\n", (unsigned int)cbd.length);
     afp::shared::hexdump(cbd.data, cbd.length);
 }
@@ -107,6 +114,7 @@ int main(int argc, char ** argv) {
     unsigned int channel_mtu = default_mtu;
     const char * channel_subject = default_channel_subject;
     bool echo_hexdump = false;
+    bool use_al_afp = false;
 
     bool wrong_args = (argc < 1);
     int arg = 1;
@@ -117,6 +125,7 @@ int main(int argc, char ** argv) {
             switch (argv[arg][1]) {
                 case 's': operation = subscribe; break;
                 case 'p': operation = publish; break;
+                case 'a': use_al_afp = true; break;
                 case 'c': next_arg = subject; break;
                 case 'm': next_arg = mtu;  break;
                 case 'r': next_arg = red;  break;
@@ -156,15 +165,16 @@ int main(int argc, char ** argv) {
 
     if (wrong_args) {
         fprintf(stderr, "Usage:\n"
-                "\tfamcat -s [-c CANNEL] [-m MTU] [-e] [-n NUM]\n"
-                "\tfamcat -p [-c CANNEL] [-m MTU] [-e] [-r RED]\n"
+                "\tfamcat -s [-c CANNEL] [-n NUM] [-a [-m MTU] [-e]]\n"
+                "\tfamcat -p [-c CANNEL] [-a [-m MTU] [-e] [-r RED]]\n"
                 "\n"
                 "\t-s         subscribe, wait for an event and output data to stdout (default)\n"
                 "\t-p         publish event from stdin\n"
                 "\t-c CHANNEL specify subject to use, default: \"%s\"\n"
+                "\t-n NUM     subsribe for NUM events\n"
+                "\t-a         use AFP for application layer fragmentation\n"
                 "\t-m MTU     specify specific MTU to use, default: %u\n"
                 "\t-e         echo a hexdump of fragments to stderr\n"
-                "\t-n NUM     subsribe for NUM events\n"
                 "\t-r RED     add RED %% forward error correction redundancy\n",
                 default_channel_subject, (unsigned int)default_mtu);
         return -1;
@@ -179,22 +189,30 @@ int main(int argc, char ** argv) {
 
         if (operation == subscribe) {
 
-            afp::AFPSubscriberEventChannel<famouso::config::SEC, MyAFPConfig, LargeEvent> sec(channel_subject, channel_mtu);
-            sec.callback.bind<ReceiveCallback>();
-            sec.subscribe();
+            if (use_al_afp) {
+                // Application layer AFP
+                afp::AFPSubscriberEventChannel<famouso::config::SEC, MyAFPConfig, LargeEvent> sec(channel_subject, channel_mtu);
+                sec.callback.bind<ReceiveCallbackLE>();
+                sec.subscribe();
 
-            while (received_events < subscribe_events_num) {
-                usleep(100000);
+                while (received_events < subscribe_events_num) {
+                    usleep(100000);
+                }
+            } else {
+                // Only abstract network layer AFP
+                famouso::config::SEC sec(channel_subject);
+                sec.callback.bind<ReceiveCallback>();
+                sec.subscribe();
+
+                while (received_events < subscribe_events_num) {
+                    usleep(100000);
+                }
             }
 
         } else if (operation == publish) {
 
-            // Announce
-            afp::AFPPublisherEventChannel<famouso::config::PEC, MyAFPConfig, 0, LargeEvent> pec(channel_subject, channel_mtu);
-            pec.announce();
-
             // Read data from stdin
-            uint32_t buffered_size = 16 * 1024;
+            uint32_t buffered_size = (use_al_afp ? 16 * 1024 : 0xffffu);
             uint8_t * buffer = reinterpret_cast<uint8_t *>(malloc(buffered_size));
             uint32_t size = 0;
 
@@ -205,22 +223,46 @@ int main(int argc, char ** argv) {
 
             while (!feof(stdin)) {
                 if (buffered_size <= size) {
-                    buffered_size = size + 16 * 1024;
-                    buffer = reinterpret_cast<uint8_t *>(realloc(buffer, buffered_size));
-                    if (!buffer) {
-                        perror("Error");
+                    if (use_al_afp) {
+                        // Application layer AFP: growing buffer
+                        buffered_size = size + 16 * 1024;
+                        buffer = reinterpret_cast<uint8_t *>(realloc(buffer, buffered_size));
+                        if (!buffer) {
+                            perror("Error");
+                            return -1;
+                        }
+                    } else {
+                        // No application layer AFP: data must fit in one event
+                        fprintf(stderr, "Error: data does not fit one event (65355 bytes)\n");
                         return -1;
                     }
-
                 }
                 size += fread(buffer + size, 1, buffered_size - size, stdin);
             }
 
-            // Publish
-            afp::LargeEvent event (pec.subject());
-            event.data = buffer;
-            event.length = size;
-            pec.publish(event);
+            if (use_al_afp) {
+                // Application layer AFP
+                // Announce
+                afp::AFPPublisherEventChannel<famouso::config::PEC, MyAFPConfig, 0, LargeEvent> pec(channel_subject, channel_mtu);
+                pec.announce();
+
+                // Publish
+                afp::LargeEvent event (pec.subject());
+                event.data = buffer;
+                event.length = size;
+                pec.publish(event);
+            } else {
+                // Only abstract network layer AFP
+                // Announce
+                famouso::config::PEC pec(channel_subject);
+                pec.announce();
+
+                // Publish
+                Event event (pec.subject());
+                event.data = buffer;
+                event.length = size;
+                pec.publish(event);
+            }
 
             free(buffer);
         }

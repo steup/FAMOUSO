@@ -115,19 +115,8 @@ namespace famouso {
                      * Sends the given packet.
                      *
                      * \param[in] p packet
-                     * \param[in] type describes the packet type and is used for specifying
-                     *            a fragmented or normal published packet.
                      */
-                    void deliver(const Packet_t& p, uint8_t type = AWDS_Packet::constants::packet_type::publish);
-
-                    /**
-                     * \brief deliver a fragment of a packet.
-                     *
-                     * Sends the given packet.
-                     *
-                     * \param p packet
-                     */
-                    void deliver_fragment(const Packet_t& p);
+                    void deliver(const Packet_t& p);
 
                     /**
                      * \brief processes incoming packets
