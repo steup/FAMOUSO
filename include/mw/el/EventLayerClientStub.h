@@ -95,8 +95,6 @@ namespace famouso {
             class EventLayerClientStub {
 
                     typedef famouso::mw::api::SubscriberEventChannel<EventLayerClientStub>  SEC;
-                    boost::array<char, 13> event_head;
-                    boost::array<char, 65535> event_data;
                     typedef std::pair<boost::thread *, NotifyWorkerThread<SEC> *> NotifyThreadData;
                     typedef std::map<SEC *, NotifyThreadData> NotifyThreadMap;
                     NotifyThreadMap notify_threads;

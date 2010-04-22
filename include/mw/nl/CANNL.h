@@ -80,7 +80,6 @@ namespace famouso {
                     typedef uint16_t SNN;
 
                     typedef Packet<SNN> Packet_t;
-                    Packet_t packet;
 
                     CANNL() : tx_node(0) {}
                     ~CANNL() {}
