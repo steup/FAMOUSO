@@ -40,10 +40,13 @@
 #include "util/Idler.h"
 #include "util/ios.h"
 
+#include <signal.h>
+
+#if !(POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _POSIX_SOURCE)
+// Generic implementation
+
 #include <boost/thread.hpp>
 #include <boost/thread/xtime.hpp>
-
-#include <signal.h>
 
 namespace Idler {
 
@@ -67,3 +70,30 @@ namespace Idler {
     }
 
 }
+
+#else
+// Implementation relying on sigwait()
+
+namespace Idler {
+
+    void idle() {
+
+        int sig;
+        sigset_t set;
+
+        // Block SIGINT delivery
+        sigemptyset(&set);
+        sigaddset(&set, SIGINT);
+        sigprocmask(SIG_BLOCK, &set, NULL);
+
+        // Wait for SIGING synchronously
+        sigwait(&set, &sig);
+
+        // signalise the ios to exit
+        famouso::util::impl::exit_ios();
+    }
+
+}
+
+#endif
+
