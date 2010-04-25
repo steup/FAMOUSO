@@ -194,11 +194,15 @@ namespace famouso {
                                 Statistics::fragments_expected(Base::event_fragment_count);
                                 Statistics::fragments_currently_expected_add(Base::event_fragment_count);
 
-                                fec_code = vandermonde_fec::fec_new(k, Base::event_fragment_count);
                                 fragments_data = Allocator::template alloc_array< uint8_t* >(k);
                                 fragments_order = Allocator::template alloc_array<int>(k);
 
-                                if (!fec_code || !fragments_data || !fragments_order) {
+                                if (Base::event_fragment_count > 0xffff) {
+                                    ::logging::log::emit< ::logging::Warning>() << "AFP: invalid FEC parameter (too many fragmens) -> drop" << ::logging::log::endl;
+                                    goto set_error;
+                                }
+
+                                if (!fragments_data || !fragments_order) {
                                     ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
                                     goto set_error;
                                 }
@@ -271,6 +275,14 @@ namespace famouso {
                             FAMOUSO_ASSERT(is_complete());
 
                             if (!Base::event_data) {
+                                fec_code = vandermonde_fec::fec_new(k, Base::event_fragment_count);
+
+                                Base::event_data = Allocator::alloc(Base::event_length);
+                                if (!fec_code || !Base::event_data) {
+                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    goto set_error;
+                                }
+
                                 // Decode data
                                 int err = vandermonde_fec::fec_decode(fec_code,
                                                                       reinterpret_cast<void **>(
@@ -284,12 +296,6 @@ namespace famouso {
                                 }
 
                                 // Copy to one output buffer
-                                Base::event_data = Allocator::alloc(Base::event_length);
-                                if (!Base::event_data) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
-                                    goto set_error;
-                                }
-
                                 uint8_t * p = Base::event_data;
                                 fcount_t km1 =  k - 1;
                                 for (fcount_t i = 0; i < km1; i++, p += payload_length)
