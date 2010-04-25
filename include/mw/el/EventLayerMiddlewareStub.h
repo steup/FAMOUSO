@@ -55,6 +55,7 @@
 #include "mw/api/SubscriberEventChannel.h"
 
 #include "mw/el/LocalConnectionParameters.h"
+#include "mw/afp/shared/Time.h"
 #include "util/endianness.h"
 #include "util/ios.h"
 
@@ -391,7 +392,18 @@ namespace famouso {
                              *  \todo   Remove copying of events coming from network layer (with buffers provided by application layer!?)
                              */
                             void cb(famouso::mw::api::SECCallBackData & cbd) {
-                                if (incomplete_async_write_bytes < 1000000) {
+                                // Crash detection and flow control:
+                                // If data is published in a higher rate than the subscriber
+                                // can process it, the async write operation queue will flood
+                                // the memory. To avoid dropping data in case of high peak throughput
+                                // nothing is discarded before a deadline was passed. The deadline
+                                // is given relative to the last time no async write was pending.
+                                if (!incomplete_async_writes) {
+                                    // All async writes complete -> reset deadline
+                                    drop_deadline = Time::current().add_sec(1);
+                                }
+
+                                if (incomplete_async_write_bytes < 100000 || Time::current() < drop_deadline) {
                                     // To enable asynchronous write operations (needed to avoid flow dependencies)
                                     // we use buffers that are managed by shared_ptr pointers and are deleted
                                     // automatically after async write is completed.
@@ -427,8 +439,8 @@ namespace famouso {
                                         async_write_requests.push(AsyncWriteRequest(sp_preamble, sp_event_data, cbd.length));
                                     }
                                 } else {
-                                    // Too many incomplete writes... assume that the client is crashed or
-                                    // blocking inside the callback. Drop current event to prevent flooding
+                                    // The client is crashed, blocking inside the callback or just to
+                                    // slow while processing the data. Drop current event to prevent flooding
                                     // memory with async write operations which are likely to be never
                                     // completed.
                                 }
@@ -492,6 +504,9 @@ namespace famouso {
 
                             /// Count of incomplete asynchronous write requests to the client subscriber
                             unsigned int incomplete_async_writes;
+
+                            /// After this time no async write requests get queued anymore (subscriber crash detection and flow control)
+                            Time drop_deadline;
 
                             /// Queue of async write requests to the subscribing client not yet posted
                             std::queue<AsyncWriteRequest> async_write_requests;
