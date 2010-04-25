@@ -49,7 +49,7 @@
 
 #include "mw/afp/defrag/Defragmenter.h"
 
-#include "mw/afp/shared/AbsTime.h"
+#include "mw/afp/shared/Time.h"
 #include "mw/afp/defrag/detail/PointerMap.h"
 #include "object/RingBuffer.h"
 
@@ -177,7 +177,7 @@ namespace famouso {
                                  * If status == event_incomplete it is the time after which this event is dropped,
                                  * removed from event map and freed.
                                  */
-                                AbsTime expire_time;
+                                Time expire_time;
 
 
                                 /// Constructor
@@ -198,7 +198,7 @@ namespace famouso {
                                  */
                                 void touch() {
                                     // Postpone time to drop incomplete fragment (3 seconds from now)
-                                    AbsTime::get_current_time(expire_time);
+                                    Time::get_current_time(expire_time);
                                     expire_time.add_sec(3);
                                 }
 
@@ -248,7 +248,7 @@ namespace famouso {
                                 // Keep event sequence number for some time to detect late duplicates.
                                 e->status = Event<KeyType>::event_outdated;
 
-                                AbsTime::get_current_time(e->expire_time);
+                                Time::get_current_time(e->expire_time);
 
                                 {
                                     // Use time for cleaning outdated events
@@ -265,7 +265,7 @@ namespace famouso {
                          *
                          * Function is called from set_event_outdated to save syscall for getting current time.
                          */
-                        void clean_outdated_events(const AbsTime & curr_time) {
+                        void clean_outdated_events(const Time & curr_time) {
                             while (!outdated_events.is_empty()) {
                                 Event<KeyType> * e = outdated_events.front();
 
@@ -286,10 +286,10 @@ namespace famouso {
                          * \brief Remove all incomplete events with expired drop time (expensive! not thread safe!)
                          */
                         void clean_incomplete_untouched_events() {
-                            AbsTime curr_time;
+                            Time curr_time;
                             Event<KeyType> * e;
 
-                            AbsTime::get_current_time(curr_time);
+                            Time::get_current_time(curr_time);
 
                             typename EventMap::iterator it = events.begin();
                             while (it != events.end()) {

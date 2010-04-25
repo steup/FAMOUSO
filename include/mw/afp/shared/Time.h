@@ -39,13 +39,13 @@
  ******************************************************************************/
 
 
-#ifndef __ABSTIME_H_2DD6595E115022__
-#define __ABSTIME_H_2DD6595E115022__
+#ifndef __TIME_H_2DD6595E115022__
+#define __TIME_H_2DD6595E115022__
 
 
 #ifdef __AVR__
 // AVR version
-#error AbsTime class for AVR platform missing. Need timing framework.
+#error Time class for AVR platform missing. Need timing framework.
 
 
 #else
@@ -54,26 +54,33 @@
 #include "boost/thread/xtime.hpp"
 
 /*!
- * \brief Absolute time
+ * \brief Represents a time
  */
-class AbsTime {
+class Time {
         boost::xtime time;
     public:
 
-        static void get_current_time(AbsTime & time) {
+        static void get_current_time(Time & time) {
             boost::xtime_get(&time.time, boost::TIME_UTC);
         }
 
-        void add_sec(unsigned int s) {
-            time.sec += s;
+        static Time current() {
+            Time t;
+            get_current_time(t);
+            return t;
         }
 
-        bool operator<(const AbsTime & t2) const {
+        Time & add_sec(unsigned int s) {
+            time.sec += s;
+            return *this;
+        }
+
+        bool operator<(const Time & t2) const {
             return boost::xtime_cmp(time, t2.time) < 0;
         }
 };
 
 #endif
 
-#endif // __ABSTIME_H_2DD6595E115022__
+#endif // __TIME_H_2DD6595E115022__
 
