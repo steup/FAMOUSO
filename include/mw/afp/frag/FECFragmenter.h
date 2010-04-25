@@ -118,6 +118,10 @@ namespace famouso {
                             flen_t header_length = min_header_length;
                             flen_t payload_length = mtu - header_length;
 
+                            // FEC library supports only even paylaod lengths
+                            if (payload_length & 1)
+                                payload_length--;
+
                             elen_t k = shared::div_round_up(event_length, (elen_t)payload_length);
                             overflow_err.check_equal(k, (fcount_t)k);
 
@@ -129,7 +133,9 @@ namespace famouso {
                             while (frag_count > max_fragments &&
                                     !overflow_err.error()) {
                                 header_length++;
-                                payload_length--;
+                                payload_length = mtu - header_length;
+                                if (payload_length & 1)
+                                    payload_length--;
 
                                 if (header_length >= mtu)
                                     break;

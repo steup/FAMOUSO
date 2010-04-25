@@ -183,7 +183,12 @@ namespace famouso {
                                 // put_fragment() called first time... init parameters from header
                                 k = header.fec.get_k();
                                 Base::event_fragment_count = k + get_redundancy_fragment_count(k, header.fec.get_red());
+
                                 payload_length = Base::no_ext_mtu - VHL::get_basic_header_len(Base::event_fragment_count - 1);
+                                // FEC library supports only even paylaod lengths
+                                if (payload_length & 1)
+                                    payload_length--;
+
                                 Base::event_length = (k - 1) * payload_length + header.fec.get_len_rest();
 
                                 Statistics::fragments_expected(Base::event_fragment_count);
