@@ -77,7 +77,7 @@ namespace famouso {
                      * \tparam  lat describes the initial value to be set
                      */
                     template< uint16_t lat >
-                    class Latency: public Attribute<uint16_t, lat, 2, true> {
+                    class Latency: public Attribute<Latency<0>, integral_const_tag, uint16_t, lat, 2, true> {
                     };
 
                     /*!\brief defines a configurable Bandwith attribute.
@@ -85,7 +85,7 @@ namespace famouso {
                      * \tparam bw describes the initial value to be set
                      */
                     template< uint32_t bw >
-                    class Bandwidth: public Attribute<uint32_t, bw, 3, true> {
+                    class Bandwidth: public Attribute<Bandwidth<0>, integral_const_tag, uint32_t, bw, 3, true> {
                     };
 
                     /*!\brief defines a configurable Packet-Loss-Rate attribute.
@@ -93,7 +93,7 @@ namespace famouso {
                      * \tparam pl describes the initial value to be set
                      */
                     template< uint16_t pl >
-                    class PacketLoss: public Attribute<uint16_t, pl, 4, true> {
+                    class PacketLoss: public Attribute<PacketLoss<0>, integral_const_tag, uint16_t, pl, 4, true> {
                     };
 
                     /** A list of AWDS Attributes */
