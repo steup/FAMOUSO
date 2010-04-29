@@ -54,9 +54,11 @@
 
 namespace famouso {
     namespace mw {
-
         template <famouso::mw::Event::Type payLoadSize = 0, typename AttrList = boost::mpl::list<> >
         class ExtendedEvent: public famouso::mw::Event {
+            // TODO: Either change the concept to single attribute types given as the template
+            //  arguments or assert that the given list is a boost::mpl::list
+
             private:
                 typedef attributes::AttributeSequence<AttrList> attrSeq;
 
@@ -100,6 +102,12 @@ namespace famouso {
                     return ((reinterpret_cast<attrSeq*>(_edata))->find<Attr>());
                 }
         };
+
+        // This is unfortunately not possible: (Conflicts with declaration above)
+        //
+//        template <famouso::mw::Event::Type payLoadSize = 0, typename A1, typename A2, typename A3,
+//                  typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10>
+//        class ExtendedEvent : public ExtendedEvent<payLoadSize, boost::mpl::list<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> > {};
 
     } // end namespace mw
 } // end namespace famouso

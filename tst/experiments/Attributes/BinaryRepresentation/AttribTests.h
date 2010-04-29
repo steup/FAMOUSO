@@ -43,16 +43,21 @@
 
 #include <stdint.h>
 
-#include "logging/logging.h"
+#include "boost/mpl/int.hpp"
 
-#include "mw/attributes/detail/AttributeHeader.h"
+#include "logging/logging.h"
 
 #include "mw/attributes/Attribute.h"
 #include "mw/attributes/AttributeSequence.h"
 
+#include "mw/attributes/detail/AttributeHeader.h"
+#include "mw/attributes/tags/IntegralConstTag.h"
+
 #define TO_HEX ::logging::log::emit() << ::logging::log::hex
 #define TO_DEC ::logging::log::emit() << ::logging::log::dec
 #define DBG_MSG(x) ::logging::log::emit() << x << ::logging::log::endl
+
+typedef famouso::mw::attributes::tags::integral_const_tag tag;
 
 void print(const uint8_t* array, uint8_t length) {
     ::logging::log::emit() << ::logging::log::hex;
@@ -120,18 +125,22 @@ void testAttribute(const char* text = "") {
 }
 
 template <uint8_t ttl>
-struct TTL: public famouso::mw::attributes::Attribute<uint8_t, ttl, 0,
-        true> {
+struct TTL: public famouso::mw::attributes::Attribute<TTL<0>, tag,
+                                                      uint8_t, ttl, 0, true> {
+    typedef TTL type;
 };
 
 template <uint16_t delay>
-struct Delay: public famouso::mw::attributes::Attribute<uint16_t,
-        delay, 1, true> {
+struct Delay: public famouso::mw::attributes::Attribute<Delay<0>, tag,
+                                                        uint16_t, delay, 1, true> {
+    typedef Delay type;
 };
 
 template <uint16_t omission>
-struct OmissionDegree: public famouso::mw::attributes::Attribute<
-        uint16_t, omission, 2, true> {
+struct OmissionDegree: public famouso::mw::attributes::Attribute<OmissionDegree<0>,
+                                                                 tag, uint16_t,
+                                                                 omission, 2, true> {
+    typedef OmissionDegree type;
 };
 
 typedef TTL<0> Local;
@@ -140,13 +149,18 @@ typedef TTL<255> World;
 
 typedef OmissionDegree<0> None;
 
-typedef famouso::mw::attributes::Attribute<uint8_t,  0x3,                  1, true>::type  a1;
-typedef famouso::mw::attributes::Attribute<uint8_t,  0x9,                  2, true>::type  a2;
-typedef famouso::mw::attributes::Attribute<uint16_t, 0x3FF,                3, true>::type  a3;
-typedef famouso::mw::attributes::Attribute<uint16_t, 0x4FF,                4, true>::type  a4;
-typedef famouso::mw::attributes::Attribute<uint64_t, 0x1FFFFFF,            5, true>::type  a5;
-typedef famouso::mw::attributes::Attribute<uint8_t,  2,                    6, false>::type a6;
-typedef famouso::mw::attributes::Attribute<uint64_t, 0x1FFFFFFFFFFFFFFull, 7, false>::type a7;
-typedef famouso::mw::attributes::Attribute<int16_t, -20,                   8, false>::type a8;
+template <typename VT, VT V, uint8_t ID, bool IS>
+struct TestAttrib : public famouso::mw::attributes::Attribute<boost::mpl::int_<ID>, tag, VT, V, ID, IS> {
+    typedef TestAttrib type;
+};
+
+typedef TestAttrib<uint8_t,  0x3,                  1, true>::type  a1;
+typedef TestAttrib<uint8_t,  0x9,                  2, true>::type  a2;
+typedef TestAttrib<uint16_t, 0x3FF,                3, true>::type  a3;
+typedef TestAttrib<uint16_t, 0x4FF,                4, true>::type  a4;
+typedef TestAttrib<uint64_t, 0x1FFFFFF,            5, true>::type  a5;
+typedef TestAttrib<uint8_t,  2,                    6, false>::type a6;
+typedef TestAttrib<uint64_t, 0x1FFFFFFFFFFFFFFull, 7, false>::type a7;
+typedef TestAttrib<int16_t, -20,                   8, false>::type a8;
 
 #endif

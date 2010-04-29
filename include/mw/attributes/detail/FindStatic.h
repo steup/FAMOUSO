@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,31 +38,48 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef _Find_Static_h_
+#define _Find_Static_h_
 
-#include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/Attribute.h"
+#include "boost/mpl/end.hpp"
+#include "boost/mpl/find_if.hpp"
+#include "boost/mpl/eval_if.hpp"
+#include "boost/type_traits/is_same.hpp"
+
+#include "mw/attributes/detail/IsSameAttribute.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
+            namespace detail {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
-             *
-             * \tparam  ttl describes the initial value to be set
-             */
-            template<uint8_t ttl>
-            class TTL : public Attribute<TTL<0>, tags::integral_const_tag, uint8_t, ttl, 1, true > {
-                public:
-                    typedef TTL type;
-            };
+                /*!
+                 * \brief Searches for the given attribute in the given attribute
+                 *  sequence and determines whether it is contained or not.
+                 *
+                 * \tparam Attr The attribute to search for
+                 * \tparam AttrSeq The attribute sequence to search in
+                 */
+                template <typename Attr, typename AttrSeq>
+                struct Find {
+                    private:
+                        typedef typename boost::mpl::find_if<AttrSeq,
+                                                             is_same_attribute<Attr,
+                                                                               boost::mpl::_1>
+                                                            >::type findIter;
 
-        } /* attributes */
-    } /* mw */
-} /* famouso */
+                    public:
+                        typedef typename boost::mpl::eval_if<boost::is_same<findIter,
+                                                                            typename boost::mpl::end<AttrSeq>::type
+                                                                           >,
+                                                             boost::mpl::bool_<false>,
+                                                             boost::mpl::bool_<true>
+                                                            >::type result;
+                };
+
+            } // end namespace detail
+        } // end namespace attributes
+    } // end namespace mw
+} // end namespace famouso
 
 #endif

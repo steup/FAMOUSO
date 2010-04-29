@@ -72,38 +72,44 @@ namespace famouso {
              *
              * This is the central entity of the attribute framework. It can be attached to
              *  disseminated events in order to be transmitted in a compact binary
-             *  representation. Further attributes can also be attached to event channels
+             *  representation. Further %attributes can also be attached to event channels
              *  and network driver implementation to provide means for performing compile
-             *  time composability checks. Attribute attachment is generally done using
+             *  time composability checks. %Attribute attachment is generally done using
              *  type lists containing the specific attribute types.
+             *
              * An attribute is defined by being either a system or a non-system attribute
              *  and having a specific identifier. Related to this unique type an
              *  attribute has a specific value type describing the range of values it can
              *  have.
+             *
              * An attribute class always has the value attached which was provided at compile
              *  time. This value is used when an instance of the specific class is created
              *  and the attribute is written to its binary representation. Nevertheless the
              *  runtime value, i.e. the value contained in the binary representation, can be
              *  accessed and, with limitations, even changed.
              *
+             * The given base type is used for determining whether two given %attributes
+             *  should be considered as equal, that is of the same type. Since template classes
+             *  with bound parameters always yield different types for different arguments,
+             *  the plain type itself would not be considered as equal.
+             *
+             * \tparam BaseType The type which is used to compare attributes of the same type
+             * \tparam CompareTag The tag which defines how this attribute can be compared
              * \tparam ValueType The type of this attribute's value
              * \tparam Value The compile time value of this attribute
              * \tparam ID The identifier of this attribute
              * \tparam IsSystem True, if this is a system attribute
              */
-            template <typename ValueType, ValueType Value, uint8_t ID, bool IsSystem = false>
+            template <typename BaseType, typename CompareTag, typename ValueType, ValueType Value, uint8_t ID, bool IsSystem = false>
             class Attribute {
                 public:
                     // The boost tag type, declaring the attribute class to be an
                     //  integral constant
                     typedef boost::mpl::integral_c_tag tag;
 
-                    // This type
-                    typedef Attribute type;
-
-                    typedef Attribute                base_type;
-                    typedef tags::attribute_tag      type_tag;
-                    typedef tags::integral_const_tag compare_tag;
+                    typedef tags::attribute_tag type_tag;
+                    typedef CompareTag          compare_tag;
+                    typedef BaseType            base_type;
 
                     // The type of the attribute's value
                     typedef ValueType value_type;
@@ -119,14 +125,14 @@ namespace famouso {
 
                     // The data array contains the binary representation of
                     //  this attribute (header + value)
-                    uint8_t data[detail::AttributeSize<type>::value];
+                    uint8_t data[detail::AttributeSize<Attribute>::value];
 
                 private:
                     // Static dummy typedefs
                     typedef typename detail::ValueTypeAssert<value_type>::dummy    valueTypeAssert;
                     typedef typename detail::IdBitCountAssert<isSystem, id>::dummy idBitCountAssert;
 
-                public:
+                protected:
                     Attribute() {
                         // Initialize the member array "data" to the binary representation
                         //  of this attribute
@@ -143,12 +149,12 @@ namespace famouso {
 
                             // The index where we start writing the value (starts at the last
                             //  byte which will be written and will then be decremented)
-                            uint16_t i = detail::ValueOffset<type>::value + detail::ValueByteCount<type>::value - 1;
+                            uint16_t i = detail::ValueOffset<Attribute>::value + detail::ValueByteCount<Attribute>::value - 1;
 
                             // Copy as many bytes as either fit the range where the value is
                             //  supposed to be written or as the value itself has (as sizeof()
                             //  determines)
-                            for (uint16_t j = 0; (i > detail::ValueOffset<type>::value - 1) && (j < sizeof(ValueType)); --i, ++j) {
+                            for (uint16_t j = 0; (i > detail::ValueOffset<Attribute>::value - 1) && (j < sizeof(ValueType)); --i, ++j) {
                                 data[i] = *ptr--;
                             }
                         } else {
@@ -163,9 +169,10 @@ namespace famouso {
                         // (It is essential to do that now, since the algorithm above does
                         //  not care about an eventually pre-written header, but the header
                         //  writer itself cares for a value possibly already written)
-                        new (&data[0]) detail::AttributeHeader<type> ;
+                        new (&data[0]) detail::AttributeHeader<Attribute> ;
                     }
 
+                public:
                     /*!
                      * \brief Returns the value from the binary representation of
                      *  this attribute instance.

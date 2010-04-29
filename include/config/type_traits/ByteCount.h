@@ -160,15 +160,15 @@
         template <typename ValueType, ValueType Value>
         struct ByteCount {
             private:
-            static const uint16_t bitCount = BitCount<ValueType, Value>::value;
+                static const uint16_t bitCount = BitCount<ValueType, Value>::value;
 
             public:
-            /*!
-             * \brief The result of the byte count calculation
-             */
-            static const uint16_t value = (bitCount % 8 == 0) ?
-                                              (bitCount / 8) :
-                                              ((bitCount / 8) + 1);
+                /*!
+                 * \brief The result of the byte count calculation
+                 */
+                static const uint16_t value = (bitCount % 8 == 0) ?
+                                                  (bitCount / 8) :
+                                                  ((bitCount / 8) + 1);
         };
 
         // Runtime bit / byte count calculation

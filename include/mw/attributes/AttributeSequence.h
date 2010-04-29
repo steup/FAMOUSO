@@ -53,9 +53,10 @@
 #include "object/PlacementNew.h"
 
 #include "mw/attributes/detail/find.h"
-
+#include "mw/attributes/detail/FindStatic.h"
 #include "mw/attributes/detail/AttributeSequenceHeader.h"
 #include "mw/attributes/detail/AttributeSize.h"
+#include "mw/attributes/detail/Duplicates.h"
 
 namespace famouso {
     namespace mw {
@@ -75,6 +76,15 @@ namespace famouso {
             template <typename AttrSeq, typename Iter = typename boost::mpl::begin<AttrSeq>::type>
             struct AttributeSequence {
                 private:
+                    // Duplicate-Tester for the given attribute sequence
+                    typedef detail::Duplicates<AttrSeq> duplicateTester;
+                    // Assert that the sequence does not contain duplicates, if it does print out
+                    //  the first attribute in the sequence for which a duplicate could be found
+                    //  and the whole sequence, too
+                    BOOST_MPL_ASSERT_MSG((!duplicateTester::result),
+                                         duplicate_attribute_detected_in_sequence,
+                                         (typename duplicateTester::duplicateAttribute, AttrSeq));
+
                     // The current attribute type (determined by the given iterator type)
                     typedef boost::mpl::deref<Iter> curAttr;
                     // The next sequence element type
@@ -111,19 +121,20 @@ namespace famouso {
                      * This includes the sequence header and every single attribute contained in
                      *  the sequence.
                      */
-                    static const uint16_t overallSize = // If the current attribute is the first, the sequence header will be included
-                                    (isFirst ? seqHeader::size : 0) +
+                    static const uint16_t overallSize =
+                            // If the current attribute is the first, the sequence header will be included
+                            (isFirst ? seqHeader::size : 0) +
 
-                                    // In any case (first or not) the current attribute is included (the size
-                                            //  calculator struct calculates the overall size of an attribute including
-                                            //  the header)
-                                            detail::AttributeSize<typename curAttr::type>::value +
+                            // In any case (first or not) the current attribute is included (the size
+                            //  calculator struct calculates the overall size of an attribute including
+                            //  the header)
+                            detail::AttributeSize<typename curAttr::type>::value +
 
-                                            // Recursively instantiate the attribute sequence with its iterator
-                                            //  pointing to next attribute in the sequence (the past-end case
-                                            //  is modeled by a specialization of the attribute sequence struct
-                                            //  which has an overall size of 0)
-                                            AttributeSequence<AttrSeq, typename iterNext::type>::overallSize;
+                            // Recursively instantiate the attribute sequence with its iterator
+                            //  pointing to next attribute in the sequence (the past-end case
+                            //  is modeled by a specialization of the attribute sequence struct
+                            //  which has an overall size of 0)
+                            AttributeSequence<AttrSeq, typename iterNext::type>::overallSize;
 
                 private:
                     /*!
@@ -179,16 +190,29 @@ namespace famouso {
                                 AttributeSequence<AttrSeq, typename iterNext::type> ;
                     }
 
+                private:
+//                    template <typename Attr>
+//                    struct isContained {
+//                        typedef famouso::mw::attributes::detail::is_same_attribute<Attr, curAttr> isCurrentSame;
+//                    };
+
+                public:
                     template <typename Attr>
                     Attr* find() {
-                        // TODO If Attr not contained in the list above, return NULL
+                        // Check if the attribute is contained in the static sequence at all
+                        if (!detail::Find<Attr, AttrSeq>::result::value) {
+                            return (reinterpret_cast<Attr*>(NULL));
+                        }
 
                         return (famouso::mw::attributes::detail::find<Attr>(data));
                     }
 
                     template <typename Attr>
                     const Attr* find() const {
-                        // TODO Same here
+                        // Check if the attribute is contained in the static sequence at all
+                        if (!detail::Find<Attr, AttrSeq>::result::value) {
+                            return (reinterpret_cast<Attr*>(NULL));
+                        }
 
                         return (famouso::mw::attributes::detail::find<Attr>(data));
                     }
@@ -198,8 +222,13 @@ namespace famouso {
             struct AttributeSequence<AttrSeq, typename boost::mpl::end<AttrSeq>::type> {
                     static const uint16_t overallSize = 0;
 
-                    template<typename Attr>
-                    Attr* find() const {
+                    template <typename Attr>
+                    const Attr* find() {
+                        return (reinterpret_cast<Attr*> (NULL));
+                    }
+
+                    template <typename Attr>
+                    const Attr* find() const {
                         return (reinterpret_cast<Attr*> (NULL));
                     }
             };

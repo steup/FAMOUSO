@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,13 +38,33 @@
  *
  ******************************************************************************/
 
-#ifndef __Attribute_h__
-#define __Attribute_h__
+#ifndef _Is_Same_Attribute_h_
+#define _Is_Same_Attribute_h_
 
-class Attribute {
-    public:
-        Attribute();
-        ~Attribute();
-};
+#include "boost/type_traits/is_same.hpp"
 
-#endif /* __Attribute_h__ */
+namespace famouso {
+    namespace mw {
+        namespace attributes {
+            namespace detail {
+
+                /*!
+                 * \brief Tests whether the given %attributes have the same base type.
+                 *
+                 * \tparam A1 The first attribute to test
+                 * \tparam A2 The second attribute to test
+                 */
+                template <typename A1, typename A2>
+                struct is_same_attribute {
+                        typedef is_same_attribute type;
+
+                        static const bool value = boost::is_same<typename A1::base_type,
+                                                                 typename A2::base_type>::value;
+                };
+
+            } // end namespace detail
+        } // end namespace attributes
+    } // end namespace mw
+} // end namespace famouso
+
+#endif

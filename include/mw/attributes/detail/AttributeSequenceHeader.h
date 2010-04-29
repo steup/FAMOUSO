@@ -43,7 +43,9 @@
 
 #include <stdint.h>
 
-#include "boost/mpl/assert.hpp"
+#include "boost/mpl/eval_if.hpp"
+
+#include "mw/attributes/detail/CompileErrors.h"
 
 #include "util/endianness.h"
 
@@ -77,6 +79,11 @@ namespace famouso {
                         //  header fits one byte
                         static const bool extension = (seqSize > 0x7F);
 
+                        // Assert that the sequence size fits the format bounds
+                        typedef typename boost::mpl::eval_if_c<extension,
+                                                    ExtendedSequenceBoundError<seqSize>,
+                                                    UnextendedSequenceBoundError<seqSize> >::type assertDummy;
+
                     public:
                         // The size of the header is 1 if it is not extended and 2 if it
                         //  is extended
@@ -96,12 +103,6 @@ namespace famouso {
                             // Depending on whether the sequence header is extended either 1
                             //  or 2 two bytes must be written accordingly
                             if (extension) {
-                                // In case of an extension, assert that the sequence size does not
-                                //  exceed the bounds of 15 bits (0x7FFF)
-                                BOOST_MPL_ASSERT_MSG(((seqSize & 0x7FFF) == seqSize),
-                                                     sequence_length_exceeds_extended_format_bounds,
-                                                     (boost::mpl::int_<seqSize>));
-
                                 // Convert the length to network byte order and set the extension bit
                                 const uint16_t tmpSize = htons(seqSize | 0x8000);
                                 // Assign the converted value to the array
