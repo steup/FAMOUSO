@@ -167,7 +167,7 @@ namespace famouso {
                 public:
 
                     /// Ensure that demultiplexing policy supports late delivery
-                    enum { AFP_feature_check = AFPDC::DemuxPolicy::support_late_delivery };
+                    enum { AFP_feature_check = DCP::DemuxPolicy::support_late_delivery };
 
                     /*!
                      * \brief Constrcutor
@@ -195,7 +195,7 @@ namespace famouso {
                      * \return Data pointer
                      */
                     uint8_t * kept_get_event_data(void * event_handle) {
-                        defrag::Defragmenter<AFPDC> * defrag = DefragmentationProcessor<AFPDC>::demux.get_kept_defragmenter(event_handle);
+                        defrag::Defragmenter<DCP> * defrag = DefragmentationProcessor<AFPDC>::demux.get_kept_defragmenter(event_handle);
                         return defrag->get_event_data();
                     }
 
@@ -205,7 +205,7 @@ namespace famouso {
                      * \return Data length
                      */
                     elen_t kept_get_event_length(void * event_handle) {
-                        defrag::Defragmenter<AFPDC> * defrag = DefragmentationProcessor<AFPDC>::demux.get_kept_defragmenter(event_handle);
+                        defrag::Defragmenter<DCP> * defrag = DefragmentationProcessor<AFPDC>::demux.get_kept_defragmenter(event_handle);
                         return defrag->get_event_length();
                     }
 
