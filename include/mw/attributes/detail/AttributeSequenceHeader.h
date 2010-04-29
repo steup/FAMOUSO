@@ -80,9 +80,11 @@ namespace famouso {
                         static const bool extension = (seqSize > 0x7F);
 
                         // Assert that the sequence size fits the format bounds
-                        typedef typename boost::mpl::eval_if_c<extension,
-                                                    ExtendedSequenceBoundError<seqSize>,
-                                                    UnextendedSequenceBoundError<seqSize> >::type assertDummy;
+                        typedef typename boost::mpl::eval_if_c<
+                                                      extension,
+                                                      ExtendedSequenceBoundError<seqSize>,
+                                                      UnextendedSequenceBoundError<seqSize>
+                                                     >::type assertDummy;
 
                     public:
                         // The size of the header is 1 if it is not extended and 2 if it
@@ -103,14 +105,15 @@ namespace famouso {
                             // Depending on whether the sequence header is extended either 1
                             //  or 2 two bytes must be written accordingly
                             if (extension) {
-                                // Convert the length to network byte order and set the extension bit
+                                // Convert the length to network byte order and set the
+                                //  extension bit
                                 const uint16_t tmpSize = htons(seqSize | 0x8000);
                                 // Assign the converted value to the array
                                 *(reinterpret_cast<uint16_t*> (data)) = tmpSize;
                             } else {
-                                // Write the lower 7 bits of the sequence size into the first and
-                                //  only byte (The extension flag assures that the given sequence
-                                //  size fits 7 bits)
+                                // Write the lower 7 bits of the sequence size into the first
+                                //  and only byte (The extension flag assures that the given
+                                //  sequence size fits 7 bits)
                                 data[0] = (seqSize & 0x7F);
                             }
                         }

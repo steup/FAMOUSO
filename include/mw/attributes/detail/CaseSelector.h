@@ -51,8 +51,8 @@ namespace famouso {
             namespace detail {
 
                 /*!
-                 * Template struct allowing to decide the 6 different cases for the
-                 *  structure of an attribute header:
+                 * Template struct allowing to decide the 6 different cases for
+                 *  the structure of an attribute header:
                  *
                  * 1. System attribute, value fits unextended
                  * 2. System attribute, value fits extended
@@ -72,11 +72,11 @@ namespace famouso {
                     private:
                         // The number of bits used by the attribute's value
                         static const uint16_t bitCount = BitCount<typename Attr::value_type,
-                                                                                   Attr::value>::value;
+                                                                  Attr::value>::value;
 
                         // The whole bytes used by the attribute's value
                         static const uint16_t byteCount = ByteCount<typename Attr::value_type,
-                                                                                     Attr::value>::value;
+                                                                    Attr::value>::value;
 
                     public:
                         static const ResultType value =
@@ -84,41 +84,48 @@ namespace famouso {
                                 (Attr::isSystem) ?
                                 ( // For system attributes
                                     (bitCount < 3) ?
-                                        // If the value fits the header byte unextended, this is the first case
+                                        // If the value fits the header byte unextended, this is
+                                        //  the first case
                                         res1 :
 
-                                        // Check if the value can be written directly (without a length)
+                                        // Check if the value can be written directly (without
+                                        //  a length)
                                         (bitCount < 11) ?
 
-                                            // If the value fits 10 bits (2 bits of the header byte and 8 bits
-                                            //  of the extension) this is the second case
+                                            // If the value fits 10 bits (2 bits of the header
+                                            //  byte and 8 bits of the extension) this is the
+                                            //  second case
                                             res2 :
 
-                                            // If the length fits the header byte unextended, we would write the
-                                            //  header byte + "length-many" bytes (Length-values up to 3 fit into
-                                            //  two bits, which would be remaining)
+                                            // If the length fits the header byte unextended,
+                                            //  we would write the header byte + "length-many"
+                                            //  bytes (Length-values up to 3 fit into two bits,
+                                            //  which would be remaining)
                                             (byteCount < 4) ?
 
                                                  // So this is the third case
                                                  res3 :
 
-                                                // Otherwise we would extend the header byte and so need one more
-                                                //  byte which is the fourth case
+                                                // Otherwise we would extend the header byte
+                                                //  and so need one more byte which is the fourth
+                                                //  case
                                                 res4) :
 
                                 ( // For non system attributes
 
-                                    // The last part of the header byte is always the length, we now must find out,
-                                    //  if the header must be extended for the length
+                                    // The last part of the header byte is always the length, we
+                                    //  now must find out, if the header must be extended for the
+                                    //  length
                                     (byteCount < 8) ?
 
-                                        // The length fits unextended, so we need 1 byte for the header itself,
-                                        //  one byte for the type and "length-many" bytes for the value so this
-                                        //  is the fifth case
+                                        // The length fits unextended, so we need 1 byte for the
+                                        //  header itself, one byte for the type and "length-many"
+                                        //  bytes for the value so this is the fifth case
                                         res5 :
 
-                                        // We must extend the header byte, that is one more byte compared to the
-                                        //  first case is needed which is the sixth and last case
+                                        // We must extend the header byte, that is one more byte
+                                        //  compared to the first case is needed which is the sixth
+                                        //  and last case
                                         res6
                                 );
                 };

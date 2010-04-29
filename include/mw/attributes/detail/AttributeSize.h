@@ -52,8 +52,9 @@ namespace famouso {
 		    namespace detail {
 
                 /*!
-                 * \brief Calculates the overall number of bytes used by the binary representation
-                 *  of the given attribute, that is, the header and the value.
+                 * \brief Calculates the overall number of bytes used by the binary
+                 *  representation of the given attribute, that is, the header and
+                 *  the value.
                  *
                  * \tparam Attr The attribute type of which the overall size should be
                  *  calculated
@@ -67,7 +68,14 @@ namespace famouso {
                         /*!
                          * \brief The calculated overall attribute size in bytes
                          */
-                        static const uint16_t value = CaseSelector<Attr, uint16_t, 1, 2, (1 + byteCount), (2 + byteCount), (1 + 1 + byteCount), (2 + 1 + byteCount)>::value;
+                        static const uint16_t value = CaseSelector<Attr, uint16_t,
+                                                                   1,
+                                                                   2,
+                                                                   (1 + byteCount),
+                                                                   (2 + byteCount),
+                                                                   (1 + 1 + byteCount),
+                                                                   (2 + 1 + byteCount)
+                                                                  >::value;
                 };
 
 		    } // end namespace detail

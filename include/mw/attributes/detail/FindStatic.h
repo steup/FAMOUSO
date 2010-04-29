@@ -46,7 +46,7 @@
 #include "boost/mpl/eval_if.hpp"
 #include "boost/type_traits/is_same.hpp"
 
-#include "mw/attributes/detail/IsSameAttribute.h"
+#include "mw/attributes/type_traits/is_same_base_type.h"
 
 namespace famouso {
     namespace mw {
@@ -63,18 +63,23 @@ namespace famouso {
                 template <typename Attr, typename AttrSeq>
                 struct Find {
                     private:
-                        typedef typename boost::mpl::find_if<AttrSeq,
-                                                             is_same_attribute<Attr,
-                                                                               boost::mpl::_1>
-                                                            >::type findIter;
+                        typedef typename boost::mpl::find_if<
+                                                      AttrSeq,
+                                                      type_traits::is_same_base_type<
+                                                                    Attr,
+                                                                    boost::mpl::_1
+                                                                   >
+                                                     >::type findIter;
 
                     public:
-                        typedef typename boost::mpl::eval_if<boost::is_same<findIter,
-                                                                            typename boost::mpl::end<AttrSeq>::type
-                                                                           >,
-                                                             boost::mpl::bool_<false>,
-                                                             boost::mpl::bool_<true>
-                                                            >::type result;
+                        typedef typename boost::mpl::eval_if<
+                                                      boost::is_same<
+                                                       findIter,
+                                                       typename boost::mpl::end<AttrSeq>::type
+                                                      >,
+                                                      boost::mpl::bool_<false>,
+                                                      boost::mpl::bool_<true>
+                                                     >::type result;
                 };
 
             } // end namespace detail

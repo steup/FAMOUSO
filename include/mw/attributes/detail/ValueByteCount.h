@@ -55,14 +55,16 @@ namespace famouso {
                  */
                 template <typename Attr>
                 struct ValueByteCount {
-                        static const uint16_t value = ByteCount<typename Attr::value_type, Attr::value>::value;
+                        static const uint16_t value = ByteCount<typename Attr::value_type,
+                                                                Attr::value>::value;
                 };
                 /*!
                  * Attribute-related convenience struct for BitCount.
                  */
                 template <typename Attr>
                 struct ValueBitCount {
-                        static const uint16_t value = BitCount<typename Attr::value_type, Attr::value>::value;
+                        static const uint16_t value = BitCount<typename Attr::value_type,
+                                                               Attr::value>::value;
                 };
 
             } // end namespace detail

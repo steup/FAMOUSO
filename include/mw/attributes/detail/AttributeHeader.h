@@ -53,20 +53,35 @@ namespace famouso {
             namespace detail {
 
                 /*!
-                 * \brief Represents an actual header of a given attribute in binary representation.
+                 * \brief Represents an actual header of a given attribute in binary
+                 *  representation.
                  *
                  * \tparam Attr The attribute for which this header should be instantiated
                  */
                 template <typename Attr>
                 struct AttributeHeader {
                     private:
-                        // The byte count for the attribute header (It could also include a part of the attribute's
-                        //  value if the VOL switch is set)
-                        static const uint8_t size = CaseSelector<Attr, uint8_t, 1, 1, 1, 2, (1 + 1), (1 + 1 + 1)>::value;
+                        // The byte count for the attribute header (It could also include a
+                        //  part of the attribute's value if the VOL switch is set)
+                        static const uint8_t size = CaseSelector<Attr, uint8_t,
+                                                                 1,
+                                                                 1,
+                                                                 1,
+                                                                 2,
+                                                                 (1 + 1),
+                                                                 (1 + 1 + 1)
+                                                                >::value;
 
                         static const bool res2 = (ValueBitCount<Attr>::value < 9) ? false : true;
 
-                        static const bool useOr = CaseSelector<Attr, bool, true, res2, false, false, false, false>::value;
+                        static const bool useOr = CaseSelector<Attr, bool,
+                                                               true,
+                                                               res2,
+                                                               false,
+                                                               false,
+                                                               false,
+                                                               false
+                                                              >::value;
 
                         enum {
                             writeLowerLengthBits     = 0x10,
@@ -75,28 +90,36 @@ namespace famouso {
                             nothingMore              = 0x13
                         };
 
-                        // We use this to decide in the code below if further bytes must be manipulated
-                        static const uint8_t toWrite = CaseSelector<Attr, uint8_t, nothingMore, nothingMore, nothingMore,
-                                                                    writeLowerLengthBits, writeType, writeLowerLenBitsAndType>::value;
+                        // We use this to decide in the code below if further bytes
+                        //  must be manipulated
+                        static const uint8_t toWrite = CaseSelector<Attr, uint8_t,
+                                                                    nothingMore,
+                                                                    nothingMore,
+                                                                    nothingMore,
+                                                                    writeLowerLengthBits,
+                                                                    writeType,
+                                                                    writeLowerLenBitsAndType
+                                                                   >::value;
 
                         uint8_t data[size];
 
                     public:
                         /*!
-                         * \brief Constructs this specific header, the size is dependent on the attribute
-                         *  type given as a template argument
+                         * \brief Constructs this specific header, the size is dependent on the
+                         *  attribute type given as a template argument
                          */
                         AttributeHeader() {
-                            // Either use an OR operation (to not overwrite existing bits already set
-                            //  by writing the value) or directly assign the header byte since there is
-                            //  no danger overwriting
+                            // Either use an OR operation (to not overwrite existing bits already
+                            //  set by writing the value) or directly assign the header byte since
+                            //  there is no danger overwriting
                             if (useOr) {
                                 data[0] |= (FirstByteOfHeader<Attr>::value);
                             } else {
                                 data[0] = (FirstByteOfHeader<Attr>::value);
                             }
 
-                            // Handle eventually further written bytes (depending on extension, VOL etc.)
+                            // Handle eventually further written bytes (depending on extension,
+                            //  VOL etc.)
                             if (toWrite == writeLowerLengthBits) {
                                 data[1] = (ValueByteCount<Attr>::value & 0xFF);
                             } else if (toWrite == writeType) {

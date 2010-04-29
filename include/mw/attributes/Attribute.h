@@ -149,12 +149,15 @@ namespace famouso {
 
                             // The index where we start writing the value (starts at the last
                             //  byte which will be written and will then be decremented)
-                            uint16_t i = detail::ValueOffset<Attribute>::value + detail::ValueByteCount<Attribute>::value - 1;
+                            uint16_t i = detail::ValueOffset<Attribute>::value +
+                                         detail::ValueByteCount<Attribute>::value - 1;
 
                             // Copy as many bytes as either fit the range where the value is
                             //  supposed to be written or as the value itself has (as sizeof()
                             //  determines)
-                            for (uint16_t j = 0; (i > detail::ValueOffset<Attribute>::value - 1) && (j < sizeof(ValueType)); --i, ++j) {
+                            for (uint16_t j = 0;
+                                 (i > detail::ValueOffset<Attribute>::value - 1) && (j < sizeof(ValueType));
+                                 --i, ++j) {
                                 data[i] = *ptr--;
                             }
                         } else {
@@ -239,7 +242,8 @@ namespace famouso {
                             }
 
                             // Interpret the result as a byte array to copy every single byte
-                            uint8_t* resPtr = reinterpret_cast<uint8_t* const>(&res) + sizeof(ValueType) - 1;
+                            uint8_t* resPtr = reinterpret_cast<uint8_t* const>(&res) +
+                                              sizeof(ValueType) - 1;
                             // Set the value pointer to the last byte of the value
                             valPtr += (length - 1);
 
@@ -299,7 +303,8 @@ namespace famouso {
                                     // In all other cases the lower 10 bits of the given value must be
                                     //  copied into the binary representation
                                     // Retrieve a pointer and move it to the last byte of the value
-                                    const uint8_t* const tmp = reinterpret_cast<const uint8_t* const>(&bigEndian) + sizeof(ValueType) - 1;
+                                    const uint8_t* const tmp = reinterpret_cast<const uint8_t* const>(&bigEndian) +
+                                                               sizeof(ValueType) - 1;
 
                                     // Copy the lowest 2 bits of the header
                                     header->valueOrLength = (*(tmp - 1) & 0x3);

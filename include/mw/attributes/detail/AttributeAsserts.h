@@ -53,10 +53,11 @@ namespace famouso {
             namespace detail {
 
                 /*!
-                 * \brief Struct to statically assert that only the integral primitive types are
-                 *  used in the attribute framework
+                 * \brief Struct to statically assert that only the integral primitive
+                 *  types are used in the attribute framework
                  *
-                 * \tparam ValueType The type which should be asserted to be an integral primitive
+                 * \tparam ValueType The type which should be asserted to be an
+                 *  integral primitive
                  */
                 template <typename ValueType>
                 struct ValueTypeAssert {
@@ -96,7 +97,8 @@ namespace famouso {
                 };
 
                 /*!
-                 * \brief Struct to statically assert that an ID of a system attribute only has 4 bits.
+                 * \brief Struct to statically assert that an ID of a system attribute
+                 *  only has 4 bits.
                  *
                  * \tparam IsSystem True if it is a system attribute
                  * \tparam ID The identifier of the attribute

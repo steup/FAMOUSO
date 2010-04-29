@@ -94,12 +94,17 @@ namespace famouso {
                     //  complete attribute sequence ("always" means that this type is also instantiated
                     //  for the recursively instantiated remaining sequences, where (isFirst == false),
                     //  nevertheless it will not really be used in this case)
-                    typedef detail::AttributeSequenceHeader<boost::mpl::size<AttrSeq>::type::value> seqHeader;
+                    typedef detail::AttributeSequenceHeader<
+                                     boost::mpl::size<AttrSeq>::type::value
+                                    > seqHeader;
 
                     // Determines whether the iterator points to the first attribute of the
                     //  the sequence (If this is true, the sequence header will be written
                     //  additionally)
-                    static const bool isFirst = boost::is_same<Iter, typename boost::mpl::begin<AttrSeq>::type>::value;
+                    static const bool isFirst = boost::is_same<
+                                                        Iter,
+                                                        typename boost::mpl::begin<AttrSeq>::type
+                                                       >::value;
 
                     // The offset determines where the actual attribute data starts in the
                     //  member array, this depends on whether we currently handle the first
@@ -122,12 +127,13 @@ namespace famouso {
                      *  the sequence.
                      */
                     static const uint16_t overallSize =
-                            // If the current attribute is the first, the sequence header will be included
+                            // If the current attribute is the first, the sequence header will
+                            //  be included
                             (isFirst ? seqHeader::size : 0) +
 
-                            // In any case (first or not) the current attribute is included (the size
-                            //  calculator struct calculates the overall size of an attribute including
-                            //  the header)
+                            // In any case (first or not) the current attribute is included
+                            //  (the size calculator struct calculates the overall size of
+                            //  an attribute including the header)
                             detail::AttributeSize<typename curAttr::type>::value +
 
                             // Recursively instantiate the attribute sequence with its iterator
@@ -149,52 +155,48 @@ namespace famouso {
 
                 public:
                     /*!
-                     * \brief Constructor creating the binary representation of the attribute sequence
-                     *  into its member array.
+                     * \brief Constructor creating the binary representation of the attribute
+                     *  sequence into its member array.
                      *
-                     * Since this class is a recursive structure, the constructor only creates the
-                     * 	binary representation of the current single attribute. The remaining attributes
-                     *  (the current sequence position is given by the iterator type argument
-                     *  above) are written by another recursively instantiated class of this
-                     *  template class. If the current attribute is the first one in the sequence the
-                     *  list header (i.e. the attribute count) is also written.
+                     * Since this class is a recursive structure, the constructor only creates
+                     *  the binary representation of the current single attribute. The remaining
+                     *  attributes (the current sequence position is given by the iterator type
+                     *  argument above) are written by another recursively instantiated class of
+                     *  this template class. If the current attribute is the first one in the
+                     *  sequence the list header (i.e. the attribute count) is also written.
                      */
                     AttributeSequence() {
-                        // If the iterator points to the first attribute in the sequence, write the
-                        //  attribute sequence header
+                        // If the iterator points to the first attribute in the sequence, write
+                        //  the attribute sequence header
                         if (isFirst) {
-                            // The header always starts at index 0 (In this case we do not have to consider
-                            //  the offset since it is always 0 at this point)
+                            // The header always starts at index 0 (In this case we do not have
+                            //  to consider the offset since it is always 0 at this point)
                             new (&data[0]) seqHeader;
                         }
 
-                        // The next two steps must necessarily be performed in the given order since the
-                        //  attribute will overwrite the bytes which it considers to be assigned to its
-                        //  value and the attribute header writer will allow for this (it will assign its
-                        //  data to the array or use an OR operation depending on the binary structure
-                        //  implied by the attribute, see the description of the CaseSelector and the
-                        //  the ValueOffsetCalculator for an explanation of the possible binary structures
-                        //  of an attribute)
+                        // The next two steps must necessarily be performed in the given order
+                        //  since the attribute will overwrite the bytes which it considers to
+                        //  be assigned to its value and the attribute header writer will allow
+                        //  for this (it will assign its data to the array or use an OR operation
+                        //  depending on the binary structure implied by the attribute, see the
+                        //  description of the CaseSelector and the the ValueOffsetCalculator
+                        //  for an explanation of the possible binary structures of an attribute)
 
-                        // Construct the current attribute (This is done by instantiating the current
-                        //  attribute type into the member array at the correct offset, the correct resulting
-                        //  offset is calculated by the ValueOffsetCalculator since the attribute itself should
-                        //  not be aware of any offsets in a resulting structure, just manage and write its value)
+                        // Construct the current attribute (This is done by instantiating the
+                        //  current attribute type into the member array at the correct offset,
+                        //  the correct resulting offset is calculated by the ValueOffsetCalculator
+                        //  since the attribute itself should not be aware of any offsets in a
+                        //  resulting structure, just manage and write its value)
                         new (&data[offset]) typename curAttr::type;
 
-                        // Let the rest of the sequence construct its attributes into the rest of the array
-                        //  (This is done by recursively instantiate another one of this template struct
-                        //   incrementing the iterator to the next attribute of the sequence, the past-end
-                        //   case is modeled separately by a specialization of this template struct)
+                        // Let the rest of the sequence construct its attributes into the rest of
+                        //  the array (This is done by recursively instantiate another one of this
+                        //  template struct incrementing the iterator to the next attribute of the
+                        //  sequence, the past-end case is modeled separately by a specialization
+                        //  of this template struct)
                         new (&data[offset + detail::AttributeSize<typename curAttr::type>::value])
                                 AttributeSequence<AttrSeq, typename iterNext::type> ;
                     }
-
-                private:
-//                    template <typename Attr>
-//                    struct isContained {
-//                        typedef famouso::mw::attributes::detail::is_same_attribute<Attr, curAttr> isCurrentSame;
-//                    };
 
                 public:
                     template <typename Attr>

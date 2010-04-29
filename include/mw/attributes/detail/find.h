@@ -91,8 +91,8 @@ namespace famouso {
                         if (header->category == AttributeElementHeader::nonSystemCategory) {
                             // Non-system attribute
 
-                            // In this case we have to proceed to the type field to check it against
-                            //  the intended attribute's ID
+                            // In this case we have to proceed to the type field to check it
+                            //  against the intended attribute's ID
 
                             // This means that we have to read the length first
                             if (header->extension) {
@@ -106,15 +106,15 @@ namespace famouso {
 
                             // Now we're pointing at the type
                             if (*(data++) == Attr::id) {
-                                // If the types matches the intended attribute, we interpret the current
-                                //  data chunk as the attribute and return it
+                                // If the types matches the intended attribute, we interpret
+                                //  the current data chunk as the attribute and return it
                                 return (reinterpret_cast<Attr*>(header));
                             }
                         } else {
                             // System attributes
 
-                            // For system attributes, the ID is always written at the beginning of the
-                            //  header, so we can check this right now
+                            // For system attributes, the ID is always written at the
+                            //  beginning of the header, so we can check this right now
                             if (header->category == Attr::id) {
                                 return (reinterpret_cast<Attr*>(header));
                             }
@@ -126,8 +126,9 @@ namespace famouso {
                                 // If the value is extended, we have to skip another byte
                                 if (header->extension) ++data;
 
-                                // The length (which is used to skip below) is 1 in this case (either
-                                //  the header byte itself or the extended byte is considered as the value)
+                                // The length (which is used to skip below) is 1 in this case
+                                //  (either the header byte itself or the extended byte is
+                                //  considered as the value)
                                 length = 1;
                             } else {
                                 // The VOL flag isn't set, so the length is contained in the header
@@ -150,8 +151,8 @@ namespace famouso {
                         ++index;
                     }
 
-                    // If we iterated the complete attribute sequence the intended attribute could not
-                    //  be found and NULL is returned
+                    // If we iterated the complete attribute sequence the intended attribute
+                    //  could not be found and NULL is returned
                     return (reinterpret_cast<Attr*>(NULL));
                 }
 

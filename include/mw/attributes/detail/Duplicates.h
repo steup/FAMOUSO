@@ -49,7 +49,7 @@
 #include "boost/mpl/eval_if.hpp"
 #include "boost/mpl/count_if.hpp"
 
-#include "mw/attributes/detail/IsSameAttribute.h"
+#include "mw/attributes/type_traits/is_same_base_type.h"
 
 namespace famouso {
     namespace mw {
@@ -74,10 +74,12 @@ namespace famouso {
                         // The current attribute
                         typedef boost::mpl::deref<Iter> curAttr;
 
-                        // A predicate testing every attribute of the sequence against the current one based
-                        //  on the base type
-                        typedef famouso::mw::attributes::detail::is_same_attribute<boost::mpl::_1,
-                                                                                   typename curAttr::type> pred;
+                        // A predicate testing every attribute of the sequence against the current
+                        //  one based on the base type
+                        typedef famouso::mw::attributes::type_traits::is_same_base_type<
+                                                                            boost::mpl::_1,
+                                                                            typename curAttr::type
+                                                                      > pred;
 
                         // The number of attributes in the sequence matching the current one
                         typedef typename boost::mpl::count_if<AttrSeq, pred> currentCount;
@@ -98,9 +100,11 @@ namespace famouso {
                         /*!
                          * \brief The attribute for which the first duplicate was found.
                          */
-                        typedef typename boost::mpl::eval_if_c<result,
-                                                               typename curAttr::type,
-                                                               typename nextDupl::duplicateAttribute>::type duplicateAttribute;
+                        typedef typename boost::mpl::eval_if_c<
+                                                      result,
+                                                      typename curAttr::type,
+                                                      typename nextDupl::duplicateAttribute
+                                                     >::type duplicateAttribute;
                 };
 
                 /*!
