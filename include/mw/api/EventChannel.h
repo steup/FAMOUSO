@@ -42,7 +42,6 @@
 
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
-#include "mw/common/AttributeList.h"
 #include "mw/el/EventChannelHandler.h"
 
 #include "object/Chain.h"
