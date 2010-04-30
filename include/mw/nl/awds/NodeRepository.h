@@ -40,7 +40,6 @@
 #ifndef __NodeRepository_hpp__
 #define __NodeRepository_hpp__
 
-#include <list>
 #include <map>
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"

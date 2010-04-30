@@ -41,7 +41,9 @@
 #ifndef __EventLayerClientStub_h__
 #define __EventLayerClientStub_h__
 
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/write.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>

@@ -43,7 +43,10 @@
 #include "debug.h"
 #include <string>
 #include <boost/bind.hpp>
+#include <boost/asio/ip/multicast.hpp>
+#include <boost/asio/placeholders.hpp>
 #include "util/CommandLineParameterGenerator.h"
+#include "util/ios.h"
 
 namespace famouso {
     namespace mw {

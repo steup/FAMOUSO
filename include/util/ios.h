@@ -41,7 +41,7 @@
 #define __ios_h__
 
 #include <boost/pool/detail/singleton.hpp>
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
 
 
 namespace famouso {

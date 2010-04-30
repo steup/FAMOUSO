@@ -41,8 +41,12 @@
 #include "mw/nl/AWDSNL.h"
 #include "mw/el/EventLayerCallBack.h"
 
+#include <vector>
+
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/placeholders.hpp>
 
 #ifdef RANDOM_ATTRIBUTES
 #include <cstdlib>
@@ -50,6 +54,7 @@
 
 #include "mw/nl/awds/logging.h"
 
+#include "util/ios.h"
 #include "util/CommandLineParameterGenerator.h"
 
 namespace famouso {

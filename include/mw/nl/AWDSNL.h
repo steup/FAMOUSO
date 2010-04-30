@@ -41,15 +41,15 @@
 #ifndef __AWDSNL_hpp__
 #define __AWDSNL_hpp__
 
-#include <vector>
-
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
-#include "util/ios.h"
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/AWDS_Packet.h"
 #include "mw/nl/awds/NodeRepository.h"
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/deadline_timer.hpp>
+#include <list>
 
 namespace famouso {
     namespace mw {

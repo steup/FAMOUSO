@@ -42,11 +42,11 @@
 
 #include <stdio.h>
 #include <boost/utility.hpp>
+#include <boost/asio/ip/udp.hpp>
 
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
-#include "util/ios.h"
 #include "mw/common/Subject.h"
 
 namespace famouso {
