@@ -50,6 +50,7 @@
 #include "mw/el/EventLayerCallBack.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
+#include "mw/afp/Config.h"
 
 #include "debug.h"
 
@@ -85,6 +86,9 @@ namespace famouso {
                             payload  = 127 - sizeof( SNN )
                         };
                     };
+
+                    /// Default AFP %configuration of this network layer (see \ref afp_config_nl)
+                    typedef afp::Disable AFP_Config;
 
                 protected:
                     struct message {

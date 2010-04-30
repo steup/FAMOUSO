@@ -44,7 +44,6 @@
 #include "debug.h"
 #include "mw/common/Event.h"
 #include "mw/nl/BaseNL.h"
-#include "mw/anl/AFPConfig.h"
 #include "mw/afp/Fragmenter.h"
 #include "mw/afp/Defragmentation.h"
 
@@ -68,7 +67,7 @@ namespace famouso {
              *          famouso::mw::nl::UDPBroadCastNL or an famouso::mw::nl::VoidNL dependent
              *          on the %configuration of the middleware stack
              */
-            template < class NL, class AFP_FragConfig = typename AFPConfig<NL>::type, class AFP_DefragConfig = typename AFPConfig<NL>::type >
+            template < class NL, class AFP_FragConfig = typename NL::AFP_Config, class AFP_DefragConfig = typename NL::AFP_Config >
             class AbstractNetworkLayer : public NL {
 
                     /*! \brief  defragmentation data and algorithms

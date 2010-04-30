@@ -43,6 +43,7 @@
 #include "case/Delegate.h"
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
+#include "mw/afp/Config.h"
 #include "mw/common/NodeID.h"
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
@@ -80,6 +81,9 @@ namespace famouso {
                     typedef uint16_t SNN;
 
                     typedef Packet<SNN> Packet_t;
+
+                    /// Default AFP %configuration of this network layer (see \ref afp_config_nl)
+                    typedef afp::Disable AFP_Config;
 
 
                     CANNL() : tx_node(0) {}

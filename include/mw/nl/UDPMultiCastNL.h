@@ -45,6 +45,7 @@
 
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
+#include "mw/afp/Config.h"
 #include "util/ios.h"
 #include "mw/common/Subject.h"
 
@@ -73,6 +74,9 @@ namespace famouso {
 
                     // type of a packet
                     typedef Packet<SNN> Packet_t;
+
+                    /// Default AFP %configuration of this network layer (see \ref afp_config_nl)
+                    typedef afp::MultiSubjectESeqReorderDuplicateConfig<SNN> AFP_Config;
 
                     /**
                      * @brief default constructor

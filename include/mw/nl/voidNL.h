@@ -42,6 +42,7 @@
 
 #include "mw/nl/BaseNL.h"
 #include "mw/nl/Packet.h"
+#include "mw/afp/Config.h"
 #include "mw/common/NodeID.h"
 #include "mw/common/Subject.h"
 #include "mw/api/EventChannel.h"
@@ -64,6 +65,8 @@ namespace famouso {
 
                     typedef Packet<SNN> Packet_t;
 
+                    /// Default AFP %configuration of this network layer (see \ref afp_config_nl)
+                    typedef afp::Disable AFP_Config;
 
                     voidNL() {}
                     ~voidNL() {}

@@ -60,7 +60,7 @@ AFP is also adaptable to other requirements. You may...
 
 AFP follows policy-based design principles to achieve the adaption at compile time. Thus you configure the AFP by selecting policies concerning network characteristics and the other requirements. The MTU and the FEC redundancy quota may be adapted at run time.
 
-AFP is used in the abstract network layer of the %famouso middleware by default (not yet) and may be utilized in the application layer as well.
+AFP is used in the abstract network layer of the %famouso middleware by default and may be utilized in the application layer as well.
 
 At the moment AFP supports only one publisher per subject. If multiple publishers' events need to be fragmented, AFP cannot guarantee correct reconstruction of the events.
 
@@ -78,11 +78,36 @@ At the moment AFP supports only one publisher per subject. If multiple publisher
 
 \page afp_usage AFP usage
 
-API
 AL/ANL
+API
+
+*/
+
+//-----------------------------------------------------------------------------
+
+/*!
 
 \page afp_config AFP configuration
 
+\section afp_config_intro How to configure AFP
+
+\section afp_config_guidelines AFP configuration guidelines
+
+\section afp_config_anl Changing AFP configuration used in the Abstract Network Layer
+
+...
+
+\section afp_config_nl AFP configuration in the Network Layer
+
+Due to the fact that the network type and its characteristics influences the steps to take for ensuring correct reassembly of fragmented events, the default AFP configuration for the Abstract Network Layer is defined by each Network Layer individually.
+
+Writing a Network Layer, you firstly have to <tt>\#include "mw/afp/Config.h"</tt>. Secondly you have to define the public type <tt>AFP_Config</tt> in your NL class. It's recommended to use <tt>typedef</tt> with one of the following predefined configs if there is one that meets the network characteristics.
+
+-# <tt>afp::Disable</tt>: fragmentation and defragmentation support is disabled by default.
+-# <tt>afp::MultiSubjectConfig&lt;SNN&gt;</tt>: use <i>no</i> event sequence numbering, do <i>not</i> support handling of reordered packets, do <i>not</i> check for duplicate fragments
+-# <tt>afp::MultiSubjectESeqReorderDuplicateConfig&lt;SNN&gt;</tt>: use event sequence numbering, support handling of reordered packets, check for duplicate fragments
+
+See \ref afp_config_guidelines for some hints on the selection or \ref afp_config_intro about creating an own config.
 
 
 */

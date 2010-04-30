@@ -48,6 +48,9 @@ namespace famouso {
 
             enum { dynamic = 0 };
 
+            /*!
+             *  \brief  Config: default AFP config
+             */
             struct DefaultConfig {
                 enum {
                     event_seq = false,
@@ -65,9 +68,45 @@ namespace famouso {
                 };
             };
 
+
+            /*!
+             *  \brief  Config: disable fragmentation/defragmentation
+             *                  support  completely
+             */
             struct Disable;
             typedef Disable NoFragmentation;
             typedef Disable NoDefragmentation;
+
+
+            /*!
+             *  \brief  Config: default with multiple subject support
+             *  \tparam SNN     type to distinguish between different
+             *                  subjects
+             */
+            template < typename SNN >
+            struct MultiSubjectConfig : afp::DefaultConfig {
+                enum {
+                    multiple_subjects = true
+                };
+                typedef SNN SubjectType;
+            };
+
+            /*!
+             *  \brief  Config: default with multiple subject support,
+             *                  event sequence numbering, support to handle
+             *                  package reordering and duplicate checking
+             *  \tparam SNN     type to distinguish between different
+             *                  subjects
+             */
+            template < typename SNN >
+            struct MultiSubjectESeqReorderDuplicateConfig : afp::MultiSubjectConfig<SNN> {
+                enum {
+                    event_seq = true,
+                    reordering = true,
+                    duplicates = true
+                };
+            };
+
 
         } // namespace afp
     } // namespace mw
