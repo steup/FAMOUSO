@@ -175,7 +175,7 @@
 
         /*!
          * \brief Performs the calculation of the bit count for the given
-         *  unsigned value at runtime.
+         *  64 bit unsigned value at runtime.
          *
          * \param value The value to calculate the bit count for
          *
@@ -191,6 +191,42 @@
             }
 
             return (result);
+        }
+
+        /*!
+         * \brief Performs the calculation of the bit count for the given
+         *  8 bit unsigned value at runtime.
+         *
+         * \param value The value to calculate the bit count for
+         *
+         * \return The number of bits needed to represent the given value
+         */
+        static inline const uint16_t getBitCount(uint8_t value) {
+            return (getBitCount(static_cast<uint64_t>(value)));
+        }
+
+        /*!
+         * \brief Performs the calculation of the bit count for the given
+         *  16 bit unsigned value at runtime.
+         *
+         * \param value The value to calculate the bit count for
+         *
+         * \return The number of bits needed to represent the given value
+         */
+        static inline const uint16_t getBitCount(uint16_t value) {
+            return (getBitCount(static_cast<uint64_t>(value)));
+        }
+
+        /*!
+         * \brief Performs the calculation of the bit count for the given
+         *  32 bit unsigned value at runtime.
+         *
+         * \param value The value to calculate the bit count for
+         *
+         * \return The number of bits needed to represent the given value
+         */
+        static inline const uint16_t getBitCount(uint32_t value) {
+            return (getBitCount(static_cast<uint64_t>(value)));
         }
 
         /*!
