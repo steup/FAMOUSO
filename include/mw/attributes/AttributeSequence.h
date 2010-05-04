@@ -48,6 +48,7 @@
 #include "boost/mpl/next.hpp"
 #include "boost/mpl/deref.hpp"
 #include "boost/mpl/size.hpp"
+#include "boost/mpl/is_sequence.hpp"
 #include "boost/type_traits/is_same.hpp"
 
 #include "object/PlacementNew.h"
@@ -66,7 +67,7 @@ namespace famouso {
              * \brief Represents a sequence of attributes in binary representation
              *
              * \tparam AttrSeq The sequence of attributes, the sequence elements
-             *  should be derived from EmptyAttribute, see this struct's description
+             *  should be derived from Attribute, see this struct's description
              *  for requirements concerning an attribute type
              *
              * \tparam Iter The iterator pointing to the current element of the
@@ -76,6 +77,10 @@ namespace famouso {
             template <typename AttrSeq, typename Iter = typename boost::mpl::begin<AttrSeq>::type>
             struct AttributeSequence {
                 private:
+                    BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
+                                         no_forward_sequence_given,
+                                         (AttrSeq));
+
                     // Duplicate-Tester for the given attribute sequence
                     typedef detail::Duplicates<AttrSeq> duplicateTester;
                     // Assert that the sequence does not contain duplicates, if it does print out
@@ -222,10 +227,14 @@ namespace famouso {
 
             template <typename AttrSeq>
             struct AttributeSequence<AttrSeq, typename boost::mpl::end<AttrSeq>::type> {
+                    BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
+                                         no_forward_sequence_given,
+                                         (AttrSeq));
+
                     static const uint16_t overallSize = 0;
 
                     template <typename Attr>
-                    const Attr* find() {
+                    Attr* find() {
                         return (reinterpret_cast<Attr*> (NULL));
                     }
 

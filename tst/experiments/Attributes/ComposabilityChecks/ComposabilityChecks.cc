@@ -1,50 +1,51 @@
 #include "logging/logging.h"
 
-#include "mw/attributes/AttributeSequence.h"
-#include "mw/attributes/detail/IsSameAttribute.h"
-#include "mw/attributes/detail/FindStatic.h"
-#include "mw/attributes/TTL.h"
-#include "mw/attributes/tags/IntegralConstTag.h"
-
-#include "boost/mpl/end.hpp"
-#include "boost/mpl/deref.hpp"
-#include "boost/mpl/vector.hpp"
-#include "boost/mpl/list.hpp"
-#include "boost/mpl/placeholders.hpp"
-#include "boost/mpl/find_if.hpp"
-
-#include "typeinfo"
-
-using namespace famouso::mw::attributes;
-using namespace boost;
-using namespace boost::mpl;
-
 #define EMIT ::logging::log::emit()
 #define ENDL ::logging::log::endl
 
-typedef TTL<0> ttl0;
-typedef TTL<1> ttl1;
+#include <stdint.h>
 
-template <uint16_t delay>
-struct Delay : public Attribute<Delay<0>, tags::integral_const_tag, uint16_t, delay, 1, true> {
+#include "mw/attributes/TTL.h"
+#include "mw/common/ExtendedEvent.h"
+#include "mw/common/Subject.h"
+
+#include "boost/mpl/vector.hpp"
+#include "boost/mpl/list.hpp"
+
+
+using namespace famouso::mw::attributes;
+
+struct Delay : public Attribute<Delay, tags::integral_const_tag, bool, true, 9, true> {
     typedef Delay type;
 };
 
-typedef Delay<30> delay30;
-
-template <uint16_t jitter>
-struct Jitter : public Attribute<Jitter<0>, tags::integral_const_tag, uint16_t, jitter, true> {
-    typedef Jitter type;
+struct Omission : public Attribute<Omission, tags::integral_const_tag, bool, true, 10, true> {
+    typedef Omission type;
 };
 
+typedef boost::mpl::vector<TTL<1>, Delay, Omission> vec;
+typedef boost::mpl::list<TTL<1>, Delay, Omission>   lis;
 
-typedef list<ttl1,
-             delay30,
-             Jitter<1> > attrList;
+typedef famouso::mw::ExtendedEvent<16, vec> ev1; // OK -> vec is used as the sequence
+typedef famouso::mw::ExtendedEvent<16, lis> ev2; // OK -> lis is used as the sequence
 
-AttributeSequence<attrList> seq;
+typedef famouso::mw::ExtendedEvent<16, TTL<1> > ev3; // OK -> a sequence with only TTL<1> is constructed
+typedef famouso::mw::ExtendedEvent<16, TTL<1>, Delay > ev4; // OK -> a sequence with 2 attributes is constructed
+typedef famouso::mw::ExtendedEvent<16, TTL<1>, Delay, Omission > ev5; // OK -> a sequence with 3 attributes is constructed
+
+typedef famouso::mw::ExtendedEvent<16, vec, lis> ev6; // error -> more than one type given and not all are attributes
 
 int main(int argc, char* args[]) {
+    famouso::mw::Subject s(0x01);
+
+    ev1 e1(s);
+    ev2 e2(s);
+
+    ev3 e3(s);
+    ev4 e4(s);
+    ev5 e5(s);
+
+//    ev6 e6(s); // Here the error occurrs
 
     return (0);
 }

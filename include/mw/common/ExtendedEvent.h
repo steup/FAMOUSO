@@ -43,24 +43,36 @@
 
 #include <stdint.h>
 
-#include "boost/mpl/list.hpp"
+#include "boost/mpl/aux_/na.hpp"
 
 #include "object/PlacementNew.h"
 
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
 
+#include "mw/attributes/detail/SequenceProvider.h"
 #include "mw/attributes/AttributeSequence.h"
 
 namespace famouso {
     namespace mw {
-        template <famouso::mw::Event::Type payLoadSize = 0, typename AttrList = boost::mpl::list<> >
-        class ExtendedEvent: public famouso::mw::Event {
-            // TODO: Either change the concept to single attribute types given as the template
-            //  arguments or assert that the given list is a boost::mpl::list
 
+        /*!
+         * \brief The extension of the Event class with support for %attributes.
+         *
+         *
+         */
+        template <famouso::mw::Event::Type payLoadSize = 0,
+                  typename A1orSeq = boost::mpl::na, typename A2 = boost::mpl::na,
+                  typename A3 = boost::mpl::na, typename A4 = boost::mpl::na,
+                  typename A5 = boost::mpl::na, typename A6 = boost::mpl::na,
+                  typename A7 = boost::mpl::na, typename A8 = boost::mpl::na,
+                  typename A9 = boost::mpl::na, typename A10 = boost::mpl::na>
+        class ExtendedEvent: public Event {
             private:
-                typedef attributes::AttributeSequence<AttrList> attrSeq;
+                typedef typename famouso::mw::attributes::detail::SequenceProvider<
+                                                                   A1orSeq, A2, A3, A4,
+                                                                   A5, A6, A7, A8, A9, A10
+                                                                  >::attrSeq attrSeq;
 
             public:
                 typedef ExtendedEvent type;
@@ -102,12 +114,6 @@ namespace famouso {
                     return ((reinterpret_cast<attrSeq*>(_edata))->find<Attr>());
                 }
         };
-
-        // This is unfortunately not possible: (Conflicts with declaration above)
-        //
-//        template <famouso::mw::Event::Type payLoadSize = 0, typename A1, typename A2, typename A3,
-//                  typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10>
-//        class ExtendedEvent : public ExtendedEvent<payLoadSize, boost::mpl::list<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> > {};
 
     } // end namespace mw
 } // end namespace famouso
