@@ -41,10 +41,8 @@
 #ifndef _is_attribute_h_
 #define _is_attribute_h_
 
-#include "boost/type_traits/is_same.hpp"
-
-#include "config/type_traits/contains_type.h"
 #include "mw/attributes/tags/AttributeTag.h"
+#include "mw/attributes/type_traits/is_type_tag.h"
 
 namespace famouso {
     namespace mw {
@@ -59,30 +57,11 @@ namespace famouso {
                  * \tparam Attr The type to be checked
                  */
                 template <typename Attr>
-                struct is_attribute {
-                    private:
-                        CONTAINS_TYPE_(type_tag);
-
-                        template <bool ContainsTypeTag, typename A>
-                        struct is_attribute_impl {
-                                static const bool value =
-                                        boost::is_same<
-                                                typename A::type_tag,
-                                                famouso::mw::attributes::tags::attribute_tag
-                                               >::value;
-                        };
-
-                        template <typename NoAttr>
-                        struct is_attribute_impl<false, NoAttr> {
-                                static const bool value = false;
-                        };
-
-                    public:
-                        static const bool value = is_attribute_impl<
-                                                   contains_type_type_tag<Attr>::value,
-                                                   Attr
-                                                  >::value;
-                };
+                struct is_attribute :
+                    is_type_tag <
+                        Attr,
+                        ::famouso::mw::attributes::tags::attribute_tag
+                    > {};
 
             }  // end namespace type_traits
         }  // end namespace attributes
