@@ -149,28 +149,35 @@ namespace famouso {
 
                             // The index where we start writing the value (starts at the last
                             //  byte which will be written and will then be decremented)
-                            uint16_t i = detail::ValueOffset<Attribute>::value +
-                                         detail::ValueByteCount<Attribute>::value - 1;
+                            uint8_t i = detail::AttributeSize<Attribute>::value-1;
 
                             // Copy as many bytes as either fit the range where the value is
                             //  supposed to be written or as the value itself has (as sizeof()
                             //  determines)
-                            for (uint16_t j = 0;
-                                 (i > detail::ValueOffset<Attribute>::value - 1) && (j < sizeof(ValueType));
-                                 --i, ++j) {
-                                data[i] = *ptr--;
-                            }
+                            uint8_t j = detail::ValueByteCount<Attribute>::value;
+                            do {
+                                data[i--] = *ptr--;
+                            } while (--j != 0);
                         } else {
                             // If the value' representation does not need any bit we simply zero
-                            //  out the member array, the header will overwrite everythinh needed
-                            for (uint8_t i = 0; i < sizeof(data); ++i) {
-                                data[i] = 0x00;
+                            //  out the member array, the header will overwrite everything needed
+                            //
+                            //  1. System attribute, non-extended value
+                            //      -here the whole attribute only consists of one
+                            //       byte, so zeroing the "last" (the only) byte is
+                            //       sufficient
+                            //  2. Non-system attribute, non-extended length (length = 0 in this case)
+                            //      -Nothing more has to be done here, since the
+                            //       header will assign (not OR) itself to the first
+                            //       two bytes (0xFFFF+length-part and the ID-part)
+                            if (isSystem) {
+                                  data[0] = 0x00;
                             }
                         }
 
                         // Write the header
                         // (It is essential to do that now, since the algorithm above does
-                        //  not care about an eventually pre-written header, but the header
+                        //  not care about a possibly pre-written header, but the header
                         //  writer itself cares for a value possibly already written)
                         new (&data[0]) detail::AttributeHeader<Attribute> ;
                     }
