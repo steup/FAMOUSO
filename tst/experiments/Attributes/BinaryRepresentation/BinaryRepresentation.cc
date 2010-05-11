@@ -40,6 +40,7 @@
 
 #include <stdint.h>
 
+#include "boost/mpl/list.hpp"
 #include "mw/attributes/Attribute.h"
 #include "mw/attributes/filter/find.h"
 #include "mw/attributes/AttributeSequence.h"
