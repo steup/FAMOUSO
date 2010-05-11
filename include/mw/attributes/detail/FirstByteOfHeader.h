@@ -73,14 +73,14 @@ namespace famouso {
                         //  to make the building of the values as descriptive as they are now ;)
 
                         // System
-                        //       CAT                       EXT                     VOL                     LEN
+                        //                            CAT                       EXT                     VOL                     LEN
                         static const uint8_t case1 = (Attr::id << catOffset) | (0x0 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits unextended
                         static const uint8_t case2 = (Attr::id << catOffset) | (0x1 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits extended
                         static const uint8_t case3 = (Attr::id << catOffset) | (0x0 << extBitOffset) | (0x0 << volBitOffset) | (ValueByteCount<Attr>::value & 0x3); // Length fits unextended
                         static const uint8_t case4 = (Attr::id << catOffset) | (0x1 << extBitOffset) | (0x0 << volBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x3); // Length fits extended
 
                         // Non-system
-                        //       CAT                  EXT                     LEN
+                        //                           CAT                  EXT                     LEN
                         static const uint8_t case5 = (0xF << catOffset) | (0x0 << extBitOffset) | (ValueByteCount<Attr>::value & 0x7); // Length fits unextended
                         static const uint8_t case6 = (0xF << catOffset) | (0x1 << extBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x7); // Length fits extended
 
