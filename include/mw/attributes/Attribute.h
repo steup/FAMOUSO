@@ -233,8 +233,8 @@ namespace famouso {
                             // Number of bytes to copy from the val-array
                             uint16_t length;
 
-                            static const uint16_t lengthMask = (isSystem ? 0x3FF : 0x7FF);
-                            static const uint8_t valueOffset = (isSystem ? 1 : 2);
+                            const uint16_t lengthMask = (isSystem ? 0x3FF : 0x7FF);
+                            const uint8_t valueOffset = (isSystem ? 1 : 2);
 
                             // Read the length in big-endian order
                             if (header->extension) {
@@ -339,8 +339,8 @@ namespace famouso {
                             // The length read
                             uint16_t length;
 
-                            static const uint16_t lengthMask  = (isSystem ? 0x3FF : 0x7FF);
-                            static const uint8_t  valueOffset = (isSystem ? 1 : 2);
+                            const uint16_t lengthMask  = (isSystem ? 0x3FF : 0x7FF);
+                            const uint8_t  valueOffset = (isSystem ? 1 : 2);
 
                             // Read the length in big-endian order
                             if (header->extension) {
