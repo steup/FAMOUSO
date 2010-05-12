@@ -159,7 +159,7 @@ namespace famouso {
                         /// Maximum transmission unit (header + payload)
                         flen_t mtu;
 
-                        typedef detail::PointerMap < KeyType, Event<KeyType>, 100 /*TODO*/ > EventMap;
+                        typedef detail::PointerMap < KeyType, Event<KeyType>, DCP::old_event_ids > EventMap;
 
                         /// Assigns events to event keys (sequence numbers and/or subject and/or publisher address <- TODO)
                         EventMap events;

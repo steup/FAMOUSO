@@ -42,10 +42,8 @@
 #define __DUPLICATECHECKER_H_D61F11F89E744A__
 
 
-#if !defined(__AVR__)
-// Non-AVR version
-
-#include <vector>
+#include "debug.h"
+#include "mw/afp/defrag/detail/BitArray.h"
 
 
 namespace famouso {
@@ -65,7 +63,7 @@ namespace famouso {
                 class DuplicateChecker {
 
                         /// Which fragments already arrived?
-                        std::vector<bool> fragment_arrived;
+                        detail::BitArray<DCP::max_fragments, typename DCP::Allocator> fragment_arrived;
 
                     public:
 
@@ -78,13 +76,21 @@ namespace famouso {
                             if (fragment_arrived.size() <= header.fseq) {
                                 // This will be called as rarely as reordering happens, because
                                 // fragments with highest fseq are sent first.
-                                fragment_arrived.resize(header.fseq + 1);
+                                if (!fragment_arrived.resize(header.fseq + 1)) {
+                                    // Can not allocate memory for duplicate checking.
+                                    // -> can not guarantee service
+                                    // -> mark fragment as duplicate to drop it (avoid
+                                    //    incorrect reassembly)
+                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    return false;
+                                }
                             }
 
-                            if (fragment_arrived[header.fseq] == true) {
+                            detail::Bit fa = fragment_arrived[header.fseq];
+                            if (fa.value() == true) {
                                 return false;
                             } else {
-                                fragment_arrived[header.fseq] = true;
+                                fa.set();
                                 return true;
                             }
                         }
@@ -95,27 +101,6 @@ namespace famouso {
         } // namespace afp
     } // namespace mw
 } // namespace famouso
-
-
-#else
-// AVR version
-
-#include "boost/mpl/assert.hpp"
-
-namespace famouso {
-    namespace mw {
-        namespace afp {
-            namespace defrag {
-                template <class DCP>
-                class DuplicateChecker {
-                    BOOST_MPL_ASSERT_MSG(false, Duplicate_checking_currently_not_supported_on_AVR, ());
-                };
-            } // namespace defrag
-        } // namespace afp
-    } // namespace mw
-} // namespace famouso
-
-#endif
 
 
 #endif // __DUPLICATECHECKER_H_D61F11F89E744A__

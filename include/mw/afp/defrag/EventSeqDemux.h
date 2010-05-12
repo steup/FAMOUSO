@@ -42,16 +42,13 @@
 #define __EVENTSEQDEMUX_H_2A8B3BD61E7528__
 
 
-#if !defined(__AVR__)
-// Non-AVR version
-
 #include "debug.h"
 
 #include "mw/afp/defrag/Defragmenter.h"
 
 #include "mw/afp/shared/Time.h"
 #include "mw/afp/defrag/detail/PointerMap.h"
-#include "object/RingBuffer.h"
+#include "mw/afp/defrag/detail/Queue.h"
 
 #include "mw/afp/defrag/EventSeqHeaderSupport.h"
 
@@ -221,11 +218,20 @@ namespace famouso {
                         /// Maximum transmission unit (header + payload)
                         flen_t mtu;
 
-                        // TODO use dynamic data structures if possible
-                        typedef detail::PointerMap < KeyType, Event<KeyType>, 500 /*TODO config param*/ > EventMap;
-                        typedef object::RingBuffer < Event<KeyType> *, 500 /*TODO config param*/ > OutdatedQueue;
+                        typedef detail::PointerMap <
+                                    KeyType,
+                                    Event<KeyType>,
+                                    (DCP::concurrent_events == (unsigned int)dynamic || DCP::old_event_ids == (unsigned int)dynamic ?
+                                        dynamic :
+                                        DCP::concurrent_events + DCP::old_event_ids)
+                                > EventMap;
 
-                        /// Assigns events to event keys (sequence numbers and/or subject
+                        typedef detail::Queue <
+                                    Event<KeyType> *,
+                                    DCP::old_event_ids
+                                > OutdatedQueue;
+
+                        /// Assigns events to event keys (sequence numbers and/or subject)
                         EventMap events;
 
                         /// Completed/processed and dropped events (sorted by expire_time)
@@ -250,10 +256,12 @@ namespace famouso {
 
                                 Time::get_current_time(e->expire_time);
 
-                                {
-                                    // Use time for cleaning outdated events
-                                    clean_outdated_events(e->expire_time);
-                                }
+                                // Use time for cleaning outdated events
+                                clean_outdated_events(e->expire_time);
+
+                                // If the queue is full delete the oldest entry (at least)
+                                if (outdated_events.full())
+                                    clean_outdated_events(outdated_events.front()->expire_time);
 
                                 e->expire_time.add_sec(3);
                                 outdated_events.push_back(e);
@@ -266,10 +274,10 @@ namespace famouso {
                          * Function is called from set_event_outdated to save syscall for getting current time.
                          */
                         void clean_outdated_events(const Time & curr_time) {
-                            while (!outdated_events.is_empty()) {
+                            while (!outdated_events.empty()) {
                                 Event<KeyType> * e = outdated_events.front();
 
-                                if (curr_time < e->expire_time)
+                                if (!(e->expire_time < curr_time))
                                     break;
 
                                 ::logging::log::emit< ::logging::Info>()
@@ -278,7 +286,7 @@ namespace famouso {
                                         << ::logging::log::endl;
                                 events.erase(e->key);
                                 Allocator::destroy(e);
-                                outdated_events.pop_front();
+                                outdated_events.pop();
                             }
                         }
 
@@ -397,6 +405,7 @@ namespace famouso {
                          * \brief Keep defragmenter for later event delivery and return its new handle.
                          * \param handle Defragmenter's handle
                          * \return New handle you must pass to free_kep_defragmenter
+                         * \pre Event must be complete.
                          *
                          * After using this function use free_kept_defragmenter()
                          * instead of free_defragmenter().
@@ -406,6 +415,7 @@ namespace famouso {
                             // It will be deleted in free_kept_defragmenter.
                             Event<KeyType> * e = Event<KeyType>::from_handle(handle);
                             Defragmenter<DCP> * def = e->def;
+                            FAMOUSO_ASSERT(def->is_event_complete());
                             set_event_outdated(e);
                             return static_cast<void *>(def);
                         }
@@ -437,37 +447,6 @@ namespace famouso {
         } // namespace afp
     } // namespace mw
 } // namespace famouso
-
-
-#else
-// AVR version
-
-#include "boost/mpl/assert.hpp"
-
-namespace famouso {
-    namespace mw {
-        namespace afp {
-            namespace defrag {
-
-                template <typename DCP, class Subject_t>
-                struct EseqDemuxKey {
-                };
-
-                template <typename DCP, class Subject_t>
-                struct EseqSubjectDemuxKey {
-                };
-
-                template <class DCP>
-                class EventSeqDemux {
-                    BOOST_MPL_ASSERT_MSG(false, Event_Seq_Demux_currently_not_supported_on_AVR, ());
-                };
-
-            } // namespace defrag
-        } // namespace afp
-    } // namespace mw
-} // namespace famouso
-
-#endif
 
 
 #endif // __EVENTSEQDEMUX_H_2A8B3BD61E7528__

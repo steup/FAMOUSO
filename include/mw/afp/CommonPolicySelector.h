@@ -88,10 +88,6 @@ namespace famouso {
                 BOOST_MPL_ASSERT_MSG(sizeof(typename SizeProp::flen_t) <= sizeof(typename SizeProp::elen_t),
                                      invalid_SizeProperties__event_length_type_smaller_than_fragment_length_type,
                                      (SizeProp));
-
-                BOOST_MPL_ASSERT_MSG((Config::concurrent_events == 1) || Config::event_seq,
-                                     invalid_config__event_seq_necessary_to_defrag_multiple_events_concurrently,
-                                     ());
             };
 
 

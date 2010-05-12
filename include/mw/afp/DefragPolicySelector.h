@@ -158,6 +158,17 @@ namespace famouso {
 
                 /// SizeProperties
                 typedef typename Common::SizeProp SizeProp;
+
+                enum {
+                    /// Used by EventSeqDemux and MultiSourceDemux (max number of Defragmenters)
+                    concurrent_events = Config::concurrent_events,
+
+                    /// Used by EventSeqDemux (max elements of late duplicate lookup)
+                    old_event_ids = Config::old_event_ids,
+
+                    /// Used by DuplicateChecker
+                    max_fragments = Config::max_fragments
+                };
             };
 
         } // namespace afp

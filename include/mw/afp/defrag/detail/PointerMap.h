@@ -41,9 +41,9 @@
 #define __POINTERMAP_H_8DCAB52FEC8A52__
 
 
+#include "mw/afp/Config.h"
 #include <string.h>
-
-#if !defined(__AVR__)
+#if !defined(__NO_STL__)
 #include <map>
 #endif
 
@@ -54,7 +54,17 @@ namespace famouso {
             namespace defrag {
                 namespace detail {
 
-                    // Stellt nicht die eindeutigkeit sicher
+                    /*!
+                     *  \brief  Pointer container of constant size
+                     *  \tparam KeyT    Key data type
+                     *  \tparam ItemT   Dereferenced item data type (the type pointed to).
+                     *                  Must have a member function get_key() which returns
+                     *                  KeyT.
+                     *  \tparam N       Max. count of items
+                     *
+                     *  This container is not implemented as a map and does not check
+                     *  uniqueness of keys.
+                     */
                     template <class KeyT, class ItemT, unsigned int N>
                     class PointerMap {
                             /// Item pointer array
@@ -109,15 +119,21 @@ namespace famouso {
                                     }
 
                                     /// Derefernece operator
-                                    ItemT *& operator * () const {
+                                    ItemT *& operator * () {
                                         return *item;
                                     }
                             };
 
+                            /// Constructor
                             PointerMap() {
                                 memset(array, 0, sizeof(array));
                             }
 
+                            /*!
+                             *  \brief  Insert an item
+                             *  \param  item    Pointer to insert
+                             *  \return Returns whether item was inserted successfully
+                             */
                             bool insert(ItemT * item) {
                                 for (ItemT ** i = array; i != array + N; i++) {
                                     if (*i == 0) {
@@ -128,10 +144,18 @@ namespace famouso {
                                 return false;
                             }
 
+                            /*!
+                             *  \brief  Erase an item
+                             *  \param  it  Iterator pointing to the item to remove
+                             */
                             void erase(iterator it) {
                                 *it = 0;
                             }
 
+                            /*!
+                             *  \brief  Erase first item matching a key
+                             *  \param  key Key identifying the item to remove
+                             */
                             void erase(const KeyT & key) {
                                 ItemT ** end = array + N;
                                 for (ItemT ** i = array; i != end; i++) {
@@ -142,6 +166,12 @@ namespace famouso {
                                 }
                             }
 
+                            /*!
+                             *  \brief  Find first item matching a key
+                             *  \param  key Key of the item to find
+                             *  \return Iterator pointing to the item. If there is no
+                             *          item with the given key, end() is returned.
+                             */
                             iterator find(const KeyT & key) {
                                 ItemT ** end = array + N;
                                 for (ItemT ** i = array; i != end; i++) {
@@ -152,10 +182,12 @@ namespace famouso {
                                 return this->end();
                             }
 
+                            /// Returns iterator pointing to the first item
                             iterator begin() {
                                 return iterator(*this, get_next(&array[0]));
                             }
 
+                            /// Returns iterator pointing behind the last item
                             iterator end() {
                                 return iterator(*this, &array[N]);
                             }
@@ -163,48 +195,119 @@ namespace famouso {
 
 
 
-#if !defined(__AVR__)
+#if !defined(__NO_STL__)
 
+                    /*!
+                     *  \brief  Pointer container of dynamic size
+                     *  \tparam KeyT    Key data type
+                     *  \tparam ItemT   Dereferenced item data type (the type pointed to).
+                     *                  Must have a member function get_key() which returns
+                     *                  KeyT.
+                     *
+                     *  This container is implemented using std::map.
+                     */
                     template <class KeyT, class ItemT>
-                    class VarSizePointerMap : private std::map<KeyT, ItemT *> {
+                    class PointerMap<KeyT, ItemT, dynamic> : private std::map<KeyT, ItemT *> {
 
                             typedef std::map<KeyT, ItemT *> Base;
 
                         public:
 
-                            typedef typename Base::iterator iterator;
+                            /// Iterator type
+                            class iterator {
+                                public:
+                                    typename Base::iterator it;
 
-                            bool insert(const ItemT * item) {
-                                std::pair<iterator, bool> res = Base::insert(typename Base::value_type(item.get_key(), item));
-                                return res->second;
+                                    iterator(const typename Base::iterator & it) :
+                                            it(it) {
+                                    }
+
+                                    iterator operator = (const iterator & i) {
+                                        it = i.it;
+                                        return iterator(it);
+                                    }
+
+                                    /// Prefix increment iterator
+                                    iterator & operator ++ () {
+                                        ++it;
+                                        return *this;
+                                    }
+
+                                    /// Postfix increment iterator
+                                    iterator operator ++ (int) {
+                                        typename Base::iterator old = it;
+                                        ++it;
+                                        return iterator(old);
+                                    }
+
+                                    /// Check for equality
+                                    bool operator == (const iterator& i) const {
+                                        return it == i.it;
+                                    }
+
+                                    /// Check for inequality
+                                    bool operator != (const iterator& i) const {
+                                        return it != i.it;
+                                    }
+
+                                    /// Derefernece operator
+                                    ItemT *& operator * () {
+                                        return it->second;
+                                    }
+                            };
+
+                            /*!
+                             *  \brief  Insert an item
+                             *  \param  item    Pointer to insert
+                             *  \return Returns whether item was inserted successfully
+                             */
+                            bool insert(ItemT * item) {
+                                std::pair<iterator, bool> res = Base::insert(typename Base::value_type(item->get_key(), item));
+                                return res.second;
                             }
 
+                            /*!
+                             *  \brief  Erase an item
+                             *  \param  it  Iterator pointing to the item to remove
+                             */
+                            void erase(iterator it) {
+                                Base::erase(it.it);
+                            }
+
+                            /*!
+                             *  \brief  Erase item matching a key
+                             *  \param  key Key identifying the item to remove
+                             */
                             void erase(const KeyT & key) {
                                 Base::erase(key);
                             }
 
-                            void erase(iterator it) {
-                                Base::erase(it);
-                            }
-
+                            /*!
+                             *  \brief  Find item matching a key
+                             *  \param  key Key of the item to find
+                             *  \return Iterator pointing to the item. If there is no
+                             *          item with the given key, end() is returned.
+                             */
                             iterator find(const KeyT & key) {
                                 return Base::find(key);
                             }
 
+                            /// Returns iterator pointing to the first item
                             iterator begin() {
-                                return Base::begin();
+                                return iterator(Base::begin());
                             }
 
+                            /// Returns iterator pointing behind the last item
                             iterator end() {
-                                return Base::end();
+                                return iterator(Base::end());
                             }
                     };
 
 #else
 
                     template <class KeyT, class ItemT>
-                    class VarSizePointerMap {
-                        BOOST_MPL_ASSERT_MSG(false, VariableSizePointerMap_not_supported_on_this_platform, ());
+                    class PointerMap<KeyT, ItemT, dynamic> {
+                        BOOST_MPL_ASSERT_MSG(false, dynamic_PointerMap_not_supported_on_this_platform, ());
                     };
 
 #endif

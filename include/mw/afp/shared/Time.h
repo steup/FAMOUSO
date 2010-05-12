@@ -45,8 +45,40 @@
 
 #ifdef __AVR__
 // AVR version
-#error Time class for AVR platform missing. Need timing framework.
+//#warning Time class for AVR platform missing. Need timing framework replacing dummy implementation.
 
+/*!
+ * \brief Represents a time: dummy implementation
+ */
+class Time {
+        int t;
+    public:
+
+        // Template function to hide warning if unused
+        template <typename Time_Type>
+        static void get_current_time(Time_Type & time) {
+            int Warning__Time_class_for_AVR_platform_is_dummy_implementation__Need_timing_framework;
+            static int curr = 0;
+            time.t = curr;
+            curr++;
+        }
+
+        template <typename Time_Type>
+        static Time_Type current() {
+            Time t;
+            get_current_time(t);
+            return t;
+        }
+
+        Time & add_sec(unsigned int s) {
+            t += s;
+            return *this;
+        }
+
+        bool operator<(const Time & t2) const {
+            return t < t2.t;
+        }
+};
 
 #else
 // General purpose OS version
