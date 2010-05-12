@@ -46,7 +46,20 @@ namespace famouso {
     namespace mw {
         namespace afp {
 
-            enum { dynamic = 0 };
+            enum {
+                /*!
+                 *  \brief  Constant for choosing dynamic data structures
+                 *
+                 *  Several data structures needed in some AFP configurations
+                 *  can be configured either to a constant size limiting the
+                 *  maximum value of elements, or to a dynamic size requiring
+                 *  memory allocations. See the configuration options
+                 *  \ref afp_config_options_concurrent_events,
+                 *  \ref afp_config_options_old_event_ids and
+                 *  \ref afp_config_options_max_fragments.
+                 */
+                dynamic = 0
+            };
 
             /*!
              *  \brief  Config: default AFP config
@@ -63,8 +76,17 @@ namespace famouso {
 
                     multiple_subjects = false,
                     defrag_statistics = false,
-                    concurrent_events = 1,
-                    old_event_ids = 10
+
+#if defined(__NO_STL__)
+                    concurrent_events = 8,      // multiple_subjects or event_seq
+                    old_event_ids = 8,          // event_seq
+                    max_fragments = 256         // duplicates
+#else
+                    concurrent_events = dynamic,     // multiple_subjects or event_seq
+                    old_event_ids = dynamic,         // event_seq
+                    max_fragments = dynamic         // duplicates
+#endif
+
                 };
             };
 
@@ -73,8 +95,12 @@ namespace famouso {
              *  \brief  Config: disable fragmentation/defragmentation
              *                  support  completely
              */
-            struct Disable;
+            struct Disable {};
+
+            /// Config: self-documenting synonym of Disable
             typedef Disable NoFragmentation;
+
+            /// Config: self-documenting synonym of Disable
             typedef Disable NoDefragmentation;
 
 

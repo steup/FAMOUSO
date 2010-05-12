@@ -65,7 +65,7 @@ namespace famouso {
             /*!
              *  \brief  Default redundancy attribute
              *
-             *  Use \p NonDefaultPolicies parameter of FragType to use a different
+             *  Define a type RedundancyAttribute in the AFP config to use a different
              *  redundancy attribute, e.g. to use different redundancies for multiple
              *  channels.
              */

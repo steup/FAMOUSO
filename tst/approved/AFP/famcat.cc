@@ -171,12 +171,12 @@ int main(int argc, char ** argv) {
                 "\t-s         subscribe, wait for an event and output data to stdout (default)\n"
                 "\t-p         publish event from stdin\n"
                 "\t-c CHANNEL specify subject to use, default: \"%s\"\n"
-                "\t-n NUM     subsribe for NUM events\n"
+                "\t-n NUM     subsribe for NUM events, default: %u\n"
                 "\t-a         use AFP for application layer fragmentation\n"
                 "\t-m MTU     specify specific MTU to use, default: %u\n"
                 "\t-e         echo a hexdump of fragments to stderr\n"
                 "\t-r RED     add RED %% forward error correction redundancy\n",
-                default_channel_subject, (unsigned int)default_mtu);
+                default_channel_subject, subscribe_events_num, (unsigned int)default_mtu);
         return -1;
     } else {
         famouso::init<famouso::config>();

@@ -45,7 +45,12 @@ Basic concept by Michael Schulze. Details and implementation by Philipp Werner.
 
 \section afp__intro Introduction
 
-The %famouso middleware offers publish/subscribe communication via various networks, but with one unique API. Because events may contain more data than the maximum transmission unit of the underlying network allows, we need a fragmentation concept. AFP is a fragmentation protocol that is does not depend on an underlying network type, but can be adapted to fit the network's characteristics:
+The %famouso middleware offers publish/subscribe communication via various
+networks, but with one unique API. Because events may contain more data than
+underlying network can transmit in one packet (maximum transmission unit), we
+need a fragmentation concept. AFP is a scalable fragmentation protocol with low
+overhead that does not depend on an underlying network type, but can be adapted
+to fit the network's characteristics:
 
 - maximum payload of an underlying network's packet (CAN: 8 Bytes, UDP-MultiCast: 8184 Bytes)
 - whether packets may be lost in the channel (send A; never receive A)
@@ -58,17 +63,36 @@ AFP is also adaptable to other requirements. You may...
 - instruct AFP to add redundancy for forward error correction
 - instruct AFP to collect statistics about defragmented events and fragments
 
-AFP follows policy-based design principles to achieve the adaption at compile time. Thus you configure the AFP by selecting policies concerning network characteristics and the other requirements. The MTU and the FEC redundancy quota may be adapted at run time.
+AFP follows policy-based design principles to achieve the adaption at compile
+time. Thus you configure the AFP by selecting policies concerning network
+characteristics and the other requirements. The MTU and the FEC redundancy
+quota can be adapted at run time.
 
-AFP is used in the abstract network layer of the %famouso middleware by default and may be utilized in the application layer as well.
+AFP is used in the Abstract Network Layer of the %famouso middleware by default.
+It may be also utilized in the Application Layer to transmit larger events than
+%famouso supports originally or to use application related feature like forward
+error correction.
 
-At the moment AFP supports only one publisher per subject. If multiple publishers' events need to be fragmented, AFP cannot guarantee correct reconstruction of the events.
+At the moment AFP supports only one publisher per subject. If multiple
+publishers' events need to be fragmented, AFP cannot guarantee correct
+reconstruction of the events.
+
 
 \section afp__content Content
 
-- \subpage afp_header
-- \subpage afp_usage
-- \subpage afp_config
+-# \subpage afp_usage
+-# \subpage afp_config
+-# \subpage afp_microcontroller
+-# \subpage afp_header
+-# \subpage afp_famcat
+
+\section afp__references Other resources
+
+- Ph. Werner, M. Schulze, G. Lukas and J. Kaiser: <i>AFP -- an Adaptive
+  Fragmentation Protocol for Transferring Large Datagrams</i> (submitted to
+  ICNP 2010) \n
+  This paper contains details about the concept of AFP, related work, an
+  evaluation and a case study.
 
 */
 
@@ -78,8 +102,84 @@ At the moment AFP supports only one publisher per subject. If multiple publisher
 
 \page afp_usage AFP usage
 
-AL/ANL
-API
+There are three possibilities to use AFP:
+-# \ref afp_usage_anl
+-# \ref afp_usage_ec
+-# \ref afp_usage_core_api
+
+
+
+\section afp_usage_anl AFP in the Abstract Network Layer
+
+AFP is integrated in the Abstract Network Layer of %famouso. Thus, it is used
+automatically if it is not disabled by the underlying Network Layer or your
+%famouso configuration. In case you want to disable it or change the default
+configuration, see \ref afp_config_anl. This is also useful to reduce resource
+consumption, especially on micro-controller platforms. See
+\ref afp_microcontroller for general hints on reducing resource consumption.
+
+
+
+\section afp_usage_ec AFP in the Application Layer
+
+AFP can be used at the Application Layer as well. This is useful if it is
+disabled in the Abstract Network Layer (e.g. if the Network Layer does not
+support it), if you want to transmit large events or if your application
+wants to benefit from forward error correction.
+
+The convenient way is to utilize famouso::mw::afp::AFPPublisherEventChannel and
+famouso::mw::afp::AFPSubscriberEventChannel which extend %famouso's
+PublisherEventChannel and SubscriberEventChannel with automatic AFP usage.
+
+There are only a few differences:
+
+-# You must <tt>\#include "mw/afp/AFPPublisherEventChannel.h"</tt> or/and
+   <tt>\#include "mw/afp/AFPSubscriberEventChannel.h"</tt>.
+-# An AFP configuration is needed, see \ref afp_config_intro.
+-# You have to define which MTU the AFP event channels should use (maximum
+   size of fragments including header). If the MTU is known at compile
+   time, it can should be used as template argument for AFPPublisherEventChannel
+   (to enable some compile time checks). Otherwise the MTU template argument
+   must be set to zero to choose a template specialization supporting
+   MTU selection at time of channel construction.
+-# The AFP event channels offer an event type parameter allowing to choose
+   another event type. This might have a larger maximum size for example.
+   For AFPSubscriberEventChannel the parameter of the callback mus have
+   this event type as well.
+
+An example of how to use the AFP event channel with large events can be found
+in the file <tt>tst/approved/AFP/famcat.cc</tt>.
+
+
+
+\section afp_usage_core_api AFP using the core API
+
+An alternative to AFP event channels described in the previous section is to
+use the core API directly. Using these API is not so convenient, but has other
+advantages.
+
+For example you can...
+- ...change the fragmentation loop. You may generate some output,
+  publish fragments to multiple channels or do anything else in between.
+- ...employ famouso::afp::DefragmentationProcessorKeepEventSupport to keep
+  events for later processing without copying the data.
+- ...use AFP without %famouso. The AFP defragmentation relies on the guarantee
+  of lower layers that none of the fragments handed over to AFP is corrupted.
+
+For fragmentation you need to <tt>\#include "mw/afp/Fragmenter.h"</tt> and
+utilize the class famouso::mw::afp::Fragmenter. To learn how to use the API you can
+have a look at the example <tt>tst/approved/AFP/afp-publish.cc</tt>, at
+<tt>include/mw/afp/AFPPublisherEventChannel.h</tt> or
+<tt>include/mw/anl/AbstractNetworkLayer.h</tt>.
+
+Defragmentation requires <tt>\#include "mw/afp/Defragmentation.h"</tt> and to
+use the classes famouso::mw::afp::DefragmentationProcessor and
+famouso::mw::afp::DefragmentationStep. Examples can be found in
+<tt>tst/approved/AFP/afp-subscribe.cc</tt>,
+<tt>include/mw/afp/AFPSubscriberEventChannel.h</tt> or
+<tt>include/mw/anl/AbstractNetworkLayer.h</tt>.
+
+
 
 */
 
@@ -91,23 +191,529 @@ API
 
 \section afp_config_intro How to configure AFP
 
-\section afp_config_guidelines AFP configuration guidelines
+AFP has an template-based configuration mechanism. Thus the configuration is known
+at compile time which allows to build an optimized version of AFP based on the
+configuration options you choose.
+
+An AFP configuration is a C++ struct type that defines at least a fixed set of
+enum values and may contain several policy class definitions. It is recommended
+to use one of the predefined config types if they fit you requirements. Otherwise
+you can create your own config by defining a new struct that is derived from an
+existing config type and overwriting certain configuration options.
+
+The predefined configurations are listed in section \ref afp_config_predefined.
+Here is an example of a user-defined AFP configuration:
+
+\code
+// Define "MyAFPConfig", use DefaultConfig as base
+struct MyAFPConfig : famouso::mw::afp::DefaultConfig {
+    // Overwrite several boolean config options
+    enum {
+        event_seq = true,
+        duplicates = true,
+        reordering = true
+    };
+    // Type option: use own allocator
+    typedef MyAllocator Allocator;
+}; \endcode
+
+Most configuration options are enumeration values (\ref afp_config_options_bool
+and \ref afp_config_options_uint), but some are types (\ref afp_config_options_types).
+
+
+
+\section afp_config_options Configuration options
+
+This section explains the configuration options you have.
+
+
+\subsection afp_config_options_bool Boolean options
+
+\subsubsection afp_config_options_event_seq event_seq
+
+If the <tt>event_seq</tt> option is set to <tt>true</tt>, fragmentation will
+use event sequence numbering and defragmentation will support both fragments
+with and without event sequence number extension header. It also enables
+support for concurrent reassembly of multiple events. If it is <tt>false</tt>,
+fragments will not contain an event sequence number extension header and the
+defragmentation will drop fragments containing such a header.
+
+Event sequence numbers are needed for event identification. The receiver has
+to assign each fragment to an event if multiple events are reassembled
+concurrently.
+
+Setting <tt>event_seq = true</tt> is recommended in the following situations:
+
+- The network suffers from packet loss and you want to send events in a high
+  rate. Without <tt>event_seq = true</tt> AFP cannot ensure that reassembled
+  events are correct.
+
+  \image html afp_packet_loss.png "Example packet loss scenario which needs event sequence numbering"
+  \image latex afp_packet_loss.png "Example packet loss scenario which needs event sequence numbering"
+
+- The network suffers from packet reordering and you want to send events in a
+  high rate. If only one event is involved reordering can be handled by without
+  event sequence numbers. Otherwise they are needed to ensure correct
+  reassembly.
+
+  \image html afp_packet_reordering.png "Example packet reordering scenario which needs event sequence numbering"
+  \image latex afp_packet_reordering.png "Example packet reordering scenario which needs event sequence numbering"
+
+- Multiple events with the same subject are fragmented concurrently and
+  fragments are sent interleaved from one network node. If fragmentation takes
+  place in Application Layer, all publishers on one subject must be part of one
+  application (process) and use the same AFP configuration to make them share
+  the event sequence number counter. If fragmentation is only done in the
+  Abstract Network Layer, multiple publishers from different applications may
+  publish events concurrently. That is because in the current implementation
+  multiple events are not fragmented concurrently in the Abstract Network
+  Layer, due to the fact that the ECHs serializes the processing of publish
+  commands. Thus, fragments are never transmitted interleaved from the Abstract
+  Network Layer.  But cause this could change in future versions, it is
+  recommended to use event sequence numbering in such cases as well.
+  
+Fragmentation for <b>multiple publishers from different network nodes on one
+subject</b> is not not covered by the event sequence numbering extension header
+and thus <b>not supported</b> at the moment. It can result in the delivery of
+corrupted events to subscribers.
+
+Although this option is called event sequence numbering, it does not guarantee
+any order. The sequence of event delivery to subscribers can differ from the
+sequence of event publishing.
+
+If the <tt>event_seq</tt> option is set to <tt>true</tt>, you may consider to
+change to options <tt>\ref afp_config_options_concurrent_events</tt> and
+<tt>\ref afp_config_options_old_event_ids</tt> for fine tuning.
+
+For some more information about AFP's event sequence number extension,
+see \ref afp_header_extension_eseq.
+
+
+
+\subsubsection afp_config_options_reordering reordering
+
+This option determines whether the defragmentation supports handling reordered
+packages. If <tt>reordering</tt> is set to <tt>true</tt>, the event reassembly
+policy is able to order the fragments. In case this option is <tt>false</tt>
+AFP assumes that network packet order is retained. Thus, if the order of
+fragment sequence numbers differs from the expectations, AFP assumes packet
+loss to be the reason and drops the incomplete event immediately.
+
+Enabling this option does not ensure correct reassembly of events if they are
+published in a high rate, because it only handles reordering of fragments
+belonging to one fragment. See \ref afp_config_options_event_seq for details
+about this issue.
+
+
+
+\subsubsection afp_config_options_duplicates duplicates
+
+Use <tt>duplicates = true</tt> if the same packets may be delivered to AFP
+multiple time. It enables checking for duplicate fragments in the event
+reassembly. It does not ensure that <i>events</i> which are published only one
+time are delivered only once to the subscribers. For example, if duplicates of
+all fragments of an event arrive after the events first delivery, \ref
+afp_config_options_event_seq must be employed to avoid duplicate delivery. For
+resource constrained platforms see \ref afp_config_options_max_fragments.
+
+This option does not provide any duplicate checking for %famouso events that
+are not fragmented via AFP.
+
+
+
+\subsubsection afp_config_options_FEC FEC
+
+Setting <tt>FEC</tt> to <tt>true</tt> enables the fragmentation to create
+forward error correction redundancy fragments. Use it to increase the
+probability not to loose an event in a lossy network channel at the expense of
+higher network traffic. At the receiver side enabling this option is necessary
+to reassemble events transmitted with redundancy fragments, even if the
+redundancy is not needed because no message fragment was lost.
+<tt>FEC = true</tt> implies <tt>\ref afp_config_options_reordering = true</tt>.
+
+To set the percentage of redundancy fragments to create by the AFP
+fragmentation, you have to access the redundancy attribute associated with the
+used fragmenter. If it is not given explicitly in the AFP config (\ref
+afp_config_options_RedundancyAttribute), the default attribute is used
+(famouso::mw::afp::FragmentationRedundancy). Initially it is set to zero
+percent, resulting in no redundancy fragments and the omission of the forward
+error correction extension header. You can change the value of the default
+redundancy attribute like this:
+\code famouso::mw::afp::FragmentationRedundancy::value() = 20;  // 20 percent redundancy \endcode
+The value must be in range of 0 to 255.
+
+For some more information about AFP's forward error correction extension,
+see \ref afp_header_extension_fec.
+
+
+
+\subsubsection afp_config_options_multiple_subjects multiple_subjects
+
+The option <tt>multiple_subjects</tt> defines whether the defragmentation part
+has to distinguish different fragment sources. The %famouso Abstract Network
+Layer needs this feature if multiple subjects are used. If it is enabled, the
+\ref afp_config_options_SubjectType has to be given, because it is used to
+distinguish the sources.
+
+
+
+\subsubsection afp_config_options_defrag_statistics defrag_statistics
+
+The option <tt>defrag_statistics</tt> defines if the defragmentation part
+will collect statistics about the arisen fragments and reassembly of events.
+See \ref afp_config_options_DefragStatistics for using multiple separated
+statistics. By default famouso::mw::afp::DefragmentationStatistics is used to
+collect data.
+
+Example how to access the statistics:
+\code
+using namespace famouso::mw;
+
+// Get current fragment statistics
+afp::defrag::FragmentStats fs;
+afp::DefragmentationStatistics::get_fragment_stats(fs);
+
+// Get current event statistics
+afp::defrag::EventStats es;
+afp::DefragmentationStatistics::get_event_stats(es); \endcode
+
+See also famouso::mw::afp::defrag::FragmentStats and
+famouso::mw::afp::defrag::EventStats for more information about the collected
+statistics.
+
+
+
+\subsubsection afp_config_options_overflow_error_checking overflow_error_checking
+
+This option can be set to <tt>false</tt> to disable overflow error checking
+during several calculations that are needed for fragmentation. By default AFP
+checks, whether the data types given by the
+\ref afp_config_options_SizeProperties are sufficient in range for the needed
+calculations. Disabling is only recommended if you tested the maximum event
+size that needs to be fragmented and no error occurred. Do not change
+configuration options after disabling overflow error checking!
+
+
+
+\subsection afp_config_options_uint Unsigned integer options for tuning
+
+\subsubsection afp_config_options_concurrent_events concurrent_events
+
+This option defines the maximum number of events that can be reassembled
+by the AFP defragmentation concurrently. It is only used if either
+\ref afp_config_options_event_seq or \ref afp_config_options_multiple_subjects
+is set to <tt>true</tt>. Otherwise only one event can be reassembled
+at a time and this option is ignored.
+
+Next to unsigned integer values which define a constant maximum count of
+events, you can also assign the constant <tt>famouso::mw::afp::dynamic</tt>
+to this option. In this case a data structure with dynamic size is used,
+that requires memory allocations.
+
+
+
+\subsubsection afp_config_options_old_event_ids old_event_ids
+
+This option can be used to configure the maximum count of event
+identifications (event sequence numbers) that are locked, which means they
+were recently used by events that got reassembled successfully or dropped
+because of timeout. This option is ignored if
+\ref afp_config_options_event_seq is not set to <tt>true</tt>.
+
+The locking is used to prevent that late fragments, duplicates or unneeded
+redundancy fragments lead to creating a new event defragmenter.
+
+Next to unsigned integer values which define a constant maximum count of
+events, you can also assign the constant <tt>famouso::mw::afp::dynamic</tt>
+to this option. In this case a data structure with dynamic size is used,
+that requires memory allocations.
+
+
+
+\subsubsection afp_config_options_max_fragments max_fragments
+
+This option defines the maximum number of fragments that an event can
+consist of. It is only used by the fragment duplicate checking and
+thus ignored if \ref afp_config_options_duplicates is not set to <tt>true</tt>.
+
+Next to unsigned integer values which define a constant maximum count of
+events, you can also assign the constant <tt>famouso::mw::afp::dynamic</tt>
+to this option. In this case a data structure with dynamic size is used,
+that requires memory allocations.
+
+
+
+\subsection afp_config_options_types Type options
+
+\subsubsection afp_config_options_SizeProperties SizeProperties
+
+AFP allows to define the data types to use for event sizes, fragment sizes and
+fragment counts. This firstly influences the range of possible values for these
+quantities. You can choose larger data types to enable fragmentation of larger
+events in the Application Layer. Secondly it also influences the RAM usage and
+code size which is mainly interesting for resource constrained embedded
+systems.
+
+The data types can be configured by a struct type that defines the types
+<tt>elen_t</tt> (the event length type), <tt>flen_t</tt> (the fragment length
+type and <tt>fcount_t</tt> (the fragment count type). Such a struct is called
+a size properties struct. Some of these structs are predefined:
+
+- famouso::mw::afp::DefaultEventSizeProp \n
+  If no size properties config is given explicitly, this is used. It matches
+  the definition of %famouso's maximum event length.
+- famouso::mw::afp::MinimalSizeProp \n
+  All three types are unsigned 8-bit integer here. This is suitable for 8-bit
+  micro-controllers, in case events are smaller than 256 bytes.
+- famouso::mw::afp::SizeProp \n
+  Selects the data types from a given maximum event size and the MTU.
+
+To change the size properties configuration used by AFP, define a size
+properties struct with the identifier <tt>SizeProperties</tt> in the AFP
+config. This typedef option is used by both, the fragmentation and the
+defragmentation.
+
+Example:
+\code
+struct AFPConfig : afp::DefaultConfig {
+    typedef afp::MinimalSizeProp SizeProperties;
+}; \endcode
+
+
+
+\subsubsection afp_config_options_Allocator Allocator
+
+The type option <tt>Allocator</tt> allows to overwrite the default allocator
+type that is utilized by AFP (in the defragmentation and the
+AFPPublisherEventChannel version with run-time MTU selection).
+
+Some allocator types are defined in the header file
+<tt>include/object/Allocator.h</tt>. On the AVR platform
+object::RawStorageAllocator is the default Allocator. For all other
+platforms object::NewAllocator is employed by default. The default
+RawStorageAllocator memory pool size is 255 bytes on AVR and 65535 bytes on
+other platforms. It can be overwritten by defining
+#DEFAULT_RAWSTORAGEALLOCATOR_MEM_SIZE before including <tt>Allocator.h</tt>.
+
+Example:
+\code
+struct AFPConfig : afp::DefaultConfig {
+    typedef object::OneBlockAllocator<afp::EmptyType, EVENT_LENGTH> Allocator;
+}; \endcode
+
+
+
+\subsubsection afp_config_options_RedundancyAttribute RedundancyAttribute
+
+If <tt>\ref afp_config_options_FEC</tt> is set to <tt>true</tt> you can define
+an own redundancy attribute for fragmentation, e.g. if you use multiple AFP
+configurations with different forward error correction redundancy levels. It
+allows to set different initial redundancy percentage and to change the values
+independently.
+
+Example:
+\code
+struct MyAFPConfig1 : afp::DefaultConfig {
+    enum {
+        event_seq = true,
+        FEC = true
+    };
+    typedef famouso::mw::afp::frag::RedundancyAttribute<MyAFPConfig1, 10> RedundancyAttribute;
+};
+
+struct MyAFPConfig2 : afp::DefaultConfig {
+    enum {
+        event_seq = true,
+        FEC = true
+    };
+    typedef famouso::mw::afp::frag::RedundancyAttribute<MyAFPConfig2, 30> RedundancyAttribute;
+};
+
+// ...
+
+MyAFPConfig2::RedundancyAttribute::value() = 10;    // Change redundancy percentage \endcode
+
+
+
+\subsubsection afp_config_options_SubjectType SubjectType
+
+For defragmentation with support for multiple fragment sources
+(<tt>\ref afp_config_options_multiple_subjects</tt>) you have to define a type
+that can be used to distinguish the different fragment sources. AFP assumes
+to find this type inside the AFP config with the identifier <tt>SubjectType</tt>.
+
+Example: \code
+template < typename SNN >
+struct MultiSubjectConfig : afp::DefaultConfig {
+    enum {
+        multiple_subjects = true
+    };
+    typedef SNN SubjectType;
+}; \endcode
+
+
+
+\subsubsection afp_config_options_DefragStatistics DefragStatistics
+
+If defragmentation is configured to collect statistics (<tt>\ref
+afp_config_options_defrag_statistics = true</tt>) you can define an individual
+statistics collection policy <tt>DefragStatistics</tt> in each AFP config. It
+can be useful if you want to get separated statistics for multiple channels.
+
+Example: \code
+
+struct MyAFPDefragConfig1 : afp::DefaultConfig {
+    enum {
+        // ...
+        defrag_statistics = true
+    };
+    typedef afp::defrag::Statistics<MyAFPDefragConfig1> DefragStatistics;
+};
+
+//...
+
+// Get current fragment statistics
+afp::defrag::FragmentStats fs;
+MyAFPDefagConfig1::DefragStatistics::get_fragment_stats(fs); \endcode
+
+
+
+
+\subsection afp_config_predefined Predefined AFP configs
+
+The following table gives an overview on the predefined AFP configuration structs. They
+are all defined in the namespace <tt>famouso::mw::afp</tt>, assuming
+<tt>\#include "mw/afp/Config.h"</tt>.
+
+<table>
+<tr><th>Option</th>
+    <th>\link famouso::mw::afp::DefaultConfig DefaultConfig\endlink</th>
+    <th>\link famouso::mw::afp::MultiSubjectConfig MultiSubjectConfig\endlink</th>
+    <th>\link famouso::mw::afp::MultiSubjectESeqReorderDuplicateConfig MultiSubjectESeqReorderDuplicateConfig\endlink</th>
+</tr>
+<tr><td align="center">\ref afp_config_options_event_seq</td>
+    <td align="center" colspan="2">false</td>
+    <td align="center">true</td>
+</tr>     
+<tr><td align="center">\ref afp_config_options_reordering</td>
+    <td align="center" colspan="2">false</td>
+    <td align="center">true</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_duplicates</td>
+    <td align="center" colspan="2">false</td>
+    <td align="center">true</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_FEC</td>
+    <td align="center" colspan="3">false</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_multiple_subjects</td>
+    <td align="center">false</td>
+    <td align="center" colspan="2">true</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_defrag_statistics</td>
+    <td align="center" colspan="3">false</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_overflow_error_checking</td>
+    <td align="center" colspan="3">true</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_concurrent_events</td>
+    <td align="center" colspan="3">AVR: 8<br>Other platforms: \link famouso::mw::afp::dynamic dynamic \endlink</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_old_event_ids</td>
+    <td align="center" colspan="3">AVR: 8<br>Other platforms: \link famouso::mw::afp::dynamic dynamic \endlink</td>
+</tr>
+<tr><td align="center">\ref afp_config_options_max_fragments</td>
+    <td align="center" colspan="3">AVR: 256<br>Other platforms: \link famouso::mw::afp::dynamic dynamic \endlink</td>
+</tr>
+</table>
+
+
+
+
 
 \section afp_config_anl Changing AFP configuration used in the Abstract Network Layer
 
-...
+The AFP configuration that is used in the %famouso Abstract Network Layer can be
+changed in the definition of %famouso's layer stack. The configurations used for
+fragmentation and defragmentation can be given in the second and third template
+parameter of famouso::mw::anl::AbstractNetworkLayer. Both are optional. By
+default the configuration defined by the Network Layer is used.
+
+Some examples:
+- disabling AFP completely:
+  \code
+class config {
+    // ...
+    typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
+    typedef famouso::mw::anl::AbstractNetworkLayer<
+                nl,
+                famouso::mw::afp::NoFragmentation,  // Fragmentation config: disable
+                famouso::mw::afp::NoDefragmentation // Defragmentation config: disable
+            > anl;
+public:
+    typedef famouso::mw::el::EventLayer< anl > EL;
+    typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+    typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
+}; \endcode
+
+- disabling defragmentation only:
+  \code
+class config {
+    // ...
+    typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
+    typedef famouso::mw::anl::AbstractNetworkLayer<
+                nl,
+                nl::AFP_Config,                     // Fragmentation config: default
+                famouso::mw::afp::NoDefragmentation // Defragmentation config: disable
+            > anl;
+public:
+    typedef famouso::mw::el::EventLayer< anl > EL;
+    typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+    typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
+}; \endcode
+
+- changing fragmentation and defragmentation config:
+  \code
+class config {
+    // ...
+    typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
+    struct afp_cfg : nl::AFP_Config {
+        enum {
+            overflow_error_checking = false
+        };
+        typedef afp::DefaultEventSizeProp SizeProperties;
+    };
+    typedef famouso::mw::anl::AbstractNetworkLayer<
+                nl,
+                afp_cfg,    // Own fragmentation config
+                afp_cfg     // Own defragmentation config
+            > anl;
+public:
+    typedef famouso::mw::el::EventLayer< anl > EL;
+    typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+    typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
+}; \endcode
+
+
 
 \section afp_config_nl AFP configuration in the Network Layer
 
-Due to the fact that the network type and its characteristics influences the steps to take for ensuring correct reassembly of fragmented events, the default AFP configuration for the Abstract Network Layer is defined by each Network Layer individually.
+Due to the fact that the network type and its characteristics influences the
+steps to take for ensuring correct reassembly of fragmented events, the default
+AFP configuration for the Abstract Network Layer is defined by each Network
+Layer individually.
 
-Writing a Network Layer, you firstly have to <tt>\#include "mw/afp/Config.h"</tt>. Secondly you have to define the public type <tt>AFP_Config</tt> in your NL class. It's recommended to use <tt>typedef</tt> with one of the following predefined configs if there is one that meets the network characteristics.
+Writing a Network Layer, you firstly have to <tt>\#include "mw/afp/Config.h"</tt>.
+Secondly you have to define the public type
+<tt>AFP_Config</tt> in your NL class. It's recommended to use <tt>typedef</tt>
+with one of the following predefined configs if there is one that meets the
+network characteristics.
 
 -# <tt>afp::Disable</tt>: fragmentation and defragmentation support is disabled by default.
--# <tt>afp::MultiSubjectConfig&lt;SNN&gt;</tt>: use <i>no</i> event sequence numbering, do <i>not</i> support handling of reordered packets, do <i>not</i> check for duplicate fragments
--# <tt>afp::MultiSubjectESeqReorderDuplicateConfig&lt;SNN&gt;</tt>: use event sequence numbering, support handling of reordered packets, check for duplicate fragments
+-# <tt>afp::MultiSubjectConfig&lt;SNN&gt;</tt>: use <i>no</i> event sequence numbering, do <i>not</i> support handling of reordered packets, do <i>not</i> check for duplicate fragments. Choose this, if there are neither reordering of packets nor duplicates and the probability of packet loss is very low.
+-# <tt>afp::MultiSubjectESeqReorderDuplicateConfig&lt;SNN&gt;</tt>: use event sequence numbering, support handling of reordered packets, check for duplicate fragments. Choose this, if there is both reordering and duplicates.
 
-See \ref afp_config_guidelines for some hints on the selection or \ref afp_config_intro about creating an own config.
+To create an own config see \ref afp_config_intro and \ref afp_config_options and use <tt>afp::MultiSubjectConfig&lt;SNN&gt;</tt> as base class (<tt>\ref afp_config_options_multiple_subjects = true</tt> is needed in a default config for the Abstract Network Layer).
 
 
 */
@@ -118,18 +724,29 @@ See \ref afp_config_guidelines for some hints on the selection or \ref afp_confi
 
 \page afp_header AFP header desciption
 
-The information needed to reconstruct events from fragments is encoded in the AFP header. The header is optimized for size to be usable as well for network protocols with low payload, like CAN, while keeping header length constant for all fragments of an event.
+The information needed to reconstruct events from fragments is encoded in the
+AFP header. The header is optimized for size to be usable as well for network
+protocols with low payload, like CAN.
 
-The AFP header consists of one to multiple sub-headers, depending on the AFP configuration used. The \ref afp_header_basic is always part of the AFP header. It may be followed by one or multiple \ref afp_header_extension .
+The AFP header consists of one to multiple sub-headers, depending on the AFP
+configuration used. The \ref afp_header_basic is always part of the AFP header.
+It may be followed by one or multiple \ref afp_header_extension.
 
-Numbers are encoded in network byteorder. All fragments execpt the last event data fragment occupy the complete MTU, only this one may be smaller.
+Numbers are encoded in network byte order. All fragments except the last event
+data fragment occupy the complete MTU, only this one may be smaller.
 
 
 \section afp_header_basic Basic Fragment Header
 
-The length of the basic AFP header depends of the number of fragments. It's the minimum length necessary to encode the biggest fragment sequence number.
+The length of the basic AFP header is the minimum length necessary to encode
+the fragment sequence number.
 
-The header contains whether there are extension headers behind the basic header, if the current fragment is the first fragment of an event and the fragment sequence number. The fragment sequence number specifies how many fragments follow behind the current fragment. Thus it's downcounting from fragment_count-1 to 0. The length of the fragment sequence number is encoded in front of it by the number of '1' bits delimeted by a '0' bit.
+The header contains whether there are extension headers behind the basic
+header, if the current fragment is the first fragment of an event and the
+fragment sequence number. The fragment sequence number specifies how many
+fragments follow behind the current fragment. Thus it's downcounting from
+fragment_count-1 to 0. The length of the fragment sequence number is encoded
+in the first part of header in unary coding.
 
 <table>
 	<tr>
@@ -138,29 +755,32 @@ The header contains whether there are extension headers behind the basic header,
 		<th># Bits of fragment sequence number (s)</th>
 	</tr>
 	<tr>
-		<td>ef0s ssss</td>
+		<td>0efs ssss</td>
 		<td>1</td>
 		<td>5</td>
 	</tr>
 	<tr>
-		<td>ef10 ssss | ssss ssss</td>
+		<td>10ef ssss | ssss ssss</td>
 		<td>2</td>
 		<td>12</td>
 	</tr>
 	<tr>
-		<td>ef11 0sss | ssss ssss | ssss ssss</td>
+		<td>110e fsss | ssss ssss | ssss ssss</td>
 		<td>3</td>
 		<td>19</td>
 	</tr>
 	<tr>
-		<td>ef11 10ss | ssss ssss | ssss ssss | ssss ssss</td>
+		<td>1110 efss | ssss ssss | ssss ssss | ssss ssss</td>
 		<td>4</td>
 		<td>26</td>
 	</tr>
 	<tr>
-		<td>ef11 110s | ssss ssss | ssss ssss | ssss ssss | ssss ssss</td>
+		<td>1111 0efs | ssss ssss | ssss ssss | ssss ssss | ssss ssss</td>
 		<td>5</td>
 		<td>33</td>
+	</tr>
+	<tr>
+		<td colspan="3">...</td>
 	</tr>
 </table>
 
@@ -172,17 +792,22 @@ The header contains whether there are extension headers behind the basic header,
 
 \section afp_header_extension Extension headers
 
-Both impelented extension headers start with a zero bit followed by a bit that indicates whether there is one more extension header behind the current header and a zero bit that selects implicit size coding. The remaining bits of the first byte selects the header type.
+Both implemented extension headers start with a zero bit followed by a bit that
+indicates whether there is one more extension header behind the current header
+and a zero bit that selects implicit size coding. The remaining bits of the
+first byte selects the header type.
 
-In this implementation all fragments of an event must have the same extension headers and use implicit size coding.
+In this implementation all fragments of an event must have the same extension
+headers and use implicit size coding.
 
 
 
 \subsection afp_header_extension_eseq Event Sequence Numbers
 
-Event sequence numbers are not used to guarantee any order in delivery of events, but only to distinguish between events in networks with packet loss, reordering or duplicates during defragmentation overlapping in time.
-
-Currently AFP supports only 32 bit event sequence numbers.
+Event sequence numbers are not used to guarantee any order in delivery of
+events, but only to distinguish between concurrent events, including events
+overlapping in time because of packet loss or reordering.  Currently AFP
+supports only 32 bit event sequence numbers.
 
 
 <table>
@@ -205,20 +830,42 @@ Currently AFP supports only 32 bit event sequence numbers.
 
 \subsection afp_header_extension_fec Forward Error Correction
 
-AFP provides forward error correction to provide the possibility to increase reliability of event delivery in face of packet loss. For this purpose it uses a block oriented erasure code based on Vandermonde matrices. The current AFP implementation utilizes a FEC library written by Luigi Rizzo that can be found at <a href="http://info.iet.unipi.it/~luigi/fec.html">http://info.iet.unipi.it/~luigi/fec.html</a>. 
+AFP provides forward error correction to provide the possibility to increase
+reliability of event delivery in face of packet loss. For this purpose it uses
+a block oriented erasure code based on Vandermonde matrices. The current AFP
+implementation utilizes a FEC library written by Luigi Rizzo that can be found
+at <a
+href="http://info.iet.unipi.it/~luigi/fec.html">http://info.iet.unipi.it/~luigi/fec.html</a>. 
 
-To increase the propability that an event consisting of \c k fragments can be reconstructed in face of packet loss, \c (n-k) fragments are added that consist of redundancy information.
-The FEC code used is able to reconstruct the message even if \c (n-k) arbitrary fragments are lost.
+Because the currently used forward error correction library requires the
+fragment's payload sizes to be equal, the current implementation differs from
+the concept described in the paper. While the header may differ in length, the
+payload length is constant for all fragments. Thus, the MTU is not occupied
+completely for all fragments. The used FEC library also suffers from the
+restriction that the payload must have an even length. If p = (MTU - largest
+header length) is odd, the payload is set to p-1.
 
-The number of event data fragments \c k is included in the FEC header, because this information is only in the \ref afp_header_basic of the first fragment of an event which may be lost.
+To increase the probability that an event consisting of \c k fragments can be
+reconstructed in face of packet loss, \c (n-k) fragments are added that consist
+of redundancy information.  The FEC code used is able to reconstruct the
+message even if \c (n-k) arbitrary fragments are lost.
 
-The header also contains the redundancy quota \c r in percent. It is used to calculate the total number of fragments \c n (sum of event data and redundancy fragment count).
+The number of event data fragments \c k is included in the FEC header, because
+this information is only in the \ref afp_header_basic of the first fragment of
+an event which may be lost.
+
+The header also contains the redundancy quota \c r in percent. It is used to
+calculate the total number of fragments \c n (sum of event data and redundancy
+fragment count).
 
 <tt>n = (k * r) / 100 + k</tt>
 
-It has to be calculated using integer arithmetics. The quotient <tt>(k * r) / 100</tt> is an integer devision rounding up.
+It has to be calculated using integer arithmetics. The quotient
+<tt>(k * r) / 100</tt> is an integer devision rounding up.
 
-The header also contains the length of the last non-redundancy (event data) fragment \c  \c ll. In case this fragment is lost we need the information to find out the total length of the reconstructed event.
+The header also contains the length of the last non-redundancy (event data)
+fragment \c l. In case this fragment is lost we need the information to
+find out the total length of the reconstructed event.
 
 
 <table>
@@ -250,5 +897,159 @@ The header also contains the length of the last non-redundancy (event data) frag
 \subsection afp_header_extension_other Others
 
 There may be future extensions.
+
+*/
+
+//-----------------------------------------------------------------------------
+
+/*!
+
+\page afp_microcontroller AFP resource consumption on micro-controllers
+
+\section afp_microcontroller_reduce Reducing resource consumption
+
+%Famouso and AFP provide several possibilities to reduce the resource
+consumption which is important for resource constrained embedded systems like
+micro-controllers.
+
+Many proposals assume that you know how to configure AFP. See \ref afp_config_intro
+and \ref afp_config_anl on this topic.
+
+-# Choose the <b>most simple sufficient</b> configuration! Supporting less
+   features results in less code and less RAM usage.
+   - The configuration creating the least overhead is famouso::mw::afp::Disable
+     which can be used to <b>disable</b> the AFP fragmentation and/or AFP
+     defragmentation support <b>completely</b>.
+   - The most simple configuration is famouso::mw::afp::DefaultConfig. Note
+     that you can only use it if there are neither duplicates nor reordering and
+     multiple events cannot arise concurrently.
+   - If you only subscribe for <b>one subject</b>, you can set
+     <tt>\ref afp_config_options_multiple_subjects = false</tt> even in the
+     Abstract Network Layer. This reduces overhead significantly if
+     <tt>\ref afp_config_options_event_seq = false</tt>. Be aware of the
+     fact that concurrent reassembly of events from multiple subjects will
+     result in undefined behaviour.
+     \code // famouso layer stack configuration
+typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
+struct afp_cfg : nl::AFP_Config {
+    enum {
+        multiple_subjects = false
+    };
+};
+typedef famouso::mw::anl::AbstractNetworkLayer< nl, afp_cfg, afp_cfg > anl; \endcode
+-# If you do not need to support events longer than 255 bytes, you can instruct
+   AFP to use smaller data types with the following AFP config line:
+   \code typedef afp::MinimalSizeProp SizeProperties; \endcode
+-# Adjust the values of the config options:
+   - \ref afp_config_options_concurrent_events
+     (if <tt>\ref afp_config_options_event_seq</tt> or
+     <tt>\ref afp_config_options_multiple_subjects</tt> set)
+   - \ref afp_config_options_old_event_ids
+     (if <tt>\ref afp_config_options_event_seq</tt> set) 
+   - \ref afp_config_options_max_fragments
+     (if <tt>\ref afp_config_options_duplicates</tt> set)
+-# Define a custom <tt>\ref afp_config_options_Allocator</tt> policy. You can reduce
+   the size of the memory pool to save RAM or a different special allocator. E.g. if
+   <tt>multiple_subjects = event_seq = duplicates = reordering = FEC = false</tt>
+   you can use object::OneBlockAllocator.
+-# You may disable \ref afp_config_options_overflow_error_checking.
+
+
+Reducing resource consumption in general for release versions:
+
+-# Define the preprocessor symbol LOGGING_DISABLE when invoking the compiler to
+   disable logging globally.
+-# Define the preprocessor symbol NDEBUG to disable all run-time assertions.
+
+
+
+\section afp_microcontroller_size Resource consumption examples
+
+
+
+*/
+
+//-----------------------------------------------------------------------------
+
+/*!
+
+\page afp_famcat famcat: a command line tool for publishing and subscribing
+
+\section afp_famcat_intro Introduction
+
+famcat is command line tool for the %famouso middleware that is inspired by
+netcat. It allows publishing an event as well as subscribing to receive a
+certain number of events. The data to be published is read from stdin. Received
+events are written to stdout.
+
+famcat is very useful for debugging and testing, sniffing the %famouso traffic
+on a given subject, creating high ECH and network load, transmitting files and
+more. Initially, it was written to test AFP. Thus, it also supports using AFP
+in the Application Layer, which enables you to transmit events larger than 64KB
+or to use forward error correction.
+
+
+
+\section afp_famcat_build Building famcat
+
+The source code can be found at <tt>tst/approved/AFP/famcat.cc</tt>. To build
+famcat, switch into the right directory and run <tt>make</tt>:
+
+\code
+~/famouso$ cd tst/approved/AFP/
+~/famouso/tst/approved/AFP$ make famcat \endcode
+
+
+
+\section afp_famcat_run Running famcat
+
+As usual for %famouso apps, famcat requires a running ECH. You can find ECHs
+using different Network Layers in the <tt>ECHs</tt> directory.
+
+To get help how to invoke famcat you can run it with the command line option
+<tt>--help</tt> or <tt>-h</tt>.
+
+\code
+~/famouso/tst/approved/AFP$ ./famcat -h
+Usage:
+        famcat -s [-c CANNEL] [-n NUM] [-a [-m MTU] [-e]]
+        famcat -p [-c CANNEL] [-a [-m MTU] [-e] [-r RED]]
+
+        -s         subscribe, wait for an event and output data to stdout (default)
+        -p         publish event from stdin
+        -c CHANNEL specify subject to use, default: "_famcat_"
+        -n NUM     subsribe for NUM events, default: 1
+        -a         use AFP for application layer fragmentation
+        -m MTU     specify specific MTU to use, default: 65535
+        -e         echo a hexdump of fragments to stderr
+        -r RED     add RED % forward error correction redundancy \endcode
+
+
+\section afp_famcat_examples Examples how to invoke famcat
+
+- Subscribe for one event on channel "_famcat_"
+  \code $ ./famcat \endcode
+
+- Subscribe for three events on channel "distance"
+  \code $ ./famcat -n 3 -c distance \endcode
+
+- Publish content of file "input"
+  \code $ ./famcat -p < input \endcode
+
+- Subscribe for one event and write it into file "out"
+  \code $ ./famcat > out \endcode
+
+- Get a hexdump of the next event published on channel "12345678"
+  \code $ ./famcat -c 12345678 | hexdump \endcode
+
+- Publish content of file "input" while using AFP on application layer with a
+  MTU of 1234 Bytes and 20 percent forward error correction redundancy.
+  \code $ ./famcat -p -a -m 1234 -r 20 < input \endcode
+
+- Subscribe invocation belongging to the previous publish. For one channel all
+  publishers and subscribers must be in agreement on the usage of the "-a"
+  option and the value given with the "-m" option (MTU).
+  \code $ ./famcat -a -m 1234 > output \endcode
+
 
  */

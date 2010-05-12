@@ -102,7 +102,7 @@ namespace famouso {
                 public:
                     /*! \brief This callback is called if an event occurs.
                      *
-                     *  It is a generic delegate whish allows for using
+                     *  It is a generic delegate which allows for using
                      *  C-functions, normal as well as const class member
                      *  functions.
                      */
