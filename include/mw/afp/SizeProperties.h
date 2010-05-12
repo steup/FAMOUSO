@@ -80,7 +80,7 @@ namespace famouso {
             struct SizeProp {
                 typedef typename SmallestUnsignedTypeSelector<max_event_size>::type elen_t;
                 typedef typename SmallestUnsignedTypeSelector<mtu>::type flen_t;
-                typedef typename SmallestUnsignedTypeSelector<max_event_size/mtu>::type fcount_t;
+                typedef typename SmallestUnsignedTypeSelector<max_event_size>::type fcount_t;
             };
 
 

@@ -66,8 +66,6 @@
 
 #include "mw/afp/defrag/Statistics.h"
 
-#include "mw/common/Subject.h"
-
 
 namespace famouso {
     namespace mw {
@@ -122,14 +120,10 @@ namespace famouso {
                             >::type
                         >::type EventDataReconstructionPolicy;
 
-                /// Internal subject type (EmptyType if only one subject)
-                typedef typename if_select_type<
-                            Config::multiple_subjects,
-                            typename if_contains_select_type_SubjectType<   // Multiple subjects
-                                Config,
-                                famouso::mw::Subject
-                            >::type,
-                            EmptyType                                       // Don't care about subjects
+                /// Internal subject type
+                typedef typename if_contains_select_type_SubjectType<
+                            Config,
+                            EmptyType
                         >::type SubjectType;
 
                 /// Event demultiplexing key type (used to distinguish events)
