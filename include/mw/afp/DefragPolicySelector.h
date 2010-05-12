@@ -73,6 +73,14 @@ namespace famouso {
     namespace mw {
         namespace afp {
 
+            /*!
+             *  \brief  Default statistics collector
+             *
+             *  Define a type DefragStatistics in the AFP config to use a different
+             *  statistics collector, e.g. to collect statistics seperatly for multiple
+             *  channels.
+             */
+            typedef defrag::Statistics<EmptyType> DefragmentationStatistics;
 
             IF_CONTAINS_SELECT_TYPE_(SubjectType);
             IF_CONTAINS_SELECT_TYPE_(DefragStatistics);
@@ -145,7 +153,7 @@ namespace famouso {
                             Config::defrag_statistics,
                             typename if_contains_select_type_DefragStatistics<
                                 Config,                         // Return Config::DefragStatistics if defined
-                                defrag::Statistics<EmptyType>   // Default statistics tagged with EmptyType otherwise
+                                DefragmentationStatistics       // Default statistics otherwise
                             >::type,
                             defrag::NoStatistics                // No statistics
                         >::type DefragStatistics;
