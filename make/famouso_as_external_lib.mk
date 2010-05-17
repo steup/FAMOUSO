@@ -36,15 +36,15 @@
 ## $Id$
 ##
 ################################################################################
-INSTALLDIR=$(FAMOUSO_INSTALLDIR)
-include $(INSTALLDIR)/make/config.mk
-include $(INSTALLDIR)/make/global.mk
-include $(INSTALLDIR)/make/buildtools.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/defs.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/gcc.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/tags.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/additional_defs.mk
--include $(INSTALLDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
+FAMOUSOROOTDIR=$(FAMOUSO_INSTALLDIR)
+include $(FAMOUSOROOTDIR)/make/config.mk
+include $(FAMOUSOROOTDIR)/make/global.mk
+include $(FAMOUSOROOTDIR)/make/buildtools.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/defs.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/gcc.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(COMPILER)/tags.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(COMPILER)/additional_defs.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
 
-FAMOUSO_COMPILER_OPTIONS_MUST_HAVE := $(CXXFLAGS) -I$(INSTALLDIR)/Bindings/include $(LDFLAGS)
+FAMOUSO_COMPILER_OPTIONS_MUST_HAVE := $(CXXFLAGS) -I$(FAMOUSOROOTDIR)/Bindings/include $(LDFLAGS)
 FAMOUSO_COMPILER_OPTIONS_SUGGESTED := $(CXXOPTIONS)

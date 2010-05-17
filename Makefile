@@ -121,14 +121,14 @@ properclean: distclean
 	@rm -rf $(EXTERNALSDIR)/include
 
 debian:
-	ln -f -s ./tools/debian $(INSTALLDIR)/debian
+	ln -f -s ./tools/debian $(FAMOUSOROOTDIR)/debian
 
 deb: debian
 	@debuild -i -I
 
 deb-clean: debian
 	@debuild clean
-	@rm -f $(INSTALLDIR)/debian
+	@rm -f $(FAMOUSOROOTDIR)/debian
 
 depend: $(DEPENDDIR) $(DEPSPRE)
 
