@@ -129,17 +129,17 @@ As an example the build of the AVR-Robot part of the multi-robot demo is shown.
 \endcode
 -# change to the %famouso root dir and compile library
 \code
-#> make CONFIG=avr FAMOUSO_INSTALLDIR=.
+#> make CONFIG=avr
 \endcode
 -# compiling robot program
 \code
 #> cd examples/MultiRobotDemo/AVR-Robot/
-#> make CONFIG=avr FAMOUSO_INSTALLDIR=../../..
+#> make CONFIG=avr RobotDemo
 \endcode
 -# flash the application on the AVR-Robot. Maybe it could be necessary that you
 configure the Makefile for the programmer that you use.
 \code
-#> make CONFIG=avr FAMOUSO_INSTALLDIR=../../.. program
+#> make CONFIG=avr RobotDemo.program
 \endcode
 
 

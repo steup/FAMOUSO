@@ -76,7 +76,7 @@ EXTERNALS   += $(EXTERNALSDIR)/Boost
 # include path for compiler runs
 ADDITIONAL_CFLAGS := $(patsubst %,-I%,$(EXTERNALS))
 
-ifneq ($(CONFIG),avr)
+ifneq ($(FAMOUSO_CONFIG),avr)
 LIBBOOST             = $(LIBDIR)/libboost_system.a $(LIBDIR)/libboost_thread$(THREADTAG).a $(LIBDIR)/libboost_program_options.a
 EXTERNALS           += $(LIBBOOST)
 ADDITIONAL_LIBS     += $(LIBBOOST)

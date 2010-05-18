@@ -37,47 +37,27 @@
 ##
 ################################################################################
 
-# If FAMOUSO_INSTALLDIR isn't defined, the FAMOUSO root directory
-# is automatically determind
-ifeq ($(FAMOUSO_INSTALLDIR),)
+# autodetect FAMOUSO's root directory
 # get the path of this makefile
-this_makefile_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+this_makefile_dir := $(dir ./$(lastword $(MAKEFILE_LIST)))
+
 # erase the trailing /make/ in order to get the correct root of FAMOUSO
-ROOTDIR := $(patsubst %/make/,%,$(this_makefile_dir))
-else
-ROOTDIR := $(dir $(abspath $(FAMOUSO_INSTALLDIR)/Makefile))
-endif
+FAMOUSOROOTDIR:= $(patsubst %/make/,%,$(this_makefile_dir))
 
-FAMOUSOROOTDIR ?= $(ROOTDIR)
-export FAMOUSOROOTDIR
 
-ifeq ($(wildcard $(FAMOUSOROOTDIR)/make/config.mk),)
-# FAMOUSOROOTDIR is defined wrong
-$(info )
-$(info The FAMOUSO_INSTALLDIR you gave to FAMOUSO's make-system is wrong.              )
-$(info The make-system could not find its needed files. In general FAMOUSO's           )
-$(info make-system is able to determine its root directory automatically.              )
-$(info Thus, you have three options:                                                   )
-$(info  -First, you don't define FAMOUSO_INSTALLDIR and let the make-system do the job.)
-$(info  -Second, you define the FAMOUSO_INSTALLDIR environment variable.               )
-$(info  -Third, you start make as follows "make FAMOUSO_INSTALLDIR=famouso-root-dir".  )
-$(info )
-$(error FAMOUSO's root directory is given wrong)
-endif
-
-# Alle Makefiles in der richtigen Reihenfolge laden
+# include all needed Makefiles in the right order
 #
-# Definition des Targets und zusaetzlicher Einstellungen lesen
+# read target configuration and additional definitions
 include $(FAMOUSOROOTDIR)/make/config.mk
 
-# einige Definition lesen, die immer gelten
+# load definitions that are always equal
 include $(FAMOUSOROOTDIR)/make/global.mk
 include $(FAMOUSOROOTDIR)/make/sources.mk
 
 #default compiler definition
 include $(FAMOUSOROOTDIR)/make/buildtools.mk
 
-# Definition lesen, die fuer spezielle Targets gelten
+# read definitions that are dependent on the target and platform
 -include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/defs.mk
 -include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/sources.mk
 -include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/gcc.mk

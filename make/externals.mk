@@ -43,7 +43,7 @@ $(EXTERNALSDIR)/Boost:
 
 $(LIBBOOST):
 	@echo Building needed Boost for $(PLATFORM)
-	$(EXTERNALSDIR)/buildBoost.sh $(LIBDIR) $(EXTERNALSDIR)/Boost $(EXTENSION)
+	$(EXTERNALSDIR)/buildBoost.sh $(abspath $(LIBDIR)) $(abspath $(EXTERNALSDIR)/Boost) $(EXTENSION)
 	@$(RANLIB) $(LIBDIR)/*
 
 $(LIBAVR):
