@@ -38,8 +38,8 @@
  *
  ******************************************************************************/
 
-#ifndef _Attribute_Sequence_
-#define _Attribute_Sequence_
+#ifndef _Attribute_Set_
+#define _Attribute_Set_
 
 #include <stdint.h>
 
@@ -55,7 +55,7 @@
 
 #include "mw/attributes/detail/find.h"
 #include "mw/attributes/detail/FindStatic.h"
-#include "mw/attributes/detail/AttributeSequenceHeader.h"
+#include "mw/attributes/detail/AttributeSetHeader.h"
 #include "mw/attributes/detail/AttributeSize.h"
 #include "mw/attributes/detail/Duplicates.h"
 
@@ -75,7 +75,7 @@ namespace famouso {
              *  outside
              */
             template <typename AttrSeq, typename Iter = typename boost::mpl::begin<AttrSeq>::type>
-            struct AttributeSequence {
+            struct AttributeSet {
                 private:
                     BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
                                          no_forward_sequence_given,
@@ -99,9 +99,9 @@ namespace famouso {
                     //  complete attribute sequence ("always" means that this type is also instantiated
                     //  for the recursively instantiated remaining sequences, where (isFirst == false),
                     //  nevertheless it will not really be used in this case)
-                    typedef detail::AttributeSequenceHeader<
+                    typedef detail::AttributeSetHeader<
                                      boost::mpl::size<AttrSeq>::type::value
-                                    > seqHeader;
+                                    > setHeader;
 
                     // Determines whether the iterator points to the first attribute of the
                     //  the sequence (If this is true, the sequence header will be written
@@ -117,13 +117,13 @@ namespace famouso {
                     //  to the size of the sequence header since it will be written before the
                     //  the first attribute of the sequence, in the latter case the offset is
                     //  simply 0 since there will be no sequence header written
-                    static const uint8_t offset = (isFirst ? seqHeader::size : 0);
+                    static const uint8_t offset = (isFirst ? setHeader::size : 0);
 
                 public:
                     /*!
                      * \brief This type
                      */
-                    typedef AttributeSequence type;
+                    typedef AttributeSet type;
 
                     /*!
                      * \brief The size of the complete attribute sequence in binary representation
@@ -134,7 +134,7 @@ namespace famouso {
                     static const uint16_t overallSize =
                             // If the current attribute is the first, the sequence header will
                             //  be included
-                            (isFirst ? seqHeader::size : 0) +
+                            (isFirst ? setHeader::size : 0) +
 
                             // In any case (first or not) the current attribute is included
                             //  (the size calculator struct calculates the overall size of
@@ -145,7 +145,7 @@ namespace famouso {
                             //  pointing to next attribute in the sequence (the past-end case
                             //  is modeled by a specialization of the attribute sequence struct
                             //  which has an overall size of 0)
-                            AttributeSequence<AttrSeq, typename iterNext::type>::overallSize;
+                            AttributeSet<AttrSeq, typename iterNext::type>::overallSize;
 
                 private:
                     /*!
@@ -170,13 +170,13 @@ namespace famouso {
                      *  this template class. If the current attribute is the first one in the
                      *  sequence the list header (i.e. the attribute count) is also written.
                      */
-                    AttributeSequence() {
+                    AttributeSet() {
                         // If the iterator points to the first attribute in the sequence, write
                         //  the attribute sequence header
                         if (isFirst) {
                             // The header always starts at index 0 (In this case we do not have
                             //  to consider the offset since it is always 0 at this point)
-                            new (&data[0]) seqHeader;
+                            new (&data[0]) setHeader;
                         }
 
                         // The next two steps must necessarily be performed in the given order
@@ -200,7 +200,7 @@ namespace famouso {
                         //  sequence, the past-end case is modeled separately by a specialization
                         //  of this template struct)
                         new (&data[offset + detail::AttributeSize<typename curAttr::type>::value])
-                                AttributeSequence<AttrSeq, typename iterNext::type> ;
+                                AttributeSet<AttrSeq, typename iterNext::type> ;
                     }
 
                 public:
@@ -226,7 +226,7 @@ namespace famouso {
             };
 
             template <typename AttrSeq>
-            struct AttributeSequence<AttrSeq, typename boost::mpl::end<AttrSeq>::type> {
+            struct AttributeSet<AttrSeq, typename boost::mpl::end<AttrSeq>::type> {
                     BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
                                          no_forward_sequence_given,
                                          (AttrSeq));
@@ -249,4 +249,4 @@ namespace famouso {
 } // end namespace famouso
 
 
-#endif // _Attribute_Sequence_
+#endif // _Attribute_Set_

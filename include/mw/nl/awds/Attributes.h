@@ -49,7 +49,7 @@
 #include "mw/nl/awds/AWDS_Packet.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/Attribute.h"
-#include "mw/attributes/AttributeSequence.h"
+#include "mw/attributes/AttributeSet.h"
 #include "mw/attributes/TTL.h"
 #include "mw/attributes/filter/find.h"
 #include "logging.h"
@@ -108,7 +108,7 @@ namespace famouso {
                     class Attributes: boost::noncopyable {
                         private:
                             /** A attributes sequence for finding attributes in some data. */
-                            typedef typename famouso::mw::attributes::AttributeSequence<AttrSeq>::type attr_seq;
+                            typedef typename famouso::mw::attributes::AttributeSet<AttrSeq>::type attr_seq;
 
                             /**
                              * An iterator for printing and checking a list of attributes.

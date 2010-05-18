@@ -38,8 +38,8 @@
  *
  ******************************************************************************/
 
-#ifndef _Sequence_Provider_h_
-#define _Sequence_Provider_h_
+#ifndef _Set_Provider_h_
+#define _Set_Provider_h_
 
 #include "boost/mpl/assert.hpp"
 #include "boost/mpl/aux_/na.hpp"
@@ -47,7 +47,7 @@
 #include "boost/mpl/vector.hpp"
 #include "boost/mpl/is_sequence.hpp"
 
-#include "mw/attributes/AttributeSequence.h"
+#include "mw/attributes/AttributeSet.h"
 #include "mw/attributes/type_traits/is_attribute.h"
 
 namespace famouso {
@@ -123,7 +123,7 @@ namespace famouso {
                           typename A7 = boost::mpl::na, typename A8 = boost::mpl::na,
                           typename A9 = boost::mpl::na, typename A10 = boost::mpl::na,
                           typename Enable = void>
-                struct SequenceProvider {
+                struct SetProvider {
                         // Primary template implements the case that all given types
                         //  are attributes
 
@@ -151,11 +151,11 @@ namespace famouso {
                         /*!
                          * \brief The provided attribute sequence
                          */
-                        typedef attributes::AttributeSequence<attribs> attrSeq;
+                        typedef attributes::AttributeSet<attribs> attrSet;
                 };
 
                 template <typename ForwardSeq>
-                struct SequenceProvider<ForwardSeq, boost::mpl::na, boost::mpl::na,
+                struct SetProvider<ForwardSeq, boost::mpl::na, boost::mpl::na,
                                         boost::mpl::na, boost::mpl::na, boost::mpl::na,
                                         boost::mpl::na, boost::mpl::na, boost::mpl::na,
                                         boost::mpl::na,
@@ -169,7 +169,7 @@ namespace famouso {
                         /*!
                          * \brief The provided attribute sequence
                          */
-                        typedef attributes::AttributeSequence<ForwardSeq> attrSeq;
+                        typedef attributes::AttributeSet<ForwardSeq> attrSet;
 
                 };
 
@@ -178,4 +178,4 @@ namespace famouso {
     }  // end namespace mw
 }  // end namespace famouso
 
-#endif
+#endif // _Set_Provider_

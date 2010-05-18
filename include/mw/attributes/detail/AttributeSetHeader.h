@@ -38,8 +38,8 @@
  *
  ******************************************************************************/
 
-#ifndef _Attribute_Sequence_Header_
-#define _Attribute_Sequence_Header_
+#ifndef _Attribute_Set_Header_
+#define _Attribute_Set_Header_
 
 #include <stdint.h>
 
@@ -68,22 +68,22 @@ namespace famouso {
                  *  next byte) represent the size. In this case sizes up to 32.768
                  *  are possible.
                  *
-                 * \tparam seqSize The size which should be represented
+                 * \tparam setSize The size which should be represented
                  */
-                template <uint16_t seqSize>
-                struct AttributeSequenceHeader {
+                template <uint16_t setSize>
+                struct AttributeSetHeader {
                     private:
-                        typedef AttributeSequenceHeader type;
+                        typedef AttributeSetHeader type;
 
                         // True, if the list header will be written extended, false if the
                         //  header fits one byte
-                        static const bool extension = (seqSize > 0x7F);
+                        static const bool extension = (setSize > 0x7F);
 
                         // Assert that the sequence size fits the format bounds
                         typedef typename boost::mpl::eval_if_c<
                                                       extension,
-                                                      ExtendedSequenceBoundError<seqSize>,
-                                                      UnextendedSequenceBoundError<seqSize>
+                                                      ExtendedSequenceBoundError<setSize>,
+                                                      UnextendedSequenceBoundError<setSize>
                                                      >::type assertDummy;
 
                     public:
@@ -101,20 +101,20 @@ namespace famouso {
                          * Creates the binary representation of the size given as the template
                          *  argument in to the member array.
                          */
-                        AttributeSequenceHeader() {
+                        AttributeSetHeader() {
                             // Depending on whether the sequence header is extended either 1
                             //  or 2 two bytes must be written accordingly
                             if (extension) {
                                 // Convert the length to network byte order and set the
                                 //  extension bit
-                                const uint16_t tmpSize = htons(seqSize | 0x8000);
+                                const uint16_t tmpSize = htons(setSize | 0x8000);
                                 // Assign the converted value to the array
                                 *(reinterpret_cast<uint16_t*> (data)) = tmpSize;
                             } else {
                                 // Write the lower 7 bits of the sequence size into the first
                                 //  and only byte (The extension flag assures that the given
                                 //  sequence size fits 7 bits)
-                                data[0] = (seqSize & 0x7F);
+                                data[0] = (setSize & 0x7F);
                             }
                         }
                 };
@@ -124,4 +124,4 @@ namespace famouso {
     } // end namespace mw
 } // end namespace famouso
 
-#endif // _Attribute_Sequence_Header_
+#endif // _Attribute_Set_Header_

@@ -50,8 +50,8 @@
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
 
-#include "mw/attributes/detail/SequenceProvider.h"
-#include "mw/attributes/AttributeSequence.h"
+#include "mw/attributes/detail/SetProvider.h"
+#include "mw/attributes/AttributeSet.h"
 
 namespace famouso {
     namespace mw {
@@ -69,16 +69,16 @@ namespace famouso {
                   typename A9 = boost::mpl::na, typename A10 = boost::mpl::na>
         class ExtendedEvent: public Event {
             private:
-                typedef typename famouso::mw::attributes::detail::SequenceProvider<
+                typedef typename famouso::mw::attributes::detail::SetProvider<
                                                                    A1orSeq, A2, A3, A4,
                                                                    A5, A6, A7, A8, A9, A10
-                                                                  >::attrSeq attrSeq;
+                                                                  >::attrSet attrSet;
 
             public:
                 typedef ExtendedEvent type;
 
             private:
-                static const famouso::mw::Event::Type attribsLen = attrSeq::overallSize;
+                static const famouso::mw::Event::Type attribsLen = attrSet::overallSize;
 
                 // the whole event with attributes and payload
                 uint8_t _edata[attribsLen + payLoadSize];
@@ -87,7 +87,7 @@ namespace famouso {
                 ExtendedEvent(const famouso::mw::Subject& sub) :
                     Event(sub) {
                     // Construct the attributes
-                    new (&_edata[0]) attrSeq;
+                    new (&_edata[0]) attrSet;
 
                     // Set the base class' members
                     length = attribsLen + payLoadSize;
@@ -106,12 +106,12 @@ namespace famouso {
 
                 template <typename Attr>
                 Attr* find() {
-                    return ((reinterpret_cast<attrSeq*>(_edata))->find<Attr>());
+                    return ((reinterpret_cast<attrSet*>(_edata))->find<Attr>());
                 }
 
                 template <typename Attr>
                 const Attr* find() const {
-                    return ((reinterpret_cast<attrSeq*>(_edata))->find<Attr>());
+                    return ((reinterpret_cast<attrSet*>(_edata))->find<Attr>());
                 }
         };
 
