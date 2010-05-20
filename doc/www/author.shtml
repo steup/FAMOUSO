@@ -10,8 +10,17 @@
     <li><strong>Main Developer: Michael Schulze</strong></li>
     <ul>
     <li>Concepts</li>
-    <li>Middleware core</li>
+    <ul>
+    <li>General architecture of the middleware</li>
+    <li>MLCCA -- Multi Level Composability Check Architecture</li>
+    <li>Declarative configuration descriptions</li>
+    <li>Type-based Configuration Decision</li>
+    <li>Register Maps for protable, adaptive, and configurable hardware access</li>
+    <li>Generic Attribute Framework</li>
+    <li>Adaptive Fragmentation Protocol</li>
     <li>Generic gateway architecture</li>
+    </ul>
+    <li>Middleware core</li>
     <li>CAN-Network Layer and Protocols</li>
     <li>AWDS-Network Layer</li>
     <li>Languages Bindings (SWIG -- Python, Java, C#)</li>
@@ -34,6 +43,26 @@
     <li>UDP-MultiCast Network Layer</li>
     </ul>
     <br>
+    <li><strong>Developer: Marcus F&ouml;rster</strong></li>
+    <ul>
+    <li>Generic Attribute Framework</li>
+    </ul>
+    <br>
+    <li><strong>Developer: Philipp Werner</strong></li>
+    <ul>
+    <li>Adaptive Fragmentation Protocol</li>
+    </ul>
+    <br>
+    <li><strong>Developer: Michael Kriese</strong></li>
+    <ul>
+    <li>Checking QoS attributes at runtime and exemplarily implemented for the AWDS Network Layer</li>
+    </ul>
+    <br>
+    <li><strong>Developer: Thomas Kiebel</strong></li>
+    <ul>
+    <li>IEEE 802.15.4 Network Layer</li>
+    </ul>
+    <br>
     <li><strong>Developer: Timo Lindhorst</strong></li>
     <ul>
     <li>Some bug fixes</li>
@@ -43,7 +72,12 @@
     <li><strong>Bug Reporter</strong></li>
     <ul>
     <li>Andr&eacute; Herms</li>
-    <li>Thomas Kiebel</li>
+    <li>Christoph Steup</li>
+    <li>Tino Brade</li>
+    <li>Karl Fessel</li>
+    <li>Sven Albert</li>
+    <li>Stefan Sokoll</li>
+    <li>Thomas Poltrock</li>
     </ul>
     </ul>
     <!-- ##### Footer ##### -->
