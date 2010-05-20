@@ -48,7 +48,7 @@
 #include "mw/common/NodeID.h"
 #include "mw/common/Subject.h"
 #include "mw/el/EventLayerCallBack.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
 
@@ -72,7 +72,7 @@ namespace famouso {
              *  \todo test possibility to reduce memory space by using the provided mob_t object
              */
             template< class driver_t >
-            class IEEE_802_15_4_NL : public BaseNL {
+            class IEEE_802_15_4_NL : public DistinctNL {
                     driver_t driver;
                 public:
                     typedef IEEE_802_15_4_NL type;

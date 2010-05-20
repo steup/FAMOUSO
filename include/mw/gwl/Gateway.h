@@ -41,7 +41,7 @@
 #define __Gateway_h__
 
 #include "debug.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/el/EventLayer.h"
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/gwl/GatewayEventChannel.h"

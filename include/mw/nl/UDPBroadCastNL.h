@@ -41,7 +41,7 @@
 #define __UDPBroadCastNL_h__
 
 #include "util/ios.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
 #include "mw/common/NodeID.h"
@@ -55,7 +55,7 @@ namespace famouso {
     namespace mw {
         namespace nl {
 
-            class UDPBroadCastNL : public BaseNL {
+            class UDPBroadCastNL : public DistinctNL {
                 public:
                     struct info {
                         enum {

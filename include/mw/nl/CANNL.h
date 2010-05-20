@@ -41,7 +41,7 @@
 #define __CANNL_h__
 
 #include "case/Delegate.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
 #include "mw/common/NodeID.h"
@@ -64,7 +64,7 @@ namespace famouso {
              *
              */
             template< class CAN_Driver, class CCP, class BP >
-            class CANNL : public BaseNL {
+            class CANNL : public DistinctNL {
                     typedef CANNL   type;
                     uint16_t tx_node;
                     CAN_Driver driver;

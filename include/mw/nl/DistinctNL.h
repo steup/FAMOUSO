@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __BaseNL_h__
-#define __BaseNL_h__
+#ifndef __DistinctNL_h__
+#define __DistinctNL_h__
 
 namespace famouso {
     namespace mw {
@@ -51,7 +51,7 @@ namespace famouso {
              *          famouso::mw::nal::NetworkAdapter and for the
              *          realisation of Gateways (famouso::mw::gwl::Gateway).
              */
-            class BaseNL {
+            class DistinctNL {
                 public:
                     /*! \brief get the id of the specific network layer
                      *
@@ -63,7 +63,7 @@ namespace famouso {
                      *
                      *  \return a pointer on "this"
                      */
-                    const BaseNL* id() {
+                    const DistinctNL* id() {
                         return this;
                     }
             };

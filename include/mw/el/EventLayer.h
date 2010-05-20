@@ -46,7 +46,7 @@
 #include "mw/common/Event.h"
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/EventChannel.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/el/EventLayerCallBack.h"
 
 #include "object/Queue.h"
@@ -189,7 +189,7 @@ namespace famouso {
                      *              periodically without interrupt support from lower network
                      *              layer.
                      */
-                    void fetch(famouso::mw::nl::BaseNL *bnl = 0) {
+                    void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
                         TRACE_FUNCTION;
 
                         // give start of the SubsriberList

@@ -41,7 +41,7 @@
 #define __CallBack_h__
 
 #include "mw/common/Event.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 
 #include "case/Delegate.h"
 

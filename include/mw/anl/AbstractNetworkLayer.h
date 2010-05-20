@@ -43,7 +43,7 @@
 
 #include "debug.h"
 #include "mw/common/Event.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/afp/Fragmenter.h"
 #include "mw/afp/Defragmentation.h"
 
@@ -183,7 +183,7 @@ namespace famouso {
                      *  \return \li \b true if \e snn and the snn of the last arosen packet are equal
                      *          \li \b false otherwise
                      */
-                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::BaseNL *bnl) {
+                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
                         TRACE_FUNCTION;
                         if (snn == NL::lastPacketSNN()) {
                             typename NL::Packet_t p;
@@ -213,7 +213,7 @@ namespace famouso {
                      *
                      *  \param[in]  bnl the sub network-ID from where the request came.
                      */
-                    void event_process_request(famouso::mw::nl::BaseNL * const bnl) {
+                    void event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
                     }
 
                     /*! \brief Is called by the higher layer to signalise that

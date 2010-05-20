@@ -41,7 +41,7 @@
 #define __GatewayEventChannel_h__
 
 #include "mw/api/SubscriberEventChannel.h"
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 
 namespace famouso {
     namespace mw {
@@ -65,7 +65,7 @@ namespace famouso {
 
                     typedef famouso::mw::api::SubscriberEventChannel< ECH > BASE;
 
-                    const famouso::mw::nl::BaseNL * const _bnl;
+                    const famouso::mw::nl::DistinctNL * const _bnl;
                 public:
 
                     /*! \brief placement new operator to allow a constructor call
@@ -84,7 +84,7 @@ namespace famouso {
                      *    Furthermore establish proxy functionality by binding
                      *    the respective callback for publishing.
                      */
-                    GatewayEventChannel(const Subject &s, const famouso::mw::nl::BaseNL * const bnl) : BASE(s), _bnl(bnl) {
+                    GatewayEventChannel(const Subject &s, const famouso::mw::nl::DistinctNL * const bnl) : BASE(s), _bnl(bnl) {
                         TRACE_FUNCTION;
 
                         this->ech().subscribe(*this);

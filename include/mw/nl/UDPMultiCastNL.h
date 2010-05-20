@@ -44,7 +44,7 @@
 #include <boost/utility.hpp>
 #include <boost/asio/ip/udp.hpp>
 
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
 #include "mw/common/Subject.h"
@@ -53,7 +53,7 @@ namespace famouso {
     namespace mw {
         namespace nl {
 
-            class UDPMultiCastNL : public BaseNL, boost::noncopyable {
+            class UDPMultiCastNL : public DistinctNL, boost::noncopyable {
                 public:
 
                     struct info {

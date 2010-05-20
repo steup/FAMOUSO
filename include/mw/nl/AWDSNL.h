@@ -41,7 +41,7 @@
 #ifndef __AWDSNL_hpp__
 #define __AWDSNL_hpp__
 
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
 #include "mw/common/Subject.h"
@@ -64,7 +64,7 @@ namespace famouso {
             /*! \brief The AWDS network layer provides functionality for sending
              *         packets over the AWDS network.
              */
-            class AWDSNL: public BaseNL, boost::noncopyable {
+            class AWDSNL: public DistinctNL, boost::noncopyable {
                 public:
 
                     /*! \brief A Struct for holding informational constants.

@@ -40,7 +40,7 @@
 #ifndef __voidNL_h__
 #define __voidNL_h__
 
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
 #include "mw/common/NodeID.h"
@@ -53,7 +53,7 @@ namespace famouso {
     namespace mw {
         namespace nl {
 
-            class voidNL : public BaseNL {
+            class voidNL : public DistinctNL {
                 public:
                     struct info {
                         enum {

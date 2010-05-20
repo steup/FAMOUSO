@@ -40,7 +40,7 @@
 #ifndef __NetworkAdapter_h__
 #define __NetworkAdapter_h__
 
-#include "mw/nl/BaseNL.h"
+#include "mw/nl/DistinctNL.h"
 #include "mw/el/EventLayer.h"
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/gwl/GatewayEventChannel.h"
@@ -64,7 +64,7 @@ namespace famouso {
 
                     ANL_A  _ANL_A;
                     ANL_B  _ANL_B;
-                    famouso::mw::nl::BaseNL *_bnl;
+                    famouso::mw::nl::DistinctNL *_bnl;
 
                 protected:
 
@@ -93,7 +93,7 @@ namespace famouso {
                      *  \param[in] e the Event that should be selctive published.
                      *  \param[in] bnl the sub network in that the event \e e will be published.
                      */
-                    void publish_to_network_with_id(const SNN &snn, const Event &e, const famouso::mw::nl::BaseNL *bnl) {
+                    void publish_to_network_with_id(const SNN &snn, const Event &e, const famouso::mw::nl::DistinctNL *bnl) {
                         if (_ANL_A.id() == bnl)
                             _ANL_A.publish(snn.SNN_A , e);
                         else
@@ -111,7 +111,7 @@ namespace famouso {
                      *              publishing on all sub networks.
                      *          \li \b false otherwise
                      */
-                    const bool event_from_network_with_id(const famouso::mw::nl::BaseNL *b) const {
+                    const bool event_from_network_with_id(const famouso::mw::nl::DistinctNL *b) const {
                         if ((!_bnl)  || (_bnl == b))
                             return true;
                         else
@@ -125,7 +125,7 @@ namespace famouso {
                      *
                      *  \return the network-ID of the arised event.
                      */
-                    const famouso::mw::nl::BaseNL * const get_network_id() const {
+                    const famouso::mw::nl::DistinctNL * const get_network_id() const {
                         return _bnl;
                     }
 
@@ -177,7 +177,7 @@ namespace famouso {
                      *  \param[out] e the event that is filled with the received event
                      *  \param[in]  bnl the network from where an event fetching was requested.
                      */
-                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::BaseNL *bnl) {
+                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
                         /*! \todo fetching of stacked gateway are not implemented at this stage and
                          *        time triggered fetching is also not supported. */
                         if (_ANL_A.id() == bnl)
@@ -191,7 +191,7 @@ namespace famouso {
                      *
                      *  \param[in]  bnl the sub network-ID from where the request came.
                      */
-                    void event_process_request(famouso::mw::nl::BaseNL * const bnl) {
+                    void event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
                         if (_ANL_A.id() == bnl)
                             return _ANL_A.event_process_request(bnl);
                         else
