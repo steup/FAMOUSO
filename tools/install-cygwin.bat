@@ -2,7 +2,7 @@
 IF "%1" == "" GOTO :ERROR
 set packages=%1/packages
 echo Install cygwin in %1 
-setup.exe -P wget,make,subversion,mc,vim,gcc-g++ -q -L -D -R %1 -l %packages% -s http://ftp-stud.hs-esslingen.de/pub/Mirrors/sources.redhat.com/cygwin/ -O -X
+setup.exe -P wget,make,subversion,mc,vim,gcc4-g++,rxvt -q -L -D -R %1 -l %packages% -s http://ftp-stud.hs-esslingen.de/pub/Mirrors/sources.redhat.com/cygwin/ -O -X
 
 
 GOTO :EXIT

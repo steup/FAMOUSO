@@ -93,9 +93,9 @@ case you switch between different targets like it is while development.
 
 \subsection recommended-way Recommended way of compiling FAMOUSO
 
-- edit make/config.mk and choose the platform for which %FAMOUSO has to be built
-- type make in the main directory
-- change to the ECHs directory and type make "ech-config" which you want to build
+-# edit make/config.mk and choose the platform for which %FAMOUSO has to be built
+-# type make in the main directory
+-# change to the ECHs directory and type make "ech-config" which you want to build
     - for some ECH configurations (ech-can) you have to fulfill prerequisites like an
       installed pcan-lib if you want to use the peak-CAN library. \ref peak-can-build
 
@@ -103,7 +103,7 @@ case you switch between different targets like it is while development.
 \subsection alternative-way Alternative way
 
 The steps 1 and 2 are combinable. If you would do this, you will use the make
-command with PLATFORM={linux|windows|avr} e.g.
+command
 \code
 #> make CONFIG=PLATFORM
 \endcode
@@ -111,11 +111,21 @@ or
 \code
 #> make FAMOUSO_CONFIG=PLATFORM
 \endcode
+with PLATFORM defined as one of the following supported targets
+- linux
+- linux/openwrt
+- windows/mingw-cross
+- windows/mingw-native
+- windows/cygwin
+- avr
+
+The linux target is responsible for all *nix variants and it should usually
+build and work correcly. We have successfully build %FAMOUSO on different
+flavors of linux aka different linux distributions, Solaris, FreeBSD and
+Mac OS X.
+
 If you use it in that way, it is needed that you always specify the platform
 while compiling examples or ECHs.
-
-
-
 
 
 \section avr-robot-win Building on Windows for the AVR
@@ -126,6 +136,7 @@ As an example the build of the AVR-Robot part of the multi-robot demo is shown.
 \code
 #> PATH=/cygdrive/c/Programme/WinAVR-20081205/bin:$PATH
 #> export PATH
+#> export TEMP=/tmp
 \endcode
 -# change to the %famouso root dir and compile library
 \code
@@ -278,5 +289,14 @@ Running the tool, needs one further step:
 
 Compiling for the AVR with CAN support needs no further steps. %FAMOUSO
 contains all needed parts.
+
+\subsection examples Examples programs and different language bindings
+
+Example programs can be found under famouso-root-dir/examples and
+famouso-root-dir/Bindings. For running the examples, an ech has to be started
+in the right configuration. Executing the different languange binding examples
+the famouso-root-dir/ECHs/ech is sufficient to get the examples running.
+Examples which are part of the MultiRobotDemo need a more complex setup like
+using an ech-can or ech-UDP-MC.
 
 */

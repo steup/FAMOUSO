@@ -39,7 +39,7 @@
 
 /*!	\mainpage
 	\author Michael Schulze, Uni Magdeburg, IVS/EOS
-	\date 25.06.2009
+	\date 20.05.2010
 
 %FAMOUSO is a publish/subscribe middleware that readopts the ideas and
 concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art
@@ -66,6 +66,7 @@ programming languages (C/C++, Python, Java) as well as engineering tools (
     - \ref general_build
     - \ref avr-robot-win "Building on Windows for the AVR"
     - \ref peak-can-build
+    - \ref examples
 - \ref as-external-lib
 - \ref supported-devices
 */
