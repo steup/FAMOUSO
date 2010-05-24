@@ -74,7 +74,7 @@ namespace famouso {
 
                         /// Constructor
                         EventSeqHeaderSupport() :
-                                seq_valid(false) {
+                                seq_valid(false), seq(0) {
                         }
 
                         /*!

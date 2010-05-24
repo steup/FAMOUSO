@@ -116,6 +116,7 @@ namespace famouso {
 
                             if (b_header_length > sizeof(fseq)) {
                                 ::logging::log::emit< ::logging::Warning>() << "AFP: Receiving to large event! Dropping fragment!" << ::logging::log::endl;
+                                fseq = 0;
                                 return;
                             }
 
