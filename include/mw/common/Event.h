@@ -54,11 +54,11 @@ namespace famouso {
 
             Event(const Subject &s): subject(s), length(0), data(0) {}
 
-            uint8_t & operator[](uint8_t i) {
+            uint8_t & operator[](Type i) {
                 return data[i];
             }
 
-            uint8_t & operator[](uint8_t i) const {
+            uint8_t & operator[](Type i) const {
                 return data[i];
             }
         };

@@ -53,7 +53,7 @@ namespace famouso {
             using famouso::mw::Subject;
 
             /*!
-             * \brief Event that may contain more than 65535 bytes data.
+             * \brief Event that may contain more than 65535 bytes data (up to 4GB).
              */
             struct LargeEvent {
                 typedef uint32_t Type;
@@ -63,18 +63,18 @@ namespace famouso {
 
                 LargeEvent(const Subject &s): subject(s), length(0), data(0) {}
 
-                uint8_t & operator[](uint8_t i) {
+                uint8_t & operator[](Type i) {
                     return data[i];
                 }
 
-                uint8_t & operator[](uint8_t i) const {
+                uint8_t & operator[](Type i) const {
                     return data[i];
                 }
             };
 
 
             /*!
-             *  \brief  SizeProperties config for large events (max. 2^32 bytes). Application layer only.
+             *  \brief  SizeProperties config for large events (up to 4GB). Application layer only.
              *  \see    LargeEvent
              */
             struct LargeEventSizeProp {
