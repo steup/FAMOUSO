@@ -137,18 +137,20 @@ namespace famouso {
                             OverflowErrorCheck overflow_err;
 
                             // Find header and payload size and the number of fragments
+                            elen_t rem_length = event_length;
                             fcount_t frag_count = 0;
                             flen_t header_length = min_header_length;
                             fcount_t curr_hl_frag_count = 32;
                             fcount_t max_frag_count = 32;
 
                             payload_length = mtu - header_length;
-                            typename ExpandedRangeTypeSelector<elen_t>::type curr_hl_payload = curr_hl_frag_count * payload_length;
+                            typedef typename ExpandedRangeTypeSelector<elen_t>::type eelen_t;
+                            eelen_t curr_hl_payload = (eelen_t)curr_hl_frag_count * (eelen_t)payload_length;
                             overflow_err.check_equal(curr_hl_payload / payload_length, curr_hl_frag_count);
 
-                            while (event_length > curr_hl_payload &&
+                            while (rem_length > curr_hl_payload &&
                                    !overflow_err.error()) {
-                                event_length -= curr_hl_payload;
+                                rem_length -= curr_hl_payload;
                                 overflow_err.check_smaller(frag_count, frag_count + curr_hl_frag_count);
                                 frag_count += curr_hl_frag_count;
                                 header_length++;
@@ -163,10 +165,10 @@ namespace famouso {
                                 overflow_err.check_smaller(max_frag_count, max_frag_count << 7);
                                 max_frag_count <<= 7;
 
-                                curr_hl_payload = curr_hl_frag_count * payload_length;
+                                curr_hl_payload = (eelen_t)curr_hl_frag_count * (eelen_t)payload_length;
                                 overflow_err.check_equal(curr_hl_payload / payload_length, curr_hl_frag_count);
                             }
-                            frag_count += shared::div_round_up(event_length, (elen_t)payload_length);
+                            frag_count += shared::div_round_up(rem_length, (elen_t)payload_length);
 
                             if (header_length >= mtu || overflow_err.error()) {
                                 err = true;
