@@ -39,28 +39,17 @@
 
 /*!
  *  \file
- *  \brief  Automatic event transmission test: publisher
- *
- *  Useful to check whether AFP works in the Abstract Network Layer as intended.
+ *  \brief  Subscriber using AFP in Application Layer
  */
-
-//#define TEST_ALL
-#ifdef __AVR__
-#define MAX_LEN 0xff
-#else
-#define MAX_LEN 0xffff
-#endif
-
-#ifdef SECOND_SUBJECT
-#define SUBJECT "SUBJECT2"
-#else
-#define SUBJECT "SUBJECT1"
-#endif
 
 #define CPU_FREQUENCY 16000000
 
-#include "test_gen.h"
+#include "mw/afp/AFPSubscriberEventChannel.h"
+#include "mw/afp/Config.h"
+
 #include "famouso.h"
+#include "util/Idler.h"
+
 
 #ifdef __AVR__
 
@@ -98,61 +87,30 @@ namespace famouso {
 #endif
 
 
+using namespace famouso::mw;
+
+struct AFPConfig : afp::DefaultConfig {
+    enum {
+        overflow_error_checking = false
+    };
+    typedef afp::MinimalSizeProp SizeProperties;
+};
 
 
-uint8_t buffer[MAX_LEN];
 
-void publish(famouso::config::PEC & pec, famouso::mw::Event & event, uint32_t & counter) {
-    create_event_content(event.length, event.data);
-    FAMOUSO_ASSERT(check_event_content(event.length, event.data));
-    pec.publish(event);
-#ifndef __AVR__
-    usleep(10000);
-#endif
-    counter++;
+void ReceiveCallback(famouso::mw::api::SECCallBackData& cbd) {
+    ::logging::log::emit() << cbd.data;
 }
 
-
 int main() {
+    enum { mtu = 8 };
     famouso::init<famouso::config>();
 
-    famouso::config::PEC pec(SUBJECT);
-    pec.announce();
+    afp::AFPSubscriberEventChannel<famouso::config::SEC, AFPConfig, Event> sec("MTU____8", mtu);
+    sec.callback.bind<ReceiveCallback>();
+    sec.subscribe();
 
-    famouso::mw::Event event(pec.subject());
-    event.data = buffer;
-    uint32_t counter = 0;
-
-#ifdef TEST_ALL
-    for (event.length = 1; event.length < MAX_LEN; event.length++) {
-        publish(pec, event, counter);
-    }
-    publish(pec, event, counter);
-#else
-    uint16_t step = MAX_LEN / 2000;
-    if (!step) step = 1;
-    for (event.length = 1; event.length < MAX_LEN / 100; event.length += step) {
-        publish(pec, event, counter);
-    }
-
-    step = MAX_LEN / 2000;
-    if (!step) step = 1;
-    for (event.length = MAX_LEN / 100 + 1; event.length < MAX_LEN / 10; event.length += step) {
-        publish(pec, event, counter);
-    }
-
-    step = MAX_LEN / 200;
-    if (!step) step = 1;
-    for (event.length = MAX_LEN / 10 + 1; event.length < MAX_LEN - 2*step; event.length += step) {
-        publish(pec, event, counter);
-    }
-
-    event.length = MAX_LEN; {
-        publish(pec, event, counter);
-    }
-#endif
-
-    ::logging::log::emit() << SUBJECT << ": Published events: " << counter << ::logging::log::endl;
+    Idler::idle();
 
     return 0;
 }

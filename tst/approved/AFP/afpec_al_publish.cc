@@ -37,6 +37,11 @@
  *
  ******************************************************************************/
 
+/*!
+ *  \file
+ *  \brief  Publisher using AFP in Application Layer
+ */
+
 #define CPU_FREQUENCY 16000000
 
 #include "mw/afp/AFPPublisherEventChannel.h"
@@ -100,7 +105,7 @@ int main() {
 
     famouso::init<famouso::config>();
 
-    afp::AFPPublisherEventChannel<famouso::config::PEC, AFPConfig, mtu> pec("SUBJECT_");
+    afp::AFPPublisherEventChannel<famouso::config::PEC, AFPConfig, mtu> pec("MTU____8");
     pec.announce();
 
     Event event(pec.subject());

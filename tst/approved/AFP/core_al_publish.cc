@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2009-2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ *                         Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,13 +38,21 @@
  *
  ******************************************************************************/
 
+/*!
+ *  \file
+ *  \brief  Simple publisher example using the core AFP API
+ */
+
 #define CPU_FREQUENCY 16000000
 
-#include "mw/afp/AFPSubscriberEventChannel.h"
 #include "mw/afp/Config.h"
+#include "mw/afp/Fragmenter.h"
+
+#include "mw/afp/shared/hexdump.h"
 
 #include "famouso.h"
-#include "util/Idler.h"
+
+#include <stdlib.h>
 
 
 #ifdef __AVR__
@@ -82,31 +91,96 @@ namespace famouso {
 #endif
 
 
+#ifndef AFP_CONFIG
+// May be defined using a compiler parameter
+#define AFP_CONFIG 1
+#endif
+
 using namespace famouso::mw;
 
-struct AFPConfig : afp::DefaultConfig {
+class RedundancyTag;
+typedef afp::frag::RedundancyAttribute<RedundancyTag, 0> PublishFECRedundancy;
+
+
+#if (AFP_CONFIG == 1)
+struct MyAFPFragConfig : afp::DefaultConfig {
+    typedef PublishFECRedundancy RedundancyAttribute;
     enum {
-        overflow_error_checking = false
+        event_seq = true,
+        FEC = true
     };
-    typedef afp::MinimalSizeProp SizeProperties;
 };
+#elif (AFP_CONFIG == 2)
+struct MyAFPFragConfig : afp::DefaultConfig {
+    enum {
+        event_seq = true,
+        FEC = false
+    };
+};
+#else
+typedef afp::DefaultConfig MyAFPFragConfig;
+#endif
 
 
+/*!
+ *  \brief  Publish an event using the core API
+ */
+void publish(const famouso::mw::Event & e, famouso::config::PEC & pec) {
+    const uint16_t mtu = 16;
+    uint8_t buffer [mtu];
 
-void ReceiveCallback(famouso::mw::api::SECCallBackData& cbd) {
-    ::logging::log::emit() << cbd.data;
+    famouso::mw::Event fragment_e(e.subject);
+    fragment_e.data = buffer;
+
+    afp::Fragmenter<MyAFPFragConfig> f(e.data, e.length, mtu);
+
+    if (f.error())
+        return;
+
+    fprintf(stderr, "Sending event (%u Bytes):\n", e.length);
+    afp::shared::hexdump(e.data, e.length);
+
+    while ( (fragment_e.length = f.get_fragment(fragment_e.data)) ) {
+
+        fprintf(stderr, "Sending fragment (%u Bytes):\n", fragment_e.length);
+        afp::shared::hexdump(fragment_e.data, fragment_e.length);
+
+        pec.publish(fragment_e);
+//        pec.publish(fragment_e);
+    }
 }
 
-int main() {
-    enum { mtu = 8 };
+int main(int argc, char **argv) {
+
     famouso::init<famouso::config>();
 
-    afp::AFPSubscriberEventChannel<famouso::config::SEC, AFPConfig, Event> sec("SUBJECT_", mtu);
-    sec.callback.bind<ReceiveCallback>();
-    sec.subscribe();
+    famouso::config::PEC pec("MTU___16");
+    pec.announce();
 
-    Idler::idle();
+    famouso::mw::Event e(pec.subject());
 
-    return 0;
+//   while (1) {
+
+        PublishFECRedundancy::value() = 10;
+
+        //uint8_t data[] = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        uint8_t data[] = "abcdefghijklmnopqrstuvwx";
+        e.length = sizeof(data);
+        e.data = data;
+        publish(e, pec);
+
+        PublishFECRedundancy::value() = 1;
+        uint8_t data2[] = "1234";
+        e.length = sizeof(data2);
+        e.data = data2;
+        publish(e, pec);
+
+        PublishFECRedundancy::value() = 5;
+        uint8_t data3[] = "Halli hallo... 1 2 3... Test... TEST...";
+        e.length = sizeof(data3);
+        e.data = data3;
+        publish(e, pec);
+
+//  }
 }
 

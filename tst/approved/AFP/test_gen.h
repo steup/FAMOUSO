@@ -46,6 +46,11 @@
 #include "util/endianness.h"
 
 
+/*!
+ *  \brief  Creates event content that can be check by check_event_content()
+ *  \param length   Length of the event
+ *  \param data     Pointer to data buffer of the event
+ */
 void create_event_content(uint32_t length, uint8_t * data) {
     // Special case... very small event
     if (length <= sizeof(uint32_t)) {
@@ -62,6 +67,12 @@ void create_event_content(uint32_t length, uint8_t * data) {
         data[i] = (uint8_t)i;
 }
 
+/*!
+ *  \brief  Checks whether event content is equal to that created by create_event_content()
+ *  \param length   Length of the event
+ *  \param data     Pointer to data buffer of the event
+ *  \return True if content is correct
+ */
 bool check_event_content(uint32_t length, uint8_t * data) {
     // Special case... very small event
     if (length <= sizeof(uint32_t)) {

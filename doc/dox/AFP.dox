@@ -168,14 +168,14 @@ For example you can...
 
 For fragmentation you need to <tt>\#include "mw/afp/Fragmenter.h"</tt> and
 utilize the class famouso::mw::afp::Fragmenter. To learn how to use the API you can
-have a look at the example <tt>tst/approved/AFP/afp-publish.cc</tt>, at
+have a look at the example <tt>tst/approved/AFP/core_al_publish.cc</tt>, at
 <tt>include/mw/afp/AFPPublisherEventChannel.h</tt> or
 <tt>include/mw/anl/AbstractNetworkLayer.h</tt>.
 
 Defragmentation requires <tt>\#include "mw/afp/Defragmentation.h"</tt> and to
 use the classes famouso::mw::afp::DefragmentationProcessor and
 famouso::mw::afp::DefragmentationStep. Examples can be found in
-<tt>tst/approved/AFP/afp-subscribe.cc</tt>,
+<tt>tst/approved/AFP/core_al_subscribe.cc</tt>,
 <tt>include/mw/afp/AFPSubscriberEventChannel.h</tt> or
 <tt>include/mw/anl/AbstractNetworkLayer.h</tt>.
 

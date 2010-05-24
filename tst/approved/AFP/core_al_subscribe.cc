@@ -38,18 +38,51 @@
  *
  ******************************************************************************/
 
+/*!
+ *  \file
+ *  \brief  Simple subscriber example using the core AFP API
+ */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-#include "famouso_bindings.h"
 #include "util/Idler.h"
 
 #include "mw/afp/Defragmentation.h"
 #include "mw/afp/Config.h"
 #include "mw/afp/shared/hexdump.h"
+
+#ifdef __AVR__
+
+#include "mw/anl/AbstractNetworkLayer.h"
+#include "mw/el/EventLayer.h"
+#include "mw/api/PublisherEventChannel.h"
+#include "mw/api/SubscriberEventChannel.h"
+#include "mw/nl/CANNL.h"
+#include "devices/nic/can/at90can/avrCANARY.h"
+#include "mw/nl/can/etagBP/Client.h"
+#include "mw/nl/can/ccp/Client.h"
+
+namespace famouso {
+    namespace CAN {
+        class config {
+
+                typedef device::nic::CAN::avrCANARY can;
+                typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
+                typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
+                typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
+                typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
+            public:
+                typedef famouso::mw::el::EventLayer< anl > EL;
+                typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+                typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
+        };
+    }
+
+    typedef CAN::config config;
+}
+#else
+
+#include "famouso_bindings.h"
+
+#endif
 
 
 #ifndef AFP_CONFIG
@@ -88,8 +121,6 @@ typedef afp::DefragmentationStep<MyAFPDefragConfig> DefragmentationStep;
 
 DefragmentationProcessor dp(16);
 
-char subject[] = "_famcat_";
-
 
 
 void CB(famouso::mw::api::SECCallBackData& cbd) {
@@ -116,11 +147,9 @@ void CB(famouso::mw::api::SECCallBackData& cbd) {
 
 int main(int argc, char **argv) {
 
-    printf("FAMOUSO -- Initialization started.\n");
     famouso::init<famouso::config>();
-    printf("FAMOUSO -- Initialization successful.\n");
 
-    famouso::config::SEC sec(subject);
+    famouso::config::SEC sec("MTU___16");
     sec.callback.bind<CB>();
     sec.subscribe();
 

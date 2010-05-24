@@ -37,6 +37,14 @@
  *
  ******************************************************************************/
 
+/*!
+ *  \file
+ *  \brief  Automatic event transmission test: subscriber
+ *
+ *  Useful to check whether AFP works in the Abstract Network Layer as intended.
+ */
+
+
 #define CPU_FREQUENCY 16000000
 
 #include "test_gen.h"
