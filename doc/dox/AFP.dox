@@ -965,6 +965,73 @@ Reducing resource consumption in general for release versions:
 
 \section afp_microcontroller_size Resource consumption examples
 
+The following table illustrates the Flash and RAM resource consumption of some
+simple AFP configurations on an AVR at90can128 micro-controller build with
+<tt>avr-g++ 4.4.3</tt>. The values include the %famouso middleware and a CAN
+driver. The source is located in the directory <tt>tst/approved/AFP/avr-size</tt>.
+
+<table>
+    <tr>
+        <th>Node type</th>
+        <th>Max. event size (Bytes)</th>
+        <th>AFP</th>
+        <th>Section text (Bytes)</th>
+        <th>Section data (Bytes)</th>
+        <th>Section bss (Bytes)</th>
+        <th>Filename</th>
+    </tr>
+    <tr>
+        <td rowspan="3">publisher</td>
+        <td>8</td>
+        <td>none</td>
+        <td>2566</td>
+        <td>28</td>
+        <td>38</td>
+        <td>can-pub-no-afp</td>
+    </tr>
+    <tr>
+        <td>255</td>
+        <td>ANL</td>
+        <td>?</td>
+        <td>?</td>
+        <td>?</td>
+        <td>can-pub-anl</td>
+    </tr>
+    <tr>
+        <td>255</td>
+        <td>Application Layer</td>
+        <td>3010</td>
+        <td>28</td>
+        <td>38</td>
+        <td>can-pub-al</td>
+    </tr>
+    <tr>
+        <td rowspan="3">subscriber</td>
+        <td>8</td>
+        <td>none</td>
+        <td>2582</td>
+        <td>28</td>
+        <td>38</td>
+        <td>can-sub-no-afp</td>
+    </tr>
+    <tr>
+        <td>255</td>
+        <td>ANL</td>
+        <td>?</td>
+        <td>?</td>
+        <td>?</td>
+        <td>can-sub-anl</td>
+    </tr>
+    <tr>
+        <td>255</td>
+        <td>Application Layer</td>
+        <td>3302</td>
+        <td>28</td>
+        <td>301</td>
+        <td>can-sub-al</td>
+    </tr>
+</table>
+
 
 
 */

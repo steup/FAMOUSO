@@ -1,0 +1,22 @@
+#include <avr/io.h>
+
+void ReceiveCallback(famouso::mw::api::SECCallBackData& cbd) {
+    PORTA = cbd.data[0];
+    PORTB = cbd.length;
+}
+
+int main() {
+    famouso::init<famouso::config>();
+
+    SEC_Type sec("SUBJECT_"
+#ifdef MTU_DEF
+    , MTU_DEF
+#endif
+    );
+
+    sec.subscribe();
+    sec.callback.bind<ReceiveCallback>();
+
+    while(1);
+}
+
