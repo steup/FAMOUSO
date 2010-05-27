@@ -59,10 +59,12 @@ namespace famouso {
                 public:
                     struct info {
                         enum {
+                            mtu = 8192,
+                            payload = mtu - sizeof(famouso::mw::Subject) - sizeof(bool),
                         };
                     };
 
-                    typedef int32_t SNN;
+                    typedef famouso::mw::Subject SNN;
 
                     typedef Packet<SNN> Packet_t;
 
