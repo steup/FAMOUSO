@@ -192,11 +192,11 @@ namespace famouso {
                      *  \param[in]  bnl the sub network-ID from where the request came.
                      */
                     void event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
-                        if (_ANL_A.id() == bnl)
-                            return _ANL_A.event_process_request(bnl);
-                        else
-                            return _ANL_B.event_process_request(bnl);
                         _bnl = bnl;
+                        if (_ANL_A.id() == bnl)
+                            _ANL_A.event_process_request(bnl);
+                        else
+                            _ANL_B.event_process_request(bnl);
                     }
 
                     /*! \brief Is called by the higher layer to signalise that
@@ -204,9 +204,9 @@ namespace famouso {
                      */
                     void event_processed() {
                         if (_ANL_A.id() == _bnl)
-                            return _ANL_A.event_processed();
+                            _ANL_A.event_processed();
                         else
-                            return _ANL_B.event_processed();
+                            _ANL_B.event_processed();
                         _bnl = 0;
                     }
             };
