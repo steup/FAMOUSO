@@ -319,11 +319,11 @@ namespace famouso {
                                     l->set(rand() % 50 + 20);
                             }
 
-                            /*if (rand() % 2 == 0) {
+                            if (rand() % 2 == 0) {
                              Bandwidth *b = as->template find<Bandwidth>();
                              if (b)
                              b->set((rand() % 1000 + 1000));
-                             }*/
+                             }
 
                             if (rand() % 2 == 0) {
                                 PacketLoss *p = as->template find<PacketLoss> ();
