@@ -100,13 +100,17 @@ namespace famouso {
                     // attributes of publischer
                     Attributes::type pubAttr = _snnAttribs[subject];
 
+
                     // add clients to result list
                     for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
                         // nodeA are the actual network attributes, subAttr are the subscriber attributes
                         Attributes::type subAttr, nodeAttr = it->attribs;
 
+
+                        log::emit<AWDS>() << "Nodes: " << it->node << " " << nodeAttr << log::endl;
+
                         // check if node is to old or network attributes doesn't match publisher attributes
-                        if ((it->node->elapsed() > _maxAge) || !(nodeAttr <= pubAttr)) {
+                        if ((it->node->elapsed() > _maxAge) || !Attributes::match(nodeAttr, pubAttr)) {
                             // ignore subscriber
                             bad_subscribers++;
                             continue; // we don't have to check subscriber attributes
@@ -122,7 +126,7 @@ namespace famouso {
                         }
 
                         // match network attributes to subscriber attributes
-                        if (nodeAttr <= subAttr)
+                        if (Attributes::match(nodeAttr, subAttr))
                             // add good node
                             result->add(it->node);
                         else
@@ -167,11 +171,14 @@ namespace famouso {
                     // subject not registered
                     if (it == _snnmap.end()) {
                         // TODO: Temporary workaround until publisher announcing subjects
+                        Attributes::type a;
 #ifdef RANDOM_ATTRIBUTES
-                        reg(subject, Attributes::createRand());
+                        AWDSAttributesSet as = createRandAttributes();
+                        a = Attributes::create(as);
 #else
-                        reg(subject, Attributes::create());
+                        a = Attributes::create();
 #endif
+                        reg(subject, a);
                     }
 
                     // add node to subject

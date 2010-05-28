@@ -47,12 +47,15 @@
 #include "mw/nl/awds/MAC.h"
 #include "mw/nl/awds/Node.h"
 #include "mw/nl/awds/Attributes.h"
+#include "mw/nl/awds/ComparableAttributesSet.h"
 #include "mw/nl/awds/lists.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
+
+                typedef ComparableAttributesSet<AWDSAttributesList::type> Attributes;
 
                 /*! \brief A node repository for holding AWDS nodes and register nodes to subjects.
                  *

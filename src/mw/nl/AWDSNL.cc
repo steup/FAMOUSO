@@ -150,8 +150,8 @@ namespace famouso {
                     }
 
                     // determine type of packet
-                    uint8_t type = p.fragment ? AWDS_Packet::constants::packet_type::publish_fragment :
-                                                AWDS_Packet::constants::packet_type::publish;
+                    uint8_t type = p.fragment ? AWDS_Packet::constants::packet_type::publish_fragment
+                                              : AWDS_Packet::constants::packet_type::publish;
 
                     std::vector<boost::asio::const_buffer> buffers;
                     AWDS_Packet::Header awds_header;
@@ -238,7 +238,8 @@ namespace famouso {
                                 Attributes::type attribs;
 
 #ifdef RANDOM_ATTRIBUTES
-                                attribs = Attributes::createRand();
+                                AWDSAttributesSet as = createRandAttributes();
+                                attribs = Attributes::create(as);
 #else
                                 // TODO: load Attributes from awds_packet
                                 attribs = Attributes::create();
