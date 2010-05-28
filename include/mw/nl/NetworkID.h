@@ -84,17 +84,17 @@ namespace famouso {
                      *  \param out The output stream to print to.
                      */
                     void print(::logging::loggingReturnType &out) const {
-                        uint8_t tmp;
+                        char tmp;
                         for (uint16_t i = 0; i < size; i++) {
                             if (i > 0)
                                 out << ":";
                             // upper 4 BIT
                             tmp = _data[i] >> 4;
-                            out << (tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
+                            out << (char) (tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
 
                             // lower 4 BIT
                             tmp = _data[i] & 0xF;
-                            out << (tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
+                            out << (char)(tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
                         }
                     }
 

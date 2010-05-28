@@ -79,6 +79,23 @@ namespace logging {
                 return "[ AWDS ] ";
             }
     };
+
+    /*! \brief This class is intended to be used as a template argument for
+         *         the logging::log::emit() function.
+         *
+         *         Prefixes the output with "[ ATTR ] " and enables reporting
+         *         of the current logging level.
+         */
+        struct ATTR {
+                /*! \brief delivers the current %level of %logging */
+                static ::logging::Level::levels level() {
+                    return ::logging::Level::user;
+                }
+                /*! \brief delivers the string reporting the current %level of %logging */
+                static const char * desc() {
+                    return "[ ATTR ] ";
+                }
+        };
 }
 
 namespace famouso {
@@ -86,6 +103,7 @@ namespace famouso {
         namespace nl {
             typedef struct ::logging::Error Error;
             typedef struct ::logging::AWDS AWDS;
+            typedef ::logging::ATTR ATTR;
             typedef struct ::logging::log log;
         }
     }
