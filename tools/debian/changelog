@@ -1,3 +1,10 @@
+famouso (0.5.3) lucid; urgency=low
+
+  * Updated sources.
+  * Using new attributes framework.
+
+ -- Michael Kriese (FIN) <kriese@cs.uni-magdeburg.de>  Fri, 28 May 2010 16:23:09 +0200
+
 famouso (0.5.2) unstable; urgency=low
 
   * Attributes check implemented
