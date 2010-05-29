@@ -64,9 +64,27 @@ namespace famouso {
                         }
 
                     public:
+
                         /*! \brief A node at the AWDS network identified by his MAC address.
                          */
                         typedef boost::shared_ptr<Node> type;
+
+                        /** \brief Comparison operator for sorting nodes.
+                         */
+                        struct comp {
+                                /** \brief Compare two Nodes and look if the first is smaller than the second.
+                                 *
+                                 *  This function is used for sorted container.
+                                 *  The %type type is a boost::shared_ptr<Node>.
+                                 *  For comparison the MAC is used.
+                                 *  \param lhs The first node which has to be the smaller one.
+                                 *  \param rhs The second node which has to be the bigger one.
+                                 *  \return True if the first node has a smaller MAC as the second node, otherwise false.
+                                 */
+                                bool operator()(const type &lhs, const type &rhs) const {
+                                    return lhs->mac() < rhs->mac();
+                                }
+                        };
 
                         /*! \brief The time in seconds when the node was last seen.
                          *
@@ -90,7 +108,7 @@ namespace famouso {
                             return _mac;
                         }
 
-                        /*! \brief The copare operator to compare if clients are same.
+                        /*! \brief The copare operator to compare if clients are the same.
                          *
                          * \param o The other node to compare to.
                          * \return Returns true if the clients are the same, false otherwise.
@@ -107,14 +125,18 @@ namespace famouso {
                             out << _mac << " (" << ::logging::log::dec << elapsed() << ")";
                         }
 
+                        /** \brief Create a node with specified MAC.
+                         *  \param mac The mac of the node.
+                         *  \return The constructed node secured by a shared pointer.
+                         */
                         static type create(MAC mac) {
                             type res = type(new Node(mac));
                             return res;
                         }
 
                     private:
-                        MAC _mac;
-                        clock_t _time;
+                        MAC _mac; /**< The MAC of the node. */
+                        clock_t _time; /**< The timstamp of last subscription from the node. */
                 };
             } /* awds*/
         } /* nl */

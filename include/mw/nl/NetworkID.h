@@ -79,6 +79,14 @@ namespace famouso {
                         return std::memcmp(_data, o._data, size) == 0;
                     }
 
+                    /** \brief Compare two network ids for sorting.
+                     *  \param o The other network id to compare with.
+                     *  \return True if this id is smaller than the other id, otherwise false.
+                     */
+                    bool operator<(const NetworkID &o) const {
+                        return std::memcmp(_data, o._data, size) < 0;
+                    }
+
                     /*! \brief prints the NetworkID to the stream.
                      *
                      *  \param out The output stream to print to.
@@ -94,12 +102,8 @@ namespace famouso {
 
                             // lower 4 BIT
                             tmp = _data[i] & 0xF;
-                            out << (char)(tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
+                            out << (char) (tmp < 10 ? '0' + tmp : 'A' + tmp - 10);
                         }
-                    }
-
-                    const uint8_t *tab() const {
-                        return _data;
                     }
 
                 private:

@@ -52,24 +52,25 @@ namespace famouso {
                 }
 
                 NodeRepository::NodeRepository() :
-                    _nodes(SubscriberList::Create()), _maxAge(70) {
+                    _maxAge(70) {
                 }
 
                 Node::type NodeRepository::find(MAC mac) {
                     log::emit<AWDS>() << "Searching node ... ";
+                    Node::type node = Node::create(mac);
+
                     // look for a node with specified mac
-                    for (SubscriberList::iterator it = _nodes->begin(); it != _nodes->end(); it++) {
-                        if (mac == it->node->mac()) {
-                            log::emit() << "found: " << it->node << log::endl;
-                            return it->node;
-                        }
+                    NetworkAttributesMap::iterator it = _nodes.find(node);
+
+                    if (it != _nodes.end()) {
+                        log::emit() << "found: " << it->first << log::endl;
+                        return it->first;
                     }
 
                     // node not found, create a new and register
-                    Node::type result = Node::create(mac);
-                    log::emit() << "not found: " << result << log::endl;
-                    _nodes->add(Subscriber::Create(result, Attributes::create()));
-                    return result;
+                    log::emit() << "not found: " << node << log::endl;
+                    _nodes[node] = Attributes::create();
+                    return node;
                 }
 
                 NodeRepository::NodeList::type NodeRepository::find(SNN subject) {
@@ -100,35 +101,25 @@ namespace famouso {
                     // attributes of publischer
                     Attributes::type pubAttr = _snnAttribs[subject];
 
-
                     // add clients to result list
                     for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
-                        // nodeA are the actual network attributes, subAttr are the subscriber attributes
-                        Attributes::type subAttr, nodeAttr = it->attribs;
+                        Node::type node = (*it)->node; // the actual node to check
+                        Attributes::type subAttr = (*it)->attribs, // The subscriber attributes
+                                        nodeAttr = _nodes[node]; // The actual network attributes
 
-
-                        log::emit<AWDS>() << "Nodes: " << it->node << " " << nodeAttr << log::endl;
+                        log::emit<AWDS>() << "Node: " << node << " " << nodeAttr << log::endl;
 
                         // check if node is to old or network attributes doesn't match publisher attributes
-                        if ((it->node->elapsed() > _maxAge) || !Attributes::match(nodeAttr, pubAttr)) {
+                        if ((node->elapsed() > _maxAge) || !Attributes::match(nodeAttr, pubAttr)) {
                             // ignore subscriber
                             bad_subscribers++;
                             continue; // we don't have to check subscriber attributes
                         }
 
-                        // find the attributes of subscriber
-                        for (SubscriberList::iterator it2 = _nodes->begin(); it2 != _nodes->end(); it2++) {
-                            if (it2->node == it->node) {
-                                // attributes of subscriber found
-                                subAttr = it2->attribs;
-                                break; // we dont need to loop the rest
-                            }
-                        }
-
                         // match network attributes to subscriber attributes
                         if (Attributes::match(nodeAttr, subAttr))
                             // add good node
-                            result->add(it->node);
+                            result->add(node);
                         else
                             bad_subscribers++;
                     }
@@ -144,11 +135,11 @@ namespace famouso {
                     unreg(node);
 
                     // remove node from node list
-                    for (SubscriberList::iterator it = _nodes->begin(); it != _nodes->end(); it++)
-                        if (it->node == node) {
-                            _nodes->erase(it);
-                            break; // we don't nee to loop the rest
-                        }
+                    // look for a node with specified mac
+                    NetworkAttributesMap::iterator it = _nodes.find(node);
+
+                    if (it != _nodes.end())
+                        _nodes.erase(it);
                 }
 
                 void NodeRepository::remove(SNN subject) {
@@ -207,7 +198,7 @@ namespace famouso {
                         for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
 
                             // node is registered to subject, so unregister it
-                            if (it2->node == node) {
+                            if ((*it2)->node == node) {
                                 it->second->erase(it2);
                                 // node could not be registered more than on time
                                 break;
@@ -221,13 +212,7 @@ namespace famouso {
                 }
 
                 void NodeRepository::update(Node::type node, Attributes::type attribs) {
-                    // look for a node with specified mac
-                    for (SubscriberList::iterator it = _nodes->begin(); it != _nodes->end(); it++) {
-                        if (node == it->node) {
-                            it->attribs = attribs;
-                            break;
-                        }
-                    }
+                    _nodes[node] = attribs;
                 }
             } /* awds */
         } /* nl */

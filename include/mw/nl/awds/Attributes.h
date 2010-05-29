@@ -58,8 +58,7 @@ namespace famouso {
             namespace awds {
                 /** \brief This namepsace contains helper functions and classes for the attributes.
                  *
-                 * \todo The Attributes should be replaced by typedefs or usings later. They should not be deleted,
-                 *       because they are uses at AWDS Famouso module. Or you have to change the AWDS module accordingly.
+                 * \todo The elements at this namespace should moved to the right places later.
                  */
                 namespace detail {
                     using famouso::mw::attributes::Attribute;
@@ -90,6 +89,13 @@ namespace famouso {
                                 // attributes doesn't match
                                 return false;
                             }
+
+                            /** \brief The operator as string for debugging purposes.
+                             *  \return A string version of the operator <=.
+                             */
+                            static const char *op() {
+                                return " <= ";
+                            }
                     };
 
                     /** \brief Tag to compare Attributes.
@@ -116,6 +122,12 @@ namespace famouso {
 
                                 // attributes doesn't match
                                 return false;
+                            }
+                            /** \brief The operator as string for debugging purposes.
+                             *  \return A string version of the operator >=.
+                             */
+                            static const char *op() {
+                                return " >= ";
                             }
                     };
 
@@ -156,12 +168,16 @@ namespace famouso {
 
                 } // namespace detail
 
+                /** The Time-To-Live attribute. */
                 typedef detail::TTL<0xFF> TTL;
 
+                /** The %Latency attribute. */
                 typedef detail::Latency<0xFFFF> Latency;
 
+                /** The %Bandwidth attribute */
                 typedef detail::Bandwidth<0xFFFFFFFF> Bandwidth;
 
+                /** The Packet-Loss-Rate attribute. */
                 typedef detail::PacketLoss<0xFF> PacketLoss;
 
                 /** A list of AWDS Attributes */
@@ -172,36 +188,100 @@ namespace famouso {
 
 #ifdef RANDOM_ATTRIBUTES
 
+                /** \brief Only used internally for simplify writing.
+                 */
+                template< typename AttrSet >
+                struct _aset {
+                        typedef famouso::mw::attributes::AttributeSet<AttrSet> t;
+                };
+
+                /** \brief Create an attributes set of random attributes.
+                 *  \return An attributes set.
+                 */
+                inline AWDSAttributesSet::type _createAttrSet() {
+                    using boost::mpl::list;
+                    typedef AWDSAttributesSet::type rt;
+                    rt res;
+
+                    switch (rand() % 11) {
+                        case 0: {
+                            _aset<list<TTL> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 1: {
+                            _aset<list<Bandwidth> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 2: {
+                            _aset<list<Latency> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 3: {
+                            _aset<list<PacketLoss> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 4: {
+                            _aset<list<TTL, PacketLoss> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 5: {
+                            _aset<list<TTL, Bandwidth> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 6: {
+                            _aset<list<TTL, Latency> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 7: {
+                            _aset<list<Latency, PacketLoss> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 8: {
+                            _aset<list<TTL, Bandwidth, PacketLoss> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        case 9: {
+                            _aset<list<TTL, Latency, PacketLoss> >::t attr;
+                            res = *reinterpret_cast<rt *> (&attr);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    return res;
+                }
+
                 /*! \brief Creates a random attributes instance.
                  *
                  *  \return An instance of attributes.
                  */
                 inline AWDSAttributesSet::type createRandAttributes() {
-                    AWDSAttributesSet::type res;
+                    AWDSAttributesSet::type res = _createAttrSet();
 
-                    if (rand() % 2 == 0) {
-                        TTL *ttl = res.find<TTL> ();
-                        if (ttl)
-                            ttl->set(rand() % 20 + 1);
-                    }
+                    TTL *ttl = res.find<TTL> ();
+                    if (ttl)
+                        ttl->set(rand() % 20 + 1);
 
-                    if (rand() % 2 == 0) {
-                        Latency *l = res.find<Latency> ();
-                        if (l)
-                            l->set(rand() % 50 + 20);
-                    }
+                    Latency *l = res.find<Latency> ();
+                    if (l)
+                        l->set(rand() % 50 + 20);
 
-                    if (rand() % 2 == 0) {
-                        Bandwidth *b = res.find<Bandwidth> ();
-                        if (b)
-                            b->set((rand() % 1000 + 1000));
-                    }
+                    Bandwidth *b = res.find<Bandwidth> ();
+                    if (b)
+                        b->set((rand() % 1000 + 1000));
 
-                    if (rand() % 2 == 0) {
-                        PacketLoss *p = res.find<PacketLoss> ();
-                        if (p)
-                            p->set(rand() % 20 + 1);
-                    }
+                    PacketLoss *p = res.find<PacketLoss> ();
+                    if (p)
+                        p->set(rand() % 20 + 1);
 
                     return res;
                 }

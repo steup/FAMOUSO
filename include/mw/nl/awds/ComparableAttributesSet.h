@@ -37,8 +37,8 @@
  * $Id$
  *
  ******************************************************************************/
-#ifndef _ComparableAttributesSequence_h_
-#define _ComparableAttributesSequence_h_
+#ifndef _ComparableAttributesSet_h_
+#define _ComparableAttributesSet_h_
 
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
@@ -82,6 +82,13 @@ namespace famouso {
                                 /** The type of the last attribute in the list Seq. */
                                 typedef typename boost::mpl::end<Seq>::type end;
 
+                                static void echo(::logging::loggingReturnType &out, attrib *a) {
+                                    if (a)
+                                        out << (intmax_t) a->get();
+                                    else
+                                        out << "nd";
+                                }
+
                             public:
 
                                 /**
@@ -98,8 +105,13 @@ namespace famouso {
                                     attrib *l = a.template find<attrib> ();
                                     attrib *r = b.template find<attrib> ();
 
-                                    log::emit<ATTR>() << "matching " << (int) attrib::id << ": " << (int) (l ? l->get() : -1) << " <= "
-                                                    << (int) (r ? r->get() : -1) << log::endl;
+                                    ::logging::loggingReturnType &out = log::emit<ATTR>();
+
+                                    out << "matching " << (int) attrib::id << ": ";
+                                    echo(out, l);
+                                    out << attrib::op();
+                                    echo(out, r);
+                                    out << log::endl;
 
                                     // match attribute
                                     if (!attrib::match(l, r)) {
@@ -122,9 +134,9 @@ namespace famouso {
                                     attrib *attr = a.template find<attrib> ();
                                     if (attr) {
                                         // found, so get value
-                                        typename attrib::value_type val = attr->get();
+                                        //typename attrib::value_type val = attr->get();
                                         // print name and value
-                                        out << " [" << (int) attrib::id << "]={" << (int) val << "}";
+                                        out << " [" << (int) attrib::id << "]={" << (intmax_t) attr->get() << "}";
                                     }
 
                                     // print next attribute in list
@@ -161,6 +173,16 @@ namespace famouso {
                             data = pData(new uint8_t[s]);
                             std::memcpy(data.get(), d, s);
 
+                        }
+
+                        /** \brief Contructor to init the set with no attributes.
+                         *
+                         * Init the data with one byte otherwise we get SIGSEGV when accessing at getSeq().
+                         * The famouso::mw::attributes::AttributeSet is looking at the first byte of the data.
+                         */
+                        ComparableAttributesSet() {
+                            static uint8_t p[1] = { 0 };
+                            set(p, 1);
                         }
 
                         /** \brief Return a reference to the attributes set.
@@ -215,7 +237,7 @@ namespace famouso {
                          *  \return An instance of attributes.
                          */
                         static type create() {
-                            type res = type(new ComparableAttributesSet<AttrSeq> ());
+                            type res = type(new ComparableAttributesSet());
                             return res;
                         }
 
@@ -225,7 +247,7 @@ namespace famouso {
                          *  \return An instance of attributes.
                          */
                         static type create(AWDS_Packet &p) {
-                            type res = type(new ComparableAttributesSet<AttrSeq> ());
+                            type res = create();
                             res->set(p);
                             return res;
                         }
@@ -238,7 +260,7 @@ namespace famouso {
                          */
                         template< class AttrSeq2 >
                         static type create(famouso::mw::attributes::AttributeSet<AttrSeq2> &p) {
-                            type res = type(new ComparableAttributesSet<AttrSeq> ());
+                            type res = create();
                             res->set(reinterpret_cast<uint8_t*> (&p), p.overallSize);
                             return res;
                         }
@@ -267,4 +289,4 @@ namespace logging {
     }
 
 } /* namespace logging */
-#endif /* _ComparableAttributesSequence_ */
+#endif /* _ComparableAttributesSet_ */

@@ -55,6 +55,7 @@ namespace famouso {
         namespace nl {
             namespace awds {
 
+                /** A list of attributes to check before publishing. */
                 typedef ComparableAttributesSet<AWDSAttributesList::type> Attributes;
 
                 /*! \brief A node repository for holding AWDS nodes and register nodes to subjects.
@@ -82,16 +83,20 @@ namespace famouso {
                          */
                         class Subscriber {
                             public:
+
+                                /** \brief This type secured by a shared pointer.
+                                 */
+                                typedef boost::shared_ptr<Subscriber> type;
                                 /** \brief Creates a new Subcriber with the given parameters.
                                  *
                                  * \param c The node on which the subscriber resides.
                                  * \param a Attributes, which can be from network or subscriber.
                                  * \return A new Subscriber instance.
                                  */
-                                static Subscriber Create(Node::type c, Attributes::type a) {
-                                    Subscriber res;
-                                    res.node = c;
-                                    res.attribs = a;
+                                static type Create(Node::type c, Attributes::type a) {
+                                    type res = type(new Subscriber());
+                                    res->node = c;
+                                    res->attribs = a;
                                     return res;
                                 }
 
@@ -102,7 +107,7 @@ namespace famouso {
 
                         /*! \brief A list to hold subscribers with their attributes.
                          */
-                        typedef Container<Subscriber> SubscriberList;
+                        typedef Container<Subscriber::type> SubscriberList;
 
                         /*! \brief A map to assign clients to subjects.
                          */
@@ -111,6 +116,10 @@ namespace famouso {
                         /*! \brief A map to assign attributes to subjects.
                          */
                         typedef std::map<SNN, Attributes::type> PublisherMap;
+
+                        /** \brief A map to assign network attributes to nodes.
+                         */
+                        typedef std::map<Node::type, Attributes::type, Node::comp> NetworkAttributesMap;
 
                         /** \brief Constructor to init lists. */
                         NodeRepository();
@@ -197,7 +206,7 @@ namespace famouso {
 
                     private:
                         SubscriberMap _snnmap; /**< A map to assign nodes with attributes to subjects. */
-                        SubscriberList::type _nodes; /**< A list wich hold all known nodes at the AWDS network. */
+                        NetworkAttributesMap _nodes; /**< A map wich hold all known nodes and their network attributes at the AWDS network. */
                         PublisherMap _snnAttribs; /**< A map to assign attributes to a subject. */
                         int _maxAge /**< The timespan in seconds when a node is marked as offline. */;
                 };
