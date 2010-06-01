@@ -43,13 +43,15 @@
 #include "boost/mpl/list.hpp"
 #include "mw/attributes/Attribute.h"
 #include "mw/attributes/filter/find.h"
-#include "mw/attributes/AttributeSequence.h"
+#include "mw/attributes/AttributeSet.h"
 
 #include "mw/common/ExtendedEvent.h"
 
 #include "logging/logging.h"
 
 #include "AttribTests.h"
+
+#include "typeinfo"
 
 template <typename Attr, typename Event>
 void testFind(Event& ev) {
@@ -130,4 +132,6 @@ int main() {
 
 	print(ev.data, sizeof(eventType));
 	DBG_MSG("");
+
+	DBG_MSG(typeid(famouso::mw::attributes::detail::IsContained<a9, attribList>::result).name());
 }

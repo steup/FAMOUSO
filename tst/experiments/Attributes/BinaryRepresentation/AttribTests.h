@@ -48,7 +48,7 @@
 #include "logging/logging.h"
 
 #include "mw/attributes/Attribute.h"
-#include "mw/attributes/AttributeSequence.h"
+#include "mw/attributes/AttributeSet.h"
 
 #include "mw/attributes/detail/AttributeHeader.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
@@ -162,5 +162,7 @@ typedef TestAttrib<uint64_t, 0x1FFFFFF,            5, true>::type  a5;
 typedef TestAttrib<uint8_t,  2,                    6, false>::type a6;
 typedef TestAttrib<uint64_t, 0x1FFFFFFFFFFFFFFull, 7, false>::type a7;
 typedef TestAttrib<int16_t, -20,                   8, false>::type a8;
+
+typedef TestAttrib<int16_t, -20,                   9, false>::type a9;
 
 #endif
