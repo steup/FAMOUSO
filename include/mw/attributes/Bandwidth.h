@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef __Bandwidth_h__
+#define __Bandwidth_h__
 
 #include <stdint.h>
 
@@ -51,20 +51,21 @@ namespace famouso {
     namespace mw {
         namespace attributes {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
+            /*!
+             * \brief Defines a configurable bandwidth attribute for
+             *  describing how many bytes per second can be transmitted.
              *
-             * \tparam  ttl describes the initial value to be set
+             * The unit of the attribute value is bytes per second.
+             *
+             * \tparam bandwidth Describes the initial value to be set
              */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
-                               > {
+            template<uint32_t bandwidth>
+            class Bandwidth : public Attribute<
+                                      Bandwidth<0>, tags::integral_const_tag,
+                                      uint32_t, bandwidth, detail::SystemIDs::bandwidth, true
+                                     > {
                 public:
-                    typedef TTL type;
+                    typedef Bandwidth type;
             };
 
         } /* attributes */

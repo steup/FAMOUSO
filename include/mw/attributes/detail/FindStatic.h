@@ -42,6 +42,7 @@
 #define _Find_Static_h_
 
 #include "boost/mpl/end.hpp"
+#include "boost/mpl/deref.hpp"
 #include "boost/mpl/find_if.hpp"
 #include "boost/mpl/eval_if.hpp"
 #include "boost/type_traits/is_same.hpp"
@@ -55,10 +56,11 @@ namespace famouso {
 
                 /*!
                  * \brief Searches for the given attribute in the given attribute
-                 *  sequence and determines whether it is contained or not.
+                 *  set and provides the found attribute. If no appropriate
+                 *  attribute can be found boost::mpl::na is provided.
                  *
                  * \tparam Attr The attribute to search for
-                 * \tparam AttrSeq The attribute sequence to search in
+                 * \tparam AttrSeq The attribute forward sequence to search in
                  */
                 template <typename Attr, typename AttrSeq>
                 struct Find {
@@ -76,6 +78,26 @@ namespace famouso {
                                                       boost::is_same<
                                                        findIter,
                                                        typename boost::mpl::end<AttrSeq>::type
+                                                      >,
+                                                      boost::mpl::na,
+                                                      boost::mpl::deref<findIter>
+                                                     >::type result;
+                };
+
+                /*!
+                 * \brief Searches for the given attribute in the given attribute
+                 *  set and determines whether it is contained or not.
+                 *
+                 * \tparam Attr The attribute to search for
+                 * \tparam AttrSeq The attribute forward sequence to search in
+                 */
+                template <typename Attr, typename AttrSeq>
+                struct IsContained {
+                    public:
+                        typedef typename boost::mpl::eval_if<
+                                                      boost::is_same<
+                                                       typename Find<Attr, AttrSeq>::result,
+                                                       typename boost::mpl::na
                                                       >,
                                                       boost::mpl::bool_<false>,
                                                       boost::mpl::bool_<true>

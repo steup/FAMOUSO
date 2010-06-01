@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef __Period_h__
+#define __Period_h__
 
 #include <stdint.h>
 
@@ -51,20 +51,21 @@ namespace famouso {
     namespace mw {
         namespace attributes {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
+            /*!
+             * \brief Defines a configurable period attribute for
+             *  describing the time between periodic events.
              *
-             * \tparam  ttl describes the initial value to be set
+             * The unit of the attribute value is micro seconds.
+             *
+             * \tparam Period Describes the initial value to be set
              */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
-                               > {
+            template<uint16_t period>
+            class Period : public Attribute<
+                                       Period<0>, tags::integral_const_tag,
+                                       uint16_t, period, detail::SystemIDs::period, true
+                                      > {
                 public:
-                    typedef TTL type;
+                    typedef Period type;
             };
 
         } /* attributes */

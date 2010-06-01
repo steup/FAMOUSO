@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef __PacketLoss_h__
+#define __PacketLoss_h__
 
 #include <stdint.h>
 
@@ -51,20 +51,23 @@ namespace famouso {
     namespace mw {
         namespace attributes {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
+            /*!
+             * \brief Defines a configurable packet loss attribute for
+             *  describing how many packets will be averagely lost.
              *
-             * \tparam  ttl describes the initial value to be set
+             * The unit of the attribute value is a hundredth of the
+             *  percentage of lost packets against all sent packets. E.g.
+             *  a value of 1498 means that 14.98% of the packets are lost.
+             *
+             * \tparam packetLoss Describes the initial value to be set
              */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
-                               > {
+            template<uint16_t packetLoss>
+            class PacketLoss : public Attribute<
+                                       PacketLoss<0>, tags::integral_const_tag,
+                                       uint16_t, packetLoss, detail::SystemIDs::packetLoss, true
+                                      > {
                 public:
-                    typedef TTL type;
+                    typedef PacketLoss type;
             };
 
         } /* attributes */

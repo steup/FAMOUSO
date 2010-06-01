@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef __Omission_h__
+#define __Omission_h__
 
 #include <stdint.h>
 
@@ -51,20 +51,21 @@ namespace famouso {
     namespace mw {
         namespace attributes {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
+            /*!
+             * \brief Defines a configurable omission degree attribute for
+             *  describing how many packets can consecutively lost
              *
-             * \tparam  ttl describes the initial value to be set
+             * The unit of the attribute value is the number of packets
+             *
+             * \tparam omission Describes the initial value to be set
              */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
-                               > {
+            template<uint16_t omission>
+            class Omission : public Attribute<
+                                       Omission<0>, tags::integral_const_tag,
+                                       uint16_t, omission, detail::SystemIDs::omission, true
+                                      > {
                 public:
-                    typedef TTL type;
+                    typedef Omission type;
             };
 
         } /* attributes */

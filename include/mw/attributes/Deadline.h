@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef __Deadline_h__
+#define __Deadline_h__
 
 #include <stdint.h>
 
@@ -51,20 +51,23 @@ namespace famouso {
     namespace mw {
         namespace attributes {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
+            /*!
+             * \brief Defines a configurable deadline attribute for
+             *  describing a point in time when a specific event is
+             *  expected to be occurred.
              *
-             * \tparam  ttl describes the initial value to be set
+             * The unit of the attribute value is the number of
+             *  milliseconds since 1970 0:00:00 GMT.
+             *
+             * \tparam deadline Describes the initial value to be set
              */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
-                               > {
+            template<uint64_t deadline>
+            class Deadline : public Attribute<
+                                       Deadline<0>, tags::integral_const_tag,
+                                       uint64_t, deadline, detail::SystemIDs::deadline, true
+                                      > {
                 public:
-                    typedef TTL type;
+                    typedef Deadline type;
             };
 
         } /* attributes */

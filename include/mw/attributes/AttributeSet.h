@@ -125,6 +125,11 @@ namespace famouso {
                      */
                     typedef AttributeSet type;
 
+                    /**
+                     * \brief The sequence that was given to create this set
+                     */
+                    typedef AttrSeq      sequence;
+
                     /*!
                      * \brief The size of the complete attribute sequence in binary representation
                      *
@@ -207,7 +212,7 @@ namespace famouso {
                     template <typename Attr>
                     Attr* find() {
                         // Check if the attribute is contained in the static sequence at all
-                        if (!detail::Find<Attr, AttrSeq>::result::value) {
+                        if (!detail::IsContained<Attr, AttrSeq>::result::value) {
                             return (reinterpret_cast<Attr*>(NULL));
                         }
 
@@ -217,7 +222,7 @@ namespace famouso {
                     template <typename Attr>
                     const Attr* find() const {
                         // Check if the attribute is contained in the static sequence at all
-                        if (!detail::Find<Attr, AttrSeq>::result::value) {
+                        if (!detail::IsContained<Attr, AttrSeq>::result::value) {
                             return (reinterpret_cast<Attr*>(NULL));
                         }
 
@@ -232,6 +237,10 @@ namespace famouso {
                                          (AttrSeq));
 
                     static const uint16_t overallSize = 0;
+
+                    typedef AttrSeq sequence;
+
+                    typedef AttributeSet type;
 
                     template <typename Attr>
                     Attr* find() {

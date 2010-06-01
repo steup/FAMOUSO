@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef __Latency_h__
+#define __Latency_h__
 
 #include <stdint.h>
 
@@ -51,20 +51,22 @@ namespace famouso {
     namespace mw {
         namespace attributes {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
+            /*!
+             * \brief Defines a configurable Latency attribute for
+             *  describing the delay between sending a packet and
+             *  receiving it at the destination.
              *
-             * \tparam  ttl describes the initial value to be set
+             * The unit of the attribute value is micro seconds.
+             *
+             * \tparam latency Describes the initial value to be set
              */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
-                               > {
+            template<uint32_t latency>
+            class Latency : public Attribute<
+                                    Latency<0>, tags::integral_const_tag,
+                                    uint32_t, latency, detail::SystemIDs::latency, true
+                                   > {
                 public:
-                    typedef TTL type;
+                    typedef Latency type;
             };
 
         } /* attributes */

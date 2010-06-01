@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,38 +38,39 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
-
-#include <stdint.h>
-
-#include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/Attribute.h"
-
-#include "mw/attributes/detail/SystemIDs.h"
+#ifndef _System_IDs_h_
+#define _System_IDs_h_
 
 namespace famouso {
     namespace mw {
         namespace attributes {
+            namespace detail {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
-             *
-             * \tparam  ttl describes the initial value to be set
-             */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
-                               > {
-                public:
-                    typedef TTL type;
-            };
+                /*!
+                 * \brief Holds the IDs of the defined system %attributes
+                 *  at one place
+                 */
+                struct SystemIDs {
+                        enum {
+                                ttl        = 1,
+                                latency    = 2,
+                                bandwidth  = 3,
+                                packetLoss = 4,
+                                omission   = 5,
 
-        } /* attributes */
-    } /* mw */
-} /* famouso */
+                                jitter     = 6,
+                                period     = 7,
+                                deadline   = 8,
+                                timestamp  = 9
+
+                                // position / coordinates ???
+
+                        };
+                };
+
+            }  // namespace detail
+        }  // namespace attributes
+    }  // namespace mw
+}  // namespace famouso
 
 #endif

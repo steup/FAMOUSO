@@ -43,9 +43,17 @@
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
 #include "mw/el/EventChannelHandler.h"
+#include "mw/attributes/AttributeSet.h"
+#include "mw/attributes/detail/RequirementChecker.h"
 
 #include "object/Chain.h"
 #include "case/Delegate.h"
+
+#include "config/type_traits/if_contains_select_type.h"
+#include "boost/mpl/eval_if.hpp"
+#include "boost/mpl/list.hpp"
+
+IF_CONTAINS_SELECT_TYPE_(attributeProvision);
 
 namespace famouso {
     namespace mw {
@@ -63,8 +71,25 @@ namespace famouso {
              *
              * \sa famouso::mw::el::EventLayer
              */
-            template < class ECH >
+            template < class ECH, typename AttrSet = attributes::AttributeSet<boost::mpl::list<> > >
             class EventChannel : public Chain {
+                    // attribute provision of the given event channel handler (or an
+                    //  an empty provision if the handler did not define any)
+                    // TODO: Should a non-existing provision be accepted or should every
+                    //  NL be forced to extend BaseNL?
+                    typedef typename if_contains_select_type_attributeProvision<
+                                      ECH,
+                                      attributes::AttributeSet<boost::mpl::list<> >
+                                     >::type echProvision;
+
+                    // The requirement of this event channel given by the attribute set above
+                    typedef AttrSet ecRequirement;
+
+                    typedef attributes::detail::RequirementChecker<
+                             echProvision,
+                             ecRequirement
+                            > checker;
+
                     // the 64Bit subject
                     Subject _subj;
                     // definition of the short network names of a subjectes
