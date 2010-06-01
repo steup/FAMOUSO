@@ -95,14 +95,6 @@ namespace famouso {
                     // The next sequence element type
                     typedef boost::mpl::next<Iter> iterNext;
 
-                    // The sequence header structure type always instantiated with the size of the
-                    //  complete attribute sequence ("always" means that this type is also instantiated
-                    //  for the recursively instantiated remaining sequences, where (isFirst == false),
-                    //  nevertheless it will not really be used in this case)
-                    typedef detail::AttributeSetHeader<
-                                     boost::mpl::size<AttrSeq>::type::value
-                                    > setHeader;
-
                     // Determines whether the iterator points to the first attribute of the
                     //  the sequence (If this is true, the sequence header will be written
                     //  additionally)
@@ -110,14 +102,6 @@ namespace famouso {
                                                         Iter,
                                                         typename boost::mpl::begin<AttrSeq>::type
                                                        >::value;
-
-                    // The offset determines where the actual attribute data starts in the
-                    //  member array, this depends on whether we currently handle the first
-                    //  attribute in list or not; In the former case the offset is identical
-                    //  to the size of the sequence header since it will be written before the
-                    //  the first attribute of the sequence, in the latter case the offset is
-                    //  simply 0 since there will be no sequence header written
-                    static const uint8_t offset = (isFirst ? setHeader::size : 0);
 
                 public:
                     /*!
@@ -130,6 +114,31 @@ namespace famouso {
                      */
                     typedef AttrSeq      sequence;
 
+                    /*
+                     * \brief The size of this set in bytes, this does not include the set header only
+                     *  the representation of all attributes is considered.
+                     */
+                    static const uint16_t setSize = detail::AttributeSize<typename curAttr::type>::value +
+                                                    AttributeSet<AttrSeq, typename iterNext::type>::setSize;
+
+                    static const uint16_t count = boost::mpl::size<AttrSeq>::value;
+
+                private:
+                    // The sequence header structure type always instantiated with the size of the
+                    //  complete attribute sequence ("always" means that this type is also instantiated
+                    //  for the recursively instantiated remaining sequences, where (isFirst == false),
+                    //  nevertheless it will not really be used in this case)
+                    typedef detail::AttributeSetHeader<setSize> setHeader;
+
+                    // The offset determines where the actual attribute data starts in the
+                    //  member array, this depends on whether we currently handle the first
+                    //  attribute in list or not; In the former case the offset is identical
+                    //  to the size of the sequence header since it will be written before the
+                    //  the first attribute of the sequence, in the latter case the offset is
+                    //  simply 0 since there will be no sequence header written
+                    static const uint8_t offset = (isFirst ? setHeader::size : 0);
+
+                public:
                     /*!
                      * \brief The size of the complete attribute sequence in binary representation
                      *
@@ -141,16 +150,8 @@ namespace famouso {
                             //  be included
                             (isFirst ? setHeader::size : 0) +
 
-                            // In any case (first or not) the current attribute is included
-                            //  (the size calculator struct calculates the overall size of
-                            //  an attribute including the header)
-                            detail::AttributeSize<typename curAttr::type>::value +
-
-                            // Recursively instantiate the attribute sequence with its iterator
-                            //  pointing to next attribute in the sequence (the past-end case
-                            //  is modeled by a specialization of the attribute sequence struct
-                            //  which has an overall size of 0)
-                            AttributeSet<AttrSeq, typename iterNext::type>::overallSize;
+                            // The size without the header has already been calculated above
+                            setSize;
 
                 private:
                     /*!
@@ -235,6 +236,8 @@ namespace famouso {
                     BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
                                          no_forward_sequence_given,
                                          (AttrSeq));
+
+                    static const uint16_t setSize = 0;
 
                     static const uint16_t overallSize = 0;
 

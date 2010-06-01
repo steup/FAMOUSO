@@ -100,7 +100,8 @@ namespace famouso {
              * \tparam ID The identifier of this attribute
              * \tparam IsSystem True, if this is a system attribute
              */
-            template <typename BaseType, typename CompareTag, typename ValueType, ValueType Value, uint8_t ID, bool IsSystem = false>
+            template <typename BaseType, typename CompareTag, typename ValueType,
+                      ValueType Value, uint8_t ID, bool IsSystem = false>
             class Attribute {
                 public:
                     // The boost tag type, declaring the attribute class to be an
@@ -339,13 +340,12 @@ namespace famouso {
                             // The length read
                             uint16_t length;
 
-                            const uint16_t lengthMask  = (isSystem ? 0x3FF : 0x7FF);
                             const uint8_t  valueOffset = (isSystem ? 1 : 2);
 
                             // Read the length in big-endian order
                             if (header->extension) {
                                 length    = *(reinterpret_cast<const uint16_t*>(data));
-                                length    = (ntohs(length) & lengthMask);
+                                length    = (ntohs(length) & (isSystem ? 0x3FF : 0x7FF));
                                 targetPtr = &data[valueOffset + 1];
                             } else {
                                 // Expand the single byte to a 16 bit value and only apply the
@@ -372,6 +372,58 @@ namespace famouso {
                         }
 
                         return (true);
+                    }
+
+                    /*!
+                     * \brief Determines the number of bytes used by the binary representation
+                     *  of this attribute.
+                     *
+                     * This method uses the binary representation of this attribute only, that
+                     *  is the structure defined by the template argument "value" is not
+                     *  considered. This allows determining the size of %attributes that are
+                     *  for instance received from the network.
+                     *
+                     * \return This attribute's size in bytes
+                     */
+                    uint16_t size() const {
+                        const detail::AttributeElementHeader* const header =
+                                reinterpret_cast<const detail::AttributeElementHeader* const>(data);
+
+                        if ((isSystem) && (header->valueOrLengthSwitch)) {
+                            if (header->extension) {
+                                // Value fits extended -> 2 bytes are needed
+                                return (2);
+                            } else {
+                                // Value fits unextended -> 1 byte is needed
+                                return (1);
+                            }
+                        } else {
+                            uint16_t result;
+
+                            // Read the length in big-endian order
+                            if (header->extension) {
+                                result = *(reinterpret_cast<const uint16_t*>(data));
+                                result = (ntohs(result) & (isSystem ? 0x3FF : 0x7FF));
+
+                                // An extension implies that the actual header needs 2 bytes
+                                result += 2;
+                            } else {
+                                // Expand the single byte to a 16 bit value and only apply the
+                                //  high byte of the mask (0x3)
+                                result = static_cast<uint16_t>(data[0] & 0x3);
+
+                                // Without an extension the actual header needs 1 byte
+                                ++result;
+                            }
+
+                            // Non-system attributes have additional overhead because of the
+                            //  type field
+                            if (!isSystem) {
+                                ++result;
+                            }
+
+                            return (result);
+                        }
                     }
             };
 

@@ -45,6 +45,7 @@
 
 #include "util/endianness.h"
 #include "mw/attributes/detail/AttributeElementHeader.h"
+#include "mw/attributes/detail/SystemIDs.h"
 
 namespace famouso {
     namespace mw {
@@ -88,7 +89,7 @@ namespace famouso {
                         // Interpret the current pointer as an attribute header
                         header = reinterpret_cast<AttributeElementHeader*>(data);
 
-                        if (header->category == AttributeElementHeader::nonSystemCategory) {
+                        if (header->category == SystemIDs::nonSystem) {
                             // Non-system attribute
 
                             // In this case we have to proceed to the type field to check it

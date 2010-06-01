@@ -60,6 +60,7 @@ void testFind(Event& ev) {
 	if (a != NULL) {
 		::logging::log::emit() << "Attribute with ID " << (uint16_t) Attr::id << " could be found" << ::logging::log::endl;
 		::logging::log::emit() << "Value: " << ::logging::log::hex << (uint64_t) a->get() << ::logging::log::dec << ::logging::log::endl;
+		::logging::log::emit() << "Size:  " << ::logging::log::hex << (uint64_t) a->size() << ::logging::log::dec << ::logging::log::endl;
 	} else {
 		::logging::log::emit() << "Attribute with ID " << (uint16_t) Attr::id << " could not be found" << ::logging::log::endl;
 	}
@@ -93,6 +94,8 @@ using namespace famouso::mw::attributes;
 int main() {
 	typedef boost::mpl::list<a1, a2, a3, a4, a5, a6, a7, a8>::type attribList;
 	typedef ExtendedEvent<16, attribList> eventType;
+
+	typedef AttributeSet<attribList> attrSet;
 
 	TO_HEX;
 
@@ -134,4 +137,7 @@ int main() {
 	DBG_MSG("");
 
 	DBG_MSG(typeid(famouso::mw::attributes::detail::IsContained<a9, attribList>::result).name());
+
+	DBG_MSG((uint16_t) attrSet::setSize);
+	DBG_MSG((uint16_t) attrSet::count);
 }

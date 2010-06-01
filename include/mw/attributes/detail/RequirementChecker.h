@@ -64,10 +64,6 @@ namespace famouso {
                          */
                         typedef typename boost::mpl::deref<ReqIter>::type curAttr;
 
-                        BOOST_MPL_ASSERT_MSG(!(boost::is_same<boost::mpl::na, curAttr>::value),
-                                             son_mist,
-                                             ());
-
                         /*!
                          * \brief Determines whether the current attribute is contained
                          *  in the provision.

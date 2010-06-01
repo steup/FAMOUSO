@@ -1,7 +1,6 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
- *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -38,34 +37,41 @@
  *
  ******************************************************************************/
 
-#ifndef _Attribute_Element_Header_
-#define _Attribute_Element_Header_
+#ifndef __Absolute_Deadline_h__
+#define __Absolute_Deadline_h__
 
 #include <stdint.h>
+
+#include "mw/attributes/tags/IntegralConstTag.h"
+#include "mw/attributes/Attribute.h"
+
+#include "mw/attributes/detail/SystemIDs.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
-            namespace detail {
 
-                /**
-                 * \brief Represents the structure a single attribute's header.
-                 */
-                union AttributeElementHeader {
-                        // For system attributes
-                        struct {
-                                uint8_t valueOrLength :2;
-                                uint8_t valueOrLengthSwitch :1;
-                                uint8_t extension :1;
-                                uint8_t category :4;
-                        }__attribute__((packed));
+            /*!
+             * \brief Defines a configurable deadline attribute for
+             *  describing a point in time when a specific event is
+             *  expected to be occurred.
+             *
+             * The unit of the attribute value is the number of
+             *  microseconds since 1970 0:00:00 GMT.
+             *
+             * \tparam deadline Describes the initial value to be set
+             */
+            template<uint64_t deadline>
+            class AbsoluteDeadline : public Attribute<
+                                       AbsoluteDeadline<0>, tags::integral_const_tag,
+                                       uint64_t, deadline, detail::SystemIDs::absDeadline, true
+                                      > {
+                public:
+                    typedef AbsoluteDeadline type;
+            };
 
-                        // For non system attributes
-                        uint8_t length :3;
-                };
-            } // end namespace attributes
-        } // end namespace attributes
-    } // end namespace mw
-} // end namespace famouso
+        } /* attributes */
+    } /* mw */
+} /* famouso */
 
-#endif // _Attribute_Element_Header_
+#endif

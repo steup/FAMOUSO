@@ -37,8 +37,8 @@
  *
  ******************************************************************************/
 
-#ifndef __Deadline_h__
-#define __Deadline_h__
+#ifndef __Relative_Deadline_h__
+#define __Relative_Deadline_h__
 
 #include <stdint.h>
 
@@ -53,21 +53,21 @@ namespace famouso {
 
             /*!
              * \brief Defines a configurable deadline attribute for
-             *  describing a point in time when a specific event is
-             *  expected to be occurred.
+             *  describing a point in time relative to the current one
+             *  when a specific event is expected to be occurred.
              *
              * The unit of the attribute value is the number of
-             *  milliseconds since 1970 0:00:00 GMT.
+             *  microseconds since now.
              *
              * \tparam deadline Describes the initial value to be set
              */
             template<uint64_t deadline>
-            class Deadline : public Attribute<
-                                       Deadline<0>, tags::integral_const_tag,
-                                       uint64_t, deadline, detail::SystemIDs::deadline, true
+            class RelativeDeadline : public Attribute<
+                                       RelativeDeadline<0>, tags::integral_const_tag,
+                                       uint64_t, deadline, detail::SystemIDs::relDeadline, true
                                       > {
                 public:
-                    typedef Deadline type;
+                    typedef RelativeDeadline type;
             };
 
         } /* attributes */

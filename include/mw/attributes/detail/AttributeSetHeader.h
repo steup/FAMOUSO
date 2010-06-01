@@ -57,8 +57,8 @@ namespace famouso {
                 /*!
                  * \brief Represents an attribute sequence header which simply
                  *  provides a binary representation for the sequence's size,
-                 *  i.e. the number of elements (attributes in this case) which
-                 *  are contained.
+                 *  i.e. the number of bytes the contained elements (attributes
+                 *  in this case) need.
                  *
                  * The binary representation basically consists of one byte. The
                  *  highest bit of this byte signals if another byte will follow.

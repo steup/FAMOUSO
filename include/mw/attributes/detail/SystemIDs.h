@@ -52,19 +52,21 @@ namespace famouso {
                  */
                 struct SystemIDs {
                         enum {
-                                ttl        = 1,
-                                latency    = 2,
-                                bandwidth  = 3,
-                                packetLoss = 4,
-                                omission   = 5,
+                                ttl         = 1,
+                                latency     = 2,
+                                bandwidth   = 3,
+                                packetLoss  = 4,
+                                omission    = 5,
 
-                                jitter     = 6,
-                                period     = 7,
-                                deadline   = 8,
-                                timestamp  = 9
+                                jitter      = 6,
+                                period      = 7,
+                                absDeadline = 8,
+                                relDeadline = 9,
+                                timestamp   = 10,
 
                                 // position / coordinates ???
 
+                                nonSystem   = 15
                         };
                 };
 

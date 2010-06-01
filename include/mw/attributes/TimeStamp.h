@@ -56,14 +56,14 @@ namespace famouso {
              *  describing a specific point in time.
              *
              * The unit of the attribute value is the number of
-             *  milliseconds since 1970 0:00:00 GMT.
+             *  microseconds since 1970 0:00:00 GMT.
              *
              * \tparam timeStamp Describes the initial value to be set
              */
-            template<uint16_t timeStamp>
+            template<uint64_t timeStamp>
             class TimeStamp : public Attribute<
                                        TimeStamp<0>, tags::integral_const_tag,
-                                       uint16_t, timeStamp, detail::SystemIDs::timeStamp, true
+                                       uint64_t, timeStamp, detail::SystemIDs::timeStamp, true
                                       > {
                 public:
                     typedef TimeStamp type;
