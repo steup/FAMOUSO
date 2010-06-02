@@ -98,9 +98,6 @@ namespace famouso {
                      */
                     void init() {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Info>()
-                            << " Configuration 64Bit NodeID=" << i.value()
-                            << ::logging::log::endl;
                         driver.init();
                         // the CAN Configuration Protocol has to run, before this
                         // function returns
