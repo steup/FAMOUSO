@@ -71,7 +71,7 @@ namespace famouso {
                     template <typename IDStruct>
                     union __attribute__((packed)) ID {
                         uint32_t _value;
-                        uint8_t _v[4];
+                        uint8_t  _v[4];
                         typename IDStruct::parts parts;
                         typename IDStruct::parts_ccp parts_ccp;
 
@@ -96,15 +96,29 @@ namespace famouso {
                             parts._tx_nodehi = t >> 2 ;
                         }
 
+                        /*! \brief determines if the CAN message is a fragment
+                         *         of a bigger message
+                         */
+                        bool fragment() {
+                            return parts._fragment;
+                        }
+
+                        /*! \brief set the fragment bit if the CAN message
+                         *         is a fragment of a bigger one
+                         */
+                        void fragment(bool f) {
+                            parts._fragment = f;
+                        }
+
                         /*! \brief get priority of the CAN message */
                         uint8_t prio() {
-                            return parts._priolo | (parts._priohi << 3) ;
+                            return parts._priolo | (parts._priohi << 2) ;
                         }
 
                         /*! \brief set priority of the CAN message */
                         void prio(uint8_t p) {
                             parts._priolo = p & 0x7;
-                            parts._priohi = p >> 3;
+                            parts._priohi = p >> 2;
                         }
 
                         /*! \brief determines the current CCP stage */

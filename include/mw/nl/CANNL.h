@@ -55,6 +55,7 @@
 namespace famouso {
     namespace mw {
         namespace nl {
+
             /*! \brief CAN network layer acts as the interface to the Controller Area Network
              *
              *  The CANNL allows for using the CAN as a Network Layer within the FAMOUSO
@@ -89,18 +90,20 @@ namespace famouso {
                     CANNL() : tx_node(0) {}
                     ~CANNL() {}
 
+                    /*! \brief  Initialises the CAN network layer.
+                     *
+                     *  During this method the parameter of the network layer and the methods
+                     *  for interrupt handling are initialized (see delegates for further
+                     *  references).
+                     */
                     void init() {
-                        init(NodeID());
-                    }
-
-                    void init(const NodeID &i) {
-                        // hier muss das CAN Configuration Protokoll durchlaufen werden.
-                        // vorher darf man aus dieser Funktion nicht zurueck kommen
                         TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Info>()
                             << " Configuration 64Bit NodeID=" << i.value()
                             << ::logging::log::endl;
                         driver.init();
+                        // the CAN Configuration Protocol has to run, before this
+                        // function returns
                         tx_node = ccp.ccp_configure_tx_node(UID("Schulze\0"), driver);
                         famouso::util::Delegate<> dg;
                         dg.bind<type, &type::rx_interrupt>(this);
@@ -108,14 +111,19 @@ namespace famouso {
                         driver.rx_interrupts(true);
                     }
 
-                    // bind Subject to specific networks name
+                    /*! \brief bind a subject to a specific network name.
+                     *
+                     *  \param[in]  s   Subject of the channel
+                     *  \param[out] snn Short Network Name
+                     */
                     void bind(const Subject &s, SNN &snn) {
                         TRACE_FUNCTION;
                         snn = etagBP.bind_subject(s, tx_node, driver);
                     }
 
-                    /*!
-                     *  \todo   transmit p.fragment
+                    /*! \brief  deliver a packet within using the configured driver
+                     *
+                     *  \param[in] p  packet to be delivered
                      */
                     void deliver(const Packet_t& p) {
                         // senden des CAN Paketes
@@ -124,6 +132,7 @@ namespace famouso {
 
                         m.extended();
                         m.id().prio(0xfd);
+                        m.id().fragment(p.fragment);
                         m.id().tx_node(tx_node);
                         m.id().etag(p.snn);
                         m.len() = 0;
@@ -134,17 +143,24 @@ namespace famouso {
                         driver.transmit(m);
                     }
 
-                    /*!
-                     *  \todo   transmit p.fragment
+                    /*! \brief  fetches the last received message into a packet
+                     *
+                     *  \param[out] p   packet that is filled with the received data
                      */
                     void fetch(Packet_t& p) {
                         // ist das Auslesen eines einzelnen Paketes
                         TRACE_FUNCTION;
                         p.data = mob.data();
                         p.data_length = mob.len();
+                        p.fragment=mob.id().fragment();
                     }
 
 
+                    /*! \brief  The tx_interrupt is called if the driver is able to send
+                     *          new/further messages. (not yet implemented)
+                     *
+                     *  \todo   Provide functionality to use tx_interrupt
+                     */
                     void tx_interrupt() {
                         TRACE_FUNCTION;
                     }
@@ -173,9 +189,14 @@ namespace famouso {
                         famouso::mw::el::IncommingEventFromNL(this);
                     }
 
+                    /*! \brief  Returns the Short Network Name of the last received message.
+                     *
+                     *  \return Short Network Name of the last received message.
+                     */
                     SNN lastPacketSNN() {
                         return mob.id().etag();
                     }
+
             };
         } // namespace nl
     } // namespace mw

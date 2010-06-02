@@ -59,8 +59,9 @@ namespace famouso {
                             uint16_t _etag      : 14;
                             uint8_t  _tx_nodelo :  2;
                             uint8_t  _tx_nodehi :  5;
-                            int8_t   _priolo    :  3;
-                            int8_t   _priohi    :  5;
+                            uint8_t  _fragment  :  1;
+                            uint8_t  _priolo    :  2;
+                            uint8_t  _priohi    :  5;
                         } parts;
                         typedef class __attribute__((packed)) {
                             uint8_t  _pad       :  3;
