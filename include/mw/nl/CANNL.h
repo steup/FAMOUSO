@@ -84,7 +84,7 @@ namespace famouso {
                     typedef Packet<SNN> Packet_t;
 
                     /// Default AFP %configuration of this network layer (see \ref afp_config_nl)
-                    typedef afp::Disable AFP_Config;
+                    typedef afp::MultiSubjectConfig<SNN> AFP_Config;
 
 
                     CANNL() : tx_node(0) {}
