@@ -99,23 +99,25 @@ namespace famouso {
                          */
                         Headers(const uint8_t * data) {
                             // TODO: security: check fragment_length (additional parameter before reading from data)
-                            all_header_length = 0;      // Default: error status
+                            all_header_length = 0;                  // Default: error status
                             ext_header_length = 0;
 
                             // Read basic header
                             uint8_t h = data[0];
 
-                            bool one_more_header = h & 0x80;
-                            first_fragment = h & 0x40;
-
-                            flen_t b_header_length = 1;
-                            while (h & 0x20) {
+                            flen_t b_header_length = 1;             // basic header length
+                            while (h & 0x80) {
                                 b_header_length++;
                                 h <<= 1;
                             }
 
-                            if (b_header_length > sizeof(fseq)) {
-                                ::logging::log::emit< ::logging::Warning>() << "AFP: Receiving to large event! Dropping fragment!" << ::logging::log::endl;
+                            bool one_more_header = h & 0x40;        // extension header?
+                            first_fragment = h & 0x20;
+
+                            if (b_header_length > sizeof(fseq) || b_header_length > 6) {
+                                ::logging::log::emit< ::logging::Warning>()
+                                    << "AFP: Receiving to large event! Dropping fragment!"
+                                    << ::logging::log::endl;
                                 fseq = 0;
                                 return;
                             }
@@ -138,9 +140,10 @@ namespace famouso {
                                     e_header_length = fec.read_header(data);
                                 else {
                                     // Header not supported
-                                    ::logging::log::emit< ::logging::Error>() << "AFP: Unknown or unsupported extension header "
-                                                                              << (*data & 0x2f) << "! Dropping fragment!"
-                                                                              << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Error>()
+                                        << "AFP: Unknown or unsupported extension header "
+                                        << (*data & 0x1f) << "! Dropping fragment!"
+                                        << ::logging::log::endl;
 #ifndef __AVR__
                                     afp::shared::hexdump(data, 8);
 #endif

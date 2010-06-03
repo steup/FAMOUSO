@@ -104,7 +104,8 @@ namespace famouso {
                          */
                         void init(const uint8_t * event_data, elen_t event_length, flen_t mtu) {
                             // Check if MTU is big enough (may be optimized away)
-                            if (mtu <= min_header_length) {
+                            // (+1 to catch payload_length = 1 which will lead to payload_length = 0)
+                            if (mtu <= min_header_length + 1) {
                                 Base::err = true;
                                 ::logging::log::emit< ::logging::Error>() << "AFP: MTU too small for selected features." << ::logging::log::endl;
                                 return;
@@ -137,7 +138,7 @@ namespace famouso {
                                 if (payload_length & 1)
                                     payload_length--;
 
-                                if (header_length >= mtu)
+                                if (payload_length == 0)
                                     break;
 
                                 k = shared::div_round_up(event_length, (elen_t)payload_length);
@@ -159,11 +160,18 @@ namespace famouso {
                                 redundancy = true;
                             }
 
-                            ::logging::log::emit< ::logging::Info>() << "AFP: Fragmenter: " << ::logging::log::dec << (unsigned long)event_length << " bytes data -> " << (unsigned long)payload_length << " bytes payload in " << (unsigned long)frag_count << " fragments" << ::logging::log::endl;
+                            ::logging::log::emit< ::logging::Info>() << "AFP: Fragmenter: "
+                                << ::logging::log::dec << static_cast<uint64_t>(event_length)
+                                << " bytes data -> " << static_cast<uint64_t>(payload_length)
+                                << " bytes payload in " << static_cast<uint64_t>(frag_count)
+                                << " fragments" << ::logging::log::endl;
 
-                            if (header_length >= mtu || overflow_err.error()) {
+                            if (payload_length == 0 || overflow_err.error()) {
                                 Base::err = true;
-                                ::logging::log::emit< ::logging::Error>() << "AFP: Event of size " << ::logging::log::dec << (unsigned long)event_length << " could not be fragmented with this configuration. Changing SizeProperties config should help." << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Error>() << "AFP: Event of size "
+                                    << ::logging::log::dec << static_cast<uint64_t>(event_length)
+                                    << " could not be fragmented with this configuration (too large)."
+                                    << ::logging::log::endl;
                                 return;
                             }
 

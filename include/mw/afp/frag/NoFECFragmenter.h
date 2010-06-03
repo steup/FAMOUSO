@@ -127,7 +127,9 @@ namespace famouso {
                             // Check if MTU is big enough (may be optimized away)
                             if (mtu <= min_header_length) {
                                 err = true;
-                                ::logging::log::emit< ::logging::Error>() << "AFP: MTU too small for selected features." << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Error>()
+                                    << "AFP: MTU too small for selected features."
+                                    << ::logging::log::endl;
                                 return;
                             }
 
@@ -168,15 +170,23 @@ namespace famouso {
                                 curr_hl_payload = (eelen_t)curr_hl_frag_count * (eelen_t)payload_length;
                                 overflow_err.check_equal(curr_hl_payload / payload_length, curr_hl_frag_count);
                             }
-                            frag_count += shared::div_round_up(rem_length, (elen_t)payload_length);
 
                             if (header_length >= mtu || overflow_err.error()) {
                                 err = true;
-                                ::logging::log::emit< ::logging::Error>() << "AFP: Event of size " << ::logging::log::dec << (uint64_t)event_length << " could not be fragmented with this configuration. Changing SizeProperties config should help." << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Error>() << "AFP: Event of size "
+                                    << ::logging::log::dec << static_cast<uint64_t>(event_length)
+                                    << " could not be fragmented with this configuration (too large)."
+                                    << ::logging::log::endl;
                                 return;
                             }
 
-                            ::logging::log::emit< ::logging::Info>() << "AFP: Fragmenter (no FEC): " << ::logging::log::dec << (uint64_t)remaining_length << " bytes data -> " << (uint64_t)payload_length << " bytes payload in " << (uint64_t)remaining_fragments << " fragments" << ::logging::log::endl;
+                            frag_count += shared::div_round_up(rem_length, (elen_t)payload_length);
+
+                            ::logging::log::emit< ::logging::Info>() << "AFP: Fragmenter (no FEC): "
+                                << ::logging::log::dec << static_cast<uint64_t>(remaining_length)
+                                << " bytes data -> " << static_cast<uint64_t>(payload_length)
+                                << " bytes payload in " << static_cast<uint64_t>(remaining_fragments)
+                                << " fragments" << ::logging::log::endl;
 
                             FAMOUSO_ASSERT(frag_count > 0);
                             remaining_fragments = frag_count;
@@ -299,20 +309,19 @@ namespace famouso {
                                 }
 
                                 // Chaining
-                                uint8_t b = (EventSeqPolicy::header_length || more_ext_hdr) ? 0x80 : 0;
+                                uint8_t flags = (EventSeqPolicy::header_length || more_ext_hdr) ? 0x2 : 0;
 
                                 // First fragment
                                 if (first_fragment) {
-                                    b |= 0x40;
+                                    flags |= 0x1;
                                     first_fragment = false;
                                 }
 
 
-                                // Header length
+                                // Header length + write flags
                                 FAMOUSO_ASSERT(basic_header_length <= 6);
-                                b |= (0xfe << (6 - basic_header_length)) & 0x3f;
-
-                                data[0] |= b;
+                                FAMOUSO_ASSERT((data[0] & (0xff << (6 - basic_header_length))) == 0);
+                                data[0] |= ((0xf8 | flags) << (6 - basic_header_length));
                             }
                             data += basic_header_length;
 
