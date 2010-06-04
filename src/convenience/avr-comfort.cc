@@ -51,3 +51,7 @@ namespace Idler {
         while(1);
     }
 }
+
+// atexit is needed if an AVR FAMOUSO implementation uses static variables
+extern "C" void atexit(void) __attribute__((weak));
+extern "C" void atexit(void) {}
