@@ -56,7 +56,7 @@ namespace famouso {
             namespace awds {
 
                 /** A list of attributes to check before publishing. */
-                typedef ComparableAttributeSet<AWDSAttributesList::type> Attributes;
+                typedef ComparableAttributeSet<AWDSAttributesSet::type> Attributes;
 
                 /*! \brief A node repository for holding AWDS nodes and register nodes to subjects.
                  *
