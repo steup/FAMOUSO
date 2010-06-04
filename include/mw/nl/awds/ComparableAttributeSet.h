@@ -37,8 +37,8 @@
  * $Id$
  *
  ******************************************************************************/
-#ifndef _ComparableAttributesSet_h_
-#define _ComparableAttributesSet_h_
+#ifndef _ComparableAttributeSet_h_
+#define _ComparableAttributeSet_h_
 
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
@@ -56,7 +56,7 @@ namespace famouso {
                  * \tparam AttrSet An AttributesSet containing a list of attributes.
                  */
                 template< class AttrSet >
-                class ComparableAttributesSet: boost::noncopyable {
+                class ComparableAttributeSet: boost::noncopyable {
 
                     public:
                         /** The attributes sequence contained in AttrSet. */
@@ -236,7 +236,7 @@ namespace famouso {
                          * Init the data with one byte otherwise we get SIGSEGV when accessing at getSeq().
                          * The famouso::mw::attributes::AttributeSet is looking at the first byte of the data.
                          */
-                        ComparableAttributesSet() {
+                        ComparableAttributeSet() {
                             set(NULL, 0);
                         }
 
@@ -250,7 +250,7 @@ namespace famouso {
 
                     public:
                         /** \copydoc Attributes */
-                        typedef boost::shared_ptr<ComparableAttributesSet> type;
+                        typedef boost::shared_ptr<ComparableAttributeSet> type;
 
                         /**
                          * \brief Copy the attributes from the packet to this attribute instance.
@@ -292,7 +292,7 @@ namespace famouso {
                          *  \return An instance of attributes.
                          */
                         static type create() {
-                            type res = type(new ComparableAttributesSet());
+                            type res = type(new ComparableAttributeSet());
                             return res;
                         }
 
@@ -328,7 +328,7 @@ namespace famouso {
 } /* namespace famouso */
 
 namespace logging {
-    using famouso::mw::nl::awds::ComparableAttributesSet;
+    using famouso::mw::nl::awds::ComparableAttributeSet;
 
     /*! \brief Print the attributes to the given stream.
      *
@@ -339,10 +339,10 @@ namespace logging {
      *  \tparam AttrSeq A boost mpl list of Attributes.
      */
     template< class AttrSeq >
-    inline ::logging::loggingReturnType &operator<<(loggingReturnType &out, const boost::shared_ptr<ComparableAttributesSet<AttrSeq> > &att) {
+    inline ::logging::loggingReturnType &operator<<(loggingReturnType &out, const boost::shared_ptr<ComparableAttributeSet<AttrSeq> > &att) {
         att->print(out);
         return out;
     }
 
 } /* namespace logging */
-#endif /* _ComparableAttributesSet_ */
+#endif /* _ComparableAttributeSet_ */

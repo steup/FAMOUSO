@@ -47,7 +47,7 @@
 #include "mw/nl/awds/MAC.h"
 #include "mw/nl/awds/Node.h"
 #include "mw/nl/awds/Attributes.h"
-#include "mw/nl/awds/ComparableAttributesSet.h"
+#include "mw/nl/awds/ComparableAttributeSet.h"
 #include "mw/nl/awds/lists.h"
 
 namespace famouso {
@@ -56,7 +56,7 @@ namespace famouso {
             namespace awds {
 
                 /** A list of attributes to check before publishing. */
-                typedef ComparableAttributesSet<AWDSAttributesList::type> Attributes;
+                typedef ComparableAttributeSet<AWDSAttributesList::type> Attributes;
 
                 /*! \brief A node repository for holding AWDS nodes and register nodes to subjects.
                  *
