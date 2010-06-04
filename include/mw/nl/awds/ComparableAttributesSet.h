@@ -44,7 +44,7 @@
 #include <boost/shared_array.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/mpl/list.hpp>
-#include "mw/attributes/filter/find.h"
+#include "mw/attributes/AttributeSet.h"
 #include "mw/nl/awds/AWDS_Packet.h"
 
 namespace famouso {
@@ -53,16 +53,17 @@ namespace famouso {
             namespace awds {
                 /* \brief A class for holding attributes of publisher, subscriber or network.
                  *
-                 * \tparam AttrSeq A list of attributes.
+                 * \tparam AttrSet An AttributesSet containing a list of attributes.
                  */
-                template< class AttrSeq >
+                template< class AttrSet >
                 class ComparableAttributesSet: boost::noncopyable {
 
                     public:
-                        /** A attributes sequence for finding attributes in some data. */
-                        typedef typename famouso::mw::attributes::AttributeSet<AttrSeq>::type attr_seq;
+                        /** The attributes sequence contained in AttrSet. */
+                        typedef typename AttrSet::sequence AttrSeq;
 
                     private:
+                        /** An array for storing the attributes data. */
                         typedef boost::shared_array<uint8_t> pData;
 
                         pData data; /**< The data where the attributes are stored. */
@@ -70,23 +71,53 @@ namespace famouso {
                         /**
                          * An iterator for printing and checking a list of attributes.
                          *
-                         * \tparam Seq A list of attributes.
+                         * \tparam Seq The attributes sequence.
                          * \tparam Itr An iterator to Seq.
                          */
                         template< class Seq, class Itr = typename boost::mpl::begin<Seq>::type >
                         class AttributeIterator {
 
-                                /** The actual attribute type */
+                                /** The actual attribute type. */
                                 typedef typename boost::mpl::deref<Itr>::type attrib;
+
+                                /** The actual attribute comparator. */
+                                typedef typename attrib::cmp cmp;
 
                                 /** The type of the last attribute in the list Seq. */
                                 typedef typename boost::mpl::end<Seq>::type end;
 
+                                /**
+                                 * Print an attributes value or "nd" if the attribute is not defined.
+                                 */
                                 static void echo(::logging::loggingReturnType &out, attrib *a) {
                                     if (a)
                                         out << (intmax_t) a->get();
                                     else
                                         out << "nd";
+                                }
+
+                                /** \brief Checks if two attributes are matching.
+                                 *
+                                 * The first attribute should be the actual network attribute and the second attribute can be the
+                                 * publisher or subscriber defined attribute. The network attributes always have to be defined.
+                                 * The publisher or subscriber defined attributes can be not defined (then the match is always true
+                                 * becaus we don't have to comply it). The actual comparator is defined by the attribute itself.
+                                 *
+                                 * \param a The first attribute.
+                                 * \param b The second attribute.
+                                 * \return true if the attributes match, otherwise false.
+                                 */
+                                static bool match(const attrib *a, const attrib *b) {
+                                    // if attrib b is empty check is always true
+                                    if (!b)
+                                        return true;
+
+                                    // if attrib b is not empty, attrib a has to be not empty too, so check if it matches
+                                    if (a && cmp::apply(a->get(), b->get()))
+                                        return true;
+
+                                    // attributes doesn't match
+                                    return false;
                                 }
 
                             public:
@@ -100,7 +131,7 @@ namespace famouso {
                                  * \param b The second attribute list.
                                  * \return true if all attributes match, otherwise false.
                                  */
-                                static bool match(attr_seq &a, attr_seq &b) {
+                                static bool match(AttrSet &a, AttrSet &b) {
                                     // find attributes
                                     attrib *l = a.template find<attrib> ();
                                     attrib *r = b.template find<attrib> ();
@@ -109,12 +140,12 @@ namespace famouso {
 
                                     out << "matching " << (int) attrib::id << ": ";
                                     echo(out, l);
-                                    out << attrib::op();
+                                    out << cmp::op();
                                     echo(out, r);
                                     out << log::endl;
 
                                     // match attribute
-                                    if (!attrib::match(l, r)) {
+                                    if (!match(l, r)) {
                                         log::emit<ATTR>() << "unsuccessfull" << log::endl;
                                         return false; // if attribs not match
                                     }
@@ -129,13 +160,11 @@ namespace famouso {
                                  * \param out The output stream.
                                  * \param a The attribute list.
                                  */
-                                static void print(::logging::loggingReturnType &out, attr_seq &a) {
+                                static void print(::logging::loggingReturnType &out, AttrSet &a) {
                                     // find the attribute
                                     attrib *attr = a.template find<attrib> ();
                                     if (attr) {
-                                        // found, so get value
-                                        //typename attrib::value_type val = attr->get();
-                                        // print name and value
+                                        // found, so print name and value
                                         out << " [" << (int) attrib::id << "]={" << (intmax_t) attr->get() << "}";
                                     }
 
@@ -147,18 +176,18 @@ namespace famouso {
                         /**
                          * Specialized template for end of recursion.
                          *
-                         * \tparam Seq The attribute list.
+                         * \tparam Seq The attribute sequence.
                          */
                         template< class Seq >
                         class AttributeIterator<Seq, typename boost::mpl::end<Seq>::type> {
                             public:
 
-                                static bool match(const attr_seq &a, const attr_seq &b) {
+                                static bool match(const AttrSet &a, const AttrSet &b) {
                                     log::emit<ATTR>() << "successfull" << log::endl;
                                     return true;
                                 }
 
-                                static void print(::logging::loggingReturnType &out, const attr_seq &a) {
+                                static void print(::logging::loggingReturnType &out, const AttrSet &a) {
                                 }
                         };
 
@@ -170,9 +199,36 @@ namespace famouso {
                          * \todo Copy only attributes, and not the whole data.
                          */
                         void set(uint8_t *d, uint16_t s) {
+                            static uint8_t p[1] = { 0 };
+
+                            if (s <= 0) {
+                                s = 1;
+                                d = p;
+                            }
                             data = pData(new uint8_t[s]);
                             std::memcpy(data.get(), d, s);
 
+                        }
+
+                        /** Compute the size of the attributes data. */
+                        static uint16_t size(uint8_t* data) {
+                            // The number of byte contained in the given sequence
+                            uint16_t seqLen;
+
+                            // Determine sequence length
+                            if ((data[0] & 0x80) == 0) {
+                                // Sequence header is unextended
+                                seqLen = (data[0] & 0x7F);
+
+                                return seqLen + 1;
+                            } else {
+                                // Sequence header is extended
+
+                                seqLen = *(reinterpret_cast<uint16_t*> (data));
+                                seqLen = ntohs(seqLen) & 0x7FFF;
+
+                                return seqLen + 2;
+                            }
                         }
 
                         /** \brief Contructor to init the set with no attributes.
@@ -181,21 +237,20 @@ namespace famouso {
                          * The famouso::mw::attributes::AttributeSet is looking at the first byte of the data.
                          */
                         ComparableAttributesSet() {
-                            static uint8_t p[1] = { 0 };
-                            set(p, 1);
+                            set(NULL, 0);
                         }
 
                         /** \brief Return a reference to the attributes set.
                          *
                          * \return A reference to the attributes set.
                          */
-                        attr_seq &getSeq() {
-                            return *reinterpret_cast<attr_seq*> (data.get());
+                        AttrSet &getSet() {
+                            return *reinterpret_cast<AttrSet*> (data.get());
                         }
 
                     public:
                         /** \copydoc Attributes */
-                        typedef boost::shared_ptr<ComparableAttributesSet<AttrSeq> > type;
+                        typedef boost::shared_ptr<ComparableAttributesSet> type;
 
                         /**
                          * \brief Copy the attributes from the packet to this attribute instance.
@@ -220,7 +275,7 @@ namespace famouso {
                          *  \return true if all attributes of this are less than or equal to other, otherwise false.
                          */
                         static bool match(const type & a, const type & b) {
-                            return AttributeIterator<AttrSeq>::match(a->getSeq(), b->getSeq());
+                            return AttributeIterator<AttrSeq>::match(a->getSet(), b->getSet());
                         }
 
                         /*! \brief print the attributes to the given stream.
@@ -229,7 +284,7 @@ namespace famouso {
                          */
                         void print(::logging::loggingReturnType &out) {
                             out << ::logging::log::dec;
-                            AttributeIterator<AttrSeq>::print(out, getSeq());
+                            AttributeIterator<AttrSeq>::print(out, getSet());
                         }
 
                         /*! \brief Creates an empty attributes instance.
@@ -261,7 +316,8 @@ namespace famouso {
                         template< class AttrSeq2 >
                         static type create(famouso::mw::attributes::AttributeSet<AttrSeq2> &p) {
                             type res = create();
-                            res->set(reinterpret_cast<uint8_t*> (&p), p.overallSize);
+                            uint8_t *d = reinterpret_cast<uint8_t*> (&p);
+                            res->set(d, size(d));
                             return res;
                         }
                 };

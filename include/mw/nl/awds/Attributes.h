@@ -50,6 +50,8 @@
 #include "mw/attributes/Bandwidth.h"
 #include "mw/attributes/PacketLoss.h"
 #include "mw/attributes/filter/find.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
+#include "mw/attributes/filter/greater_than_or_equal_to.h"
 #include "mw/nl/awds/logging.h"
 
 #ifdef RANDOM_ATTRIBUTES
@@ -65,32 +67,13 @@ namespace famouso {
                  * \todo The elements at this namespace should moved to the right places later.
                  */
                 namespace detail {
-                                    
+                    using famouso::mw::attributes::filter::less_than_or_equal_to;
+                    using famouso::mw::attributes::filter::greater_than_or_equal_to;
+
                     /** \brief Tag to compare Attributes.
                      *  The first attribute has to be less or equal to the second attribute.
-                     *  \tparam Attrib The attribute type.
                      */
-                    template< class Attrib >
-                    struct LessThanTag {
-
-                            /* \brief Checks wether the given attributes are matching.
-                             *
-                             * \param a The attribute wich has to be less or equal to the b.
-                             * \param b The attribute wich has to be more or equal to a or null.
-                             * \return Returns true if b is null or a is less or equal to b, otherwise false.
-                             */
-                            static bool match(const Attrib *a, const Attrib *b) {
-                                // if attrib b is empty check is always true
-                                if (!b)
-                                    return true;
-
-                                // if attrib b is not empty, attrib a has to be not empty too, so check if it matches
-                                if (a && a->get() <= b->get())
-                                    return true;
-
-                                // attributes doesn't match
-                                return false;
-                            }
+                    struct LessThanTag: public less_than_or_equal_to {
 
                             /** \brief The operator as string for debugging purposes.
                              *  \return A string version of the operator <=.
@@ -102,29 +85,9 @@ namespace famouso {
 
                     /** \brief Tag to compare Attributes.
                      *  The first attribute has to be greater or equal to the second attribute.
-                     *  \tparam Attrib The attribute type.
                      */
-                    template< class Attrib >
-                    struct GreaterThanTag {
+                    struct GreaterThanTag: public greater_than_or_equal_to {
 
-                            /* \brief Checks wether the given attributes are matching.
-                             *
-                             * \param a The attribute wich has to be greater or equal to the b.
-                             * \param b The attribute wich has to be more or equal to a or null.
-                             * \return Returns true if b is null or a is greater or equal to b, otherwise false.
-                             */
-                            static bool match(const Attrib *a, const Attrib *b) {
-                                // if attrib b is empty check is always true
-                                if (!b)
-                                    return true;
-
-                                // if attrib b is not empty, attrib a has to be not empty too, so check if it matches
-                                if (a && a->get() >= b->get())
-                                    return true;
-
-                                // attributes doesn't match
-                                return false;
-                            }
                             /** \brief The operator as string for debugging purposes.
                              *  \return A string version of the operator >=.
                              */
@@ -132,39 +95,47 @@ namespace famouso {
                                 return " >= ";
                             }
                     };
-                    
+
                     /*!\brief   defines a configurable Time-To-Live attribute.
                      *
                      * \tparam  ttl describes the initial value to be set
                      */
-                    template< uint8_t ttl >
-                    class TTL: public famouso::mw::attributes::TTL<ttl>, public LessThanTag<TTL<ttl> > {
+                    template< uint8_t ttl, class Comparator = LessThanTag >
+                    class TTL: public famouso::mw::attributes::TTL<ttl> {
+                        public:
+                            typedef Comparator cmp;
                     };
 
                     /*!\brief   defines a configurable Latency attribute.
                      *
                      * \tparam  lat describes the initial value to be set
                      */
-                    template< uint32_t lat >
-                    class Latency: public famouso::mw::attributes::Latency<lat>, public LessThanTag<Latency<lat> > {
+                    template< uint32_t lat, class Comparator = LessThanTag >
+                    class Latency: public famouso::mw::attributes::Latency<lat> {
+                        public:
+                            typedef Comparator cmp;
                     };
 
                     /*!\brief defines a configurable Bandwith attribute.
                      *
                      * \tparam bw describes the initial value to be set
                      */
-                    template< uint32_t bw >
-                    class Bandwidth: public famouso::mw::attributes::Bandwidth<bw>, public GreaterThanTag<Bandwidth<bw> > {
+                    template< uint32_t bw, class Comparator = GreaterThanTag >
+                    class Bandwidth: public famouso::mw::attributes::Bandwidth<bw> {
+                        public:
+                            typedef Comparator cmp;
                     };
 
                     /*!\brief defines a configurable Packet-Loss-Rate attribute.
                      *
                      * \tparam pl describes the initial value to be set
                      */
-                    template< uint16_t pl >
-                    class PacketLoss: public famouso::mw::attributes::PacketLoss<pl>, public LessThanTag<PacketLoss<pl> > {
+                    template< uint16_t pl, class Comparator = LessThanTag >
+                    class PacketLoss: public famouso::mw::attributes::PacketLoss<pl> {
+                        public:
+                            typedef Comparator cmp;
                     };
-                    
+
                 } // namespace detail
 
                 /** The Time-To-Live attribute. */
@@ -182,7 +153,7 @@ namespace famouso {
                 /** A list of AWDS Attributes */
                 typedef boost::mpl::list<TTL, Latency, Bandwidth, PacketLoss>::type AWDSAttributesList;
 
-                /** A AttributeSequence of AWDS Attributes */
+                /** A AttributeSet of AWDS Attributes */
                 typedef famouso::mw::attributes::AttributeSet<AWDSAttributesList::type>::type AWDSAttributesSet;
 
 #ifdef RANDOM_ATTRIBUTES
@@ -197,66 +168,53 @@ namespace famouso {
                 /** \brief Create an attributes set of random attributes.
                  *  \return An attributes set.
                  */
-                inline AWDSAttributesSet::type _createAttrSet() {
+                inline void _createAttrSet(uint8_t *data) {
                     using boost::mpl::list;
-                    typedef AWDSAttributesSet::type rt;
-                    rt res;
 
                     switch (rand() % 11) {
                         case 0: {
-                            _aset<list<TTL> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<TTL> >::t;
                             break;
                         }
                         case 1: {
-                            _aset<list<Bandwidth> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<Bandwidth> >::t;
                             break;
                         }
                         case 2: {
-                            _aset<list<Latency> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<Latency> >::t;
                             break;
                         }
                         case 3: {
-                            _aset<list<PacketLoss> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<PacketLoss> >::t;
                             break;
                         }
                         case 4: {
-                            _aset<list<TTL, PacketLoss> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<TTL, PacketLoss> >::t;
                             break;
                         }
                         case 5: {
-                            _aset<list<TTL, Bandwidth> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<TTL, Bandwidth> >::t;
                             break;
                         }
                         case 6: {
-                            _aset<list<TTL, Latency> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<TTL, Latency> >::t;
                             break;
                         }
                         case 7: {
-                            _aset<list<Latency, PacketLoss> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<Latency, PacketLoss> >::t;
                             break;
                         }
                         case 8: {
-                            _aset<list<TTL, Bandwidth, PacketLoss> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<TTL, Bandwidth, PacketLoss> >::t;
                             break;
                         }
                         case 9: {
-                            _aset<list<TTL, Latency, PacketLoss> >::t attr;
-                            res = *reinterpret_cast<rt *> (&attr);
+                            new (data) _aset<list<TTL, Latency, PacketLoss> >::t;
                             break;
                         }
                         default:
                             break;
                     }
-                    return res;
                 }
 
                 /*! \brief Creates a random attributes instance.
@@ -264,7 +222,8 @@ namespace famouso {
                  *  \return An instance of attributes.
                  */
                 inline AWDSAttributesSet::type createRandAttributes() {
-                    AWDSAttributesSet::type res = _createAttrSet();
+                    AWDSAttributesSet::type res;
+                    createAttrSet(reinterpret_cast<uint8_t *> (&res));
 
                     TTL *ttl = res.find<TTL> ();
                     if (ttl)
