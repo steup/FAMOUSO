@@ -59,7 +59,8 @@ namespace famouso {
 
                 template <typename Attr>
                 Attr* find(uint8_t* data) {
-                    // The number of attributes contained in the given sequence
+                    // The number of bytes needed by the attributes
+                    //  contained in the given sequence
                     uint16_t seqLen;
 
                     // Determine sequence length
@@ -77,15 +78,15 @@ namespace famouso {
                         data += 2;
                     }
 
-                    // Current attribute index starting at 0
-                    uint16_t index = 0;
+                    // The pointer were the given sequence ends
+                    const uint8_t* const targetPtr = data + seqLen;
 
                     // The length of the currently decoded attribute
                     uint16_t length;
 
                     AttributeElementHeader* header;
 
-                    while (index < seqLen) {
+                    while (data < targetPtr) {
                         // Interpret the current pointer as an attribute header
                         header = reinterpret_cast<AttributeElementHeader*>(data);
 
@@ -147,9 +148,6 @@ namespace famouso {
 
                         // Skip the data bytes of the current attribute
                         data += length;
-
-                        // Increment the index since we handle the next attribute in the sequence
-                        ++index;
                     }
 
                     // If we iterated the complete attribute sequence the intended attribute
