@@ -35,6 +35,8 @@ typedef famouso::mw::ExtendedEvent<16, vec, lis> ev6; // error -> more than one 
 
 typedef famouso::mw::ExtendedEvent<16, TTL<1>, TTL<2> > ev7; // error -> duplicate attributes
 
+typedef famouso::mw::ExtendedEvent<> ev8; // OK -> no attribute is given at all
+
 typedef detail::SetProvider<TTL<2>, Latency<20>, Bandwidth<250> >::attrSet prov;
 typedef detail::SetProvider<TTL<2>, Latency<20>, Bandwidth<210> >::attrSet req;
 
@@ -53,6 +55,8 @@ int main(int argc, char* args[]) {
 //    ev6 e6(s); // Here an error occurs
 
 //    ev7 e7(s); // Here another error occurs
+
+    ev8 e8(s);
 
     EMIT << (int) checker::result::value << ENDL;
 

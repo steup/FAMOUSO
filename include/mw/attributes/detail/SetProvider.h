@@ -46,6 +46,7 @@
 #include "boost/utility/enable_if.hpp"
 #include "boost/mpl/vector.hpp"
 #include "boost/mpl/is_sequence.hpp"
+#include "boost/mpl/bool.hpp"
 
 #include "mw/attributes/AttributeSet.h"
 #include "mw/attributes/type_traits/is_attribute.h"
@@ -85,6 +86,16 @@ namespace famouso {
                                                                       >
                                >::type > {
                         typedef void type;
+                };
+
+                template <typename T>
+                struct is_sequence : boost::mpl::is_sequence<T> { };
+
+                template <>
+                struct is_sequence<boost::mpl::na> {
+                        typedef is_sequence type;
+
+                        static const bool value = false;
                 };
 
                 /*!
@@ -160,7 +171,7 @@ namespace famouso {
                                         boost::mpl::na, boost::mpl::na, boost::mpl::na,
                                         boost::mpl::na,
                                         typename boost::enable_if<
-                                                         boost::mpl::is_sequence<ForwardSeq>
+                                                         is_sequence<ForwardSeq>
                                                         >::type> {
                         // Specialized template cares for the case that only a forward
                         //  sequence of attributes is given as the first type
