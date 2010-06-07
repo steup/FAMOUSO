@@ -106,13 +106,13 @@ include ./make/externals.mk
 clean:
 	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR)
 
-distclean:
-	@rm -rf $(LIBBASE) $(MODDIRBASE) $(DEPDIRBASE)
+distclean: clean
+	@rm -rf $(MODDIRBASE) $(LIBBASE) $(DEPDIRBASE)
 	@rm -rf ./doc/html
 	@rm -rf ./doc/www/docu
 	@rm -rf ./doc/latex
-	@find . -name \*~ -exec rm -f {} \;
-	@find . -name "#*#" -exec rm -f {} \;
+	@find . -name externals -prune -o -name \#*\# -exec rm -f {} \;
+	@find . -name externals -prune -o -name \*~ -exec rm -f {} \;
 	@make -C $(EXTERNALSDIR)/AVR distclean
 
 properclean: distclean
