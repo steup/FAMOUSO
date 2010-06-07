@@ -58,4 +58,4 @@ $(LIBFEC):
 
 $(EXTERNALSDIR)/include:
 	@echo Checking out logging framework
-	svn co https://logging-cpp.svn.sourceforge.net/svnroot/logging-cpp/include $@
+	svn export --force --ignore-externals -q https://logging-cpp.svn.sourceforge.net/svnroot/logging-cpp/include $@
