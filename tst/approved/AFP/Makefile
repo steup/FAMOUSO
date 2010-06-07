@@ -57,6 +57,6 @@ all: $(BINS)
 
 
 clean:
-	rm -f $(BINS)
+	rm -f $(BINS) *.d *.hex *.elf
 
 -include *-$(MACHINETYPE)-$(GCCVERSION).d
