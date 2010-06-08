@@ -84,6 +84,50 @@ namespace famouso {
                                              (boost::mpl::int_<seqSize>));
                 };
 
+                /*!
+                 * \brief Configurable error struct used for the static composability
+                 *  checks.
+                 *
+                 */
+                template <bool contained, typename RelatedAttr, typename Provision, bool compileError>
+                struct RequiredAttributeNotContainedInProvision {
+                        typedef RequiredAttributeNotContainedInProvision type;
+
+                        BOOST_MPL_ASSERT_MSG(contained,
+                                             required_attribute_not_contained_in_provision,
+                                             (RelatedAttr, Provision));
+                };
+                template <bool contained, typename RelatedAttr, typename Provision>
+                struct RequiredAttributeNotContainedInProvision<contained, RelatedAttr, Provision, false> {
+                        typedef RequiredAttributeNotContainedInProvision type;
+
+                    private:
+                        // TODO: Is using a method with a return type not returning anything the
+                        //  right way to generate a warning?
+//                        int required_attribute_not_contained_in_provision() { }
+                };
+
+                /*!
+                 * \brief Configurable error struct used for the static composability
+                 *  checks.
+                 *
+                 */
+                template <bool valueFits, typename RelatedAttr, typename ProvAttr, bool compileError>
+                struct RequiredValueNotProvided {
+                        typedef RequiredValueNotProvided type;
+
+                        BOOST_MPL_ASSERT_MSG(valueFits,
+                                             required_value_not_provided,
+                                             (RelatedAttr, ProvAttr));
+                };
+                template <bool valueFits, typename RelatedAttr, typename ProvAttr>
+                struct RequiredValueNotProvided<valueFits, RelatedAttr, ProvAttr, false> {
+                        typedef RequiredValueNotProvided type;
+
+                        // TODO: Is using a method with a return type not returning anything the
+                        //  right way to generate a warning?
+//                        int required_value_not_provided() { }
+                };
             }
         }
     }

@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -62,7 +63,8 @@ namespace famouso {
             template<uint16_t jitter>
             class Jitter : public Attribute<
                                        Jitter<0>, tags::integral_const_tag,
-                                       uint16_t, jitter, detail::SystemIDs::jitter, true
+                                       uint16_t, jitter, filter::less_than_or_equal_to,
+                                       detail::SystemIDs::jitter, true
                                       > {
                 public:
                     typedef Jitter type;

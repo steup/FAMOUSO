@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -62,7 +63,8 @@ namespace famouso {
             template<uint16_t period>
             class Period : public Attribute<
                                        Period<0>, tags::integral_const_tag,
-                                       uint16_t, period, detail::SystemIDs::period, true
+                                       uint16_t, period, filter::less_than_or_equal_to,
+                                       detail::SystemIDs::period, true
                                       > {
                 public:
                     typedef Period type;

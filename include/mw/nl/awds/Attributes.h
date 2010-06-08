@@ -50,8 +50,8 @@
 #include "mw/attributes/Bandwidth.h"
 #include "mw/attributes/PacketLoss.h"
 #include "mw/attributes/filter/find.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
 #include "mw/attributes/filter/greater_than_or_equal_to.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 #include "mw/nl/awds/logging.h"
 
 #ifdef RANDOM_ATTRIBUTES
@@ -67,88 +67,42 @@ namespace famouso {
                  * \todo The elements at this namespace should moved to the right places later.
                  */
                 namespace detail {
-                    using famouso::mw::attributes::filter::less_than_or_equal_to;
-                    using famouso::mw::attributes::filter::greater_than_or_equal_to;
-
-                    /** \brief Tag to compare Attributes.
-                     *  The first attribute has to be less or equal to the second attribute.
+                    /*!
+                     * \brief Helper structs for printing the operator of a given
+                     *  comparator.
                      */
-                    struct LessThanTag: public less_than_or_equal_to {
-
-                            /** \brief The operator as string for debugging purposes.
-                             *  \return A string version of the operator <=.
-                             */
-                            static const char *op() {
-                                return " <= ";
+                    template <typename Comparator>
+                    struct op_printer {
+                            static const char* op() {
+                                return (" ? ");
                             }
                     };
-
-                    /** \brief Tag to compare Attributes.
-                     *  The first attribute has to be greater or equal to the second attribute.
-                     */
-                    struct GreaterThanTag: public greater_than_or_equal_to {
-
-                            /** \brief The operator as string for debugging purposes.
-                             *  \return A string version of the operator >=.
-                             */
-                            static const char *op() {
-                                return " >= ";
+                    template <>
+                    struct op_printer<famouso::mw::attributes::filter::less_than_or_equal_to> {
+                            static const char* op() {
+                                return (" <= ");
                             }
                     };
-
-                    /*!\brief   defines a configurable Time-To-Live attribute.
-                     *
-                     * \tparam  ttl describes the initial value to be set
-                     */
-                    template< uint8_t ttl, class Comparator = LessThanTag >
-                    class TTL: public famouso::mw::attributes::TTL<ttl> {
-                        public:
-                            typedef Comparator cmp;
-                    };
-
-                    /*!\brief   defines a configurable Latency attribute.
-                     *
-                     * \tparam  lat describes the initial value to be set
-                     */
-                    template< uint32_t lat, class Comparator = LessThanTag >
-                    class Latency: public famouso::mw::attributes::Latency<lat> {
-                        public:
-                            typedef Comparator cmp;
-                    };
-
-                    /*!\brief defines a configurable Bandwith attribute.
-                     *
-                     * \tparam bw describes the initial value to be set
-                     */
-                    template< uint32_t bw, class Comparator = GreaterThanTag >
-                    class Bandwidth: public famouso::mw::attributes::Bandwidth<bw> {
-                        public:
-                            typedef Comparator cmp;
-                    };
-
-                    /*!\brief defines a configurable Packet-Loss-Rate attribute.
-                     *
-                     * \tparam pl describes the initial value to be set
-                     */
-                    template< uint16_t pl, class Comparator = LessThanTag >
-                    class PacketLoss: public famouso::mw::attributes::PacketLoss<pl> {
-                        public:
-                            typedef Comparator cmp;
+                    template <>
+                    struct op_printer<famouso::mw::attributes::filter::greater_than_or_equal_to> {
+                            static const char* op() {
+                                return (" >= ");
+                            }
                     };
 
                 } // namespace detail
 
                 /** The Time-To-Live attribute. */
-                typedef detail::TTL<0xFF> TTL;
+                typedef famouso::mw::attributes::TTL<0xFF> TTL;
 
                 /** The %Latency attribute. */
-                typedef detail::Latency<0xFFFFFFFF> Latency;
+                typedef famouso::mw::attributes::Latency<0xFFFFFFFF> Latency;
 
                 /** The %Bandwidth attribute */
-                typedef detail::Bandwidth<0xFFFFFFFF> Bandwidth;
+                typedef famouso::mw::attributes::Bandwidth<0xFFFFFFFF> Bandwidth;
 
                 /** The Packet-Loss-Rate attribute. */
-                typedef detail::PacketLoss<0xFFFF> PacketLoss;
+                typedef famouso::mw::attributes::PacketLoss<0xFFFF> PacketLoss;
 
                 /** A list of AWDS Attributes */
                 typedef boost::mpl::list<TTL, Latency, Bandwidth, PacketLoss>::type AWDSAttributesList;

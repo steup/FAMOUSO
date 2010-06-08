@@ -45,15 +45,29 @@ namespace famouso {
         namespace attributes {
             namespace filter {
 
-                /*! \brief  a greater than or equal to comperator
+                /*! \brief  a greater than or equal to comparator
                  */
                 struct greater_than_or_equal_to {
-                    /*! \brief  implements the comperator operation
+                    /*! \brief  implements the comparator operation
                      */
                     template< typename L, typename R>
                     static bool apply(const L &l, const R &r) {
                         return !!(l >= r);
                     }
+
+                    // TODO: What convention should be used here for providing both
+                    //  the runtime and the compiletime variant of apply?
+                    // Nesting the method into the struct would lead to
+                    //  1. Conflicts method name <-> constructor name
+                    //  2. The need for explicitely providing L and R everytime the
+                    //      runtime method is used
+
+                    template <typename L, typename R>
+                    struct apply_ {
+                            typedef apply_ type;
+
+                            static const bool value = !!(L::value >= R::value);
+                    };
                 };
 
             } /* filter */

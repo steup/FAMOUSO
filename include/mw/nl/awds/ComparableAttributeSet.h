@@ -81,7 +81,7 @@ namespace famouso {
                                 typedef typename boost::mpl::deref<Itr>::type attrib;
 
                                 /** The actual attribute comparator. */
-                                typedef typename attrib::cmp cmp;
+                                typedef typename attrib::comparator cmp;
 
                                 /** The type of the last attribute in the list Seq. */
                                 typedef typename boost::mpl::end<Seq>::type end;
@@ -140,7 +140,7 @@ namespace famouso {
 
                                     out << "matching " << (int) attrib::id << ": ";
                                     echo(out, l);
-                                    out << cmp::op();
+                                    out << detail::op_printer<cmp>::op();
                                     echo(out, r);
                                     out << log::endl;
 

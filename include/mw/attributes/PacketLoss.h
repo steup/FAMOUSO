@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -64,7 +65,8 @@ namespace famouso {
             template<uint16_t packetLoss>
             class PacketLoss : public Attribute<
                                        PacketLoss<0>, tags::integral_const_tag,
-                                       uint16_t, packetLoss, detail::SystemIDs::packetLoss, true
+                                       uint16_t, packetLoss, filter::less_than_or_equal_to,
+                                       detail::SystemIDs::packetLoss, true
                                       > {
                 public:
                     typedef PacketLoss type;

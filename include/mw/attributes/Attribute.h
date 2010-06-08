@@ -97,11 +97,13 @@ namespace famouso {
              * \tparam CompareTag The tag which defines how this attribute can be compared
              * \tparam ValueType The type of this attribute's value
              * \tparam Value The compile time value of this attribute
+             * \tparam Comparator The filter expression struct defining how attributes
+             *  of this type are compared, i.e. which are better than others
              * \tparam ID The identifier of this attribute
              * \tparam IsSystem True, if this is a system attribute
              */
             template <typename BaseType, typename CompareTag, typename ValueType,
-                      ValueType Value, uint8_t ID, bool IsSystem = false>
+                      ValueType Value, typename Comparator, uint8_t ID, bool IsSystem = false>
             class Attribute {
                 public:
                     // The boost tag type, declaring the attribute class to be an
@@ -117,6 +119,9 @@ namespace famouso {
 
                     // The static value of this attribute
                     static const ValueType value = Value;
+
+                    // The comparator filter expression for this attribute class
+                    typedef Comparator comparator;
 
                     // The ID (aka category for system attributes) of this attribute
                     static const uint8_t id = ID;

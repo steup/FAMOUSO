@@ -48,13 +48,31 @@
 #include "boost/mpl/eval_if.hpp"
 
 #include "mw/attributes/detail/FindStatic.h"
+#include "mw/attributes/detail/CompileErrors.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
             namespace detail {
 
-                template <typename Prov, typename Req,
+                /*!
+                 * \brief Checks the given attribute requirement against the given
+                 *  provision. The check result can be accessed using the result
+                 *  type.
+                 *
+                 * It can be configured if this struct should generate a compile
+                 *  error finding the first violated condition. In this case result
+                 *  will always be boost::mpl::bool_<true> of course. However the
+                 *  compile error generation can be turned off just generating
+                 *  warnings in case of a condition violation.
+                 *
+                 * \tparam Prov The attribute set representing the provision
+                 * \tparam Req The attribute set representing the requirement
+                 * \tparam compileError Switch to turn compile errors on and off
+                 * \tparam ReqIter The iterator to the current requirement
+                 *  attribute, should be left at default from the outside
+                 */
+                template <typename Prov, typename Req, bool compileError = true,
                           typename ReqIter = typename boost::mpl::begin<typename Req::sequence>::type>
                 struct RequirementChecker {
                     private:
@@ -77,9 +95,9 @@ namespace famouso {
                          * Issue a compiler error if the current attribute is
                          *  not contained in the provision.
                          */
-                        BOOST_MPL_ASSERT_MSG(contained::value,
-                                             required_attribute_not_contained_in_provision,
-                                             (curAttr, Prov));
+                        typedef typename RequiredAttributeNotContainedInProvision<
+                                          contained::value, curAttr, Prov, compileError
+                                         >::type assert1;
 
                         /*!
                          * \brief The provision attribute which is equal to the current
@@ -90,30 +108,24 @@ namespace famouso {
                                  typename Prov::sequence
                                 >::result provAttr;
 
-                        // TODO: Who should provide the comparator?
-                        //  (We must distinguish the comparison e.g. of Latency and Bandwidth,
-                        //   the comparison below only applies to Bandwidth-like attributes)
-                        template <typename AttrProv, typename AttrReq>
-                        struct comparator {
-                                static const bool value = (AttrProv::type::value >= AttrReq::type::value);
-                        };
-
+                        typedef typename curAttr::type::comparator::template apply_<
+                                                                     provAttr,
+                                                                     curAttr
+                                                                    > compare;
 
                         /*!
                          * \brief Determines whether the attribute values fit and therefore
                          *  the system can be composed without violating the requirement.
                          */
-                        static const bool valueFits = comparator<
-                                                       provAttr,
-                                                       curAttr>::value;
+                        static const bool valueFits = compare::value;
 
                         /*!
                          * Issue a compiler error if the values of the related attributes do
                          *  not fit
                          */
-                        BOOST_MPL_ASSERT_MSG(valueFits,
-                                             required_value_not_provided,
-                                             (curAttr, provAttr));
+                        typedef typename RequiredValueNotProvided<
+                                          valueFits, curAttr, provAttr, compileError
+                                         >::type assert2;
 
                         /*!
                          * \brief Instantiation of the checker instance responsible for the
@@ -122,6 +134,7 @@ namespace famouso {
                         typedef typename RequirementChecker<
                                           Prov,
                                           Req,
+                                          compileError,
                                           typename boost::mpl::next<ReqIter>::type
                                          >::result nextResult;
 
@@ -134,12 +147,6 @@ namespace famouso {
                          *  can be found in the provision and each of these pairs have
                          *  fitting values.
                          */
-                        // TODO: This is somewhat redundant since the assertions above would
-                        //  prevent this from being evaluated, so if it happens to access
-                        //  "result" it will always be boost::mpl::bool_<true> I fear
-                        // Nevertheless it is important that the next checker is instantiated
-                        //  since every instance is only responsible for a single requirement
-                        //  attribute...
                         typedef typename boost::mpl::eval_if_c<
                                                       (contained::value && valueFits),
                                                       nextResult,
@@ -151,6 +158,22 @@ namespace famouso {
                 struct RequirementChecker<
                         Prov,
                         Req,
+                        true,
+                        typename boost::mpl::end<typename Req::sequence>::type
+                       > {
+                    public:
+                        typedef boost::mpl::bool_<true> result;
+                };
+
+                // TODO: Since default template parameters cannot be used in a partial
+                //  specialization, we have to declare both "compileError"-cases
+                //  separately (fortunately it's just a boolean ;))
+
+                template <typename Prov, typename Req>
+                struct RequirementChecker<
+                        Prov,
+                        Req,
+                        false,
                         typename boost::mpl::end<typename Req::sequence>::type
                        > {
                     public:

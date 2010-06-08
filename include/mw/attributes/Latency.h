@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -63,7 +64,8 @@ namespace famouso {
             template<uint32_t latency>
             class Latency : public Attribute<
                                     Latency<0>, tags::integral_const_tag,
-                                    uint32_t, latency, detail::SystemIDs::latency, true
+                                    uint32_t, latency, filter::less_than_or_equal_to,
+                                    detail::SystemIDs::latency, true
                                    > {
                 public:
                     typedef Latency type;

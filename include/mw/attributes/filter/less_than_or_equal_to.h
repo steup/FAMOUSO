@@ -45,15 +45,22 @@ namespace famouso {
         namespace attributes {
             namespace filter {
 
-                /*! \brief  a less than or equal to comperator
+                /*! \brief  a less than or equal to comparator
                  */
                 struct less_than_or_equal_to {
-                    /*! \brief  implements the comperator operation
+                    /*! \brief  implements the comparator operation
                      */
                     template< typename L, typename R>
                     static bool apply(const L &l, const R &r) {
                         return !!(l <= r);
                     }
+
+                    template <typename L, typename R>
+                    struct apply_ {
+                            typedef apply_ type;
+
+                            static const bool value = !!(L::value <= R::value);
+                    };
                 };
 
             } /* filter */

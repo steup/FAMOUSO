@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -63,7 +64,10 @@ namespace famouso {
             template<uint64_t timeStamp>
             class TimeStamp : public Attribute<
                                        TimeStamp<0>, tags::integral_const_tag,
-                                       uint64_t, timeStamp, detail::SystemIDs::timeStamp, true
+                                       uint64_t, timeStamp,
+                                       // A comparator does not make much sense here at all
+                                       filter::less_than_or_equal_to,
+                                       detail::SystemIDs::timeStamp, true
                                       > {
                 public:
                     typedef TimeStamp type;

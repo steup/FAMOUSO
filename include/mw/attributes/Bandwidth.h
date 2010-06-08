@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/greater_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -62,7 +63,8 @@ namespace famouso {
             template<uint32_t bandwidth>
             class Bandwidth : public Attribute<
                                       Bandwidth<0>, tags::integral_const_tag,
-                                      uint32_t, bandwidth, detail::SystemIDs::bandwidth, true
+                                      uint32_t, bandwidth, filter::greater_than_or_equal_to,
+                                      detail::SystemIDs::bandwidth, true
                                      > {
                 public:
                     typedef Bandwidth type;

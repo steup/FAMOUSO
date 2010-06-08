@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -61,7 +62,8 @@ namespace famouso {
             template<uint8_t ttl>
             class TTL : public Attribute<
                                 TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, detail::SystemIDs::ttl, true
+                                uint8_t, ttl, filter::less_than_or_equal_to,
+                                detail::SystemIDs::ttl, true
                                > {
                 public:
                     typedef TTL type;

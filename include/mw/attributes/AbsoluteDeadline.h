@@ -46,6 +46,7 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
@@ -64,7 +65,8 @@ namespace famouso {
             template<uint64_t deadline>
             class AbsoluteDeadline : public Attribute<
                                        AbsoluteDeadline<0>, tags::integral_const_tag,
-                                       uint64_t, deadline, detail::SystemIDs::absDeadline, true
+                                       uint64_t, deadline, filter::less_than_or_equal_to,
+                                       detail::SystemIDs::absDeadline, true
                                       > {
                 public:
                     typedef AbsoluteDeadline type;
