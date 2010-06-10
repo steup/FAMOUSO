@@ -131,8 +131,10 @@ namespace device {
                             mob->id()[1] = CANIDT3;
                             mob->id()[0] = CANIDT4 & 0xF8;
 
+                            // get length
+                            mob->len() = CANCDMOB & 0xf;
                             // get data
-                            for (uint8_t i = 0; i < (CANCDMOB&0xf); i++)
+                            for (uint8_t i = 0; i < mob->len(); i++)
                                 mob->data()[i] = CANMSG;
 
                             // reconfig mailbox
