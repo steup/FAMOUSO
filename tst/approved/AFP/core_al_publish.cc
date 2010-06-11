@@ -93,7 +93,11 @@ namespace famouso {
 
 #ifndef AFP_CONFIG
 // May be defined using a compiler parameter
+#ifdef __AVR__
+#define AFP_CONFIG 3
+#else
 #define AFP_CONFIG 1
+#endif
 #endif
 
 using namespace famouso::mw;
@@ -137,12 +141,12 @@ void publish(const famouso::mw::Event & e, famouso::config::PEC & pec) {
     if (f.error())
         return;
 
-    fprintf(stderr, "Sending event (%u Bytes):\n", e.length);
+    ::logging::log::emit() << "Sending event (" << e.length << " Bytes):\n";
     afp::shared::hexdump(e.data, e.length);
 
     while ( (fragment_e.length = f.get_fragment(fragment_e.data)) ) {
 
-        fprintf(stderr, "Sending fragment (%u Bytes):\n", fragment_e.length);
+        ::logging::log::emit() << "Sending fragment (" << fragment_e.length << " Bytes):\n";
         afp::shared::hexdump(fragment_e.data, fragment_e.length);
 
         pec.publish(fragment_e);
@@ -152,7 +156,9 @@ void publish(const famouso::mw::Event & e, famouso::config::PEC & pec) {
 
 int main(int argc, char **argv) {
 
+    ::logging::log::emit() << "Started famouso init" << ::logging::log::endl;
     famouso::init<famouso::config>();
+    ::logging::log::emit() << "Finished famouso init" << ::logging::log::endl;
 
     famouso::config::PEC pec("MTU___16");
     pec.announce();

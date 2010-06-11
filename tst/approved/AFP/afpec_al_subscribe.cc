@@ -104,7 +104,13 @@ void ReceiveCallback(famouso::mw::api::SECCallBackData& cbd) {
 
 int main() {
     enum { mtu = 8 };
+    ::logging::log::emit() << "Started famouso init" << ::logging::log::endl;
     famouso::init<famouso::config>();
+    ::logging::log::emit() << "Finished famouso init" << ::logging::log::endl;
+
+#ifdef __AVR__
+    sei();
+#endif
 
     afp::AFPSubscriberEventChannel<famouso::config::SEC, AFPConfig, Event> sec("MTU____8", mtu);
     sec.callback.bind<ReceiveCallback>();

@@ -445,8 +445,8 @@ namespace famouso {
                     template <typename SubjectType>
                     DefragmentationStep(const uint8_t * fdata, flen_t flength, const SubjectType & subject /* TODO: Absender-Knoten */) {
                         ::logging::log::emit< ::logging::Warning>()
-                            << "Dropping fragment. Defragmentation"
-                            << "is disabled." << ::logging::log::endl;
+                            << "Dropping fragment. Defragmentation is disabled."
+                            << ::logging::log::endl;
                     }
 
                     /*!
@@ -456,8 +456,8 @@ namespace famouso {
                      */
                     DefragmentationStep(const uint8_t * fdata, flen_t flength /* TODO: Absender-Knoten */) {
                         ::logging::log::emit< ::logging::Warning>()
-                            << "Dropping fragment. Defragmentation"
-                            << "is disabled." << ::logging::log::endl;
+                            << "Dropping fragment. Defragmentation is disabled."
+                            << ::logging::log::endl;
                     }
 
                     /*!

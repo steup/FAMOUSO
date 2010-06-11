@@ -43,11 +43,15 @@
  *  \brief  Simple subscriber example using the core AFP API
  */
 
+#define CPU_FREQUENCY 16000000
+
 #include "util/Idler.h"
 
 #include "mw/afp/Defragmentation.h"
 #include "mw/afp/Config.h"
 #include "mw/afp/shared/hexdump.h"
+
+#include "famouso.h"
 
 #ifdef __AVR__
 
@@ -87,7 +91,11 @@ namespace famouso {
 
 #ifndef AFP_CONFIG
 // May be defined using a compiler parameter
+#ifdef __AVR__
+#define AFP_CONFIG 3
+#else
 #define AFP_CONFIG 1
+#endif
 #endif
 
 using namespace famouso::mw;
@@ -125,8 +133,10 @@ DefragmentationProcessor dp(16);
 
 void CB(famouso::mw::api::SECCallBackData& cbd) {
 
-    fprintf(stderr, "Incoming fragment (%u Bytes):\n", cbd.length);
+#ifndef __AVR__
+    ::logging::log::emit() << "Incoming fragment (" << cbd.length << " Bytes):\n";
     afp::shared::hexdump(cbd.data, cbd.length);
+#endif
 
     DefragmentationStep ds(cbd.data, cbd.length);
 
@@ -137,7 +147,7 @@ void CB(famouso::mw::api::SECCallBackData& cbd) {
         e.data = ds.get_event_data();
         e.length = ds.get_event_length();
 
-        fprintf(stderr, "Incoming event (%u Bytes):\n", e.length);
+        ::logging::log::emit() << "Incoming event (" << e.length << " Bytes):\n";
         afp::shared::hexdump(e.data, e.length);
 
         dp.event_processed(ds);
@@ -147,7 +157,13 @@ void CB(famouso::mw::api::SECCallBackData& cbd) {
 
 int main(int argc, char **argv) {
 
+    ::logging::log::emit() << "Started famouso init" << ::logging::log::endl;
     famouso::init<famouso::config>();
+    ::logging::log::emit() << "Finished famouso init" << ::logging::log::endl;
+
+#ifdef __AVR__
+    sei();
+#endif
 
     famouso::config::SEC sec("MTU___16");
     sec.callback.bind<CB>();

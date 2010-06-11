@@ -114,7 +114,9 @@ void publish(famouso::config::PEC & pec, famouso::mw::Event & event, uint32_t & 
 
 
 int main() {
+    ::logging::log::emit() << "Started famouso init" << ::logging::log::endl;
     famouso::init<famouso::config>();
+    ::logging::log::emit() << "Finished famouso init" << ::logging::log::endl;
 
     famouso::config::PEC pec(SUBJECT);
     pec.announce();

@@ -40,13 +40,16 @@
 #ifndef __HEXDUMP_H_A5111E31A8FD0B__
 #define __HEXDUMP_H_A5111E31A8FD0B__
 
-#include <stdio.h>
+#include "debug.h"
 
 namespace famouso {
     namespace mw {
         namespace afp {
             namespace shared {
 
+                static uint8_t hexdump_get_hex_nibble(uint8_t c) {
+                    return c + (c < 10 ? '0' : 'a' - 10);
+                }
 
                 /*!
                  * \brief Debugging helper that prints a hexdump to stderr.
@@ -58,21 +61,23 @@ namespace famouso {
                     unsigned int lines = l / per_line + (l % per_line == 0 ? 0 : 1);
 
                     for (unsigned int line = 0; line < lines; line++) {
-                        fprintf(stderr, "\t");
+                        ::logging::log::emit() << ::logging::log::tab;
                         for (unsigned int i = line * per_line; i < (line + 1) * per_line; i++) {
                             if (i >= l) {
                                 for (int a = (line + 1) * per_line - i - 1; a >= 0; a--)
-                                    fprintf(stderr, "   ");
+                                    ::logging::log::emit() << "   ";
                                 break;
                             }
-                            fprintf(stderr, " %02x", (int)d[i]);
+                            ::logging::log::emit() << " "
+                                << hexdump_get_hex_nibble(d[i] >> 4)
+                                << hexdump_get_hex_nibble(d[i] & 0xf);
                         }
-                        fprintf(stderr, "   |   ");
+                        ::logging::log::emit() << "   |   ";
                         for (unsigned int i = line * per_line; i < (line + 1) * per_line && i < l; i++) {
                             char show = (d[i] >= 32 && d[i] < 127 ? d[i] : '?');
-                            fprintf(stderr, "%c", show);
+                            ::logging::log::emit() << show;
                         }
-                        fprintf(stderr, "\n");
+                        ::logging::log::emit() << ::logging::log::endl;
                     }
                 }
 

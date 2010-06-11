@@ -45,6 +45,7 @@
  */
 
 
+#define DEFAULT_RAWSTORAGEALLOCATOR_MEM_SIZE 512
 #define CPU_FREQUENCY 16000000
 
 #include "test_gen.h"
@@ -94,13 +95,17 @@ namespace famouso {
     return out;
 }
 
+static uint32_t count = 0;
 
 void ReceiveCallback(famouso::mw::api::SECCallBackData& cbd) {
-    static uint32_t i = 0;
     if (check_event_content(cbd.length, cbd.data)) {
-        ::logging::log::emit() << cbd.subject << ": Received correct event #" << (++i) << " (length " << cbd.length << ")" << ::logging::log::endl;
+        ++count;
+#ifndef __AVR__
+        // Output to expensive for AVR interrput context: loosing too much messages -> would need event sequence numbering
+        ::logging::log::emit() << cbd.subject << ": Received correct event #" << count << " (length " << cbd.length << ")" << ::logging::log::endl;
+#endif
     } else {
-        ::logging::log::emit() << cbd.subject << ": RECEIVED INCORRECT EVENT! (length " << cbd.length << ")" << ::logging::log::endl;
+        ::logging::log::emit() << cbd.subject << ": RECEIVED INCORRECT EVENT! (length " << cbd.length << ", #" << count << ")" << ::logging::log::endl;
         abort();
     }
 }
@@ -108,7 +113,9 @@ void ReceiveCallback(famouso::mw::api::SECCallBackData& cbd) {
 
 
 int main() {
+    ::logging::log::emit() << "Started famouso init" << ::logging::log::endl;
     famouso::init<famouso::config>();
+    ::logging::log::emit() << "Finished famouso init" << ::logging::log::endl;
 
     famouso::config::SEC sec1("SUBJECT1");
     sec1.callback.bind<ReceiveCallback>();
@@ -118,7 +125,17 @@ int main() {
     sec2.callback.bind<ReceiveCallback>();
     sec2.subscribe();
 
+#ifndef __AVR__
     Idler::idle();
+#else
+    sei();
+
+    while (1) {
+        for (volatile uint32_t i = 500000; i; i--)
+            ;
+        ::logging::log::emit() << "Received " << count << " correct events" << ::logging::log::endl;
+    }
+#endif
 
     return 0;
 }

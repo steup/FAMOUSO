@@ -103,7 +103,9 @@ struct AFPConfig : afp::DefaultConfig {
 int main() {
     enum { mtu = 8 };
 
+    ::logging::log::emit() << "Started famouso init" << ::logging::log::endl;
     famouso::init<famouso::config>();
+    ::logging::log::emit() << "Finished famouso init" << ::logging::log::endl;
 
     afp::AFPPublisherEventChannel<famouso::config::PEC, AFPConfig, mtu> pec("MTU____8");
     pec.announce();

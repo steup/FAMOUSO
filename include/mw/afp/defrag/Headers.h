@@ -45,10 +45,6 @@
 
 #include "debug.h"
 
-#ifndef __AVR__
-#include "mw/afp/shared/hexdump.h"
-#endif
-
 
 namespace famouso {
     namespace mw {
@@ -144,9 +140,6 @@ namespace famouso {
                                         << "AFP: Unknown or unsupported extension header "
                                         << (*data & 0x1f) << "! Dropping fragment!"
                                         << ::logging::log::endl;
-#ifndef __AVR__
-                                    afp::shared::hexdump(data, 8);
-#endif
                                     return;
                                 }
                                 if (!e_header_length) {
