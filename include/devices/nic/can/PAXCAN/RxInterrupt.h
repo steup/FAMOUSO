@@ -55,6 +55,10 @@ namespace device {
              */
             class RxInterrupt {
                 public:
+                    /*! \brief The constructor switches interrupts of by default
+                     */
+		            RxInterrupt() : ints_allowed(false) {}
+
                     /*! \brief set the delegate that is called if an interrupt occurs */
                     void set_rx_Interrupt(famouso::util::Delegate<> f) {
                         rx_Interrupt = f;
