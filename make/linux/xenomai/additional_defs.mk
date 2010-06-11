@@ -37,26 +37,6 @@
 ##
 ################################################################################
 
-ifeq ($(CONFIG),)
-CONFIG=linux
-#CONFIG=linux/openwrt
-#CONFIG=linux/xenomai
-#CONFIG=windows/mingw-cross
-#CONFIG=windows/mingw-native
-#CONFIG=windows/cygwin
-#CONFIG=avr
-endif
+ADDITIONAL_CFLAGS	+= `xeno-config --skin native --cflags`
+ADDITIONAL_LIBS		+= -Wl,-rpath `xeno-config --prefix`/lib `xeno-config --skin native --ldflags` -lrtdm
 
-FAMOUSO_CONFIG?=$(CONFIG)
-
-COMPILER=$(word 2, $(subst /, ,$(FAMOUSO_CONFIG)))
-PLATFORM=$(word 1, $(subst /, ,$(FAMOUSO_CONFIG)))
-EXTENSION=$(subst /,.,$(FAMOUSO_CONFIG))
-
-ifeq ($(COMPILER),)
-COMPILER=unspecified
-endif
-
-#$(info EX $(EXTENSION))
-#$(info Compiler $(COMPILER))
-#$(info PLatform $(PLATFORM))
