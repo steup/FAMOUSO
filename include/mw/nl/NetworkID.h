@@ -106,6 +106,10 @@ namespace famouso {
                         }
                     }
 
+                    operator const uint8_t*() const {
+                        return _data;
+                    }
+
                 private:
                     uint8_t _data[size];
             }__attribute__((packed));
