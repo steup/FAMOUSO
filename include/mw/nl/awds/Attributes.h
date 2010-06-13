@@ -177,7 +177,7 @@ namespace famouso {
                  */
                 inline AWDSAttributesSet::type createRandAttributes() {
                     AWDSAttributesSet::type res;
-                    createAttrSet(reinterpret_cast<uint8_t *> (&res));
+                    _createAttrSet(reinterpret_cast<uint8_t *> (&res));
 
                     TTL *ttl = res.find<TTL> ();
                     if (ttl)
