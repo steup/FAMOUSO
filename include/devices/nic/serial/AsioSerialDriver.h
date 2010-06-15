@@ -133,8 +133,8 @@ namespace device {
 
                     /*! \brief  Triggered if async_read_until finished or failed.
                      *
-                     *  \param[in]  error   %error that occured if the operation has failed
-                     *  \param[in]  transferred   number of bytes transfered
+                     *  \param[in]  error %error that occured if the operation has failed
+                     *  \param[in]  size  number of bytes transfered
                      */
                     void doneRead(const boost::system::error_code& error, std::size_t size) {
                         char aChar;
@@ -176,6 +176,7 @@ namespace device {
                     /*! \brief  Triggered after async_write finished or failed.
                      *
                      *  \param[in] error  code of error that occured
+                     *  \param[in]  size  number of bytes transfered
                      */
                     void doneWrite(const boost::system::error_code& error, std::size_t size) {
                         if ( !error ) {
@@ -236,7 +237,7 @@ namespace device {
                     }
 
                     /*! \brief  Fetches the message received last.
-                     *  \param[out] message
+                     *  \param[out] msg containing the received message
                      */
                     void recv(mob_t& msg) {
                         TRACE_FUNCTION;
@@ -251,7 +252,7 @@ namespace device {
                     }
 
                     /*! \brief  Transmits a message using the serial port.
-                     *  \param[in] mob message %object that is to be send
+                     *  \param[in] message %object that is to be send
                      */
                     void send(const mob_t& message) {
                         TRACE_FUNCTION;

@@ -106,7 +106,8 @@ namespace device {
                     }
 
                     /*! \brief  Fetches the message received last.
-                     *  \param[out] message
+                     *
+                     *  \param[out] message where the data is stored
                      */
                     void recv(mob_t& message) {
                         TRACE_FUNCTION;
@@ -114,7 +115,8 @@ namespace device {
                     }
 
                     /*! \brief  Transmits a message using the serial port.
-                     *  \param[in] mob message %object that is to be send
+                     *
+                     *  \param[in] message %object that is to be send
                      */
                     void send(const mob_t& message) {
                         TRACE_FUNCTION;
