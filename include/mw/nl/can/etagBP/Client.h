@@ -50,7 +50,6 @@
 CONTAINS_TYPE_(asio_tag);
 #include "config/type_traits/if_select_type.h"
 
-
 namespace famouso {
     namespace mw {
         namespace nl {
@@ -134,7 +133,9 @@ namespace famouso {
                                 id->tx_node(tx_node);
                                 canDriver.transmit(bsi.mob);
 
-                                while (_bsi);
+                                while (_bsi)
+                                    unblocker.process();
+
                                 return bsi.etag;
 
                             }
@@ -149,6 +150,7 @@ namespace famouso {
                              *  \return true if it was a binding message else false.
                              */
                             bool handle_subject_bind_request(typename CAN_Driver::MOB &mob, CAN_Driver& canDriver) {
+                                TRACE_FUNCTION;
                                 IDType *id = &mob.id();
                                 if (id->etag() == famouso::mw::nl::CAN::detail::ETAGS::SUPPLY_ETAG_NEW_BP) {
                                     if (_bsi){

@@ -43,6 +43,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/pool/detail/singleton.hpp>
+#include <boost/thread/xtime.hpp>
 
 namespace famouso {
     namespace mw {
@@ -55,6 +56,10 @@ namespace famouso {
                     void PreventBlockingOfMiddlewareCoreInBlockingProtocol::runMiddlewareCore() {
                         while (!passed) {
                             famouso::util::ios::instance().poll();
+	                    boost::xtime time;
+	                    boost::xtime_get(&time, boost::TIME_UTC);
+	                    time.nsec += 10000000;
+	                    boost::thread::sleep(time);
                         }
                     }
 
@@ -70,6 +75,15 @@ namespace famouso {
                         _mutex::instance().unlock();
                         reinterpret_cast<boost::thread*>(thrd)->join();
                         delete reinterpret_cast<boost::thread*>(thrd);
+                    }
+
+                    void PreventBlockingOfMiddlewareCoreInBlockingProtocol::process() {
+                        // nothing to do here except sleeping, because the middleware
+                        // core is executed in another thread
+                        boost::xtime time;
+                        boost::xtime_get(&time, boost::TIME_UTC);
+                        time.nsec += 100000000;
+                        boost::thread::sleep(time);
                     }
 
                 }

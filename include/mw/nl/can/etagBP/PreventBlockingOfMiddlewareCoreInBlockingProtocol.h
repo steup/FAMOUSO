@@ -70,6 +70,12 @@ namespace famouso {
                              *         event processing loop
                              */
                             ~PreventBlockingOfMiddlewareCoreInBlockingProtocol();
+
+                            /*! \brief process has to be called by the blocking
+                             *         protocol to avoid busy waiting, allowing
+                             *         further progress
+                             */
+                            void process();
                     };
                 }
             } /* namespace CAN */

@@ -72,14 +72,26 @@ namespace famouso {
                             /*! \brief restores the former interrupt state
                              */
                             ~InterruptEnabler();
+
+                            /*! \brief process has to be called by the blocking
+                             *         protocol to avoid busy waiting, allowing
+                             *         further progress
+                             */
+                            void process();
                     };
 
 #ifdef __AVR__
                     inline InterruptEnabler::InterruptEnabler() : _ints(SREG) {
                         sei();
                     }
+
                     inline InterruptEnabler::~InterruptEnabler(){
                         SREG=_ints;
+                    }
+
+                    inline void InterruptEnabler::process() {
+                        // nothing to do here, because interrupts are allowed
+                        // and the core is driven that way on AVRs
                     }
 #endif
                 }
