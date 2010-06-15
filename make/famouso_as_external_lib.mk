@@ -42,9 +42,9 @@ include $(FAMOUSOROOTDIR)/make/global.mk
 include $(FAMOUSOROOTDIR)/make/buildtools.mk
 -include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/defs.mk
 -include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/gcc.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(COMPILER)/tags.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(COMPILER)/additional_defs.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(COMPILER)/gcc.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/tags.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/additional_defs.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/gcc.mk
 
 FAMOUSO_COMPILER_OPTIONS_MUST_HAVE := $(CXXFLAGS) -I$(FAMOUSOROOTDIR)/Bindings/include $(LDFLAGS)
 FAMOUSO_COMPILER_OPTIONS_SUGGESTED := $(CXXOPTIONS)

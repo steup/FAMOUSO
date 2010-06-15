@@ -37,26 +37,26 @@
 ##
 ################################################################################
 
-MACHINETYPE = $(shell $(CXX) -dumpmachine)
 GCCVERSION  = gcc-$(shell $(CXX) -dumpversion)
+ENVIRONMENT = $(PLATFORM)/$(FLAVOR)/$(GCCVERSION)
 
 EXTERNALSDIR= $(FAMOUSOROOTDIR)/externals
 
 MODDIRBASE  = $(FAMOUSOROOTDIR)/module
-MODULEDIR   = $(MODDIRBASE)/$(MACHINETYPE)/$(GCCVERSION)
+MODULEDIR   = $(MODDIRBASE)/$(ENVIRONMENT)
 
 INCDIR      = $(FAMOUSOROOTDIR)/include
 
 SRCDIR      = $(FAMOUSOROOTDIR)/src
 
 DEPDIRBASE  = $(FAMOUSOROOTDIR)/depend
-DEPENDDIR   = $(DEPDIRBASE)/$(MACHINETYPE)/$(GCCVERSION)
+DEPENDDIR   = $(DEPDIRBASE)/$(ENVIRONMENT)
 
 SAMPLEDIR   = $(FAMOUSOROOTDIR)/testsuite
 
 LIBNAME     = famouso
 LIBBASE     = $(FAMOUSOROOTDIR)/lib
-LIBDIR      = $(LIBBASE)/$(MACHINETYPE)/$(GCCVERSION)
+LIBDIR      = $(LIBBASE)/$(ENVIRONMENT)
 LIBFAMOUSO  = $(LIBDIR)/lib$(LIBNAME).a
 
 LIB         = -L$(LIBDIR) -lfamouso
