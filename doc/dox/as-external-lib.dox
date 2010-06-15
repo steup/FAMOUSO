@@ -61,6 +61,7 @@ FAMOUSO_CONFIG = linux
    \par
         - linux
         - linux/openwrt
+        - linux/xenomai
         - windows/mingw-cross
         - windows/mingw-native
         - windows/cygwin

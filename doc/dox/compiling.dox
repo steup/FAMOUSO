@@ -114,6 +114,7 @@ or
 with PLATFORM defined as one of the following supported targets
 - linux
 - linux/openwrt
+- linux/xenomai
 - windows/mingw-cross
 - windows/mingw-native
 - windows/cygwin
@@ -230,19 +231,39 @@ If you do so, you are able to compile the ECHs in this way
 
 Now, you are able to use the tool.
 \code
-#> ./ech-can -s canXX
+#> ./ech-SocketCAN -s canXX
 
 # or for getting help and seeing the command line parameters
-#> ./ech-can --help
+#> ./ech-SocketCAN --help
 \endcode
 
 
 
-\subsection linuxXenomaiPeakCAN FAMOUSO on Xenomai Linux with CAN support
+\subsection linuxXenomaiPeakCAN FAMOUSO on Xenomai Linux with RTCAN support
 
-The support for Xenomai is in an experimental state and documentation is very
-limited.
+Xenomai supports RTCAN drivers for different hardware. For determining whether
+your hardware is supported, consult the Xenomai documentation. If your hardware
+is supported, it will work together with %FAMOUSO using the XenomaiRTCANDriver
+provided with %FAMOUSO.
 
+To get an ECH to work, you have to compile it first
+\code
+#> cd famouso-dir/ECHs
+#> make ech-XenomaiRTCAN
+\endcode
+
+Now, you are able to use it.
+\code
+#> ./ech-XenomaiRTCAN -s rtcanXX
+
+# or for getting help and seeing the command line parameters
+#> ./ech-XenomaiRTCAN --help
+\endcode
+
+The testprogram famouso-root-dir/tst/approved/XenomaiRTCAN.cc may be used to
+test the compiled ech. The testprogram initialize a local %FAMOUSO instance and
+further subscribes to some event channels, using the CAN bus as underlying
+transport media.
 
 
 \subsection windowsPeakCAN FAMOUSO on Windows with PeakCAN support
@@ -292,7 +313,7 @@ contains all needed parts.
 
 \subsection examples Examples programs and different language bindings
 
-Example programs can be found under famouso-root-dir/examples and
+Example programs can be found under famouso-root-dir/examples, famouso_root_dir/tst, and
 famouso-root-dir/Bindings. For running the examples, an ech has to be started
 in the right configuration. Executing the different languange binding examples
 the famouso-root-dir/ECHs/ech is sufficient to get the examples running.

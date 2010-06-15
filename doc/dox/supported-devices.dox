@@ -64,7 +64,7 @@
     <tr>
       <td>SocketCAN</td>
       <td align="center">yes</td>
-      <td align="center">experimental <br> (except USB)</td>
+      <td align="center">yes <br> (except USB)</td>
       <td align="center">no</td>
       <td align="center">no</td>
       <td align="center">no</td>
@@ -72,7 +72,7 @@
     <tr>
       <td>PeakCAN</td>
       <td align="center">yes <br> (all devices)</td>
-      <td align="center">experimental <br> (except USB)</td>
+      <td align="center">yes <br> (except USB)</td>
       <td align="center">yes <br> (PCI and USB)</td>
       <td align="center">yes <br> (PCI and USB)</td>
       <td align="center">no</td>
