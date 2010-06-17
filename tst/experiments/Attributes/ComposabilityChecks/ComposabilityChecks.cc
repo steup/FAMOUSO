@@ -58,7 +58,7 @@ int main(int argc, char* args[]) {
 
     ev8 e8(s);
 
-    EMIT << (int) checker::result::value << ENDL;
+    EMIT << (int) checker::value << ENDL;
 
     return (0);
 }

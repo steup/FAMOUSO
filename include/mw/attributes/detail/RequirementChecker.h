@@ -48,7 +48,7 @@
 #include "boost/mpl/eval_if.hpp"
 
 #include "mw/attributes/detail/FindStatic.h"
-#include "mw/attributes/detail/CompileErrors.h"
+#include "mw/attributes/detail/AttributeCompileErrors.h"
 
 namespace famouso {
     namespace mw {
@@ -137,8 +137,18 @@ namespace famouso {
                                           compileError,
                                           typename boost::mpl::next<ReqIter>::type
                                          >::result nextResult;
-
                     public:
+                        /**!
+                         * \brief This type.
+                         */
+                        typedef RequirementChecker type;
+
+                        typedef typename boost::mpl::eval_if_c<
+                                                      (contained::value && valueFits),
+                                                      nextResult,
+                                                      boost::mpl::bool_<false>
+                                                     >::type result;
+
                         /*!
                          * \brief The final result for the check of the whole requirement
                          *  against the given provision.
@@ -147,11 +157,7 @@ namespace famouso {
                          *  can be found in the provision and each of these pairs have
                          *  fitting values.
                          */
-                        typedef typename boost::mpl::eval_if_c<
-                                                      (contained::value && valueFits),
-                                                      nextResult,
-                                                      boost::mpl::bool_<false>
-                                                     >::type result;
+                        static const bool value = result::value;
                 };
 
                 template <typename Prov, typename Req>
@@ -162,7 +168,11 @@ namespace famouso {
                         typename boost::mpl::end<typename Req::sequence>::type
                        > {
                     public:
+                        typedef RequirementChecker type;
+
                         typedef boost::mpl::bool_<true> result;
+
+                        static const bool value = true;
                 };
 
                 // TODO: Since default template parameters cannot be used in a partial
@@ -177,7 +187,11 @@ namespace famouso {
                         typename boost::mpl::end<typename Req::sequence>::type
                        > {
                     public:
+                        typedef RequirementChecker type;
+
                         typedef boost::mpl::bool_<true> result;
+
+                        static const bool value = true;
                 };
 
             }  // namespace detail

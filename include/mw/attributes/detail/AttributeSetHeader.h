@@ -45,7 +45,7 @@
 
 #include "boost/mpl/eval_if.hpp"
 
-#include "mw/attributes/detail/CompileErrors.h"
+#include "mw/attributes/detail/AttributeCompileErrors.h"
 
 #include "util/endianness.h"
 
