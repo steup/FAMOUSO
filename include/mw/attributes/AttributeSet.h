@@ -212,21 +212,11 @@ namespace famouso {
                 public:
                     template <typename Attr>
                     Attr* find() {
-                        // Check if the attribute is contained in the static sequence at all
-                        if (!detail::IsContained<Attr, AttrSeq>::result::value) {
-                            return (reinterpret_cast<Attr*>(NULL));
-                        }
-
                         return (famouso::mw::attributes::detail::find<Attr>(data));
                     }
 
                     template <typename Attr>
                     const Attr* find() const {
-                        // Check if the attribute is contained in the static sequence at all
-                        if (!detail::IsContained<Attr, AttrSeq>::result::value) {
-                            return (reinterpret_cast<Attr*>(NULL));
-                        }
-
                         return (famouso::mw::attributes::detail::find<Attr>(data));
                     }
             };

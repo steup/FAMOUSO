@@ -12,7 +12,7 @@
 #include "mw/common/ExtendedEvent.h"
 #include "mw/common/Subject.h"
 
-#include "mw/attributes/detail/SetProvider.h"
+#include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/detail/RequirementChecker.h"
 
 #include "boost/mpl/vector.hpp"

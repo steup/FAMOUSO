@@ -50,7 +50,7 @@
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
 
-#include "mw/attributes/detail/SetProvider.h"
+#include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/AttributeSet.h"
 
 namespace famouso {
