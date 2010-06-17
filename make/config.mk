@@ -40,7 +40,7 @@
 ifeq ($(CONFIG),)
 CONFIG=linux
 #CONFIG=linux/openwrt
-CONFIG=linux/xenomai
+#CONFIG=linux/xenomai
 #CONFIG=windows/mingw-cross
 #CONFIG=windows/mingw-native
 #CONFIG=windows/cygwin
