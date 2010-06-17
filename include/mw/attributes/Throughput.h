@@ -61,13 +61,13 @@ namespace famouso {
              * \tparam bandwidth Describes the initial value to be set
              */
             template<uint32_t bandwidth>
-            class Bandwidth : public Attribute<
-                                      Bandwidth<0>, tags::integral_const_tag,
+            class Throughput : public Attribute<
+                                      Throughput<0>, tags::integral_const_tag,
                                       uint32_t, bandwidth, filter::greater_than_or_equal_to,
                                       detail::SystemIDs::bandwidth, true
                                      > {
                 public:
-                    typedef Bandwidth type;
+                    typedef Throughput type;
             };
 
         } /* attributes */

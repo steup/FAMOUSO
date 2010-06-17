@@ -47,7 +47,7 @@
 #include "mw/attributes/AttributeSet.h"
 #include "mw/attributes/TTL.h"
 #include "mw/attributes/Latency.h"
-#include "mw/attributes/Bandwidth.h"
+#include "mw/attributes/Throughput.h"
 #include "mw/attributes/PacketLoss.h"
 #include "mw/attributes/filter/find.h"
 #include "mw/attributes/filter/greater_than_or_equal_to.h"
@@ -99,13 +99,13 @@ namespace famouso {
                 typedef famouso::mw::attributes::Latency<0xFFFFFFFF> Latency;
 
                 /** The %Bandwidth attribute */
-                typedef famouso::mw::attributes::Bandwidth<0xFFFFFFFF> Bandwidth;
+                typedef famouso::mw::attributes::Throughput<0xFFFFFFFF> Throughput;
 
                 /** The Packet-Loss-Rate attribute. */
                 typedef famouso::mw::attributes::PacketLoss<0xFFFF> PacketLoss;
 
                 /** A list of AWDS Attributes */
-                typedef boost::mpl::list<TTL, Latency, Bandwidth, PacketLoss>::type AWDSAttributesList;
+                typedef boost::mpl::list<TTL, Latency, Throughput, PacketLoss>::type AWDSAttributesList;
 
                 /** A AttributeSet of AWDS Attributes */
                 typedef famouso::mw::attributes::AttributeSet<AWDSAttributesList::type>::type AWDSAttributesSet;
@@ -131,7 +131,7 @@ namespace famouso {
                             break;
                         }
                         case 1: {
-                            new (data) _aset<list<Bandwidth> >::t;
+                            new (data) _aset<list<Throughput> >::t;
                             break;
                         }
                         case 2: {
@@ -147,7 +147,7 @@ namespace famouso {
                             break;
                         }
                         case 5: {
-                            new (data) _aset<list<TTL, Bandwidth> >::t;
+                            new (data) _aset<list<TTL, Throughput> >::t;
                             break;
                         }
                         case 6: {
@@ -159,7 +159,7 @@ namespace famouso {
                             break;
                         }
                         case 8: {
-                            new (data) _aset<list<TTL, Bandwidth, PacketLoss> >::t;
+                            new (data) _aset<list<TTL, Throughput, PacketLoss> >::t;
                             break;
                         }
                         case 9: {
@@ -187,7 +187,7 @@ namespace famouso {
                     if (l)
                         l->set(rand() % 50 + 20);
 
-                    Bandwidth *b = res.find<Bandwidth> ();
+                    Throughput *b = res.find<Throughput> ();
                     if (b)
                         b->set((rand() % 1000 + 1000));
 
