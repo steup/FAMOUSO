@@ -41,6 +41,7 @@
 #define __CommandLineParameterGenerator_h__
 
 #include <stdlib.h>
+#include <iostream>
 #include <vector>
 #include <boost/tokenizer.hpp>
 #include "util/CommandLineParameterProvider.h"

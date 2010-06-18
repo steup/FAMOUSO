@@ -40,7 +40,7 @@
 #include "util/CommandLineParameter.h"
 #include "util/CommandLineParameterProvider.h"
 
-#include "debug.h"
+#include <iostream>
 
 namespace famouso {
 
