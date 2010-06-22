@@ -126,11 +126,12 @@ namespace famouso {
 int main() {
     sei();                              // enable interrupts
     ::logging::log::emit()
-        << "Starting serial-can gateway example!"
+        << PROGMEMSTRING("Starting serial-can gateway example!")
         << ::logging::log::endl << ::logging::log::endl;
 
     famouso::init<famouso::config>();   // initialize famouso
     ::logging::log::emit()
-        << "FAMOUSO -- Initalisation successfull" << ::logging::log::endl;
+        << PROGMEMSTRING("FAMOUSO -- Initalisation successfull")
+        << ::logging::log::endl;
     Idler::idle();                      // duty cycle
 }

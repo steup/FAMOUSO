@@ -104,7 +104,9 @@ namespace famouso {
 
                             uint8_t * new_data = Allocator::alloc(new_len);
                             if (!new_data) {
-                                ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Warning>()
+                                    << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                    << ::logging::log::endl;
                                 no_ext_mtu = 0;
                                 return;
                             }
@@ -161,7 +163,9 @@ namespace famouso {
                             if (no_ext_mtu == 0)            // Do nothing on error status
                                 return;
                             if (header.fec.occurs()) {      // Cannot handle events using FEC -> error
-                                ::logging::log::emit< ::logging::Warning>() << "AFP: FEC not supported -> drop" << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Warning>()
+                                    << PROGMEMSTRING("AFP: FEC not supported -> drop")
+                                    << ::logging::log::endl;
                                 goto set_error;
                             }
 
@@ -175,7 +179,9 @@ namespace famouso {
                                 eelen_t buffer_length = VHL::get_payload(event_fragment_count, no_ext_mtu);
                                 event_data = Allocator::alloc(buffer_length);
                                 if (!event_data) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                        << ::logging::log::endl;
                                     goto set_error;
                                 }
                                 behind_event_data = event_data + buffer_length;

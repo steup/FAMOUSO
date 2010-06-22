@@ -43,6 +43,7 @@
 #include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
 #include "mw/common/UID.h"
+#include "debug.h"
 
 
 namespace famouso {
@@ -163,13 +164,17 @@ namespace famouso {
                                             // wenn ja, extrahierte txnode ist meine
                                             // verlasse beide Schleifen da stage==0 und ccp_status==CCP_RUNNING
                                             if (compareUID(msg.data(), uid_str, 0)) {
-//                                                debug("Knoten ID ist meine\n");
+                                                ::logging::log::emit< ::logging::Trace>()
+                                                    << PROGMEMSTRING("It is my knot ID")
+                                                    << ::logging::log::endl;
                                                 ccp_stage = CCP_COMPLETE;
                                             } else {
                                                 // wenn nein einfach von vorn
                                                 // und gehe in die aeussere Schleife weil ccp_status==CCP_RUNNING
                                                 // und setze stage wieder auf den initialen Wert
-//                                                debug("Knoten ID ist nicht meine\n");
+                                                ::logging::log::emit< ::logging::Trace>()
+                                                    << PROGMEMSTRING("It is not my knot ID")
+                                                    << ::logging::log::endl;
                                                 stage = constants::ccp::ccp_stages;
                                             }
                                         }

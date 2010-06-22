@@ -82,21 +82,23 @@ namespace famouso {
                                     --etag;
                                     if ((etags[etag] == UID()) || (etags[etag] == sub)) {
                                         etags[etag] = sub;
-                                        ::logging::log::emit() << "Supply etag" << ::logging::log::tab
-                                            << ::logging::log::tab << "-- Subject [";
+                                        ::logging::log::emit() << PROGMEMSTRING("Supply etag")
+                                            << ::logging::log::tab << ::logging::log::tab
+                                            << PROGMEMSTRING("-- Subject [");
                                         for (uint8_t i = 0;i < 8;++i) {
                                             uint8_t c = sub.tab()[i];
                                             if ((c < 32) || (c > 126)) c = 32;   // only printable characters
                                             ::logging::log::emit() << c ;
                                         }
-                                        ::logging::log::emit() << "] -> " << ::logging::log::hex
-                                            << "etag [" << etag << "] "
+                                        ::logging::log::emit() << PROGMEMSTRING("] -> ")
+                                            << ::logging::log::hex << PROGMEMSTRING("etag [")
+                                            << etag << PROGMEMSTRING("] ")
                                             << sub.value() << ::logging::log::endl;
                                         return etag;
                                     }
                                 }
                                 ::logging::log::emit()
-                                    << "no free etags -- that should never be happen"
+                                    << PROGMEMSTRING("no free etags -- that should never be happen")
                                     << ::logging::log::endl;
                                 return 0;
                             }

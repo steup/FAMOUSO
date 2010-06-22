@@ -128,7 +128,7 @@ namespace famouso {
                             if (mtu <= min_header_length) {
                                 err = true;
                                 ::logging::log::emit< ::logging::Error>()
-                                    << "AFP: MTU too small for selected features."
+                                    << PROGMEMSTRING("AFP: MTU too small for selected features.")
                                     << ::logging::log::endl;
                                 return;
                             }
@@ -173,20 +173,25 @@ namespace famouso {
 
                             if (header_length >= mtu || overflow_err.error()) {
                                 err = true;
-                                ::logging::log::emit< ::logging::Error>() << "AFP: Event of size "
+                                ::logging::log::emit< ::logging::Error>()
+                                    << PROGMEMSTRING("AFP: Event of size ")
                                     << ::logging::log::dec << static_cast<uint64_t>(event_length)
-                                    << " could not be fragmented with this configuration (too large)."
+                                    << PROGMEMSTRING(" could not be fragmented with this configuration (too large).")
                                     << ::logging::log::endl;
                                 return;
                             }
 
                             frag_count += shared::div_round_up(rem_length, (elen_t)payload_length);
 
-                            ::logging::log::emit< ::logging::Info>() << "AFP: Fragmenter (no FEC): "
+                            ::logging::log::emit< ::logging::Info>()
+                                << PROGMEMSTRING("AFP: Fragmenter (no FEC): ")
                                 << ::logging::log::dec << static_cast<uint64_t>(remaining_length)
-                                << " bytes data -> " << static_cast<uint64_t>(payload_length)
-                                << " bytes payload in " << static_cast<uint64_t>(remaining_fragments)
-                                << " fragments" << ::logging::log::endl;
+                                << PROGMEMSTRING(" bytes data -> ")
+                                << static_cast<uint64_t>(payload_length)
+                                << PROGMEMSTRING(" bytes payload in ")
+                                << static_cast<uint64_t>(remaining_fragments)
+                                << PROGMEMSTRING(" fragments")
+                                << ::logging::log::endl;
 
                             FAMOUSO_ASSERT(frag_count > 0);
                             remaining_fragments = frag_count;

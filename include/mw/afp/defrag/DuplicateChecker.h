@@ -81,7 +81,9 @@ namespace famouso {
                                     // -> can not guarantee service
                                     // -> mark fragment as duplicate to drop it (avoid
                                     //    incorrect reassembly)
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                        << ::logging::log::endl;
                                     return false;
                                 }
                             }

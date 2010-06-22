@@ -101,7 +101,9 @@ namespace famouso {
                             // Is this fragment a duplicate?
                             if (!dup_check.new_fragment(header)) {
                                 Statistics::fragment_duplicate();
-                                ::logging::log::emit< ::logging::Info>() << "AFP: Dropped duplicate fragment" << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Info>()
+                                    << PROGMEMSTRING("AFP: Dropped duplicate fragment")
+                                    << ::logging::log::endl;
                                 return;
                             }
 

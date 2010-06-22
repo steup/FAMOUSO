@@ -215,8 +215,10 @@ namespace famouso {
                                     goto out_of_mem_error;
 
                                 ::logging::log::emit< ::logging::Info>()
-                                        << "AFP: defrag fragment " << ::logging::log::dec << (unsigned int)header.fseq
-                                        << " of NEW event" << ::logging::log::endl;
+                                   << PROGMEMSTRING("AFP: defrag fragment ")
+                                   << ::logging::log::dec << (unsigned int)header.fseq
+                                   << PROGMEMSTRING(" of NEW event")
+                                   << ::logging::log::endl;
                             } else {
                                 // Not first fragment: If we found a defragmenter fitting the key,
                                 // return it. Otherwise (missing frist fragment) drop this fragment.
@@ -231,14 +233,18 @@ namespace famouso {
                                 event = *it;
 
                                 ::logging::log::emit< ::logging::Info>()
-                                        << "AFP: defrag fragment " << ::logging::log::dec << (unsigned int)header.fseq
-                                        << " of event" << ::logging::log::endl;
+                                    << PROGMEMSTRING("AFP: defrag fragment ")
+                                    << ::logging::log::dec << (unsigned int)header.fseq
+                                    << PROGMEMSTRING(" of event")
+                                    << ::logging::log::endl;
                             }
 
                             return event->to_handle();
 
                         out_of_mem_error:
-                            ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                            ::logging::log::emit< ::logging::Warning>()
+                                << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                << ::logging::log::endl;
                             return 0;
                         }
 

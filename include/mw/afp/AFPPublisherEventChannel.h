@@ -103,7 +103,9 @@ namespace famouso {
                         fragment_e.data = _buffer;
 
                         if (e.length != (typename FCP::SizeProp::elen_t) e.length) {
-                            ::logging::log::emit< ::logging::Error>() << "AFP: Cannot publish event... too large." << ::logging::log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << PROGMEMSTRING("AFP: Cannot publish event... too large.")
+                                << ::logging::log::endl;
                             return false;
                         }
 
@@ -153,7 +155,9 @@ namespace famouso {
                             : PEC(s), _mtu(mtu) {
                         _buffer = Allocator::alloc(mtu);
                         if (!_buffer) {
-                            ::logging::log::emit< ::logging::Error>() << "AFP: Out of memory" << ::logging::log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << PROGMEMSTRING("AFP: Out of memory")
+                                << ::logging::log::endl;
                         }
                     }
 
@@ -178,7 +182,9 @@ namespace famouso {
                         fragment_e.data = _buffer;
 
                         if (e.length != (typename FCP::SizeProp::elen_t) e.length) {
-                            ::logging::log::emit< ::logging::Error>() << "AFP: Cannot publish event... too large." << ::logging::log::endl;
+                            ::logging::log::emit< ::logging::Error>()
+                                << PROGMEMSTRING("AFP: Cannot publish event... too large.")
+                                << ::logging::log::endl;
                             return false;
                         }
 

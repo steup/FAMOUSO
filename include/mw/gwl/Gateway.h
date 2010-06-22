@@ -83,28 +83,31 @@ namespace famouso {
 
                     void subscribe_from_network(famouso::mw::api::SECCallBackData& cbd) {
                         if (this->ech().get_network_id() == 0) {
-                            ::logging::log::emit() << "Lokal Subscription" << ::logging::log::endl;
+                            ::logging::log::emit()
+                                << PROGMEMSTRING("Lokal Subscription")
+                                << ::logging::log::endl;
                         } else {
                             if (this->subject() == famouso::mw::Subject(cbd.data)) {
-                                ::logging::log::emit() << "Subscribe Message of another gateway"
+                                ::logging::log::emit()
+                                    << PROGMEMSTRING("Subscribe Message of another gateway")
                                     << ::logging::log::endl;
                             } else {
                                 typename depot::iterator ii = gecs.begin();
                                 while (ii != gecs.end()) {
                                     /*! todo base network has to be checked */
                                     if ((*ii).subject() == famouso::mw::Subject(cbd.data)) {
-                                        ::logging::log::emit() << "forward channel exits"
+                                        ::logging::log::emit()
+                                            << PROGMEMSTRING("forward channel exits")
                                             << ::logging::log::endl;
                                         return;
                                     }
                                     ii++;
                                 }
                                 // hier muss ein neuer rein
-//                                std::string str(reinterpret_cast<const char*>(cbd.data), 0, 8);
                                 GEC *p=gecs.newElement();
                                 if ( p ) {
                                     ::logging::log::emit()
-                                        << "Generate a new proxy channel for forwarding events of Subject "
+                                        << PROGMEMSTRING("Generate a new proxy channel for forwarding events of Subject ")
                                         << cbd.data << ::logging::log::endl;
                                     new(p) GEC(famouso::mw::Subject(cbd.data), this->ech().get_network_id());
                                 }

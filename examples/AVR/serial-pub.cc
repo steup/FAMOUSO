@@ -56,7 +56,7 @@
 int main() {
     sei();                              // enable interrupts
     ::logging::log::emit()
-        << "Starting serial example publisher!"
+        << PROGMEMSTRING("Starting serial example publisher!")
         << ::logging::log::endl << ::logging::log::endl;
 
     famouso::init<famouso::config>();   // initialize famouso

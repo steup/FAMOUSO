@@ -58,15 +58,16 @@
 #include "config.h"
 
 void cb( famouso::mw::api::SECCallBackData& cbd) {
-    ::logging::log::emit() << " [ SEC-CB(" << cbd.length
-        << "): \"" << (char*)cbd.data << "\"  ]\n\r";
+    ::logging::log::emit() << PROGMEMSTRING(" [ SEC-CB(") << cbd.length
+        << PROGMEMSTRING("): \"") << (char*)cbd.data
+        << PROGMEMSTRING("\"  ]\n\r");
 }
 //-----------------------------------------------------------------------------
 int main() {
     sei();                              // enable interrupts
 
     ::logging::log::emit()
-        << "Starting demonstation of IEEE 802.15.4 communication (S)!"
+        << PROGMEMSTRING("Starting demonstation of IEEE 802.15.4 communication (S)!")
         << ::logging::log::endl << ::logging::log::endl;
     //-------------------------------------------------------------------------
     famouso::init<famouso::config>();   // initialize famouso

@@ -54,17 +54,19 @@
 #include "serial-cfg.h"
 /* === functions ============================================================ */
 void handleCallback( famouso::mw::api::SECCallBackData& cbd) {
-    ::logging::log::emit() << " [ SEC-CB(" << cbd.length << "): \"";
+    ::logging::log::emit() << PROGMEMSTRING(" [ SEC-CB(")
+        << cbd.length << PROGMEMSTRING("): \"");
     for (uint16_t i = 0;i < cbd.length;i++) {
         ::logging::log::emit() << (char)cbd.data[i];
     }
-    ::logging::log::emit() << "\" ]" << ::logging::log::endl;
+    ::logging::log::emit() << PROGMEMSTRING("\" ]")
+        << ::logging::log::endl;
 }
 /* === main ================================================================= */
 int main() {
     sei();                              // enable interrupts
     ::logging::log::emit()
-        << "Starting serial example subscriber!"
+        << PROGMEMSTRING("Starting serial example subscriber!")
         << ::logging::log::endl << ::logging::log::endl;
 
     famouso::init<famouso::config>();   // initialize famouso

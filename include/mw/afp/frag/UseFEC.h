@@ -175,7 +175,15 @@ namespace famouso {
                             this->nonred_fragments = Allocator::template alloc_array<const uint8_t *>(k);
                             FAMOUSO_ASSERT(nonred_fragments);
 
-                            ::logging::log::emit< ::logging::Info>() << "AFP: Fragmenter FEC: " << ::logging::log::dec << (unsigned long)k << " data fragments, " << (unsigned long)(n - k) << " redundancy fragments (from " << (unsigned long)Redundancy::value() << "% red)" << ::logging::log::endl;
+                            ::logging::log::emit< ::logging::Info>()
+                                << PROGMEMSTRING("AFP: Fragmenter FEC: ")
+                                << ::logging::log::dec << (unsigned long)k
+                                << PROGMEMSTRING(" data fragments, ")
+                                << (unsigned long)(n - k)
+                                << PROGMEMSTRING(" redundancy fragments (from ")
+                                << (unsigned long)Redundancy::value()
+                                << PROGMEMSTRING("% red)")
+                                << ::logging::log::endl;
 
                             // Following is very expensive for big k and n... in case many events with
                             // same k and n are sent, it would be nice to have fec_code sharing (low priority TODO)

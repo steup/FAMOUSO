@@ -112,7 +112,7 @@ namespace famouso {
 
                             if (b_header_length > sizeof(fseq) || b_header_length > 6) {
                                 ::logging::log::emit< ::logging::Warning>()
-                                    << "AFP: Receiving to large event! Dropping fragment!"
+                                    << PROGMEMSTRING("AFP: Receiving to large event! Dropping fragment!")
                                     << ::logging::log::endl;
                                 fseq = 0;
                                 return;
@@ -137,8 +137,9 @@ namespace famouso {
                                 else {
                                     // Header not supported
                                     ::logging::log::emit< ::logging::Error>()
-                                        << "AFP: Unknown or unsupported extension header "
-                                        << (*data & 0x1f) << "! Dropping fragment!"
+                                        << PROGMEMSTRING("AFP: Unknown or unsupported extension header ")
+                                        << (*data & 0x1f)
+                                        << PROGMEMSTRING("! Dropping fragment!")
                                         << ::logging::log::endl;
                                     return;
                                 }

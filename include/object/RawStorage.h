@@ -199,17 +199,19 @@ namespace object {
                     mem = reinterpret_cast<uint8_t *>(ai) + sizeof(AllocInfo);
 
 #ifdef RAWSTORAGE_LOG_USAGE
-                    ::logging::log::emit() << "RawStorage: alloc " << ::logging::log::dec << (int)(bytes)
-                    << " bytes  ->  offset " << (int)to_allocate
-                    << ::logging::log::hex << ", address "
-                    << reinterpret_cast<unsigned long>(mem) << ::logging::log::endl;
+                    ::logging::log::emit() << PROGMEMSTRING("RawStorage: alloc ")
+                        << ::logging::log::dec << (int)(bytes)
+                        << PROGMEMSTRING(" bytes  ->  offset ") << (int)to_allocate
+                        << ::logging::log::hex << PROGMEMSTRING(", address ")
+                        << reinterpret_cast<unsigned long>(mem) << ::logging::log::endl;
 #endif
                 } else {
                     // Not enough free memory
                     mem = 0;
 #ifdef RAWSTORAGE_LOG_USAGE
-                    ::logging::log::emit() << "RawStorage: alloc " << ::logging::log::dec << (int)(bytes)
-                    << " bytes failed" << ::logging::log::endl;
+                    ::logging::log::emit() << PROGMEMSTRING("RawStorage: alloc ")
+                        << ::logging::log::dec << (int)(bytes)
+                        << PROGMEMSTRING(" bytes failed") << ::logging::log::endl;
 
 #endif
                 }
@@ -234,9 +236,9 @@ namespace object {
                 FOR_FAMOUSO_ASSERT_ONLY(bool valid_pointer = next_allocated);
 #ifdef RAWSTORAGE_LOG_USAGE
                 if (!valid_pointer) {
-                    ::logging::log::emit() << "RawStorage: free address "
+                    ::logging::log::emit() << PROGMEMSTRING("RawStorage: free address ")
                     << ::logging::log::hex << reinterpret_cast<unsigned long>(p)
-                    << " failed. Not alloced or freed previously."
+                    << PROGMEMSTRING(" failed. Not alloced or freed previously.")
                     << ::logging::log::endl;
                 }
 #endif
@@ -249,9 +251,12 @@ namespace object {
                 *next_allocated = ai_to_free->next_allocated;
 
 #ifdef RAWSTORAGE_LOG_USAGE
-                ::logging::log::emit() << "RawStorage: free address " << ::logging::log::hex << reinterpret_cast<unsigned long>(p)
-                << ", offset " << ::logging::log::dec << (int)(p - data - sizeof(AllocInfo))
-                << " (" << (int)ai_to_free->block_length << " bytes)" << ::logging::log::endl;
+                ::logging::log::emit() << PROGMEMSTRING("RawStorage: free address ")
+                    << ::logging::log::hex << reinterpret_cast<unsigned long>(p)
+                        << PROGMEMSTRING(", offset ") << ::logging::log::dec
+                        << (int)(p - data - sizeof(AllocInfo))
+                        << PROGMEMSTRING(" (") << (int)ai_to_free->block_length
+                        << PROGMEMSTRING(" bytes)") << ::logging::log::endl;
 #endif
 #ifdef RAWSTORAGE_FULL_MEM_INFO
                 print_mem_info();
@@ -274,8 +279,9 @@ namespace object {
 
             /// Print info about empty block between offset first and last
             void print_empty(SizeT first, SizeT last) {
-                ::logging::log::emit() << ::logging::log::tab << ::logging::log::dec << (int)first << "-"
-                << (int)last << " Empty" << ::logging::log::endl;
+                ::logging::log::emit() << ::logging::log::tab
+                    << ::logging::log::dec << (int)first << '-'
+                    << (int)last << PROGMEMSTRING(" Empty") << ::logging::log::endl;
             }
 
             /// Print info about allocated block at offset first
@@ -283,19 +289,23 @@ namespace object {
                 AllocInfo * ai = get_ai(first);
                 SizeT last = first + sizeof(AllocInfo) + ai->block_length - 1;
                 ::logging::log::emit() << ::logging::log::tab
-                << ::logging::log::dec << (int)first << "-" << (int)last
-                << ::logging::log::hex << " Allocated (address="
-                << reinterpret_cast<unsigned long>(data + first + sizeof(AllocInfo))
-                << ::logging::log::dec << ", length=" << (int)ai->block_length
-                << ", next_allocated=" << (int)ai->next_allocated << ")" << ::logging::log::endl;
+                    << ::logging::log::dec << (int)first << '-' << (int)last
+                    << ::logging::log::hex << PROGMEMSTRING(" Allocated (address=")
+                    << reinterpret_cast<unsigned long>(data + first + sizeof(AllocInfo))
+                    << ::logging::log::dec << PROGMEMSTRING(", length=")
+                    << (int)ai->block_length
+                    << PROGMEMSTRING(", next_allocated=") << (int)ai->next_allocated
+                    << ')' << ::logging::log::endl;
 
             }
 
         public:
             /// Print info about this RawStorage and list allocated and free blocks
             void print_mem_info() {
-                ::logging::log::emit() << "RawStorage: size=" << size << ", sizeof(SizeT)=" << sizeof(SizeT)
-                << ", first_allocated=" << (int)first_allocated << ::logging::log::endl;
+                ::logging::log::emit() << PROGMEMSTRING("RawStorage: size=")
+                    << size << PROGMEMSTRING(", sizeof(SizeT)=") << sizeof(SizeT)
+                    << PROGMEMSTRING(", first_allocated=") << (int)first_allocated
+                    << ::logging::log::endl;
 
                 if (first_allocated != 0)
                     print_empty(0, first_allocated - 1);

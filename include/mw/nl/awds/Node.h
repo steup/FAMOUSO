@@ -122,7 +122,7 @@ namespace famouso {
                          *  \param out The output stream to print to.
                          */
                         void print(::logging::loggingReturnType &out) const {
-                            out << _mac << " (" << ::logging::log::dec << elapsed() << ")";
+                            out << _mac << ' ' << '(' << ::logging::log::dec << elapsed() << ')';
                         }
 
                         /** \brief Create a node with specified MAC.

@@ -128,7 +128,9 @@ namespace famouso {
                             if (no_ext_mtu == 0)            // Do nothing on error status
                                 return;
                             if (header.fec.occurs()) {      // Cannot handle events using FEC -> error
-                                ::logging::log::emit< ::logging::Warning>() << "AFP: FEC not supported -> drop" << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Warning>()
+                                    << PROGMEMSTRING("AFP: FEC not supported -> drop")
+                                    << ::logging::log::endl;
                                 goto set_error;
                             }
 
@@ -141,7 +143,9 @@ namespace famouso {
 
                                 event_data = Allocator::alloc(VHL::get_payload(event_fragment_count, no_ext_mtu));
                                 if (!event_data) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                        << ::logging::log::endl;
                                     goto set_error;
                                 }
 

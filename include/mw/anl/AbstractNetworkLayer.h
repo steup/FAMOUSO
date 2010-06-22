@@ -88,7 +88,7 @@ namespace famouso {
                     /*! \brief  constructor
                      */
                     AbstractNetworkLayer() :
-                            defrag(NL::info::payload) {
+                       defrag(NL::info::payload) {
                     }
 
                     /*! \brief Initalizes the sub networks and bind the subscription
@@ -132,7 +132,7 @@ namespace famouso {
 
                             if (e.length != (typename Frag::elen_t) e.length) {
                                 ::logging::log::emit< ::logging::Warning>()
-                                    << "AFP: Cannot publish event... too large."
+                                    << PROGMEMSTRING("AFP: Cannot publish event... too large.")
                                     << ::logging::log::endl;
                                 return;
                             }

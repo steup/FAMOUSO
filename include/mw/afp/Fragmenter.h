@@ -148,7 +148,7 @@ namespace famouso {
                      */
                     Fragmenter(const uint8_t * event_data, elen_t event_length) {
                         ::logging::log::emit< ::logging::Warning>()
-                            << "Event is to big to deliver at once and fragmentation is disabled."
+                            << PROGMEMSTRING("Event is to big to deliver at once and fragmentation is disabled.")
                             << ::logging::log::endl;
                     }
 
@@ -160,7 +160,7 @@ namespace famouso {
                      */
                     Fragmenter(const uint8_t * event_data, elen_t event_length, flen_t mtu) {
                         ::logging::log::emit< ::logging::Warning>()
-                            << "Event is to big to deliver at once and fragmentation is disabled."
+                            << PROGMEMSTRING("Event is to big to deliver at once and fragmentation is disabled.")
                             << ::logging::log::endl;
                     }
 

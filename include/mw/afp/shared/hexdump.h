@@ -65,14 +65,14 @@ namespace famouso {
                         for (unsigned int i = line * per_line; i < (line + 1) * per_line; i++) {
                             if (i >= l) {
                                 for (int a = (line + 1) * per_line - i - 1; a >= 0; a--)
-                                    ::logging::log::emit() << "   ";
+                                    ::logging::log::emit() << PROGMEMSTRING("   ");
                                 break;
                             }
-                            ::logging::log::emit() << " "
+                            ::logging::log::emit() << ' '
                                 << hexdump_get_hex_nibble(d[i] >> 4)
                                 << hexdump_get_hex_nibble(d[i] & 0xf);
                         }
-                        ::logging::log::emit() << "   |   ";
+                        ::logging::log::emit() << PROGMEMSTRING("   |   ");
                         for (unsigned int i = line * per_line; i < (line + 1) * per_line && i < l; i++) {
                             char show = (d[i] >= 32 && d[i] < 127 ? d[i] : '?');
                             ::logging::log::emit() << show;

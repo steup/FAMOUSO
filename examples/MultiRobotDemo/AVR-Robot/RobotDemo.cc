@@ -251,13 +251,19 @@ void Crash_CB(famouso::mw::api::SECCallBackData& e) {
 int main() {
 
     init();
-    ::logging::log::emit() << ::logging::log::endl << "Robot starting" << ::logging::log::endl;
+    ::logging::log::emit() << ::logging::log::endl
+        << PROGMEMSTRING("Robot starting") << ::logging::log::endl;
     // Interrupts erlauben
     sei();    // global enable interrupts
 
-    ::logging::log::emit() << "FAMOUSO -- Initialization started." << ::logging::log::endl;
+    ::logging::log::emit()
+        << PROGMEMSTRING("FAMOUSO -- Initialization started.")
+        << ::logging::log::endl;
+
     famouso::init<famouso::config>();
-    ::logging::log::emit() << "FAMOUSO -- Initialization successful" << ::logging::log::endl;
+    ::logging::log::emit()
+        << PROGMEMSTRING("FAMOUSO -- Initialization successful")
+        << ::logging::log::endl;
 
     famouso::config::SEC sec(distance);
     sec.subscribe();

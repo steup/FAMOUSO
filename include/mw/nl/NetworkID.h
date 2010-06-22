@@ -95,7 +95,7 @@ namespace famouso {
                         char tmp;
                         for (uint16_t i = 0; i < size; i++) {
                             if (i > 0)
-                                out << ":";
+                                out << ':';
                             // upper 4 BIT
                             tmp = _data[i] >> 4;
                             out << (char) (tmp < 10 ? '0' + tmp : 'A' + tmp - 10);

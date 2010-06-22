@@ -107,7 +107,9 @@ namespace famouso {
                             // (+1 to catch payload_length = 1 which will lead to payload_length = 0)
                             if (mtu <= min_header_length + 1) {
                                 Base::err = true;
-                                ::logging::log::emit< ::logging::Error>() << "AFP: MTU too small for selected features." << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Error>()
+                                    << PROGMEMSTRING("AFP: MTU too small for selected features.")
+                                    << ::logging::log::endl;
                                 return;
                             }
 
@@ -160,17 +162,22 @@ namespace famouso {
                                 redundancy = true;
                             }
 
-                            ::logging::log::emit< ::logging::Info>() << "AFP: Fragmenter: "
+                            ::logging::log::emit< ::logging::Info>()
+                                << PROGMEMSTRING("AFP: Fragmenter: ")
                                 << ::logging::log::dec << static_cast<uint64_t>(event_length)
-                                << " bytes data -> " << static_cast<uint64_t>(payload_length)
-                                << " bytes payload in " << static_cast<uint64_t>(frag_count)
-                                << " fragments" << ::logging::log::endl;
+                                << PROGMEMSTRING(" bytes data -> ")
+                                << static_cast<uint64_t>(payload_length)
+                                << PROGMEMSTRING(" bytes payload in ")
+                                << static_cast<uint64_t>(frag_count)
+                                << PROGMEMSTRING(" fragments")
+                                << ::logging::log::endl;
 
                             if (payload_length == 0 || overflow_err.error()) {
                                 Base::err = true;
-                                ::logging::log::emit< ::logging::Error>() << "AFP: Event of size "
+                                ::logging::log::emit< ::logging::Error>()
+                                    << PROGMEMSTRING("AFP: Event of size ")
                                     << ::logging::log::dec << static_cast<uint64_t>(event_length)
-                                    << " could not be fragmented with this configuration (too large)."
+                                    << PROGMEMSTRING(" could not be fragmented with this configuration (too large).")
                                     << ::logging::log::endl;
                                 return;
                             }

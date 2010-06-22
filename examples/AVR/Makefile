@@ -41,9 +41,9 @@ MCU=at90can128
 #MCU=atmega1281
 
 #AVRDUDE_PORT = /dev/ttyUSB0   # programmer connected to serial device
-AVRDUDE_PORT = /dev/ttyS0   # programmer connected to serial device
+#AVRDUDE_PORT = /dev/ttyS0   # programmer connected to serial device
 #AVRDUDE_PROGRAMMER = avr911
-AVRDUDE_PROGRAMMER = stk500v2
+#AVRDUDE_PROGRAMMER = stk500v2
 ################################################################################
 include ../../make/Makefile
 

@@ -89,11 +89,13 @@ namespace famouso {
 
                                 // kommt die Nachricht von jemandem der im richtigen stage ist?
                                 if (!(ccp_stage == stage)) {
-                                    ::logging::log::emit< ::logging::Error>() << "received ccp rsi for stage "
+                                    ::logging::log::emit< ::logging::Error>()
+                                        << PROGMEMSTRING("received ccp rsi for stage ")
                                         << static_cast<uint32_t>(stage)
-                                        << " but I am in stage "
+                                        << PROGMEMSTRING(" but I am in stage ")
                                         << static_cast<uint32_t>(ccp_stage)
-                                        << " dropping it." << ::logging::log::endl;
+                                        << PROGMEMSTRING(" dropping it.")
+                                        << ::logging::log::endl;
                                         return false;
                                 } else {
                                     // stage aktualisieren
@@ -119,22 +121,28 @@ namespace famouso {
                                         // generiere KnotenID, kein freier darf nicht vorkommen, weil dann
                                         // der knoten keine tx_node bekommt
                                         if ((tx_node = search_tx_node(uid)) > constants::Broker_tx_node) {
-                                            ::logging::log::emit< ::logging::Error>() << "more than "
+                                            ::logging::log::emit< ::logging::Error>()
+                                                << PROGMEMSTRING("more than ")
                                                 << static_cast<short>(constants::Broker_tx_node)
-                                                << " nodes configured that means something went wrong"
+                                                << PROGMEMSTRING(" nodes configured that means something went wrong")
                                                 << ::logging::log::endl;
                                             return false;
                                         } else {
-                                            ::logging::log::emit() << "CCP" << ::logging::log::tab
-                                                << ::logging::log::tab << ::logging::log::tab << "-- NodeID  [";
+                                            ::logging::log::emit() << PROGMEMSTRING("CCP")
+                                                << ::logging::log::tab << ::logging::log::tab
+                                                << ::logging::log::tab << PROGMEMSTRING("-- NodeID  [");
                                             for (uint8_t i = 0;i < 8;++i) {
                                                 uint8_t c = uid.tab()[i];
                                                 if ((c < 32) || (c > 126)) c = 32;   // only printable characters
                                                 ::logging::log::emit() << c ;
                                             }
-                                            ::logging::log::emit() << "] -> " << ::logging::log::hex
-                                                << "tx_node [" << static_cast<uint16_t>(tx_node) << "] "
-                                                << uid.value() << ::logging::log::endl;
+                                            ::logging::log::emit() << PROGMEMSTRING("] -> ")
+                                                << ::logging::log::hex
+                                                << PROGMEMSTRING("tx_node [")
+                                                << static_cast<uint16_t>(tx_node)
+                                                << PROGMEMSTRING("] ")
+                                                << uid.value()
+                                                << ::logging::log::endl;
                                         }
                                         ccp_stage = 15;
                                         uid = UID();

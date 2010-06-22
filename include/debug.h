@@ -42,7 +42,7 @@
 #define __DEBUG_h__
 
 #ifdef __GNUC__
-#define FUNCTION_SIGNATURE  __PRETTY_FUNCTION__
+#define FUNCTION_SIGNATURE  __FUNCTION__
 #else
 #define FUNCTION_SIGNATURE  __FUNCSIG__
 #endif
@@ -54,13 +54,12 @@ LOGGING_DISABLE_LEVEL(::logging::Trace);
 LOGGING_DISABLE_LEVEL(::logging::Info);
 #endif
 
-#define TRACE_FUNCTION do {                   \
-    ::logging::log::emit< ::logging::Trace>() \
-       << FUNCTION_SIGNATURE                  \
-       << ::logging::log::endl;               \
+#define TRACE_FUNCTION do {                                         \
+    ::logging::log::emit< ::logging::Trace>()                       \
+       << '"' << FUNCTION_SIGNATURE << '"'                          \
+       << PROGMEMSTRING(" -> "__FILE__":" __TOSTR__(__LINE__)" ")    \
+       << ::logging::log::endl;                                     \
 } while(0)
-
-
 
 
 #if !defined(ASSERT_FAILED_HANDLER)
@@ -75,9 +74,12 @@ LOGGING_DISABLE_LEVEL(::logging::Info);
  *
  * Writes error message to ::logging::log
  */
-static inline void __famouso_assert_failed_handler(const char * expr, const char * file, int line) {
+template<typename ExprT, typename FileT, typename LineT> static inline
+void __famouso_assert_failed_handler(ExprT expr, FileT file, LineT line) {
     using ::logging::log;
-    log::emit() << file << ":" << log::dec << line << ": Assertion '" << expr << "' failed." << log::endl;
+    log::emit() << file << ':' << line
+        << PROGMEMSTRING(": Assertion '") << expr
+        << PROGMEMSTRING("' failed.") << log::endl;
     abort();
 }
 
@@ -117,7 +119,10 @@ static inline void __famouso_assert_failed_handler(const char * expr, const char
  * symbol FAMOUSO_ASSERT_FAILED_HANDLER before including debug.h:
  * \code #define FAMOUSO_ASSERT_FAILED_HANDLER foobar \endcode
  */
-#define FAMOUSO_ASSERT(expr) ((expr) ? ((void)0) : FAMOUSO_ASSERT_FAILED_HANDLER (#expr, __FILE__, __LINE__))
+#define FAMOUSO_ASSERT(expr) ((expr) ? ((void)0) :                             \
+            FAMOUSO_ASSERT_FAILED_HANDLER(PROGMEMSTRING(#expr),                \
+                                          PROGMEMSTRING(__FILE__),             \
+                                          PROGMEMSTRING(__TOSTR__(__LINE__))))
 
 /*!
  * \brief Declare code to be needed only for FAMOUSO_ASSERT

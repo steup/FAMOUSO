@@ -120,7 +120,7 @@ namespace device {
                         // asserts if data size corresponds to payload size of communication layer
                         if ( size > _rflayer.getMaxPayload() ) {
                             ::logging::log::emit< ::logging::Error>()
-                                    <<"Payload size violation sending DATA RF"
+                                    << PROGMEMSTRING("Payload size violation sending DATA RF")
                                     << ::logging::log::endl;
                             return;
                         }
@@ -128,7 +128,7 @@ namespace device {
                         // transmit buffer
                         if (!(_rflayer.send(buffer, size, DESTINATION))) {
                             ::logging::log::emit< ::logging::Error>()
-                                    <<"MAC transmission failed!"
+                                    << PROGMEMSTRING("MAC transmission failed!")
                                     << ::logging::log::endl;
                             //TODO need there be an error response if transmission failed?
                         }

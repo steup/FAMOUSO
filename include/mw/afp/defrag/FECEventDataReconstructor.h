@@ -198,18 +198,30 @@ namespace famouso {
                                 fragments_order = Allocator::template alloc_array<int>(k);
 
                                 if (Base::event_fragment_count > 0xffff) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: invalid FEC parameter (too many fragmens) -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: invalid FEC parameter (too many fragmens) -> drop")
+                                        << ::logging::log::endl;
                                     goto set_error;
                                 }
 
                                 if (!fragments_data || !fragments_order) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                        << ::logging::log::endl;
                                     goto set_error;
                                 }
 
                                 memset(fragments_data, 0, k * sizeof(uint8_t *));
 
-                                ::logging::log::emit< ::logging::Info>() << "AFP: FEC: payload length " << ::logging::log::dec << (unsigned int)payload_length << ", k " << (unsigned int)k << ", n " << (unsigned int)Base::event_fragment_count << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Info>()
+                                    << PROGMEMSTRING("AFP: FEC: payload length ")
+                                    << ::logging::log::dec
+                                    << (unsigned int)payload_length
+                                    << PROGMEMSTRING(", k ")
+                                    << (unsigned int)k
+                                    << PROGMEMSTRING(", n ")
+                                    << (unsigned int)Base::event_fragment_count
+                                    << ::logging::log::endl;
                             }
 
                             FAMOUSO_ASSERT(header.fseq < Base::event_fragment_count);
@@ -225,7 +237,9 @@ namespace famouso {
                             fragments_data[Base::arrived_fragment_count] = Allocator::alloc(payload_length);
                             if (!fragments_data[Base::arrived_fragment_count]) {
                                 // Do not set error... may be reconstructable although we have to drop this fragment
-                                ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                ::logging::log::emit< ::logging::Warning>()
+                                    << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                    << ::logging::log::endl;
                                 return;
                             }
 
@@ -279,7 +293,9 @@ namespace famouso {
 
                                 Base::event_data = Allocator::alloc(Base::event_length);
                                 if (!fec_code || !Base::event_data) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                        << ::logging::log::endl;
                                     goto set_error;
                                 }
 
@@ -291,7 +307,9 @@ namespace famouso {
                                                                       fragments_order,
                                                                       payload_length);
                                 if (err != 0) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: FEC decode error -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: FEC decode error -> drop")
+                                        << ::logging::log::endl;
                                     goto set_error;
                                 }
 

@@ -116,8 +116,13 @@ namespace famouso {
                      */
                     void publish(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Info>() << "Publish channel "
-                                 << ::logging::log::hex << ec.select() << ::logging::log::endl;
+                        ::logging::log::emit< ::logging::Info>()
+                            << PROGMEMSTRING("Publish channel with addr=")
+                            << ::logging::log::hex
+                            << reinterpret_cast<void*>(&ec)
+                            << PROGMEMSTRING(" with Subject -> [")
+                            << ec.subject().value() << ']'
+                            << ::logging::log::endl;
                         // publish on all  lower layers/subnets
                         LL::publish(ec.snn(), e);
 
@@ -132,8 +137,13 @@ namespace famouso {
                      */
                     void subscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Info>() << "Subscribe channel "
-                                 << ::logging::log::hex << ec.select() << ::logging::log::endl;
+                        ::logging::log::emit< ::logging::Info>()
+                            << PROGMEMSTRING("Subscribe channel with addr=")
+                            << ::logging::log::hex
+                            << reinterpret_cast<void*>(&ec)
+                            << PROGMEMSTRING(" with Subject -> [")
+                            << ec.subject().value() << ']'
+                            << ::logging::log::endl;
                         LL::subscribe(ec.subject(), ec.snn());
                         Subscriber.append(ec);
                     }

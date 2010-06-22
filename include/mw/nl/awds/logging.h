@@ -59,7 +59,7 @@ namespace logging {
                 c = '.'; // only printable characters
             out << c;
         }
-        out << " (" << log::hex << s.value() << ")";
+        out << ' ' << '(' << log::hex << s.value() << ')';
         return out;
     }
 

@@ -281,9 +281,11 @@ namespace famouso {
                                     break;
 
                                 ::logging::log::emit< ::logging::Info>()
-                                        << "AFP: clean outdated event " << ::logging::log::dec
-                                        << (unsigned int)e->key.eseq << " (seq can occur again)"
-                                        << ::logging::log::endl;
+                                    << PROGMEMSTRING("AFP: clean outdated event ")
+                                    << ::logging::log::dec
+                                    << (unsigned int)e->key.eseq
+                                    << PROGMEMSTRING(" (seq can occur again)")
+                                    << ::logging::log::endl;
                                 events.erase(e->key);
                                 Allocator::destroy(e);
                                 outdated_events.pop();
@@ -304,7 +306,8 @@ namespace famouso {
                                 e = *it;
                                 if (e->status == Event<KeyType>::event_incomplete && e->expire_time < curr_time) {
                                     ::logging::log::emit< ::logging::Info>()
-                                            << "AFP: clean untouched event (timeout)" << ::logging::log::endl;
+                                        << PROGMEMSTRING("AFP: clean untouched event (timeout)")
+                                        << ::logging::log::endl;
                                     events.erase(it++);
                                     Allocator::destroy(e);
                                 } else {
@@ -345,12 +348,16 @@ namespace famouso {
                                 FAMOUSO_ASSERT(mtu > header.length());
                                 event = new (Allocator()) Event<KeyType>(mtu - header.ext_length(), event_key);
                                 if (!event || event->status == Event<KeyType>::event_outdated || !events.insert(event)) {
-                                    ::logging::log::emit< ::logging::Warning>() << "AFP: Out of memory -> drop" << ::logging::log::endl;
+                                    ::logging::log::emit< ::logging::Warning>()
+                                        << PROGMEMSTRING("AFP: Out of memory -> drop")
+                                        << ::logging::log::endl;
                                     return 0;
                                 }
                                 ::logging::log::emit< ::logging::Info>()
-                                        << "AFP: defrag fragment " << ::logging::log::dec << (unsigned int)header.fseq
-                                        << " of NEW event " << (unsigned int)event_key.eseq << ::logging::log::endl;
+                                    << PROGMEMSTRING("AFP: defrag fragment ")
+                                    << ::logging::log::dec << (unsigned int)header.fseq
+                                    << PROGMEMSTRING(" of NEW event ")
+                                    << (unsigned int)event_key.eseq << ::logging::log::endl;
                                 return event->to_handle();
                             }
 
@@ -359,11 +366,15 @@ namespace famouso {
                             FAMOUSO_ASSERT(event->key == event_key);
 
                             if (event->status == Event<KeyType>::event_outdated || event->def->is_event_complete()) {
-                                // Event was already processed, dropped or is complete (late fragment of already dropped event, duplicate or FEC redundancy fragment not needed)
-                                // -> drop fragment
+                                // Event was already processed, dropped or is
+                                // complete (late fragment of already dropped
+                                // event, duplicate or FEC redundancy fragment
+                                // not needed) -> drop fragment
                                 ::logging::log::emit< ::logging::Info>()
-                                        << "AFP: dropping outdated fragment " << ::logging::log::dec << (unsigned int)header.fseq
-                                        << " of event " << (unsigned int)event_key.eseq << ::logging::log::endl;
+                                    << PROGMEMSTRING("AFP: dropping outdated fragment ")
+                                    << ::logging::log::dec << (unsigned int)header.fseq
+                                    << PROGMEMSTRING(" of event ")
+                                    << (unsigned int)event_key.eseq << ::logging::log::endl;
                                 return 0;
                             }
 
@@ -373,8 +384,10 @@ namespace famouso {
                                 event->touch();
 
                             ::logging::log::emit< ::logging::Info>()
-                                    << "AFP: defrag fragment " << ::logging::log::dec << (unsigned int)header.fseq
-                                    << " of event " << (unsigned int)event_key.eseq << ::logging::log::endl;
+                                << PROGMEMSTRING("AFP: defrag fragment ")
+                                << ::logging::log::dec << (unsigned int)header.fseq
+                                << PROGMEMSTRING(" of event ")
+                                << (unsigned int)event_key.eseq << ::logging::log::endl;
                             return event->to_handle();
                         }
 
