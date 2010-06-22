@@ -189,7 +189,7 @@ namespace famouso {
                                 << PROGMEMSTRING(" bytes data -> ")
                                 << static_cast<uint64_t>(payload_length)
                                 << PROGMEMSTRING(" bytes payload in ")
-                                << static_cast<uint64_t>(remaining_fragments)
+                                << static_cast<uint64_t>(frag_count)
                                 << PROGMEMSTRING(" fragments")
                                 << ::logging::log::endl;
 
