@@ -135,15 +135,6 @@ namespace famouso {
                                 Subject sub(mob.data());
                                 if (id->etag() == famouso::mw::nl::CAN::detail::ETAGS::GET_ETAG) {
                                     uint16_t etag = bind_subject_to_etag(sub);
-                                    mob.len(4);
-                                    mob.data()[0] = id->tx_node();
-                                    mob.data()[1] = 0x3;
-                                    mob.data()[2] = etag >> 8;
-                                    mob.data()[3] = static_cast<uint8_t>(etag & 0xff);
-                                    id->prio(0xFD);
-                                    id->etag(famouso::mw::nl::CAN::detail::ETAGS::SUPPLY_ETAG);
-                                    id->tx_node(constants::Broker_tx_node);
-                                    canDriver.transmit(mob);
 
                                     mob.len(8);
                                     mob.data()[0] = id->tx_node();
@@ -154,6 +145,7 @@ namespace famouso {
                                     mob.data()[5] = sub.tab()[1];
                                     mob.data()[6] = sub.tab()[2];
                                     mob.data()[7] = sub.tab()[3];
+                                    id->prio(0xFD);
                                     id->etag(famouso::mw::nl::CAN::detail::ETAGS::SUPPLY_ETAG_NEW_BP);
                                     id->tx_node(constants::Broker_tx_node);
                                     canDriver.transmit(mob);
