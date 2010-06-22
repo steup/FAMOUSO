@@ -101,7 +101,7 @@ namespace famouso {
                                  * The first attribute should be the actual network attribute and the second attribute can be the
                                  * publisher or subscriber defined attribute. The network attributes always have to be defined.
                                  * The publisher or subscriber defined attributes can be not defined (then the match is always true
-                                 * becaus we don't have to comply it). The actual comparator is defined by the attribute itself.
+                                 * because we don't have to comply with it). The actual comparator is defined by the attribute itself.
                                  *
                                  * \param a The first attribute.
                                  * \param b The second attribute.
@@ -267,12 +267,14 @@ namespace famouso {
 
                         /*! \brief Checks wether all attributes are matching
                          *
-                         *  If an attribute in other is null, the check for this attribute will always match.
-                         *  The left hand parameter should be the actual network attributes, the right hand parameter
-                         *  should be the publisher or subscriber defined attributes.
+                         *  The first attribute list should be the actual network attributes and the second attribute can be the
+                         *  publisher or subscriber defined attributes. The network attributes always have to be defined.
+                         *  The publisher or subscriber defined attributes can be not defined (then the match is always true
+                         *  because we don't have to comply with it). The actual comparator is defined by the attribute itself.
                          *
-                         *  \param other The other attributes to compare to.
-                         *  \return true if all attributes of this are less than or equal to other, otherwise false.
+                         *  \param a The first attributes list
+                         *  \param b The second attributes list.
+                         *  \return true if all attributes of the first list matches the second list of attributes, otherwise false.
                          */
                         static bool match(const type & a, const type & b) {
                             return AttributeIterator<AttrSeq>::match(a->getSet(), b->getSet());
