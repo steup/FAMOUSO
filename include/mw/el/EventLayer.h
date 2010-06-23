@@ -119,7 +119,7 @@ namespace famouso {
                         ::logging::log::emit< ::logging::Info>()
                             << PROGMEMSTRING("Publish channel with addr=")
                             << ::logging::log::hex
-                            << reinterpret_cast<void*>(&ec)
+                            << reinterpret_cast<const void*>(&ec)
                             << PROGMEMSTRING(" with Subject -> [")
                             << ec.subject().value() << ']'
                             << ::logging::log::endl;
@@ -140,7 +140,7 @@ namespace famouso {
                         ::logging::log::emit< ::logging::Info>()
                             << PROGMEMSTRING("Subscribe channel with addr=")
                             << ::logging::log::hex
-                            << reinterpret_cast<void*>(&ec)
+                            << reinterpret_cast<const void*>(&ec)
                             << PROGMEMSTRING(" with Subject -> [")
                             << ec.subject().value() << ']'
                             << ::logging::log::endl;
