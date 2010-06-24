@@ -53,6 +53,23 @@
 
 #include "typeinfo"
 
+// ----- First idea of a warning generating macro
+
+#define ASSERT_WARNING(cond, msg) \
+    template <bool c> \
+    struct msg##struct { \
+        msg##struct() { \
+            int msg; \
+        }\
+    };\
+    \
+    template <> \
+    struct msg##struct<true> { }; \
+    \
+    msg##struct<cond> msg##struct_instance;
+
+// ------------------------------------------------
+
 template <typename Attr, typename Event>
 void testFind(Event& ev) {
 	Attr* a = ev.template find<Attr>();

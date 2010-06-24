@@ -54,6 +54,13 @@ namespace famouso {
                     static bool apply(const L &l, const R &r) {
                         return !!(l == r);
                     }
+
+                    template <typename L, typename R>
+                    struct apply_compiletime {
+                            typedef apply_compiletime type;
+
+                            static const bool value = !!(L::value == R::value);
+                    };
                 };
 
             } /* filter */

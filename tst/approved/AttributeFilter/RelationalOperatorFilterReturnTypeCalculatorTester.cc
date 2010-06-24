@@ -43,7 +43,7 @@
 #include "mw/attributes/tags/SameTag.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/TTL.h"
-#include "mw/attributes/EmptyAttribute.h"
+#include "mw/attributes/Attribute.h"
 #include "mw/attributes/filter/RelationalOperatorFilterReturnTypeCalculator.h"
 
 using namespace famouso::mw::attributes;
@@ -51,11 +51,9 @@ using namespace famouso::mw::attributes::filter;
 
 // defines a configurable user defined attribute
 template<uint8_t v>
-class UserDefined : public EmptyAttribute {
+class UserDefined : public Attribute<UserDefined<0>, tags::same_tag, uint8_t, v, less_than_or_equal_to, 42> {
 public:
-    typedef UserDefined<0>  base_type;
-    typedef tags::same_tag  compare_tag;
-    typedef UserDefined     type;
+    typedef UserDefined type;
 };
 
 #include "mw/attributes/IntegralConstToType.h"
@@ -63,14 +61,16 @@ typedef IntegralConstToType<1> I2T;
 
 struct TTT {};
 
+#include "iostream"
+
 int main(int argc, char **argv) {
 {
     // integral type is allowed on time-to-life attribute
-    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, int >::type                          t1;
+    //typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, int >::type                          t1;
     // same type is always allowed
     typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, TTL<1> >::type                       t2;
     // integral constant is allowed on time-to-life attribute
-    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, I2T >::type                          t3;
+    //typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, I2T >::type                          t3;
     // other attribute is not allowed
 //    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, EmptyAttribute >::type               t4;
     // wrong type is never allowed with the attribute grammar

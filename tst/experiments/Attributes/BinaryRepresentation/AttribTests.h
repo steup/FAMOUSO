@@ -53,11 +53,20 @@
 #include "mw/attributes/detail/AttributeHeader.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
 
+#include "mw/attributes/filter/less_than_or_equal_to.h"
+
+#include "mw/attributes/TTL.h"
+#include "mw/attributes/Latency.h"
+#include "mw/attributes/Omission.h"
+
 #define TO_HEX ::logging::log::emit() << ::logging::log::hex
 #define TO_DEC ::logging::log::emit() << ::logging::log::dec
 #define DBG_MSG(x) ::logging::log::emit() << x << ::logging::log::endl
 
-typedef famouso::mw::attributes::tags::integral_const_tag tag;
+using namespace famouso::mw::attributes;
+
+typedef tags::integral_const_tag tag;
+typedef filter::less_than_or_equal_to comp;
 
 void print(const uint8_t* array, uint8_t length) {
     ::logging::log::emit() << ::logging::log::hex;
@@ -77,7 +86,7 @@ void print(const uint8_t* array, uint8_t length) {
 template <typename Attr>
 void printCase() {
     ::logging::log::emit() << "Selected case "
-            << static_cast<uint16_t> (famouso::mw::attributes::detail::CaseSelector<Attr, uint16_t, 1, 2, 3, 4, 5, 6>::value)
+            << static_cast<uint16_t> (detail::CaseSelector<Attr, uint16_t, 1, 2, 3, 4, 5, 6>::value)
             << ::logging::log::endl;
 }
 
@@ -91,29 +100,29 @@ void testAttribute(const char* text = "") {
     ::logging::log::emit() << ::logging::log::dec;
     ::logging::log::emit() << ::logging::log::endl;
 
-    uint8_t data[famouso::mw::attributes::detail::AttributeSize<AttrType>::value];
+    uint8_t data[detail::AttributeSize<AttrType>::value];
 
     ::logging::log::emit() << "Value offset: "
-            << famouso::mw::attributes::detail::ValueOffset<AttrType>::value
+            << detail::ValueOffset<AttrType>::value
             << ::logging::log::endl;
     ::logging::log::emit() << ::logging::log::endl;
 
     // Construct the attribute into the data array at the correct offset
-    new (&data[famouso::mw::attributes::detail::ValueOffset<AttrType>::value]) AttrType;
+    new (&data[detail::ValueOffset<AttrType>::value]) AttrType;
 
     ::logging::log::emit() << "Attribute size     : "
-            << famouso::mw::attributes::detail::AttributeSize<AttrType>::value
+            << detail::AttributeSize<AttrType>::value
             << ::logging::log::endl;
     ::logging::log::emit() << "Attribute bit count: "
-            << famouso::mw::attributes::detail::ValueBitCount<AttrType>::value
+            << detail::ValueBitCount<AttrType>::value
             << ::logging::log::endl;
     ::logging::log::emit() << ::logging::log::endl;
 
     // Now construct the header into the array
-    new (&data[0]) famouso::mw::attributes::detail::AttributeHeader<AttrType>;
+    new (&data[0]) detail::AttributeHeader<AttrType>;
 
     ::logging::log::emit() << "Header size: "
-            << (int) famouso::mw::attributes::detail::AttributeHeader<AttrType>::size
+            << (int) detail::AttributeHeader<AttrType>::size
             << ::logging::log::endl;
     ::logging::log::emit() << ::logging::log::endl;
 
@@ -124,33 +133,14 @@ void testAttribute(const char* text = "") {
     ::logging::log::emit() << ::logging::log::endl;
 }
 
-template <uint8_t ttl>
-struct TTL: public famouso::mw::attributes::Attribute<TTL<0>, tag,
-                                                      uint8_t, ttl, 0, true> {
-    typedef TTL type;
-};
-
-template <uint16_t delay>
-struct Delay: public famouso::mw::attributes::Attribute<Delay<0>, tag,
-                                                        uint16_t, delay, 1, true> {
-    typedef Delay type;
-};
-
-template <uint16_t omission>
-struct OmissionDegree: public famouso::mw::attributes::Attribute<OmissionDegree<0>,
-                                                                 tag, uint16_t,
-                                                                 omission, 2, true> {
-    typedef OmissionDegree type;
-};
-
 typedef TTL<0> Local;
 typedef TTL<1> Body;
 typedef TTL<255> World;
 
-typedef OmissionDegree<0> None;
+typedef Omission<0> None;
 
 template <typename VT, VT V, uint8_t ID, bool IS>
-struct TestAttrib : public famouso::mw::attributes::Attribute<boost::mpl::int_<ID>, tag, VT, V, ID, IS> {
+struct TestAttrib : public Attribute<boost::mpl::int_<ID>, tag, VT, V, comp, ID, IS> {
     typedef TestAttrib type;
 };
 

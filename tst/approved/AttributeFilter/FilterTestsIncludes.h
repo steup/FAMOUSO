@@ -42,6 +42,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "boost/mpl/list.hpp"
 #include "mw/common/ExtendedEvent.h"
 #include "mw/attributes/filter/exists.h"
 #include "mw/attributes/TTL.h"

@@ -51,20 +51,13 @@ namespace famouso {
                     /*! \brief  implements the comparator operation
                      */
                     template< typename L, typename R>
-                    static bool apply(const L &l, const R &r) {
+                    static bool apply_runtime(const L &l, const R &r) {
                         return !!(l >= r);
                     }
 
-                    // TODO: What convention should be used here for providing both
-                    //  the runtime and the compiletime variant of apply?
-                    // Nesting the method into the struct would lead to
-                    //  1. Conflicts method name <-> constructor name
-                    //  2. The need for explicitely providing L and R everytime the
-                    //      runtime method is used
-
                     template <typename L, typename R>
-                    struct apply_ {
-                            typedef apply_ type;
+                    struct apply_compiletime {
+                            typedef apply_compiletime type;
 
                             static const bool value = !!(L::value >= R::value);
                     };

@@ -129,6 +129,16 @@ namespace famouso {
                     // Determines whether this attribute is a system attribute
                     static const bool isSystem = IsSystem;
 
+                    // A struct implementing the stronger relation between attributes
+                    //  (generally delegates to less-than-or-equal respective
+                    //   greater-than-or-equal relations)
+                    template <typename OtherAttr>
+                    struct isStronger : public comparator::template apply_compiletime<Attribute, OtherAttr> {
+                        BOOST_MPL_ASSERT_MSG(isSystem,
+                                             only_system_attributes_may_have_a_stronger_relation,
+                                             (Attribute));
+                    };
+
                     // The data array contains the binary representation of
                     //  this attribute (header + value)
                     uint8_t data[detail::AttributeSize<Attribute>::value];

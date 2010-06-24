@@ -51,13 +51,13 @@ namespace famouso {
                     /*! \brief  implements the comparator operation
                      */
                     template< typename L, typename R>
-                    static bool apply(const L &l, const R &r) {
+                    static bool apply_runtime(const L &l, const R &r) {
                         return !!(l <= r);
                     }
 
                     template <typename L, typename R>
-                    struct apply_ {
-                            typedef apply_ type;
+                    struct apply_compiletime {
+                            typedef apply_compiletime type;
 
                             static const bool value = !!(L::value <= R::value);
                     };

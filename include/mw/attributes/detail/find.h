@@ -41,6 +41,7 @@
 #ifndef _Find_h_
 #define _Find_h_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "util/endianness.h"

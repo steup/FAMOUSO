@@ -113,7 +113,7 @@ namespace famouso {
                                         return true;
 
                                     // if attrib b is not empty, attrib a has to be not empty too, so check if it matches
-                                    if (a && cmp::apply(a->get(), b->get()))
+                                    if (a && cmp::apply_runtime(a->get(), b->get()))
                                         return true;
 
                                     // attributes doesn't match
