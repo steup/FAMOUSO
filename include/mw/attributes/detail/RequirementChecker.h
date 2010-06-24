@@ -46,6 +46,7 @@
 #include "boost/mpl/deref.hpp"
 #include "boost/mpl/next.hpp"
 #include "boost/mpl/eval_if.hpp"
+#include "boost/mpl/integral_c.hpp"
 
 #include "mw/attributes/detail/FindStatic.h"
 #include "mw/attributes/detail/AttributeCompileErrors.h"
@@ -108,7 +109,7 @@ namespace famouso {
                                  typename Prov::sequence
                                 >::result provAttr;
 
-                        typedef typename curAttr::type::comparator::template apply_<
+                        typedef typename curAttr::type::comparator::template apply_compiletime  <
                                                                      provAttr,
                                                                      curAttr
                                                                     > compare;
@@ -143,6 +144,10 @@ namespace famouso {
                          */
                         typedef RequirementChecker type;
 
+                        typedef boost::mpl::integral_c_tag tag;
+
+                        typedef bool value_type;
+
                         typedef typename boost::mpl::eval_if_c<
                                                       (contained::value && valueFits),
                                                       nextResult,
@@ -158,6 +163,10 @@ namespace famouso {
                          *  fitting values.
                          */
                         static const bool value = result::value;
+
+                        operator bool() const {
+                            return (this->value);
+                        }
                 };
 
                 template <typename Prov, typename Req>
@@ -166,18 +175,12 @@ namespace famouso {
                         Req,
                         true,
                         typename boost::mpl::end<typename Req::sequence>::type
-                       > {
+                       > : public boost::mpl::integral_c<bool, true> {
                     public:
                         typedef RequirementChecker type;
 
                         typedef boost::mpl::bool_<true> result;
-
-                        static const bool value = true;
                 };
-
-                // TODO: Since default template parameters cannot be used in a partial
-                //  specialization, we have to declare both "compileError"-cases
-                //  separately (fortunately it's just a boolean ;))
 
                 template <typename Prov, typename Req>
                 struct RequirementChecker<
@@ -185,13 +188,11 @@ namespace famouso {
                         Req,
                         false,
                         typename boost::mpl::end<typename Req::sequence>::type
-                       > {
+                       > : public boost::mpl::integral_c<bool, true> {
                     public:
                         typedef RequirementChecker type;
 
                         typedef boost::mpl::bool_<true> result;
-
-                        static const bool value = true;
                 };
 
             }  // namespace detail
