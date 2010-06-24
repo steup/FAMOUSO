@@ -49,6 +49,7 @@
 #include "boost/mpl/deref.hpp"
 #include "boost/mpl/size.hpp"
 #include "boost/mpl/is_sequence.hpp"
+#include "boost/mpl/list.hpp"
 #include "boost/type_traits/is_same.hpp"
 
 #include "object/PlacementNew.h"
@@ -74,7 +75,8 @@ namespace famouso {
              *  attribute sequence, should always be left to the default value from
              *  outside
              */
-            template <typename AttrSeq, typename Iter = typename boost::mpl::begin<AttrSeq>::type>
+            template <typename AttrSeq = boost::mpl::list<>,
+                      typename Iter = typename boost::mpl::begin<AttrSeq>::type>
             struct AttributeSet {
                 private:
                     BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
