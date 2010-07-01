@@ -44,6 +44,7 @@
 #include <stdint.h>
 
 #include "boost/mpl/eval_if.hpp"
+#include "boost/mpl/integral_c.hpp"
 
 #include "mw/attributes/detail/AttributeCompileErrors.h"
 
@@ -73,9 +74,7 @@ namespace famouso {
                 template <uint16_t setSize>
                 struct AttributeSetHeader {
                     private:
-                        typedef AttributeSetHeader type;
-
-                        // True, if the list header will be written extended, false if the
+                        // True, if the set header will be written extended, false if the
                         //  header fits one byte
                         static const bool extension = (setSize > 0x7F);
 
@@ -87,8 +86,21 @@ namespace famouso {
                                                      >::type assertDummy;
 
                     public:
-                        // The size of the header is 1 if it is not extended and 2 if it
-                        //  is extended
+                        // This type
+                        typedef AttributeSetHeader type;
+
+                        // Boost integral const conformance (the value type is the type of the
+                        //  given size)
+                        typedef uint16_t value_type;
+                        // Boost integral const conformance (the value of this type is the given
+                        //  set size)
+                        static const uint16_t value = setSize;
+                        // Boost integral const conformance (this type is considered as an
+                        //  integral constant)
+                        typedef boost::mpl::integral_c_tag tag;
+
+                        // The size of the header is 1 byte if it is not extended and 2 bytes
+                        //  if it is extended
                         static const uint8_t size = (extension ? 2 : 1);
 
                     private:
@@ -102,19 +114,57 @@ namespace famouso {
                          *  argument in to the member array.
                          */
                         AttributeSetHeader() {
+                            writeSize(setSize, extension);
+                        }
+
+                        const uint16_t get() {
+                            // Check if the extension bit is set
+                            const bool extension = (data[0] & 0x80) != 0;
+
+                            if (extension) {
+                                // Get the first two bytes, convert them to host byte order and mask the
+                                //  extension bit
+                                return (ntohs(*(reinterpret_cast<uint16_t*>(&data[0]))) & 0x7FFF);
+                            } else {
+                                // Simply return the first (and only) byte, the check above assures that
+                                //  only the lower seven bits of this byte are set
+                                return (data[0]);
+                            }
+                        }
+
+                        bool set(uint16_t newSize) {
+                            // Check if the extension bit is set in the current representation
+                            const bool currentExtension = (data[0] & 0x80) != 0;
+
+                            // Check if the extension bit must be set for the new size
+                            const bool targetExtension = newSize > 0x7F;
+
+                            // If the old size was not extended and the new one has to be, we cannot
+                            //  perform the operation since we need more bytes than available
+                            if (!currentExtension && targetExtension) {
+                                return (false);
+                            }
+
+                            writeSize(newSize, targetExtension);
+
+                            return (true);
+                        }
+
+                    private:
+                        void writeSize(const uint16_t size, const bool extension) {
                             // Depending on whether the sequence header is extended either 1
                             //  or 2 two bytes must be written accordingly
                             if (extension) {
                                 // Convert the length to network byte order and set the
                                 //  extension bit
-                                const uint16_t tmpSize = htons(setSize | 0x8000);
+                                const uint16_t tmpSize = htons(size | 0x8000);
                                 // Assign the converted value to the array
                                 *(reinterpret_cast<uint16_t*> (data)) = tmpSize;
                             } else {
                                 // Write the lower 7 bits of the sequence size into the first
                                 //  and only byte (The extension flag assures that the given
                                 //  sequence size fits 7 bits)
-                                data[0] = (setSize & 0x7F);
+                                data[0] = (size & 0x7F);
                             }
                         }
                 };
