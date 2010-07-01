@@ -85,8 +85,7 @@ namespace famouso {
                 typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
                 typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
                 typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> nl;
-                typedef famouso::mw::afp::Disable afp_t;
-                typedef famouso::mw::anl::AbstractNetworkLayer< nl, afp_t, afp_t > anl;
+                typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
             public:
                 typedef famouso::mw::el::EventLayer< anl > EL;
                 typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
