@@ -66,13 +66,13 @@ struct TTT {};
 int main(int argc, char **argv) {
 {
     // integral type is allowed on time-to-life attribute
-    //typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, int >::type                          t1;
+    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, int >::type                          t1;
     // same type is always allowed
     typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, TTL<1> >::type                       t2;
     // integral constant is allowed on time-to-life attribute
-    //typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, I2T >::type                          t3;
+    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, I2T >::type                          t3;
     // other attribute is not allowed
-//    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, EmptyAttribute >::type               t4;
+//    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, UserDefined<1> >::type               t4;
     // wrong type is never allowed with the attribute grammar
 //    typedef RelationalOperatorFilterReturnTypeCalculator < TTL<0>, TTT >::type                          t5;
 }
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     // integral constant is allowed on time-to-life attribute
 //    typedef RelationalOperatorFilterReturnTypeCalculator < UserDefined<0>, I2T >::type                  t3;
     // other attribute is not allowed
-//    typedef RelationalOperatorFilterReturnTypeCalculator < UserDefined<0>, EmptyAttribute >::type       t4;
+//    typedef RelationalOperatorFilterReturnTypeCalculator < UserDefined<0>, TTL<0> >::type               t4;
     // wrong type is never allowed with the attribute grammar
 //    typedef RelationalOperatorFilterReturnTypeCalculator < UserDefined<0>, TTT >::type                  t5;
 }

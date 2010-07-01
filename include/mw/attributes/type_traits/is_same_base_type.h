@@ -40,22 +40,57 @@
 #ifndef __IsSameBaseType_h__
 #define __IsSameBaseType_h__
 
-#include  <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include "config/type_traits/contains_type.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
             namespace type_traits {
 
-                /*! \brief A tester that checks if two types have the
-                 *         same base type defined.
+                /*! \brief The struct implements a test if two types have the
+                 *         same base type
+                 *
+                 *  First it detect if A and B contain a base_type typedef, and
+                 *  if so compares whether A and B have the same base_type defined.
+                 *
+                 * \tparam  A first examined type.
+                 * \tparam  B second examined type
+                 *
+                 * \returns value==1 if base_type is the same value==0
+                 *          else
                  */
                 template <typename A, typename B>
-                struct is_same_base_type :
-                    boost::is_same<
-                        typename A::base_type,
-                        typename B::base_type
-                    > {};
+                struct is_same_base_type {
+
+                    CONTAINS_TYPE_(base_type);
+
+                    template <bool, typename T, typename U>
+                    struct is_same_base_type_impl :
+                        boost::is_same<
+                            typename T::base_type,
+                            typename U::base_type
+                        > {};
+
+                    template <typename T, typename U>
+                    struct is_same_base_type_impl<false,T,U> {
+                        enum{
+                            value = 0
+                        };
+                    };
+
+                    typedef is_same_base_type type;
+
+                    enum {
+                        value = is_same_base_type_impl<
+                                    contains_type_base_type< A >::value
+                                        &&
+                                    contains_type_base_type< B >::value ,
+                                    A,
+                                    B
+                                >::value
+                    };
+                };
 
             } /* type_traits */
         } /* attributes */

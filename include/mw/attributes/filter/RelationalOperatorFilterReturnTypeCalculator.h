@@ -115,49 +115,50 @@ namespace famouso {
                         // If yes, B needs to have the same base type.
                         boost::mpl::eval_if<
                             // test whether B meets the attribute grammar
-                            boost::mpl::not_<
-                                type_traits::is_type_tag<
-                                    B,
-                                    tags::attribute_tag
-                                >
+                            type_traits::is_same_base_type<
+                                A,
+                                B
                             >,
-                            // B. meets not the attribute grammar and leading
-                            // to a compile error.
-                            CompileError<B, tags::attribute_tag>,
-                            // B meets the attribute grammar and now test
-                            // whether it fulfils A requirements
-                            boost::mpl::eval_if<
-                                type_traits::is_same_base_type< A, B >,
-                                //
-                                // \todo
-                                // compare_ mit entsprechendem Operator
-                                // hier ist auch compile time moeglich
-                                RelationalOperatorFilter<
-                                    A,
-                                    B,
-                                    Operator,
-                                    tags::compile_time_filter_tag
-                                >,
-                                // A requires the same_tag and B does not meets
-                                // the requirements
-                                CompileError<A, B, tags::same_tag>
-                            >
+                            // return the correct operator filer type
+                            // in this case we are able to use the compile
+                            // time filter variant
+                            RelationalOperatorFilter<
+                                A,
+                                B,
+                                Operator,
+                                tags::compile_time_filter_tag
+                            >,
+                            // A requires the same_tag and B does not meets
+                            // the requirements
+                            CompileError<A, B, tags::same_tag>
                         >,
                         // A is an ordinary attribute and allows comparisions
                         // with intergrals, integral constants and with A types
                         boost::mpl::eval_if<
                             boost::is_integral<B>,
-                            // compare_dyn mit entsprechendem Operator
+                            //
+                            // return the correct operator filer type
+                            // in this case we have to use the runtime
+                            // filter variant, because the integral is
+                            // not a type thus it must be stored by the
+                            // generated filter
                             RelationalOperatorFilter<
                                 A,
                                 IntegralConstRunTimeWrapper< B >,
                                 Operator
                             >,
+                            // test if B is an attribute or an integral const type
                             boost::mpl::eval_if<
                                 boost::mpl::not_<
-                                    type_traits::is_type_tag<
-                                        B,
-                                        tags::attribute_tag
+                                    boost::mpl::or_<
+                                        type_traits::is_type_tag<
+                                            B,
+                                            tags::attribute_tag
+                                        >,
+                                        type_traits::is_same_base_type<
+                                            B,
+                                            IntegralConstType
+                                        >
                                     >
                                 >,
                                 // B does not meets the attribute grammar
@@ -170,11 +171,13 @@ namespace famouso {
                                             B
                                         >,
                                         type_traits::is_same_base_type<
-                                            IntegralConstType,
-                                            B
+                                            B,
+                                            IntegralConstType
                                         >
                                     >,
-                                    // compare_ mit entsprechendem Operator
+                                    // return the correct operator filer type
+                                    // in this case we are able to use the compile
+                                    // time filter variant
                                     RelationalOperatorFilter<
                                         A,
                                         B,

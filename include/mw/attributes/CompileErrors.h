@@ -88,7 +88,7 @@ namespace famouso {
                // this will be triggered if this type is instantiated
                BOOST_MPL_ASSERT_MSG(
                    sizeof(T) == 0,
-                   template_argument_meets_not_attribute_grammar_thus_it_seems_to_be_not_a_valid_attribute,
+                   template_argument_complies_not_the_attribute_grammar_thus_it_seems_to_be_not_a_valid_attribute,
                    (T)
                );
             };
