@@ -153,8 +153,9 @@ int main() {
 	print(ev.data, sizeof(eventType));
 	DBG_MSG("");
 
-	DBG_MSG(typeid(famouso::mw::attributes::detail::IsContained<a9, attribList>::result).name());
+	typedef AttributeSet<> emptySet;
 
-	DBG_MSG((uint16_t) attrSet::setSize);
-	DBG_MSG((uint16_t) attrSet::count);
+	emptySet es;
+
+	print((uint8_t*) &es, sizeof(es));
 }

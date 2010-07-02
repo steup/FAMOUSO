@@ -118,7 +118,12 @@ namespace famouso {
                         };
 
                     public:
-                        static const bool result = false;
+                        // \todo: Could anyone please tell me why a static const member is
+                        //  not "constant enough" so that I must use this ugly enum?!
+                        // (and why is it sufficient in the general template definition above?!)
+                        enum {
+                            result = false
+                        };
 
                         typedef Dummy duplicateAttribute;
                 };

@@ -43,17 +43,12 @@
 
 #include <stdint.h>
 
-#include "boost/mpl/begin.hpp"
-#include "boost/mpl/end.hpp"
-#include "boost/mpl/next.hpp"
-#include "boost/mpl/deref.hpp"
-#include "boost/mpl/size.hpp"
 #include "boost/mpl/is_sequence.hpp"
-#include "boost/mpl/list.hpp"
-#include "boost/type_traits/is_same.hpp"
+#include "boost/mpl/vector.hpp"
 
 #include "object/PlacementNew.h"
 
+#include "mw/attributes/detail/AttributeSetImpl.h"
 #include "mw/attributes/detail/find.h"
 #include "mw/attributes/detail/FindStatic.h"
 #include "mw/attributes/detail/AttributeSetHeader.h"
@@ -70,21 +65,18 @@ namespace famouso {
              * \tparam AttrSeq The sequence of attributes, the sequence elements
              *  should be derived from Attribute, see this struct's description
              *  for requirements concerning an attribute type
-             *
-             * \tparam Iter The iterator pointing to the current element of the
-             *  attribute sequence, should always be left to the default value from
-             *  outside
              */
-            template <typename AttrSeq = boost::mpl::list<>,
-                      typename Iter = typename boost::mpl::begin<AttrSeq>::type>
+            template <typename AttrSeq = boost::mpl::vector<> >
             struct AttributeSet {
                 private:
+                    // Assert that a forward sequence is given
                     BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
                                          no_forward_sequence_given,
                                          (AttrSeq));
 
                     // Duplicate-Tester for the given attribute sequence
                     typedef detail::Duplicates<AttrSeq> duplicateTester;
+
                     // Assert that the sequence does not contain duplicates, if it does print out
                     //  the first attribute in the sequence for which a duplicate could be found
                     //  and the whole sequence, too
@@ -92,18 +84,8 @@ namespace famouso {
                                          duplicate_attribute_detected_in_sequence,
                                          (typename duplicateTester::duplicateAttribute, AttrSeq));
 
-                    // The current attribute type (determined by the given iterator type)
-                    typedef boost::mpl::deref<Iter> curAttr;
-                    // The next sequence element type
-                    typedef boost::mpl::next<Iter> iterNext;
-
-                    // Determines whether the iterator points to the first attribute of the
-                    //  the sequence (If this is true, the sequence header will be written
-                    //  additionally)
-                    static const bool isFirst = boost::is_same<
-                                                        Iter,
-                                                        typename boost::mpl::begin<AttrSeq>::type
-                                                       >::value;
+                    // The implementation struct of the actual attribute set
+                    typedef detail::AttributeSetImpl<AttrSeq> impl;
 
                 public:
                     /*!
@@ -114,31 +96,12 @@ namespace famouso {
                     /**
                      * \brief The sequence that was given to create this set
                      */
-                    typedef AttrSeq      sequence;
-
-                    /*
-                     * \brief The size of this set in bytes, this does not include the set header only
-                     *  the representation of all attributes is considered.
-                     */
-                    static const uint16_t setSize = detail::AttributeSize<typename curAttr::type>::value +
-                                                    AttributeSet<AttrSeq, typename iterNext::type>::setSize;
-
-                    static const uint16_t count = boost::mpl::size<AttrSeq>::value;
+                    typedef AttrSeq sequence;
 
                 private:
-                    // The sequence header structure type always instantiated with the size of the
-                    //  complete attribute sequence ("always" means that this type is also instantiated
-                    //  for the recursively instantiated remaining sequences, where (isFirst == false),
-                    //  nevertheless it will not really be used in this case)
-                    typedef detail::AttributeSetHeader<setSize> setHeader;
-
-                    // The offset determines where the actual attribute data starts in the
-                    //  member array, this depends on whether we currently handle the first
-                    //  attribute in list or not; In the former case the offset is identical
-                    //  to the size of the sequence header since it will be written before the
-                    //  the first attribute of the sequence, in the latter case the offset is
-                    //  simply 0 since there will be no sequence header written
-                    static const uint8_t offset = (isFirst ? setHeader::size : 0);
+                    // The sequence header structure type is instantiated with the size of the
+                    //  complete attribute sequence
+                    typedef detail::AttributeSetHeader<impl::size> setHeader;
 
                 public:
                     /*!
@@ -147,13 +110,7 @@ namespace famouso {
                      * This includes the sequence header and every single attribute contained in
                      *  the sequence.
                      */
-                    static const uint16_t overallSize =
-                            // If the current attribute is the first, the sequence header will
-                            //  be included
-                            (isFirst ? setHeader::size : 0) +
-
-                            // The size without the header has already been calculated above
-                            setSize;
+                    static const uint16_t overallSize = setHeader::size + impl::size;
 
                 private:
                     /*!
@@ -179,36 +136,13 @@ namespace famouso {
                      *  sequence the list header (i.e. the attribute count) is also written.
                      */
                     AttributeSet() {
-                        // If the iterator points to the first attribute in the sequence, write
-                        //  the attribute sequence header
-                        if (isFirst) {
-                            // The header always starts at index 0 (In this case we do not have
-                            //  to consider the offset since it is always 0 at this point)
-                            new (&data[0]) setHeader;
-                        }
+                        // The header always starts at index 0 (In this case we do not have
+                        //  to consider the offset since it is always 0 at this point)
+                        new (&data[0]) setHeader;
 
-                        // The next two steps must necessarily be performed in the given order
-                        //  since the attribute will overwrite the bytes which it considers to
-                        //  be assigned to its value and the attribute header writer will allow
-                        //  for this (it will assign its data to the array or use an OR operation
-                        //  depending on the binary structure implied by the attribute, see the
-                        //  description of the CaseSelector and the the ValueOffsetCalculator
-                        //  for an explanation of the possible binary structures of an attribute)
-
-                        // Construct the current attribute (This is done by instantiating the
-                        //  current attribute type into the member array at the correct offset,
-                        //  the correct resulting offset is calculated by the ValueOffsetCalculator
-                        //  since the attribute itself should not be aware of any offsets in a
-                        //  resulting structure, just manage and write its value)
-                        new (&data[offset]) typename curAttr::type;
-
-                        // Let the rest of the sequence construct its attributes into the rest of
-                        //  the array (This is done by recursively instantiate another one of this
-                        //  template struct incrementing the iterator to the next attribute of the
-                        //  sequence, the past-end case is modeled separately by a specialization
-                        //  of this template struct)
-                        new (&data[offset + detail::AttributeSize<typename curAttr::type>::value])
-                                AttributeSet<AttrSeq, typename iterNext::type> ;
+                        // The construction of the attribute binary data is done by the
+                        //  wrapped implementation
+                        new (&data[setHeader::size]) impl;
                     }
 
                 public:
@@ -220,31 +154,6 @@ namespace famouso {
                     template <typename Attr>
                     const Attr* find() const {
                         return (famouso::mw::attributes::detail::find<Attr>(data));
-                    }
-            };
-
-            template <typename AttrSeq>
-            struct AttributeSet<AttrSeq, typename boost::mpl::end<AttrSeq>::type> {
-                    BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
-                                         no_forward_sequence_given,
-                                         (AttrSeq));
-
-                    static const uint16_t setSize = 0;
-
-                    static const uint16_t overallSize = 0;
-
-                    typedef AttrSeq sequence;
-
-                    typedef AttributeSet type;
-
-                    template <typename Attr>
-                    Attr* find() {
-                        return (reinterpret_cast<Attr*> (NULL));
-                    }
-
-                    template <typename Attr>
-                    const Attr* find() const {
-                        return (reinterpret_cast<Attr*> (NULL));
                     }
             };
 
