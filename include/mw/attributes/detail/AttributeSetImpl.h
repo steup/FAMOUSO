@@ -79,18 +79,18 @@ namespace famouso {
                         // The number of attributes contained in this set
                         static const uint16_t count = boost::mpl::size<AttrSeq>::value;
 
-                    private:
-                        uint8_t data[size];
-
-                    public:
-                        AttributeSetImpl() {
+                        static void construct(uint8_t *pos){
                             // Construct the attribute currently pointed to by the
                             //  given iterator
-                            new (&data[0]) curAttr;
-
+                            new (pos) curAttr;
                             // Then construct the rest of the set recursively
-                            new (&data[AttributeSize<curAttr>::value]) AttributeSetImpl<AttrSeq, iterNext>;
+                            AttributeSetImpl<AttrSeq, iterNext>::construct(pos+AttributeSize<curAttr>::value);
                         }
+
+                    private:
+                        AttributeSetImpl();
+                        AttributeSetImpl(const AttributeSetImpl&);
+                        const AttributeSetImpl& operator=(const AttributeSetImpl&);
                 };
 
                 template <typename AttrSeq>
@@ -102,9 +102,12 @@ namespace famouso {
 
                         static const uint16_t count = 0;
 
-                        AttributeSetImpl() {
-                            // Do nothing in this case
-                        }
+                        static void construct(uint8_t *){}
+
+                    private:
+                        AttributeSetImpl();
+                        AttributeSetImpl(const AttributeSetImpl&);
+                        const AttributeSetImpl& operator=(const AttributeSetImpl&);
                 };
 
             } // end namespace detail

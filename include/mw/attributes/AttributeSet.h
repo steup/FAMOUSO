@@ -142,7 +142,7 @@ namespace famouso {
 
                         // The construction of the attribute binary data is done by the
                         //  wrapped implementation
-                        new (&data[setHeader::size]) impl;
+                        impl::construct(&data[setHeader::size]);
                     }
 
                 public:
