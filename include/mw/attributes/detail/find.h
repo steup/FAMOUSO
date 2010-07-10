@@ -41,12 +41,10 @@
 #ifndef _Find_h_
 #define _Find_h_
 
-#include <stddef.h>
 #include <stdint.h>
 
-#include "util/endianness.h"
-#include "mw/attributes/detail/AttributeElementHeader.h"
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/AttributeSetHeader.h"
+#include "mw/attributes/detail/AttributeHeader.h"
 
 namespace famouso {
     namespace mw {
@@ -64,91 +62,35 @@ namespace famouso {
                     //  contained in the given sequence
                     uint16_t seqLen;
 
-                    // Determine sequence length
-                    if ((data[0] & 0x80) == 0) {
-                        // Sequence header is unextended
-                        seqLen = (data[0] & 0x7F);
+                    {
+                        // TODO: Think about a special API accessor type instead of using
+                        //  the template type with zero manually
+                        const AttributeSetHeader<0>* const setHeader =
+                                reinterpret_cast<const AttributeSetHeader<0>* const>(&data[0]);
 
-                        ++data;
-                    } else {
-                        // Sequence header is extended
+                        seqLen = setHeader->get();
 
-                        seqLen = *(reinterpret_cast<uint16_t*>(data));
-                        seqLen = ntohs(seqLen) & 0x7FFF;
-
-                        data += 2;
+                        data += (setHeader->isExtended() ? 2 : 1);
                     }
 
                     // The pointer were the given sequence ends
                     const uint8_t* const targetPtr = data + seqLen;
 
-                    // The length of the currently decoded attribute
-                    uint16_t length;
-
-                    AttributeElementHeader* header;
+                    // TODO: The same about the API accessor type here, using Attr for
+                    //  the type argument is not necessary it could be any arbitrary
+                    //  attribute type
+                    AttributeHeader<Attr>* header;
 
                     while (data < targetPtr) {
-                        // Interpret the current pointer as an attribute header
-                        header = reinterpret_cast<AttributeElementHeader*>(data);
+                        header = reinterpret_cast<AttributeHeader<Attr>*>(data);
 
-                        if (header->category == SystemIDs::nonSystem) {
-                            // Non-system attribute
-
-                            // In this case we have to proceed to the type field to check it
-                            //  against the intended attribute's ID
-
-                            // This means that we have to read the length first
-                            if (header->extension) {
-                                length = *(reinterpret_cast<uint16_t*>(data++));
-                                length = ntohs(length) & 0x07FF;
-                            } else {
-                                length = header->length;
-                            }
-
-                            ++data;
-
-                            // Now we're pointing at the type
-                            if (*(data++) == Attr::id) {
-                                // If the types matches the intended attribute, we interpret
-                                //  the current data chunk as the attribute and return it
-                                return (reinterpret_cast<Attr*>(header));
-                            }
-                        } else {
-                            // System attributes
-
-                            // For system attributes, the ID is always written at the
-                            //  beginning of the header, so we can check this right now
-                            if (header->category == Attr::id) {
-                                return (reinterpret_cast<Attr*>(header));
-                            }
-
-                            if (header->valueOrLengthSwitch) {
-                                // If the VOL flag is set, the value (respective a part of it)
-                                //  is contained in the header
-
-                                // If the value is extended, we have to skip another byte
-                                if (header->extension) ++data;
-
-                                // The length (which is used to skip below) is 1 in this case
-                                //  (either the header byte itself or the extended byte is
-                                //  considered as the value)
-                                length = 1;
-                            } else {
-                                // The VOL flag isn't set, so the length is contained in the header
-
-                                if (header->extension) {
-                                    length = *(reinterpret_cast<uint16_t*>(data++));
-                                    length = ntohs(length) & 0x03FF;
-                                } else {
-                                    length = header->valueOrLength;
-                                }
-
-                                ++data;
-                            }
+                        // Check if the encoded attribute fits the given one
+                        if ((header->isSystem() == Attr::isSystem) && (header->getID() == Attr::id)) {
+                            return (reinterpret_cast<Attr*>(header));
                         }
 
-                        // Skip the data bytes of the current attribute
-                        data += length;
+                        // We let the attribute class determine its overall size to skip it
+                        data += reinterpret_cast<const Attr* const>(header)->size();
                     }
 
                     // If we iterated the complete attribute sequence the intended attribute

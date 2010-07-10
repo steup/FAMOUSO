@@ -43,8 +43,8 @@
 
 #include <stdint.h>
 
-#include "ValueByteCount.h"
-#include "CaseSelector.h"
+#include "mw/attributes/detail/ValueByteCount.h"
+#include "mw/attributes/detail/CaseSelector.h"
 
 namespace famouso {
     namespace mw {

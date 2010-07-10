@@ -45,6 +45,9 @@
 
 #include "config/type_traits/ByteCount.h"
 
+#include "mw/attributes/detail/AttributeElementHeader.h"
+#include "mw/attributes/detail/SystemIDs.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -79,6 +82,8 @@ namespace famouso {
                                                                     Attr::value>::value;
 
                     public:
+                        typedef CaseSelector type;
+
                         static const ResultType value =
 
                                 (Attr::isSystem) ?
@@ -128,6 +133,51 @@ namespace famouso {
                                         //  and last case
                                         res6
                                 );
+
+                        /*!
+                         * \brief Performs the case selection on a given binary representation of
+                         *  an attribute header.
+                         *
+                         *  \return The value appropriate for the selected case as defined as a
+                         *   template argument for this struct
+                         */
+                        static const ResultType select(const AttributeElementHeader* const header) {
+                            // We have to use the element header struct here instead of the
+                            //  attribute header struct since we would create circular include
+                            //  dependencies otherwise
+
+                            if (header->isSystem()) {
+                                // System attributes
+                                if (header->valueOrLengthSwitch) {
+                                    // Value is contained
+                                    if (header->extension) {
+                                        // Value fits extended
+                                        return (res2);
+                                    } else {
+                                        // Value fits unextended
+                                        return (res1);
+                                    }
+                                } else {
+                                    // Length is contained
+                                    if (header->extension) {
+                                        // Length fits extended
+                                        return (res4);
+                                    } else {
+                                        // Length fits unextended
+                                        return (res3);
+                                    }
+                                }
+                            } else {
+                                // Non-system attributes
+                                if (header->extension) {
+                                    // Length fits extended
+                                    return (res6);
+                                } else {
+                                    // Length fits unextended
+                                    return (res5);
+                                }
+                            }
+                        }
                 };
 
             } // end namespace detail

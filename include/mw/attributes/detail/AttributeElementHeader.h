@@ -43,6 +43,8 @@
 
 #include <stdint.h>
 
+#include "mw/attributes/detail/SystemIDs.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -62,6 +64,10 @@ namespace famouso {
 
                         // For non system attributes
                         uint8_t length :3;
+
+                        bool isSystem() const {
+                            return (category != SystemIDs::nonSystem);
+                        }
                 };
             } // end namespace attributes
         } // end namespace attributes

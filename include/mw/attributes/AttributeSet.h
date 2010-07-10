@@ -46,6 +46,8 @@
 #include "boost/mpl/is_sequence.hpp"
 #include "boost/mpl/vector.hpp"
 
+#include "assert/staticerror.h"
+
 #include "object/PlacementNew.h"
 
 #include "mw/attributes/detail/AttributeSetImpl.h"
@@ -54,6 +56,9 @@
 #include "mw/attributes/detail/AttributeSetHeader.h"
 #include "mw/attributes/detail/AttributeSize.h"
 #include "mw/attributes/detail/Duplicates.h"
+
+// TODO: See the TODO below
+#include "mw/attributes/TTL.h"
 
 namespace famouso {
     namespace mw {
@@ -70,9 +75,10 @@ namespace famouso {
             struct AttributeSet {
                 private:
                     // Assert that a forward sequence is given
-                    BOOST_MPL_ASSERT_MSG((boost::mpl::is_sequence<AttrSeq>::value),
-                                         no_forward_sequence_given,
-                                         (AttrSeq));
+                    FAMOUSO_STATIC_ASSERT_ERROR(
+                        (boost::mpl::is_sequence<AttrSeq>::value),
+                        no_forward_sequence_given,
+                        (AttrSeq));
 
                     // Duplicate-Tester for the given attribute sequence
                     typedef detail::Duplicates<AttrSeq> duplicateTester;
@@ -80,9 +86,10 @@ namespace famouso {
                     // Assert that the sequence does not contain duplicates, if it does print out
                     //  the first attribute in the sequence for which a duplicate could be found
                     //  and the whole sequence, too
-                    BOOST_MPL_ASSERT_MSG((!duplicateTester::result),
-                                         duplicate_attribute_detected_in_sequence,
-                                         (typename duplicateTester::duplicateAttribute, AttrSeq));
+                    FAMOUSO_STATIC_ASSERT_ERROR(
+                        (!duplicateTester::result),
+                        duplicate_attribute_detected_in_sequence,
+                        (typename duplicateTester::duplicateAttribute, AttrSeq));
 
                     // The implementation struct of the actual attribute set
                     typedef detail::AttributeSetImpl<AttrSeq> impl;
@@ -146,15 +153,97 @@ namespace famouso {
                     }
 
                 public:
+                    /*!
+                     * \brief Searches for the attribute given as a template argument in the
+                     *  binary representation of this attribute set and returns it
+                     *
+                     * The target attribute is searched for using the isSystem property and
+                     *  the ID of the given attribute type. The returned instance can then
+                     *  be used to access the value.
+                     * If the given attribute could not be found in the set, NULL is returned.
+                     *
+                     * \tparam Attr The attribute type which should be searched for
+                     *
+                     * \return An instance of Attr or NULL if the attribute could not be found
+                     */
                     template <typename Attr>
                     Attr* find() {
-                        return (famouso::mw::attributes::detail::find<Attr>(data));
+                        return (famouso::mw::attributes::detail::find<Attr>(&data[0]));
                     }
 
+                    /*!
+                     * \brief Searches for the attribute given as a template argument in the
+                     *  binary representation of this attribute set and returns it.
+                     *
+                     * The target attribute is searched for using the isSystem property and
+                     *  the ID of the given attribute type. The returned instance can then
+                     *  be used to access the value.
+                     * If the given attribute could not be found in the set, NULL is returned.
+                     *
+                     * \tparam Attr The attribute type which should be searched for
+                     *
+                     * \return A constant instance of Attr or NULL if the attribute could
+                     *  not be found
+                     */
                     template <typename Attr>
                     const Attr* find() const {
-                        return (famouso::mw::attributes::detail::find<Attr>(data));
+                        return (famouso::mw::attributes::detail::find<Attr>(&data[0]));
                     }
+
+                    /*!
+                     * \brief Returns the number of bytes used for the encoded attributes in
+                     *  this set.
+                     *
+                     * This excludes the number of bytes used for the set header itself.
+                     *
+                     * \return The number of bytes used for the attributes of this set
+                     */
+                    uint16_t getSize() const {
+                        return (reinterpret_cast<const setHeader* const>(&data[0])->get());
+                    }
+
+                    // TODO: When there is a way for API accessor types implemented, remove this
+                    typedef TTL<0> dummyAttr;
+
+                    uint16_t getCount() const {
+                        const uint8_t* ptr = data;
+
+                        uint16_t result = 0;
+
+                        // TODO: This is a copy-paste-version of the find method, consider implementing
+                        //  an iterator class
+
+                        // The number of bytes needed by the attributes
+                        //  contained in the given sequence
+                        uint16_t seqLen;
+
+                        {
+                            // TODO: Think about a special API accessor type instead of using
+                            //  the template type with zero manually
+                            const detail::AttributeSetHeader<0>* const setHeader =
+                                    reinterpret_cast<const detail::AttributeSetHeader<0>* const>(&ptr[0]);
+
+                            seqLen = setHeader->get();
+
+                            ptr += (setHeader->isExtended() ? 2 : 1);
+                        }
+
+                        // The pointer were the given sequence ends
+                        const uint8_t* const targetPtr = ptr + seqLen;
+
+                        while (ptr < targetPtr) {
+                            ++result;
+
+                            // We let the attribute class determine its overall size to skip it
+                            ptr += reinterpret_cast<const dummyAttr* const>(&ptr[0])->size();
+                        }
+
+                        // If we iterated the complete attribute sequence the intended attribute
+                        //  could not be found and NULL is returned
+                        return (result);
+                    }
+
+                    // TODO: Implement methods for manipulation of the attribute set at runtime
             };
 
         } // end namespace attributes

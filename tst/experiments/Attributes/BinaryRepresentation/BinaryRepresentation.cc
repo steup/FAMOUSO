@@ -153,9 +153,5 @@ int main() {
 	print(ev.data, sizeof(eventType));
 	DBG_MSG("");
 
-	typedef AttributeSet<> emptySet;
-
-	emptySet es;
-
-	print((uint8_t*) &es, sizeof(es));
+	DBG_MSG("SetCount: " << reinterpret_cast<attrSet*>(ev.data)->getCount());
 }

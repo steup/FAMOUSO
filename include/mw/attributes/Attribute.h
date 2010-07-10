@@ -38,8 +38,8 @@
  *
  ******************************************************************************/
 
-#ifndef _EmptyAttribute_
-#define _EmptyAttribute_
+#ifndef _Attribute_h_
+#define _Attribute_h_
 
 #include <stdint.h>
 
@@ -134,9 +134,10 @@ namespace famouso {
                     //   greater-than-or-equal relations)
                     template <typename OtherAttr>
                     struct isStronger : public comparator::template apply_compiletime<Attribute, OtherAttr> {
-                        BOOST_MPL_ASSERT_MSG(isSystem,
-                                             only_system_attributes_may_have_a_stronger_relation,
-                                             (Attribute));
+                        FAMOUSO_STATIC_ASSERT_ERROR(
+                            isSystem,
+                            only_system_attributes_may_have_a_stronger_relation,
+                            (Attribute));
                     };
 
                     // The data array contains the binary representation of
@@ -401,44 +402,13 @@ namespace famouso {
                      * \return This attribute's size in bytes
                      */
                     uint16_t size() const {
-                        const detail::AttributeElementHeader* const header =
-                                reinterpret_cast<const detail::AttributeElementHeader* const>(data);
+                        const detail::AttributeHeader<Attribute>* const header =
+                                reinterpret_cast<const detail::AttributeHeader<Attribute>* const>(&data[0]);
 
-                        if ((isSystem) && (header->valueOrLengthSwitch)) {
-                            if (header->extension) {
-                                // Value fits extended -> 2 bytes are needed
-                                return (2);
-                            } else {
-                                // Value fits unextended -> 1 byte is needed
-                                return (1);
-                            }
-                        } else {
-                            uint16_t result;
-
-                            // Read the length in big-endian order
-                            if (header->extension) {
-                                result = *(reinterpret_cast<const uint16_t*>(data));
-                                result = (ntohs(result) & (isSystem ? 0x3FF : 0x7FF));
-
-                                // An extension implies that the actual header needs 2 bytes
-                                result += 2;
-                            } else {
-                                // Expand the single byte to a 16 bit value and only apply the
-                                //  high byte of the mask (0x3)
-                                result = static_cast<uint16_t>(data[0] & 0x3);
-
-                                // Without an extension the actual header needs 1 byte
-                                ++result;
-                            }
-
-                            // Non-system attributes have additional overhead because of the
-                            //  type field
-                            if (!isSystem) {
-                                ++result;
-                            }
-
-                            return (result);
-                        }
+                        // The sum of the header size (which eventually includes an encoded
+                        //  attribute value) and the encoded length is the overall size of
+                        //  the attribute
+                        return (header->getSize() + header->getLength());
                     }
             };
 
@@ -446,4 +416,4 @@ namespace famouso {
     } // end namespace mw
 } // end namespace famouso
 
-#endif // _EmptyAttribute_
+#endif // _Attribute_h_

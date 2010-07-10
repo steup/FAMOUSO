@@ -117,14 +117,15 @@ namespace famouso {
                             writeSize(setSize, extension);
                         }
 
-                        const uint16_t get() {
-                            // Check if the extension bit is set
-                            const bool extension = (data[0] & 0x80) != 0;
+                        const bool isExtended() const {
+                            return ((data[0] & 0x80) != 0);
+                        }
 
-                            if (extension) {
+                        const uint16_t get() const {
+                            if (isExtended()) {
                                 // Get the first two bytes, convert them to host byte order and mask the
                                 //  extension bit
-                                return (ntohs(*(reinterpret_cast<uint16_t*>(&data[0]))) & 0x7FFF);
+                                return (ntohs(*(reinterpret_cast<const uint16_t* const>(&data[0]))) & 0x7FFF);
                             } else {
                                 // Simply return the first (and only) byte, the check above assures that
                                 //  only the lower seven bits of this byte are set
@@ -134,10 +135,10 @@ namespace famouso {
 
                         bool set(uint16_t newSize) {
                             // Check if the extension bit is set in the current representation
-                            const bool currentExtension = (data[0] & 0x80) != 0;
+                            const bool currentExtension = isExtended();
 
                             // Check if the extension bit must be set for the new size
-                            const bool targetExtension = newSize > 0x7F;
+                            const bool targetExtension = (newSize > 0x7F);
 
                             // If the old size was not extended and the new one has to be, we cannot
                             //  perform the operation since we need more bytes than available
