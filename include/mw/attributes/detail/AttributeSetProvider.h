@@ -41,7 +41,6 @@
 #ifndef _Set_Provider_h_
 #define _Set_Provider_h_
 
-#include "boost/mpl/assert.hpp"
 #include "boost/mpl/aux_/na.hpp"
 #include "boost/utility/enable_if.hpp"
 #include "boost/mpl/vector.hpp"
@@ -50,6 +49,8 @@
 
 #include "mw/attributes/AttributeSet.h"
 #include "mw/attributes/type_traits/is_attribute.h"
+
+#include "assert/staticerror.h"
 
 namespace famouso {
     namespace mw {
@@ -65,9 +66,10 @@ namespace famouso {
                  */
                 template <typename Attr, typename InnerEnable = void>
                 struct assert_is_attribute_or_na  {
-                        BOOST_MPL_ASSERT_MSG(false,
-                                             template_argument_no_attribute_and_not_na,
-                                             (Attr));
+                        FAMOUSO_STATIC_ASSERT_ERROR(
+                            false,
+                            template_argument_no_attribute_and_not_na,
+                            (Attr));
 
                         typedef void type;
                 };
@@ -81,10 +83,11 @@ namespace famouso {
                 struct assert_is_attribute_or_na<
                         Attr,
                         typename boost::enable_if<
-                                famouso::mw::attributes::type_traits::is_attribute<
-                                                                       Attr
-                                                                      >
-                               >::type > {
+                                        famouso::mw::attributes::type_traits::is_attribute<
+                                                                               Attr
+                                                                              >
+                                       >::type
+                       > {
                         typedef void type;
                 };
 

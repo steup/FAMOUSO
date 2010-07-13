@@ -56,11 +56,12 @@
 #include "mw/attributes/detail/ValueByteCount.h"
 #include "mw/attributes/detail/AttributeHeader.h"
 #include "mw/attributes/detail/AttributeElementHeader.h"
+#include "mw/attributes/tags/IntegralConstTag.h"
+#include "mw/attributes/tags/AttributeTag.h"
 
 #include "config/type_traits/ByteCount.h"
 
-#include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/tags/AttributeTag.h"
+#include "assert/staticerror.h"
 
 namespace famouso {
     namespace mw {

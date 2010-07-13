@@ -43,7 +43,7 @@
 
 #include <stdint.h>
 
-#include "boost/mpl/assert.hpp"
+#include "assert/staticerror.h"
 
 #include "config/type_traits/ByteCount.h"
 
@@ -64,9 +64,9 @@ namespace famouso {
                         typedef uint8_t dummy;
 
                     private:
-                        BOOST_MPL_ASSERT_MSG(false,
-                                             only_primitive_integral_types_allowed,
-                                             (ValueType));
+                        FAMOUSO_STATIC_ASSERT_ERROR(false,
+                                                    only_primitive_integral_types_allowed,
+                                                    (ValueType));
                 };
                 template <> struct ValueTypeAssert<bool> {
                         typedef uint8_t dummy;
@@ -112,9 +112,10 @@ namespace famouso {
 
                         static const bool cond = ((!IsSystem) || (bitCount < 5));
 
-                        BOOST_MPL_ASSERT_MSG(cond,
-                                             system_attribute_ID_cannot_have_more_than_4_bits,
-                                             (boost::mpl::int_<ID>, boost::mpl::int_<bitCount>));
+                        FAMOUSO_STATIC_ASSERT_ERROR(
+                            cond,
+                            system_attribute_ID_cannot_have_more_than_4_bits,
+                            (boost::mpl::int_<ID>, boost::mpl::int_<bitCount>));
                 };
             }; // end namespace binrep
         } // end namespace attributes

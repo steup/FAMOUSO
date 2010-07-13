@@ -49,8 +49,6 @@
 #include "mw/afp/frag/UseFEC.h"
 #include "mw/afp/shared/div_round_up.h"
 
-#include "boost/mpl/assert.hpp"
-
 // memcpy
 #include <string.h>
 

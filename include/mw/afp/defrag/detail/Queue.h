@@ -46,6 +46,8 @@
 #include "object/RingBuffer.h"
 #if !defined(__NO_STL__)
 #include <list>
+#else
+#include "assert/staticerror.h"
 #endif
 
 
@@ -121,7 +123,7 @@ namespace famouso {
 
                     template < typename T >
                     class Queue<T, dynamic> {
-                        BOOST_MPL_ASSERT_MSG(false, dynamic_Queue_not_supported_on_this_platform, ());
+                        FAMOUSO_STATIC_ASSERT_ERROR(false, dynamic_Queue_not_supported_on_this_platform, ());
                     };
 
 #endif

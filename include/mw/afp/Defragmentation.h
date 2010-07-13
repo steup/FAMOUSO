@@ -42,7 +42,7 @@
 #define __DEFRAGMENTATION_H_AA773DC94A45F8__
 
 
-#include "boost/mpl/assert.hpp"
+#include "assert/staticerror.h"
 
 #include "debug.h"
 
@@ -393,7 +393,8 @@ namespace famouso {
                             defragmenter_handle(0),
                             event_data(0),
                             event_length(0) {
-                        BOOST_MPL_ASSERT_MSG(!DemuxKeyType::uses_subject, wrong_constructor_for_multiple_subject_configurations, ());
+                        FAMOUSO_STATIC_ASSERT_ERROR(!DemuxKeyType::uses_subject,
+                                                    wrong_constructor_for_multiple_subject_configurations, ());
                     }
 
                     /*!

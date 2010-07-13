@@ -48,7 +48,7 @@
 #include "debug.h"
 #include "mw/common/Event.h"
 
-#include "boost/mpl/assert.hpp"
+#include "assert/staticerror.h"
 
 
 namespace famouso {
@@ -74,8 +74,8 @@ namespace famouso {
                     typedef CommonPolicySelector<AFPFC> FCP;
 
                     /// Check if MTU fits to config
-                    BOOST_MPL_ASSERT_MSG(mtu == (typename FCP::SizeProp::flen_t)mtu,
-                                         MTU_too_large_for_used_SizeProperties, ());
+                    FAMOUSO_STATIC_ASSERT_ERROR(mtu == (typename FCP::SizeProp::flen_t)mtu,
+                                                MTU_too_large_for_used_SizeProperties, ());
 
                     /// Maximum fragment size
                     enum { _mtu = mtu };

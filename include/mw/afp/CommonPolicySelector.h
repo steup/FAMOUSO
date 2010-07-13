@@ -45,7 +45,7 @@
 #include "config/type_traits/if_contains_select_type.h"
 #include "config/type_traits/if_select_type.h"
 
-#include "boost/mpl/assert.hpp"
+#include "assert/staticerror.h"
 
 #include "object/Allocator.h"
 #include "mw/afp/shared/OverflowErrorChecking.h"
@@ -85,9 +85,9 @@ namespace famouso {
                             DefaultEventSizeProp                    // Size types working for all valid events (default event type)
                         >::type SizeProp;
 
-                BOOST_MPL_ASSERT_MSG(sizeof(typename SizeProp::flen_t) <= sizeof(typename SizeProp::elen_t),
-                                     invalid_SizeProperties__event_length_type_smaller_than_fragment_length_type,
-                                     (SizeProp));
+                FAMOUSO_STATIC_ASSERT_ERROR(sizeof(typename SizeProp::flen_t) <= sizeof(typename SizeProp::elen_t),
+                                            invalid_SizeProperties__event_length_type_smaller_than_fragment_length_type,
+                                            (SizeProp));
             };
 
 

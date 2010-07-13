@@ -348,7 +348,7 @@ namespace famouso {
 #else
 // AVR version
 
-#include "boost/mpl/assert.hpp"
+#include "assert/staticerror.h"
 
 namespace famouso {
     namespace mw {
@@ -356,7 +356,7 @@ namespace famouso {
             namespace defrag {
                 template <class DCP>
                 class FECEventDataReconstructor {
-                    BOOST_MPL_ASSERT_MSG(false, FEC_not_supported_on_AVR, ());
+                    FAMOUSO_STATIC_ASSERT_ERROR(false, FEC_not_supported_on_AVR, ());
                 };
             } // namespace defrag
         } // namespace afp

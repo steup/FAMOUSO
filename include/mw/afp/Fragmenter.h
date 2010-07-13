@@ -45,7 +45,7 @@
 
 #include "debug.h"
 
-#include "boost/mpl/assert.hpp"
+#include "assert/staticerror.h"
 
 #include "mw/afp/Config.h"
 #include "mw/afp/FragPolicySelector.h"
@@ -94,8 +94,8 @@ namespace famouso {
                      */
                     Fragmenter(const uint8_t * event_data, elen_t event_length) {
                         // Compile time check if minimum header fits into MTU
-                        BOOST_MPL_ASSERT_MSG(mtu_compile_time > FragmenterImpl::min_header_length,
-                                             MTU_is_too_small_for_this_configuration, ());
+                        FAMOUSO_STATIC_ASSERT_ERROR(mtu_compile_time > FragmenterImpl::min_header_length,
+                                                    MTU_is_too_small_for_this_configuration, ());
                         frag.init(event_data, event_length, mtu_compile_time);
                     }
 

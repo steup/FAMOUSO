@@ -43,20 +43,30 @@
 
 #include "boost/mpl/if.hpp"
 #include "boost/mpl/int.hpp"
+#include "boost/mpl/bool.hpp"
 
-#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types) \
-    struct _##msg##_ {                                  \
-        typedef char _assert_;                          \
-                                                        \
-        typedef boost::mpl::if_c<                       \
-                             (expr),                    \
-                             boost::mpl::int_<0>,       \
-                             boost::mpl::int_<0xFFFF>   \
-                            >::type result;             \
-                                                        \
-        _assert_ with types {                           \
-            return (result::value);                     \
-        }                                               \
-    }                                                   \
+namespace famouso {
+    namespace assert {
+
+        template <bool cond>
+        struct ResultSwitch {
+                static const int value = 0x0;
+        };
+
+        template <>
+        struct ResultSwitch<false> {
+                static const int value = 0xFFFF;
+        };
+    }
+}
+
+#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)            \
+    struct _##msg##_ {                                             \
+        typedef char _assert_;                                     \
+                                                                   \
+        _assert_ with types {                                      \
+            return (famouso::assert::ResultSwitch<(expr)>::value); \
+        }                                                          \
+    }                                                              \
 
 #endif

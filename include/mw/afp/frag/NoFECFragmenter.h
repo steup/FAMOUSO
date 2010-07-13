@@ -48,8 +48,6 @@
 #include "mw/afp/shared/div_round_up.h"
 #include "config/type_traits/ExpandedRangeTypeSelector.h"
 
-#include "boost/mpl/assert.hpp"
-
 // memcpy
 #include <string.h>
 

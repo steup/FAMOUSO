@@ -39,7 +39,8 @@
 #ifndef __AttributeFilterGrammarCompileErrors_h__
 #define __AttributeFilterGrammarCompileErrors_h__
 
-#include <boost/mpl/assert.hpp>
+#include <assert/staticerror.h>
+
 #include "mw/attributes/tags/AttributeTag.h"
 #include "mw/attributes/tags/SameTag.h"
 #include "mw/attributes/tags/CompareDifferentAttributesTag.h"
@@ -50,7 +51,7 @@ namespace famouso {
 
             /*! \brief Generates a generic compile-time error.
              *
-             *  There exists some specialisations of that class, describing the
+             *  There exist some specialisations of that class, describing the
              *  error more in detail and to guide the user to problem and maybe
              *  to a solution, to fix the problem.
              */
@@ -58,7 +59,7 @@ namespace famouso {
             struct CompileError {
                 typedef CompileError    type;
                 // this will be triggered if this type is instantiated
-                BOOST_MPL_ASSERT_MSG(
+                FAMOUSO_STATIC_ASSERT_ERROR(
                     sizeof(T) == 0,
                     generic_CompileError_from_attribute_framework,
                     ()
@@ -72,7 +73,7 @@ namespace famouso {
             struct CompileError<T, U, tags::same_tag> {
                 typedef CompileError    type;
                 // this will be triggered if this type is instantiated
-                BOOST_MPL_ASSERT_MSG(
+                FAMOUSO_STATIC_ASSERT_ERROR(
                     sizeof(T) == 0,
                     attribute_requires_comparison_with_attributes_of_the_same_type_only,
                     (T,U)
@@ -86,7 +87,7 @@ namespace famouso {
             struct CompileError<T, tags::attribute_tag> {
                typedef CompileError    type;
                // this will be triggered if this type is instantiated
-               BOOST_MPL_ASSERT_MSG(
+               FAMOUSO_STATIC_ASSERT_ERROR(
                    sizeof(T) == 0,
                    template_argument_complies_not_the_attribute_grammar_thus_it_seems_to_be_not_a_valid_attribute,
                    (T)
@@ -100,7 +101,7 @@ namespace famouso {
             struct CompileError<T, U, tags::compare_different_attributes_tag> {
                 typedef CompileError    type;
                 // this will be triggered if this type is instantiated
-                BOOST_MPL_ASSERT_MSG(
+                FAMOUSO_STATIC_ASSERT_ERROR(
                     sizeof(T) == 0,
                     comparing_different_attribute_types_are_not_allowed_by_the_attribute_grammar,
                     (T,U)

@@ -40,11 +40,12 @@
 #ifndef __POINTERMAP_H_8DCAB52FEC8A52__
 #define __POINTERMAP_H_8DCAB52FEC8A52__
 
-
 #include "mw/afp/Config.h"
 #include <string.h>
 #if !defined(__NO_STL__)
 #include <map>
+#else
+#include "assert/staticerror.h"
 #endif
 
 
@@ -307,7 +308,7 @@ namespace famouso {
 
                     template <class KeyT, class ItemT>
                     class PointerMap<KeyT, ItemT, dynamic> {
-                        BOOST_MPL_ASSERT_MSG(false, dynamic_PointerMap_not_supported_on_this_platform, ());
+                        FAMOUSO_STATIC_ASSERT_ERROR(false, dynamic_PointerMap_not_supported_on_this_platform, ());
                     };
 
 #endif

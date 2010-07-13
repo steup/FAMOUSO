@@ -42,8 +42,9 @@
 
 #include <stdint.h>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/int.hpp>
+#include "assert/static.h"
+
+#include "boost/mpl/int.hpp"
 
 namespace famouso {
     namespace mw {
@@ -62,9 +63,10 @@ namespace famouso {
 
                         // In case of an extension, assert that the sequence size does not
                         //  exceed the bounds of 15 bits (0x7FFF)
-                        BOOST_MPL_ASSERT_MSG(((seqSize & 0x7FFF) == seqSize),
-                                             sequence_length_exceeds_extended_format_bounds,
-                                             (boost::mpl::int_<seqSize>));
+                        FAMOUSO_STATIC_ASSERT_ERROR(
+                            ((seqSize & 0x7FFF) == seqSize),
+                            sequence_length_exceeds_extended_format_bounds,
+                            (boost::mpl::int_<seqSize>));
                 };
 
                 /*!
@@ -79,9 +81,10 @@ namespace famouso {
 
                         // In case of no extension, assert that the sequence size does not
                         //  exceed the bounds of 7 bits (0x7F)
-                        BOOST_MPL_ASSERT_MSG(((seqSize & 0x7F) == seqSize),
-                                             sequence_length_exceeds_unextended_format_bounds,
-                                             (boost::mpl::int_<seqSize>));
+                        FAMOUSO_STATIC_ASSERT_ERROR(
+                            ((seqSize & 0x7F) == seqSize),
+                            sequence_length_exceeds_unextended_format_bounds,
+                            (boost::mpl::int_<seqSize>));
                 };
 
                 /*!
@@ -93,18 +96,11 @@ namespace famouso {
                 struct RequiredAttributeNotContainedInProvision {
                         typedef RequiredAttributeNotContainedInProvision type;
 
-                        BOOST_MPL_ASSERT_MSG(contained,
-                                             required_attribute_not_contained_in_provision,
-                                             (RelatedAttr, Provision));
-                };
-                template <bool contained, typename RelatedAttr, typename Provision>
-                struct RequiredAttributeNotContainedInProvision<contained, RelatedAttr, Provision, false> {
-                        typedef RequiredAttributeNotContainedInProvision type;
-
-                    private:
-                        // TODO: Is using a method with a return type not returning anything the
-                        //  right way to generate a warning?
-//                        int required_attribute_not_contained_in_provision() { }
+                        FAMOUSO_STATIC_ASSERT(
+                            contained,
+                            required_attribute_not_contained_in_provision,
+                            (RelatedAttr, Provision),
+                            compileError);
                 };
 
                 /*!
@@ -116,17 +112,11 @@ namespace famouso {
                 struct RequiredValueNotProvided {
                         typedef RequiredValueNotProvided type;
 
-                        BOOST_MPL_ASSERT_MSG(valueFits,
-                                             required_value_not_provided,
-                                             (RelatedAttr, ProvAttr));
-                };
-                template <bool valueFits, typename RelatedAttr, typename ProvAttr>
-                struct RequiredValueNotProvided<valueFits, RelatedAttr, ProvAttr, false> {
-                        typedef RequiredValueNotProvided type;
-
-                        // TODO: Is using a method with a return type not returning anything the
-                        //  right way to generate a warning?
-//                        int required_value_not_provided() { }
+                        FAMOUSO_STATIC_ASSERT(
+                            valueFits,
+                            required_value_not_provided,
+                            (RelatedAttr, ProvAttr),
+                            compileError);
                 };
             }
         }
