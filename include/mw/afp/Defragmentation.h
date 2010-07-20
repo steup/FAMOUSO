@@ -331,7 +331,6 @@ namespace famouso {
                     typedef typename DCP::SizeProp::flen_t flen_t;
                     typedef typename DCP::SizeProp::fcount_t fcount_t;
 
-                    typedef typename DCP::SubjectType SubjectType;
                     typedef typename DCP::EventDemuxKey DemuxKeyType;
 
                 protected:
@@ -361,6 +360,22 @@ namespace famouso {
                     friend class DefragmentationProcessorKeepEventSupport<AFPDC>;
                     friend class DefragmentationProcessorANL<AFPDC>;
 
+                    /// Helper to cast subject to internal representation (identical in most use cases)
+                    template <bool cast_to_EmptyType, class ST>
+                    struct subject_caster {
+                        static const ST & cast(const ST & s) {
+                            return s;
+                        }
+                    };
+
+                    /// Helper to cast subject to internal representation (EmptyType in single subject config)
+                    template <class ST>
+                    struct subject_caster<true, ST> {
+                        static EmptyType cast(const ST & s) {
+                            return EmptyType();
+                        }
+                    };
+
                 public:
 
                     /*!
@@ -370,11 +385,12 @@ namespace famouso {
                      * If you use this constructor for one subject configurations,
                      * the subject parameter will be ignored.
                      */
-                    DefragmentationStep(const uint8_t * fdata, flen_t flength, const SubjectType & subject /* TODO: Absender-Knoten */) :
+                    template <class ST>
+                    DefragmentationStep(const uint8_t * fdata, flen_t flength, const ST & subject /* TODO: Absender-Knoten */) :
                             fragment_header(fdata),
                             fragment_payload(fdata + fragment_header.length()),
                             fragment_payload_length(flength - fragment_header.length()),
-                            event_demux_key(fragment_header, subject),
+                            event_demux_key(fragment_header, subject_caster<!DemuxKeyType::uses_subject, ST>::cast(subject)),
                             defragmenter_handle(0),
                             event_data(0),
                             event_length(0) {
@@ -443,8 +459,8 @@ namespace famouso {
                      * If you use this constructor for one subject configurations,
                      * the subject parameter will be ignored.
                      */
-                    template <typename SubjectType>
-                    DefragmentationStep(const uint8_t * fdata, flen_t flength, const SubjectType & subject /* TODO: Absender-Knoten */) {
+                    template <class ST>
+                    DefragmentationStep(const uint8_t * fdata, flen_t flength, const ST & subject /* TODO: Absender-Knoten */) {
                         ::logging::log::emit< ::logging::Warning>()
                             << PROGMEMSTRING("Dropping fragment. Defragmentation is disabled.")
                             << ::logging::log::endl;
