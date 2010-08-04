@@ -41,6 +41,8 @@
 #include "mw/nl/awds/logging.h"
 #include "mw/nl/awds/NodeRepository.h"
 
+#include <climits>
+
 namespace famouso {
     namespace mw {
         namespace nl {
@@ -89,7 +91,7 @@ namespace famouso {
                     }
 
                     // list of all subscribers to the given subject
-                    boost::shared_ptr<SubscriberList> cls = sit->second;
+                    boost::shared_ptr<NodeSubscriberMap> cls = sit->second;
 
                     log::emit<AWDS>() << "found " << log::dec << cls->size() << " nodes." << log::endl;
 
@@ -102,9 +104,9 @@ namespace famouso {
                     Attributes::type pubAttr = _snnAttribs[subject];
 
                     // add clients to result list
-                    for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
-                        Node::type node = (*it)->node; // the actual node to check
-                        Attributes::type subAttr = (*it)->attribs, // The subscriber attributes
+                    for (NodeSubscriberMap::iterator it = cls->begin(); it != cls->end(); it++) {
+                        Node::type node = it->first; // the actual node to check
+                        Attributes::type subAttr = it->second->attribs, // The subscriber attributes
                                         nodeAttr = node->attr(); // The actual network attributes
 
                         log::emit<AWDS>() << "Node: " << node << " " << nodeAttr << log::endl;
@@ -129,25 +131,25 @@ namespace famouso {
                     return boost::make_shared_container_range(result);
                 }
 
-                FlowId NodeRepository::find(Node::type &node, SNN subject) {
+                FlowId NodeRepository::flowid(Node::type &node, SNN subject) {
                     // look for registered subject
-                    SubscriberMap::iterator sit = _snnmap.find(subject);
+                    Subscriber::type s = findSub(node, subject);
 
-                    // subject not registered, return empty list
-                    if (sit == _snnmap.end()) {
-                        log::emit<AWDS>() << "Subject not found! Could not get flowid." << log::endl;
-                        return -1; // subject not registered, don't request a flow id
-                    }
+                    if (s)
+                        return s->flowId;
 
-                    boost::shared_ptr<SubscriberList> sl = sit->second;
-
-                    for (SubscriberList::iterator it = sl->begin(); it != sl->end(); it++) {
-                        if ((*it)->node == node)
-                            return (*it)->flowId;
-                    }
-
-                    log::emit<AWDS>() << "Node not found! Could not get flowid." << log::endl;
+                    log::emit<AWDS>() << "Could not get flowid." << log::endl;
                     return -1; // node not registered to subject, don't request a flow id
+                }
+
+                int NodeRepository::elapsed(Node::type &node, SNN subject) {
+                    Subscriber::type s = findSub(node, subject);
+
+                    if (s)
+                        return s->elapsed();
+
+                    log::emit<AWDS>() << "Could not get elapsed seconds." << log::endl;
+                    return INT_MAX;
                 }
 
                 void NodeRepository::remove(Node::type &node) {
@@ -184,29 +186,22 @@ namespace famouso {
 
                     // subject not registered
                     if (it == _snnmap.end()) {
-                        // TODO: Temporary workaround until publisher announcing subjects
-                        Attributes::type a;
-#ifdef RANDOM_ATTRIBUTES
-                        AWDSAttributeSet as = createRandAttributes();
-                        a = Attributes::create(as);
-#else
-                        a = Attributes::create();
-#endif
-                        reg(subject, a);
+                        return;
                     }
 
                     // add node to subject
-                    _snnmap[subject]->push_back(Subscriber::Create(client, attribs));
+                    NodeSubscriberMap &nsm = *_snnmap[subject];
+                    nsm[client] = Subscriber::Create(attribs);
                 }
 
-                void NodeRepository::reg(SNN &subject, Attributes::type &attribs) {
+                void NodeRepository::reg(SNN subject, Attributes::type &attribs) {
                     log::emit<AWDS>() << "Register subject: " << subject << log::endl;
                     // look for registered subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
 
                     // subject not registered, register it
                     if (it == _snnmap.end()) {
-                        _snnmap[subject] = boost::shared_ptr<SubscriberList>(new SubscriberList());
+                        _snnmap[subject] = boost::shared_ptr<NodeSubscriberMap>(new NodeSubscriberMap());
                         _snnAttribs[subject] = attribs;
                     }
                 }
@@ -216,17 +211,7 @@ namespace famouso {
 
                     // remove node from all subjects, loop over all subjects
                     for (SubscriberMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++) {
-
-                        // loop over all clients registered to subject
-                        for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
-
-                            // node is registered to subject, so unregister it
-                            if ((*it2)->node == node) {
-                                it->second->erase(it2);
-                                // node could not be registered more than on time
-                                break;
-                            }
-                        }
+                        unreg(node, it->first);
                     }
                 }
 
@@ -241,33 +226,40 @@ namespace famouso {
                     }
 
                     // loop over all clients registered to subject
-                    for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
+                    NodeSubscriberMap::iterator it2 = it->second->find(node);
 
-                        // node is registered to subject, so unregister it
-                        if ((*it2)->node == node) {
-                            it->second->erase(it2);
-                            // node could not be registered more than on time
-                            break;
-                        }
-                    }
+                    if (it2 != it->second->end()) // node is registered to subject, so unregister it
+                        it->second->erase(it2);
                 }
 
                 void NodeRepository::update(Node::type &node, SNN subject, FlowId fId) {
+                    // look for registered subject
+                    Subscriber::type s = findSub(node, subject);
+
+                    if (s)
+                        s->flowId = fId;
+                    else
+                        log::emit<AWDS>() << "Udate flow id failed! (" << fId << ")" << log::endl;
+                }
+
+                NodeRepository::Subscriber::type NodeRepository::findSub(Node::type &node, SNN subject) {
+                    Subscriber::type res;
                     // look for registered subject
                     SubscriberMap::iterator sit = _snnmap.find(subject);
 
                     // subject not registered, return empty list
                     if (sit == _snnmap.end()) {
-                        log::emit<AWDS>() << "Subject not found! Could not update flowid." << log::endl;
-                        return;
+                        log::emit<AWDS>() << "Subject not found! (" << subject << ")" << log::endl;
+                        return res; // subject not registered
                     }
 
-                    boost::shared_ptr<SubscriberList> sl = sit->second;
+                    NodeSubscriberMap::iterator sl = sit->second->find(node);
 
-                    for (SubscriberList::iterator it = sl->begin(); it != sl->end(); it++) {
-                        if ((*it)->node == node)
-                            (*it)->flowId = fId;
-                    }
+                    if (sl != sit->second->end())
+                        return sl->second;
+
+                    log::emit<AWDS>() << "Node with subject not found! (" << node << " | " << subject << ")" << log::endl;
+                    return res;
                 }
             } /* awds */
         } /* nl */

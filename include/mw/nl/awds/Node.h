@@ -41,7 +41,6 @@
 #ifndef __Node__
 #define __Node__
 
-#include <ctime>
 #include "boost/shared_ptr.hpp"
 #include <boost/shared_array.hpp>
 #include "debug.h"
@@ -67,7 +66,7 @@ namespace famouso {
                              * \param mac The MAC address of the node.
                              */
                             Node(MAC mac) :
-                                _mac(mac), _time(std::time(NULL)) {
+                                _mac(mac) {
                             }
 
                         public:
@@ -95,20 +94,6 @@ namespace famouso {
                                         return lhs->mac() < rhs->mac();
                                     }
                             };
-
-                            /*! \brief The time in seconds when the node was last seen.
-                             *
-                             * \return The elapsed time in seconds.
-                             */
-                            int elapsed() const {
-                                return static_cast<int> (std::time(NULL) - _time);
-                            }
-
-                            /*! \brief Resets the last seen time stamp.
-                             */
-                            void reset() {
-                                _time = std::time(NULL);
-                            }
 
                             /*! \brief Get the MAC address of the node.
                              *
@@ -174,7 +159,7 @@ namespace famouso {
                              *  \param out The output stream to print to.
                              */
                             void print(::logging::loggingReturnType &out) const {
-                                out << _mac << ' ' << '(' << ::logging::log::dec << elapsed() << ')';
+                                out << _mac;
                             }
 
                             /** \brief Create a node with specified MAC.
@@ -188,7 +173,6 @@ namespace famouso {
 
                         private:
                             MAC _mac; /**< The MAC of the node. */
-                            clock_t _time; /**< The timstamp of last subscription from the node. */
                             NodeAttributes _attr; /**< The attributes. */
                     };
                 } /* namespace detail */

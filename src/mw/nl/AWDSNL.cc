@@ -149,6 +149,16 @@ namespace famouso {
                 } else {
                     log::emit<AWDS>() << "Publish for Subject: " << p.snn << log::endl;
 
+                    {
+                        // TODO: Temporary workaround until publisher announcing subjects
+                        Attributes::type a = Attributes::create();
+#ifdef RANDOM_ATTRIBUTES
+                        AWDSAttributeSet as = createRandAttributes();
+                        a = Attributes::create(as);
+#endif
+                        _repo.reg(p.snn, a);
+                    }
+
                     // get list of subscriber for the subject
                     std::pair<NodeRepository::NodeIterator, NodeRepository::NodeIterator> nit = _repo.find(p.snn);
 
@@ -178,10 +188,10 @@ namespace famouso {
                     for (NodeRepository::NodeIterator it = nit.first; it != nit.second; it++) {
                         Node::type node = *it;
 
-                        if (node->elapsed() > _maxAge) {
+                        if (_repo.elapsed(node, p.snn) > _maxAge) {
                             // Node subscription is missing, we have to unregister the flow id
                             lateNodes.push_back(node);
-                        } else if (!flowMgmtAvail || _repo.find(node, p.snn) > 0) {
+                        } else if (!flowMgmtAvail || _repo.flowid(node, p.snn) > 0) {
                             // flow id is good or no flow manager available
 
 
@@ -189,7 +199,7 @@ namespace famouso {
                             m_socket.send(buffers);
                             subs++;
                         } else {
-                            if (_repo.find(node, p.snn) == 0) // no flow id requested yet
+                            if (_repo.flowid(node, p.snn) == 0) // no flow id requested yet
                                 badFlowNodes.push_back(node);
                         }
                     }
@@ -212,7 +222,7 @@ namespace famouso {
                         FlowMgmtRequestAttributeSet aset;
                         aset.find<FlowMgmtAction> ()->set(FlowMgmtActionIDs::reg);
                         aset.find<SubjectAttribute> ()->subject(p.snn);
-                        aset.find<Priority>()->set(_flowPrio);
+                        aset.find<Priority> ()->set(_flowPrio);
 
                         buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
 
@@ -260,7 +270,7 @@ namespace famouso {
                             Node::type node = *it;
 
                             if (flowMgmtAvail) {// we only have to do this when a flow manager is available
-                                fid = _repo.find(node, p.snn); // get actual flowid
+                                fid = _repo.flowid(node, p.snn); // get actual flowid
                                 if (fid >= 0) {// we have a flow id
 
                                     // set node to free flow id for
@@ -312,9 +322,6 @@ namespace famouso {
                             // get the node
                             Node::type src = _repo.find(awds_packet.header.addr);
 
-                            // reset contact time
-                            src->reset();
-                            _repo.unreg(src);
                             log::emit<AWDS>() << "Subscriber: " << src << log::endl;
 
                             uint16_t pos = 0;
@@ -419,26 +426,45 @@ namespace famouso {
                 if (!error) {// != boost::asio::error::operation_aborted)
 
                     if (subscriptions.size()) {
-                        uint16_t count_subj = htons(subscriptions.size());
                         std::vector<boost::asio::const_buffer> buffers;
                         AWDS_Packet::Header awds_header;
                         uint16_t size = sizeof(uint16_t);
+                        uint16_t subs = 0;
+
                         awds_header.addr = MAC::parse(BROADCAST_ADDR);
                         awds_header.type = AWDS_Packet::constants::packet_type::subscribe;
                         buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
-                        buffers.push_back(boost::asio::buffer(&count_subj, sizeof(uint16_t)));
+                        buffers.push_back(boost::asio::buffer(&subs, sizeof(uint16_t)));
 
                         for (std::map<SNN, ComparableAttributeSet<>::type>::const_iterator i = subscriptions.begin(); i
                                         != subscriptions.end(); ++i) {
-                            size += sizeof(SNN);
-                            buffers.push_back(boost::asio::buffer(&(i->first), sizeof(famouso::mw::Subject)));
                             ComparableAttributeSet<>::type attr = i->second;
+
+                            int size2 = sizeof(SNN) + attr->size();
+                            if (size + size2 > AWDS_Packet::constants::packet_size::payload) {
+                                // packet is full, so we have to send it and make a new one
+                                subs = htons(subs);
+                                awds_header.size = htons(size);
+                                m_socket.send(buffers);
+
+                                // prepare a new packet
+                                size = sizeof(uint16_t);
+                                subs = 0;
+                                buffers.clear();
+                                buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
+                                buffers.push_back(boost::asio::buffer(&subs, sizeof(uint16_t)));
+                            }
+
+                            buffers.push_back(boost::asio::buffer(&(i->first), sizeof(SNN)));
                             buffers.push_back(*attr);
-                            size += attr->size();
+
+                            size += size2;
+                            subs++;
                         }
 
+                        // send last subscription packet
+                        subs = htons(subs);
                         awds_header.size = htons(size);
-
                         m_socket.send(buffers);
                     }
 

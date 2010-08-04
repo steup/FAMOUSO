@@ -42,6 +42,7 @@
 
 #include <map>
 #include <list>
+#include <ctime>
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/shared_container_iterator.hpp"
@@ -86,6 +87,13 @@ namespace famouso {
                         /*! \brief A class for mapping attributes to a node.
                          */
                         class Subscriber: boost::noncopyable {
+
+                                clock_t _time; /**< The timstamp of last subscription from the node. */
+
+                                Subscriber() :
+                                    _time(std::clock()) {
+                                }
+
                             public:
 
                                 /** \brief This type secured by a shared pointer.
@@ -99,18 +107,23 @@ namespace famouso {
                                  * \param fId The flow id of the subscriber.
                                  * \return A new Subscriber instance.
                                  */
-                                static type Create(Node::type c, Attributes::type a, FlowId fId = 0) {
+                                static type Create(Attributes::type a, FlowId fId = 0) {
                                     type res = type(new Subscriber());
-                                    res->node = c;
                                     res->attribs = a;
                                     res->flowId = fId;
                                     return res;
                                 }
 
-                                Node::type node; /**<  The node on which the subscriber resides. */
+                                /*! \brief The time in seconds when the node was last seen.
+                                 *
+                                 * \return The elapsed time in seconds.
+                                 */
+                                int elapsed() const {
+                                    return static_cast<int> (std::clock() - _time);
+                                }
+
                                 Attributes::type attribs; /**< The attributes from a subscriber. */
                                 FlowId flowId; /**< The AWDS flow id. */
-
                         };
 
                         /** \brief A function object for finding attributes and set the strictest to the result.
@@ -190,11 +203,11 @@ namespace famouso {
 
                         /*! \brief A list to hold subscribers with their attributes.
                          */
-                        typedef std::list<Subscriber::type> SubscriberList;
+                        typedef std::map<Node::type, Subscriber::type, Node::comp> NodeSubscriberMap;
 
                         /*! \brief A map to assign clients to subjects.
                          */
-                        typedef std::map<SNN, boost::shared_ptr<SubscriberList> > SubscriberMap;
+                        typedef std::map<SNN, boost::shared_ptr<NodeSubscriberMap> > SubscriberMap;
 
                         /*! \brief A map to assign attributes to subjects.
                          */
@@ -206,6 +219,8 @@ namespace famouso {
 
                         /** \brief Constructor to init lists. */
                         NodeRepository();
+
+                        Subscriber::type findSub(Node::type &node, SNN subject);
 
                     public:
 
@@ -239,7 +254,15 @@ namespace famouso {
                          *  \param subject The subject to find the flow id of.
                          *  \return The found flow id or -1.
                          */
-                        FlowId find(Node::type &node, SNN subject);
+                        FlowId flowid(Node::type &node, SNN subject);
+
+                        /** \brief Find the elapsed seconds since a node subscribed to a subject.
+                         *
+                         *  \param node The node to find the flow id of.
+                         *  \param subject The subject to find the flow id of.
+                         *  \return The found seconds or INT_MAX if not found.
+                         */
+                        int elapsed(Node::type &node, SNN subject);
 
                         /** \brief Search the subscriber and publisher attributes defined by the given attribute set and set
                          *         the strictest to the given set.
@@ -251,22 +274,12 @@ namespace famouso {
                          */
                         template< class AttrSet >
                         void find(Node::type &node, SNN subject, AttrSet &cas) {
-
-                            boost::shared_ptr<SubscriberList> cls = _snnmap[subject];
                             Attributes::type subAttr, pubAttr = _snnAttribs[subject];
 
-                            if (!cls) {
-                                log::emit<AWDS>() << "No subscriber list found." << log::endl;
-                                return;
-                            }
-
                             // find the subsciber
-                            for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
-                                if ((*it)->node == node) { // we found the subsciber
-                                    subAttr = (*it)->attribs; // get the subscriber attributes
-                                    break; // no more iterations needed
-                                }
-                            }
+                            Subscriber::type s = findSub(node, subject);
+                            if (s) // we found the subscriber
+                                subAttr = s->attribs; // get the subscriber attributes
 
                             if (pubAttr && subAttr)
                                 attr_finder<AttrSet>::apply(cas, pubAttr, subAttr);
@@ -304,7 +317,7 @@ namespace famouso {
                          *  \param subject The subject to register.
                          *  \param attribs The attributes which the publisher requires.
                          */
-                        void reg(SNN &subject, Attributes::type &attribs);
+                        void reg(SNN subject, Attributes::type &attribs);
 
                         /*! \brief Unregister the given node from all known subjects.
                          *
