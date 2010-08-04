@@ -43,101 +43,131 @@
 
 #include <ctime>
 #include "boost/shared_ptr.hpp"
+#include <boost/shared_array.hpp>
 #include "debug.h"
 #include "mw/nl/awds/MAC.h"
+#include "mw/nl/awds/ComparableAttributeSet.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
 
-                /*! \brief A node at the AWDS network identified by his MAC address.
-                 */
-                class Node {
-                    private:
-                        /*! \brief Constructor which creates an node with a specific MAC.
-                         *
-                         * \param mac The MAC address of the node.
-                         */
-                        Node(MAC mac) :
-                            _mac(mac), _time(std::time(NULL)) {
-                        }
+                namespace detail {
+                    /*! \brief A node at the AWDS network identified by his MAC address.
+                     */
+                    template< class AttrSet >
+                    class Node: boost::noncopyable {
+                        private:
 
-                    public:
+                            /*! \brief Constructor which creates an node with a specific MAC.
+                             *
+                             * \param mac The MAC address of the node.
+                             */
+                            Node(MAC mac) :
+                                _mac(mac), _time(std::time(NULL)) {
+                            }
 
-                        /*! \brief A node at the AWDS network identified by his MAC address.
-                         */
-                        typedef boost::shared_ptr<Node> type;
+                        public:
 
-                        /** \brief Comparison operator for sorting nodes.
-                         */
-                        struct comp {
-                                /** \brief Compare two Nodes and look if the first is smaller than the second.
-                                 *
-                                 *  This function is used for sorted container.
-                                 *  The %type type is a boost::shared_ptr<Node>.
-                                 *  For comparison the MAC is used.
-                                 *  \param lhs The first node which has to be the smaller one.
-                                 *  \param rhs The second node which has to be the bigger one.
-                                 *  \return True if the first node has a smaller MAC as the second node, otherwise false.
-                                 */
-                                bool operator()(const type &lhs, const type &rhs) const {
-                                    return lhs->mac() < rhs->mac();
-                                }
-                        };
+                            /*! \brief A node at the AWDS network identified by his MAC address.
+                             */
+                            typedef boost::shared_ptr<Node> type;
 
-                        /*! \brief The time in seconds when the node was last seen.
-                         *
-                         * \return The elapsed time in seconds.
-                         */
-                        int elapsed() const {
-                            return static_cast<int> (std::time(NULL) - _time);
-                        }
+                            typedef typename ComparableAttributeSet<AttrSet>::type NodeAttributes;
 
-                        /*! \brief Resets the last seen time stamp.
-                         */
-                        void reset() {
-                            _time = std::time(NULL);
-                        }
+                            /** \brief Comparison operator for sorting nodes.
+                             */
+                            struct comp {
+                                    /** \brief Compare two Nodes and look if the first is smaller than the second.
+                                     *
+                                     *  This function is used for sorted container.
+                                     *  The %type type is a boost::shared_ptr<Node>.
+                                     *  For comparison the MAC is used.
+                                     *  \param lhs The first node which has to be the smaller one.
+                                     *  \param rhs The second node which has to be the bigger one.
+                                     *  \return True if the first node has a smaller MAC as the second node, otherwise false.
+                                     */
+                                    bool operator()(const type &lhs, const type &rhs) const {
+                                        return lhs->mac() < rhs->mac();
+                                    }
+                            };
 
-                        /*! \brief Get the MAC address of the node.
-                         *
-                         * \return The MAC address of the node.
-                         */
-                        const MAC &mac() const {
-                            return _mac;
-                        }
+                            /*! \brief The time in seconds when the node was last seen.
+                             *
+                             * \return The elapsed time in seconds.
+                             */
+                            int elapsed() const {
+                                return static_cast<int> (std::time(NULL) - _time);
+                            }
 
-                        /*! \brief The copare operator to compare if clients are the same.
-                         *
-                         * \param o The other node to compare to.
-                         * \return Returns true if the clients are the same, false otherwise.
-                         */
-                        bool operator==(const Node& o) const {
-                            return _mac == o._mac;
-                        }
+                            /*! \brief Resets the last seen time stamp.
+                             */
+                            void reset() {
+                                _time = std::time(NULL);
+                            }
 
-                        /*! \brief prints a node to the stream.
-                         *
-                         *  \param out The output stream to print to.
-                         */
-                        void print(::logging::loggingReturnType &out) const {
-                            out << _mac << ' ' << '(' << ::logging::log::dec << elapsed() << ')';
-                        }
+                            /*! \brief Get the MAC address of the node.
+                             *
+                             * \return The MAC address of the node.
+                             */
+                            const MAC &mac() const {
+                                return _mac;
+                            }
 
-                        /** \brief Create a node with specified MAC.
-                         *  \param mac The mac of the node.
-                         *  \return The constructed node secured by a shared pointer.
-                         */
-                        static type create(MAC mac) {
-                            type res = type(new Node(mac));
-                            return res;
-                        }
+                            NodeAttributes &attr() {
+                                return _attr;
+                            }
 
-                    private:
-                        MAC _mac; /**< The MAC of the node. */
-                        clock_t _time; /**< The timstamp of last subscription from the node. */
-                };
+                            void attr(NodeAttributes &attribs) {
+                                _attr = attribs.clone();
+                            }
+
+                            template< class Attrib >
+                            Attrib *find() {
+                                return attr()->find<Attrib> ();
+                            }
+
+                            template< class Attrib >
+                            typename Attrib::value_type get() {
+                                Attrib *res = find<Attrib> ();
+                                if (!res)
+                                    throw "Missing Attribute of Node class";
+                                return res->get();
+                            }
+
+                            /*! \brief The copare operator to compare if clients are the same.
+                             *
+                             * \param o The other node to compare to.
+                             * \return Returns true if the clients are the same, false otherwise.
+                             */
+                            bool operator==(const Node& o) const {
+                                return _mac == o._mac;
+                            }
+
+                            /*! \brief prints a node to the stream.
+                             *
+                             *  \param out The output stream to print to.
+                             */
+                            void print(::logging::loggingReturnType &out) const {
+                                out << _mac << ' ' << '(' << ::logging::log::dec << elapsed() << ')';
+                            }
+
+                            /** \brief Create a node with specified MAC.
+                             *  \param mac The mac of the node.
+                             *  \return The constructed node secured by a shared pointer.
+                             */
+                            static type create(MAC mac) {
+                                type res = type(new Node(mac));
+                                return res;
+                            }
+
+                        private:
+                            MAC _mac; /**< The MAC of the node. */
+                            clock_t _time; /**< The timstamp of last subscription from the node. */
+                            NodeAttributes _attr; /**< The attributes. */
+                    };
+                } /* namespace detail */
             } /* awds*/
         } /* nl */
     } /* mw */
@@ -150,7 +180,9 @@ namespace logging {
      * \param c The node to print.
      * \return The log to chain print calls.
      */
-    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Node::type &c) {
+    template< class AttrSet >
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const boost::shared_ptr<
+                    famouso::mw::nl::awds::detail::Node<AttrSet> > &c) {
         c->print(out);
         return out;
     }
@@ -161,7 +193,9 @@ namespace logging {
      * \param c The node to print.
      * \return The log to chain print calls.
      */
-    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out, const famouso::mw::nl::awds::Node &c) {
+    template< class AttrSet >
+    inline ::logging::loggingReturnType &operator <<(::logging::loggingReturnType &out,
+                                                     const famouso::mw::nl::awds::detail::Node<AttrSet> &c) {
         c.print(out);
         return out;
     }

@@ -164,7 +164,7 @@ namespace famouso {
                         // TODO: Temporary workaround until publisher announcing subjects
                         Attributes::type a;
 #ifdef RANDOM_ATTRIBUTES
-                        AWDSAttributesSet as = createRandAttributes();
+                        AWDSAttributeSet as = createRandAttributes();
                         a = Attributes::create(as);
 #else
                         a = Attributes::create();

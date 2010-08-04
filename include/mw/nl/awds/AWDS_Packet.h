@@ -67,10 +67,10 @@ namespace famouso {
                                 struct packet_type {
                                         enum {
                                             publish_fragment = 0x7B, /**< The paket contains a fragment of a published message. */
-                                            publish = 0x7C, /**< The packet contains a published message. */
-                                            subscribe = 0x7D, /**< The paket contains subjects of a node. */
-                                            attributes = 0x81
-                                        /**< The paket contains attributes of a node. */
+                                            publish = 0x7C,     /**< The packet contains a published message. */
+                                            subscribe = 0x7D,   /**< The paket contains subjects of a node. */
+                                            attributes = 0x81,  /**< The paket contains attributes of a node. */
+                                            flowmgmt = 0x82     /**< The packet contains flow management information for a node. */
                                         };
                                 };
                         };

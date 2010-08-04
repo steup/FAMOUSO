@@ -151,6 +151,7 @@ namespace famouso {
                                               : AWDS_Packet::constants::packet_type::publish;
 
                     std::vector<boost::asio::const_buffer> buffers;
+                    std::list<Node::type> badFlowNodes;
                     AWDS_Packet::Header awds_header;
 
                     // send as unicast
@@ -165,8 +166,49 @@ namespace famouso {
 
                     // for each node set source mac and send package
                     for (NodeRepository::NodeList::iterator it = cl->begin(); it != cl->end(); it++) {
-                        awds_header.addr = (*it)->mac(); // because of shared_ptr we have to double dereference
-                        m_socket.send(buffers);
+                        Node::type node = *it;
+                        if (node->get<FlowMgmtID> () > 0) {
+                            // flow id is good
+                            awds_header.addr = node->mac();
+                            m_socket.send(buffers);
+                        } else {
+                            if (node->get<FlowMgmtID> () == 0) // no flow id requested yet
+                                badFlowNodes.push_back(node);
+                        }
+                    }
+
+                    if (badFlowNodes.size() > 0) {
+                        // we have nodes without flow ids
+                        buffers.clear();
+
+                        // setup header for flow management
+                        awds_header.type = AWDS_Packet::constants::packet_type::flowmgmt;
+                        awds_header.size = htons(FlowMgmtRequestAttributeSet::overallSize + FlowMgmtNodeAttributeSet::overallSize);
+                        buffers.push_back(boost::asio::buffer(&(awds_header), sizeof(AWDS_Packet::Header)));
+
+                        // setup for flow request
+                        FlowMgmtRequestAttributeSet aset;
+                        aset.find<FlowMgmtAction> ()->set(FlowMgmtActions::reg);
+                        buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
+
+                        for (std::list<Node::type>::iterator it = badFlowNodes.begin(); it != badFlowNodes.end(); it++) {
+                            Node::type node = *it;
+
+                            // flow id is now requested
+                            node->find<FlowMgmtID> ()->set(-1);
+
+                            // set node to get flow id for
+                            awds_header.addr = node->mac();
+
+                            // add attributes to packet
+                            buffers.push_back((boost::asio::const_buffer) *(node->attr()));
+
+                            // send packet
+                            m_socket.send(buffers);
+
+                            // remove attributes for next node
+                            buffers.pop_back();
+                        }
                     }
                 }
             }
@@ -218,7 +260,7 @@ namespace famouso {
                                 Attributes::type attribs;
 
 #ifdef RANDOM_ATTRIBUTES
-                                AWDSAttributesSet as = createRandAttributes();
+                                AWDSAttributeSet as = createRandAttributes();
                                 attribs = Attributes::create(as);
 #else
                                 // TODO: load Attributes from awds_packet
@@ -248,6 +290,28 @@ namespace famouso {
 
                             // Update attributes of node
                             _repo.update(src, att);
+                            break;
+                        }
+
+                        case AWDS_Packet::constants::packet_type::flowmgmt: {
+                            log::emit<AWDS>() << "=============================" << log::dec << log::endl;
+
+                            // get the Node
+                            Node::type src = _repo.find(awds_packet.header.addr);
+
+                            log::emit<AWDS>() << "Updating flow id of node " << src << log::endl;
+
+                            FlowMgmtResponseAttributeSet *resp = reinterpret_cast<FlowMgmtResponseAttributeSet *> (awds_packet.data);
+                            FlowMgmtAction *fa = resp->find<FlowMgmtAction> ();
+                            FlowMgmtID *id = resp->find<FlowMgmtID> ();
+                            if (!id || !fa)
+                                throw "Missing Attribute from AWDS FlowManagement!";
+
+                            log::emit<AWDS>() << "New ID: " << (FlowId) id->get() << (fa->get() == FlowMgmtActions::use ? " OK!" : " Bad!")
+                                            << log::endl;
+
+                            // set new flow Id
+                            src->find<FlowMgmtID>()->set(id->get() > 0 ? id->get() : 0);
                             break;
                         }
                         default:

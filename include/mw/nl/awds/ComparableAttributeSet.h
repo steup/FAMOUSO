@@ -44,13 +44,42 @@
 #include <boost/shared_array.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/mpl/list.hpp>
+#include <boost/asio/buffer.hpp>
 #include "mw/attributes/AttributeSet.h"
+#include "mw/attributes/filter/greater_than_or_equal_to.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
 #include "mw/nl/awds/AWDS_Packet.h"
+#include "mw/nl/awds/logging.h"
 
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace awds {
+                namespace detail {
+                    /*!
+                     * \brief Helper structs for printing the operator of a given
+                     *  comparator.
+                     */
+                    template< typename Comparator >
+                    struct op_printer {
+                            static const char* op() {
+                                return (" ? ");
+                            }
+                    };
+                    template< >
+                    struct op_printer<famouso::mw::attributes::filter::less_than_or_equal_to> {
+                            static const char* op() {
+                                return (" <= ");
+                            }
+                    };
+                    template< >
+                    struct op_printer<famouso::mw::attributes::filter::greater_than_or_equal_to> {
+                            static const char* op() {
+                                return (" >= ");
+                            }
+                    };
+                } /* namespace detail */
+
                 /* \brief A class for holding attributes of publisher, subscriber or network.
                  *
                  * \tparam AttrSet An AttributesSet containing a list of attributes.
@@ -212,23 +241,11 @@ namespace famouso {
 
                         /** Compute the size of the attributes data. */
                         static uint16_t size(uint8_t* data) {
-                            // The number of byte contained in the given sequence
-                            uint16_t seqLen;
+                            typedef famouso::mw::attributes::detail::AttributeSetHeader<0> *ASH;
 
-                            // Determine sequence length
-                            if ((data[0] & 0x80) == 0) {
-                                // Sequence header is unextended
-                                seqLen = (data[0] & 0x7F);
+                            const ASH setHeader = reinterpret_cast<const ASH> (&data[0]);
 
-                                return seqLen + 1;
-                            } else {
-                                // Sequence header is extended
-
-                                seqLen = *(reinterpret_cast<uint16_t*> (data));
-                                seqLen = ntohs(seqLen) & 0x7FFF;
-
-                                return seqLen + 2;
-                            }
+                            return setHeader->get() + (setHeader->isExtended() ? 2 : 1);
                         }
 
                         /** \brief Contructor to init the set with no attributes.
@@ -287,6 +304,22 @@ namespace famouso {
                         void print(::logging::loggingReturnType &out) {
                             out << ::logging::log::dec;
                             AttributeIterator<AttrSeq>::print(out, getSet());
+                        }
+
+                        type clone() {
+                            type res = create(getSet());
+                            return res;
+                        }
+
+                        template< class Attrib >
+                        Attrib *find() {
+                            return getSet().find<Attrib> ();
+                        }
+
+
+                        operator boost::asio::const_buffer() {
+                            uint8_t *d = data.get();
+                            return boost::asio::buffer(d, size(d));
                         }
 
                         /*! \brief Creates an empty attributes instance.
