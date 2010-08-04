@@ -51,8 +51,7 @@ namespace famouso {
                     return instance;
                 }
 
-                NodeRepository::NodeRepository() :
-                    _maxAge(70) {
+                NodeRepository::NodeRepository() {
                 }
 
                 Node::type NodeRepository::find(MAC &mac) {
@@ -74,11 +73,11 @@ namespace famouso {
                     return node;
                 }
 
-                std::pair<NodeRepository::NodeIterator,NodeRepository::NodeIterator> NodeRepository::find(SNN subject) {
+                std::pair<NodeRepository::NodeIterator, NodeRepository::NodeIterator> NodeRepository::find(SNN subject) {
                     log::emit<AWDS>() << "Searching nodes for subject (" << subject << ") ... " << log::endl;
 
                     // list of subscribers which match all attributes
-                    boost::shared_ptr<NodeList> result (new NodeList());
+                    boost::shared_ptr<NodeList> result(new NodeList());
 
                     // look for registered subject
                     SubscriberMap::iterator sit = _snnmap.find(subject);
@@ -111,7 +110,7 @@ namespace famouso {
                         log::emit<AWDS>() << "Node: " << node << " " << nodeAttr << log::endl;
 
                         // check if node is to old or network attributes doesn't match publisher attributes
-                        if ((node->elapsed() > _maxAge) || !Attributes::match(nodeAttr, pubAttr)) {
+                        if (!Attributes::match(nodeAttr, pubAttr)) {
                             // ignore subscriber
                             bad_subscribers++;
                             continue; // we don't have to check subscriber attributes
@@ -231,8 +230,26 @@ namespace famouso {
                     }
                 }
 
-                void NodeRepository::maxAge(int age) {
-                    _maxAge = age;
+                void NodeRepository::unreg(Node::type &node, SNN subject) {
+                    log::emit<AWDS>() << "Unregister node from subject: " << node << log::endl;
+
+                    // find the subject
+                    SubscriberMap::iterator it = _snnmap.find(subject);
+                    if (it == _snnmap.end()) {
+                        log::emit<AWDS>() << "Subject not found! Could not unregister node." << log::endl;
+                        return;
+                    }
+
+                    // loop over all clients registered to subject
+                    for (SubscriberList::iterator it2 = it->second->begin(); it2 != it->second->end(); it2++) {
+
+                        // node is registered to subject, so unregister it
+                        if ((*it2)->node == node) {
+                            it->second->erase(it2);
+                            // node could not be registered more than on time
+                            break;
+                        }
+                    }
                 }
 
                 void NodeRepository::update(Node::type &node, SNN subject, FlowId fId) {

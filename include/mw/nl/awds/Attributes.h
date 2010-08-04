@@ -81,9 +81,11 @@ namespace famouso {
                      */
                     struct FlowMgmtIDs {
                             enum {
-                                action = 1,             /**< The action attribute. */
-                                flowId = action + 1,    /**< The flow id attribute. */
-                                subject = flowId + 1    /**< The subject attribute. */
+                                action = 1, /**< The action attribute. */
+                                flowId = action + 1, /**< The flow id attribute. */
+                                subject = flowId + 1, /**< The subject attribute. */
+                                prio = subject + 1
+                            /**< The priority of the AWDS flow. */
                             };
                     };
 
@@ -91,12 +93,13 @@ namespace famouso {
                      */
                     struct FlowMgmtActionIDs {
                             enum {
-                                reg = 1,    /**< Register a new flow id */
-                                free = 2,   /**< Unregister a flow id. */
-                                dead = 3,   /**< Flow manager has killed a flow. */
-                                use = 4,    /**< Flow manager has registered a new flow. */
-                                avail = 5,  /**< Flow manager is available. */
-                                max         /**< Only used by the attribute to determine the maximum size. */
+                                reg = 1, /**< Register a new flow id */
+                                free = 2, /**< Unregister a flow id. */
+                                dead = 3, /**< Flow manager has killed a flow. */
+                                use = 4, /**< Flow manager has registered a new flow. */
+                                avail = 5, /**< Flow manager is available. */
+                                max
+                            /**< Only used by the attribute to determine the maximum size. */
                             };
                     };
 
@@ -153,6 +156,19 @@ namespace famouso {
                             }
                     };
 
+                    /*!
+                     * \brief Defines a configurable flow management priority attribute for
+                     *  describing the action to do at flow management at AWDS.
+                     *
+                     * \tparam prio Describes the initial value to be set
+                     */
+                    template< int8_t prio >
+                    class Priority: public Attribute<Priority<0> , tags::integral_const_tag, int8_t, prio,
+                                    filter::less_than_or_equal_to, FlowMgmtIDs::prio, false> {
+                        public:
+                            typedef Priority type;
+                    };
+
                 } // namespace detail
 
                 using famouso::mw::attributes::detail::SetProvider;
@@ -184,8 +200,11 @@ namespace famouso {
                 /** The subject to register a flow for. */
                 typedef detail::SubjectAttribute<0xFFFFFFFFFFFFFFFFull> SubjectAttribute;
 
+                /** The AWDS Flow Priority. */
+                typedef detail::Priority<0xFF> Priority;
+
                 /** An attribute set used by the Famouso part of the flow management. */
-                typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID, Throughput>::attrSet FlowMgmtRequestAttributeSet;
+                typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID, Throughput, Priority>::attrSet FlowMgmtRequestAttributeSet;
 
                 /** An attribute set used by the AWDS part of the flow mamagement. */
                 typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID>::attrSet FlowMgmtResponseAttributeSet;

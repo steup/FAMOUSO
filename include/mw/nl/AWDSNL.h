@@ -49,7 +49,7 @@
 #include "mw/nl/awds/NodeRepository.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/deadline_timer.hpp>
-#include <list>
+#include <map>
 
 namespace famouso {
     namespace mw {
@@ -154,11 +154,13 @@ namespace famouso {
                     boost::asio::ip::tcp::socket m_socket; /**< The socket for the IPC connettion with AWDS. */
                     boost::asio::deadline_timer timer_; /**< The timer for subscribtion renewval. */
                     AWDS_Packet awds_packet; /**< The actual packet to work on */
-                    std::list<SNN> subscriptions; /**< A list of subjects from all local subscribers. */
+                    std::map<SNN, ComparableAttributeSet<>::type> subscriptions; /**< A list of subjects from all local subscribers. */
                     NodeRepository::type &_repo; /**< The node repository for registering and checking nodes before publishing. */
                     bool next_packet_is_full_packet; /**< With the next data from AWDS the packet is full. */
                     int interval; /**< Refresh time in secods to renew subscribtions to other nodes. */
                     bool flowMgmtAvail; /**< Flow Manager available (default false). */
+                    int _maxAge; /**< The timespan in seconds when a node is marked as offline. */
+                    int8_t _flowPrio; /**< The AWDS Flow Priority. */
             };
 
         } // namespace nl

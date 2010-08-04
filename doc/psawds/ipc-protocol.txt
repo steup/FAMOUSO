@@ -33,7 +33,8 @@ dest:
 mit type:
     0x7C: Publish von Daten.
     0x7D: announce von Subscriptions
-
+    0x81: Netzwerkattribute
+    0x82: FlowManagement
 
 server->client
 
@@ -48,12 +49,6 @@ stuctur {
 Eigene Flutpakete werden nicht hochgereicht.
 
 
-Publishing per Fluten:
-
-dest=FFFFFFFFFFFF
-type=7C
-... daten + senden
-
 Publishing per Unicast:
 
 dest=<ziel mac>
@@ -64,13 +59,26 @@ Announce von Subscriptions:
 
 dest=FFFFFFFFFFFF
 type=7D
-size= 4 /* reserved */ + 2 /*num*/ + (num of subjects) * 8
-data= [ reserved: 4 byte = 20_be, reserved
-        num subj.  : 2 bytes big endian
+size= 2 /*num*/ + (num of subjects) * 8 + (size of all A ttributeSet's)
+data= [ num subj.  : 2 bytes big endian
         subj1      : 8 bytes
+        attrSet1   : x bytes
         .
         .
         .
       ]
 + senden
 
+Netzwerkattribute:
+
+src = <quell mac>
+type= 81
+size= x /* size of attribute set*/
+data= [AttributeSet : x bytes]
+
+FlowManagement:
+
+dest= <ziel mac>
+type= 82
+size= x /*size of attribute set*/
+data= [AttributeSet : x bytes]

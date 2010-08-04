@@ -312,13 +312,12 @@ namespace famouso {
                          */
                         void unreg(Node::type &node);
 
-                        /*! \brief The maximum time when a node has to be resubscribe.
+                        /*! \brief Unregister the given node from a subject.
                          *
-                         *         The default value is 70 seconds.
-                         *
-                         *  \param age The time in seconds.
+                         *  \param node The node to unregister.
+                         *  \param subject The subject to unregister from.
                          */
-                        void maxAge(int age);
+                        void unreg(Node::type &node, SNN subject);
 
                         /** \brief Updates the flow id of a node registered to a subject.
                          *
@@ -332,7 +331,6 @@ namespace famouso {
                         SubscriberMap _snnmap; /**< A map to assign nodes with attributes to subjects. */
                         NodeList _nodes; /**< A list wich hold all known nodes and their network attributes at the AWDS network. */
                         PublisherMap _snnAttribs; /**< A map to assign attributes to a subject. */
-                        int _maxAge /**< The timespan in seconds when a node is marked as offline. */;
                 };
 
             } /* namespace awds */

@@ -61,7 +61,7 @@ namespace famouso {
     namespace mw {
         namespace nl {
             // define command line parameter and default values
-            CLP4(AWDSOptions,
+            CLP5(AWDSOptions,
                             "AWDS Network Layer",
                             "awds,a",
                             "connection and config parameter for the awds-network in the form of IP:PORT:INTERVAL:MAX_AGE:MAX_UNI\n"
@@ -70,11 +70,13 @@ namespace famouso {
                             "  PORT:     \tThe port on which the deamon listen\n"
                             "  INTERVAL: \tThe renew-interval of subsciptions\n"
                             "  MAX_AGE:  \tThe max age of subsciptions in seconds\n"
-                            "(default 127.0.0.1:8555:60:70)",
+                            "  FLOW_PRIO:\tThe awds flow priority (-10 to 10)\n"
+                            "(default 127.0.0.1:8555:60:70:0)",
                             std::string, ip, "127.0.0.1",
                             int, port, 8555,
                             int, interval, 60,
-                            int, max_age, 70)
+                            int, max_age, 70,
+                            int8_t, flow_prio, 0)
             ;
 
             // broacast address to send a paket to all nodes
@@ -98,7 +100,8 @@ namespace famouso {
 
                 // set local variables
                 interval = param.interval;
-                _repo.maxAge(param.max_age);
+                _maxAge = param.max_age;
+                _flowPrio = param.flow_prio;
 
 #ifdef RANDOM_ATTRIBUTES
                 // init random generator for attributes generation
@@ -129,14 +132,22 @@ namespace famouso {
                 // try to detect subscription channel because in AWDS its get special treatment
                 // this test works only due to the fact that the SNN is equal to the famouso::mw::Subject
                 if (p.snn == famouso::mw::Subject("SUBSCRIBE")) {
-                    subscriptions.push_front(famouso::mw::Subject(p.data));
-                    subscriptions.sort();
-                    subscriptions.unique();
+                    SNN s = SNN(p.data);
+                    ComparableAttributeSet<>::type attribs;
 
+#ifdef RANDOM_ATTRIBUTES
+                    AWDSAttributeSet as = createRandAttributes();
+                    attribs = ComparableAttributeSet<>::create(as);
+#else
+                    // TODO: load Attributes from Packet_t p
+                    attribs = ComparableAttributeSet<>::create();
+#endif
+
+                    subscriptions[s] = attribs;
                     timer_.cancel();
                     announce_subscriptions(boost::system::error_code());
                 } else {
-                    log::emit<AWDS>() <<  "Publish for Subject: " << p.snn << log::endl;
+                    log::emit<AWDS>() << "Publish for Subject: " << p.snn << log::endl;
 
                     // get list of subscriber for the subject
                     std::pair<NodeRepository::NodeIterator, NodeRepository::NodeIterator> nit = _repo.find(p.snn);
@@ -152,7 +163,7 @@ namespace famouso {
                                               : AWDS_Packet::constants::packet_type::publish;
 
                     std::vector<boost::asio::const_buffer> buffers;
-                    std::list<Node::type> badFlowNodes;
+                    std::list<Node::type> badFlowNodes, lateNodes;
                     AWDS_Packet::Header awds_header;
                     int subs = 0;
 
@@ -166,8 +177,14 @@ namespace famouso {
                     // for each node set source mac and send package
                     for (NodeRepository::NodeIterator it = nit.first; it != nit.second; it++) {
                         Node::type node = *it;
-                        if (!flowMgmtAvail || _repo.find(node, p.snn) > 0) {
+
+                        if (node->elapsed() > _maxAge) {
+                            // Node subscription is missing, we have to unregister the flow id
+                            lateNodes.push_back(node);
+                        } else if (!flowMgmtAvail || _repo.find(node, p.snn) > 0) {
                             // flow id is good or no flow manager available
+
+
                             awds_header.addr = node->mac();
                             m_socket.send(buffers);
                             subs++;
@@ -195,6 +212,7 @@ namespace famouso {
                         FlowMgmtRequestAttributeSet aset;
                         aset.find<FlowMgmtAction> ()->set(FlowMgmtActionIDs::reg);
                         aset.find<SubjectAttribute> ()->subject(p.snn);
+                        aset.find<Priority>()->set(_flowPrio);
 
                         buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
 
@@ -213,6 +231,50 @@ namespace famouso {
 
                             // send packet
                             m_socket.send(buffers);
+                        }
+                    }
+
+                    if (lateNodes.size() > 0) {
+                        // we have nodes with missing subscriptions
+
+                        FlowId fid;
+                        FlowMgmtRequestAttributeSet aset;
+
+                        log::emit<AWDS>() << "Unregister " << lateNodes.size() << " nodes." << log::endl;
+
+                        if (flowMgmtAvail) { // we only have to do this when a flow manager is available
+                            buffers.clear();
+
+                            // setup header for flow management
+                            awds_header.type = AWDS_Packet::constants::packet_type::flowmgmt;
+                            awds_header.size = htons(FlowMgmtRequestAttributeSet::overallSize);
+                            buffers.push_back(boost::asio::buffer(&(awds_header), sizeof(AWDS_Packet::Header)));
+
+                            // setup for flow free
+                            aset.find<FlowMgmtAction> ()->set(FlowMgmtActionIDs::free);
+                            aset.find<SubjectAttribute> ()->subject(p.snn);
+                            buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
+                        }
+
+                        for (std::list<Node::type>::iterator it = lateNodes.begin(); it != lateNodes.end(); it++) {
+                            Node::type node = *it;
+
+                            if (flowMgmtAvail) {// we only have to do this when a flow manager is available
+                                fid = _repo.find(node, p.snn); // get actual flowid
+                                if (fid >= 0) {// we have a flow id
+
+                                    // set node to free flow id for
+                                    awds_header.addr = node->mac();
+                                    // set flow id to free
+                                    aset.find<FlowMgmtID> ()->set(fid);
+
+                                    // send packet
+                                    m_socket.send(buffers);
+                                }
+                            }
+
+                            // unreg node from subject
+                            _repo.unreg(node, p.snn);
                         }
                     }
                 }
@@ -255,25 +317,23 @@ namespace famouso {
                             _repo.unreg(src);
                             log::emit<AWDS>() << "Subscriber: " << src << log::endl;
 
+                            uint16_t pos = 0;
+
                             // count the number of subjects in the package
-                            uint16_t subs_count = *reinterpret_cast<const uint16_t*> (awds_packet.data + 4);
+                            uint16_t subs_count = *reinterpret_cast<const uint16_t*> (&awds_packet.data[pos]);
                             subs_count = ntohs(subs_count);
                             log::emit<AWDS>() << "Subjects: " << subs_count << log::endl;
+                            pos += 2;
 
                             // for all subjects in package
                             for (uint16_t sub = 0; sub < subs_count; sub++) {
-                                Attributes::type attribs;
-
-#ifdef RANDOM_ATTRIBUTES
-                                AWDSAttributeSet as = createRandAttributes();
-                                attribs = Attributes::create(as);
-#else
-                                // TODO: load Attributes from awds_packet
-                                attribs = Attributes::create();
-#endif
 
                                 // get the subject
-                                SNN s = SNN(awds_packet.data + 6 + (sub * sizeof(SNN)));
+                                SNN s = SNN(&awds_packet.data[pos]);
+                                pos += sizeof(SNN);
+                                Attributes::type attribs = Attributes::create(&awds_packet.data[pos]);
+                                pos += attribs->size();
+
                                 log::emit<AWDS>() << "  Subject: " << s << " (" << attribs << ")" << log::endl;
 
                                 // register node to this subject
@@ -361,18 +421,23 @@ namespace famouso {
                     if (subscriptions.size()) {
                         uint16_t count_subj = htons(subscriptions.size());
                         std::vector<boost::asio::const_buffer> buffers;
-                        uint32_t reserved = htonl(20);
                         AWDS_Packet::Header awds_header;
+                        uint16_t size = sizeof(uint16_t);
                         awds_header.addr = MAC::parse(BROADCAST_ADDR);
                         awds_header.type = AWDS_Packet::constants::packet_type::subscribe;
-                        awds_header.size = htons(sizeof(uint32_t) + 2 + ntohs(count_subj) * sizeof(famouso::mw::Subject));
                         buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
-                        buffers.push_back(boost::asio::buffer(&reserved, sizeof(uint32_t)));
                         buffers.push_back(boost::asio::buffer(&count_subj, sizeof(uint16_t)));
 
-                        for (std::list<SNN>::const_iterator i = subscriptions.begin(); i != subscriptions.end(); ++i) {
-                            buffers.push_back(boost::asio::buffer(&(*i), sizeof(famouso::mw::Subject)));
+                        for (std::map<SNN, ComparableAttributeSet<>::type>::const_iterator i = subscriptions.begin(); i
+                                        != subscriptions.end(); ++i) {
+                            size += sizeof(SNN);
+                            buffers.push_back(boost::asio::buffer(&(i->first), sizeof(famouso::mw::Subject)));
+                            ComparableAttributeSet<>::type attr = i->second;
+                            buffers.push_back(*attr);
+                            size += attr->size();
                         }
+
+                        awds_header.size = htons(size);
 
                         m_socket.send(buffers);
                     }

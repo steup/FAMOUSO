@@ -84,7 +84,7 @@ namespace famouso {
                  *
                  * \tparam AttrSet An AttributesSet containing a list of attributes.
                  */
-                template< class AttrSet >
+                template< class AttrSet = famouso::mw::attributes::AttributeSet<> >
                 class ComparableAttributeSet: boost::noncopyable {
 
                     public:
@@ -339,6 +339,15 @@ namespace famouso {
                             return boost::asio::buffer(d, size(d));
                         }
 
+
+                        /** \brief Returns the overall runtime size of the attribute set.
+                         *
+                         * \return The overall runtime size of the attribute set.
+                         */
+                        uint16_t size(){
+                            return size(data.get());
+                        }
+
                         /*! \brief Creates an empty attributes instance.
                          *
                          *  \return An instance of attributes.
@@ -372,6 +381,20 @@ namespace famouso {
                             type res = create();
                             uint8_t *d = reinterpret_cast<uint8_t*> (&p);
                             res->set(d, size(d));
+                            return res;
+                        }
+
+                        /*! \brief Creates a new attributes instance.
+                         *
+                         *  The attributes data of the given set ist copied.
+                         *
+                         *  \param d A pointer to an attribute set to copy attributes from.
+                         *  \return The new attributes set.
+                         */
+                        static type create(uint8_t *d) {
+                            type res = create();
+                            if (d)
+                                res->set(d, size(d));
                             return res;
                         }
                 };
