@@ -158,7 +158,6 @@ namespace famouso {
                     NodeRepository::type &_repo; /**< The node repository for registering and checking nodes before publishing. */
                     bool next_packet_is_full_packet; /**< With the next data from AWDS the packet is full. */
                     int interval; /**< Refresh time in secods to renew subscribtions to other nodes. */
-                    uint max_unicast; /**< Maximum number of subscriber to send as unicast packet. If there are more subscriber the packet will be send as broadcast. */
             };
 
         } // namespace nl

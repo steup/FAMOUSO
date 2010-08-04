@@ -61,7 +61,7 @@ namespace famouso {
     namespace mw {
         namespace nl {
             // define command line parameter and default values
-            CLP5(AWDSOptions,
+            CLP4(AWDSOptions,
                             "AWDS Network Layer",
                             "awds,a",
                             "connection and config parameter for the awds-network in the form of IP:PORT:INTERVAL:MAX_AGE:MAX_UNI\n"
@@ -70,13 +70,11 @@ namespace famouso {
                             "  PORT:     \tThe port on which the deamon listen\n"
                             "  INTERVAL: \tThe renew-interval of subsciptions\n"
                             "  MAX_AGE:  \tThe max age of subsciptions in seconds\n"
-                            "  MAX_UNI:  \tThe max clients count to send unicast packages\n"
-                            "(default 127.0.0.1:8555:60:70:5)",
+                            "(default 127.0.0.1:8555:60:70)",
                             std::string, ip, "127.0.0.1",
                             int, port, 8555,
                             int, interval, 60,
-                            int, max_age, 70,
-                            uint, max_uni, 5)
+                            int, max_age, 70)
             ;
 
             // broacast address to send a paket to all nodes
@@ -100,7 +98,6 @@ namespace famouso {
 
                 // set local variables
                 interval = param.interval;
-                max_unicast = param.max_uni;
                 _repo.maxAge(param.max_age);
 
 #ifdef RANDOM_ATTRIBUTES
@@ -156,37 +153,20 @@ namespace famouso {
                     std::vector<boost::asio::const_buffer> buffers;
                     AWDS_Packet::Header awds_header;
 
-                    // only broadcast if we have to much subscribers
-                    if (cl->size() > max_unicast) {
-                        // send as broadcast
-                        log::emit<AWDS>() << "Broadcast (" << cl->size() << ") \t -- Subject: " << p.snn << log::endl;
+                    // send as unicast
+                    log::emit<AWDS>() << "Unicast (" << cl->size() << ") \t -- Subject: " << p.snn << log::endl;
 
-                        // set the package params
-                        awds_header.addr = MAC::parse(BROADCAST_ADDR);
-                        awds_header.type = type;
-                        awds_header.size = htons(p.data_length + sizeof(famouso::mw::Subject));
-                        buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
-                        buffers.push_back(boost::asio::buffer(&p.snn, sizeof(famouso::mw::Subject)));
-                        buffers.push_back(boost::asio::buffer(p.data, p.data_length));
+                    // set the package params
+                    awds_header.type = type;
+                    awds_header.size = htons(p.data_length + sizeof(SNN));
+                    buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
+                    buffers.push_back(boost::asio::buffer(&p.snn, sizeof(SNN)));
+                    buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
-                        // send
+                    // for each node set source mac and send package
+                    for (NodeRepository::NodeList::iterator it = cl->begin(); it != cl->end(); it++) {
+                        awds_header.addr = (*it)->mac(); // because of shared_ptr we have to double dereference
                         m_socket.send(buffers);
-                    } else {
-                        // send as unicast
-                        log::emit<AWDS>() << "Unicast (" << cl->size() << ") \t -- Subject: " << p.snn << log::endl;
-
-                        // set the package params
-                        awds_header.type = type;
-                        awds_header.size = htons(p.data_length + sizeof(SNN));
-                        buffers.push_back(boost::asio::buffer(&awds_header, sizeof(AWDS_Packet::Header)));
-                        buffers.push_back(boost::asio::buffer(&p.snn, sizeof(SNN)));
-                        buffers.push_back(boost::asio::buffer(p.data, p.data_length));
-
-                        // for each node set source mac and send package
-                        for (NodeRepository::NodeList::iterator it = cl->begin(); it != cl->end(); it++) {
-                            awds_header.addr = (*it)->mac(); // because of shared_ptr we have to double dereference
-                            m_socket.send(buffers);
-                        }
                     }
                 }
             }
