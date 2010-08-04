@@ -79,18 +79,19 @@ namespace famouso {
                      */
                     struct FlowMgmtIDs {
                             enum {
-                                avail = SystemIDs::nonSystem + 1,
-                                action = avail + 1,
-                                flowId = action + 1
+                                action = 1,
+                                flowId = action + 1,
+                                subject = flowId + 1
                             };
                     };
 
-                    struct FlowMgmtActions {
+                    struct FlowMgmtActionIDs {
                             enum {
                                 reg = 1,
                                 free = 2,
                                 dead = 3,
-                                use = 4
+                                use = 4,
+                                max
                             };
                     };
 
@@ -120,10 +121,24 @@ namespace famouso {
                             typedef FlowMgmtAction type;
                     };
 
+                    template< uint64_t snn >
+                    class SubjectAttribute: public Attribute<SubjectAttribute<0> , tags::integral_const_tag, uint64_t, snn,
+                                    filter::less_than_or_equal_to, FlowMgmtIDs::subject, false> {
+                        public:
+                            typedef SubjectAttribute type;
+
+                            Subject subject() {
+                                return Subject(this->get());
+                            }
+
+                            void subject(Subject s) {
+                                this->set(s.value());
+                            }
+                    };
+
                 } // namespace detail
 
                 using famouso::mw::attributes::detail::SetProvider;
-
 
                 /** The Time-To-Live attribute. */
                 typedef famouso::mw::attributes::TTL<0xFF> TTL;
@@ -137,78 +152,67 @@ namespace famouso {
                 /** The Packet-Loss-Rate attribute. */
                 typedef famouso::mw::attributes::PacketLoss<0xFFFF> PacketLoss;
 
-                /** A list of AWDS Attributes */
-                typedef boost::mpl::list<TTL, Latency, Throughput, PacketLoss>::type AWDSAttributeList;
-
                 /** A AttributeSet of AWDS Attributes */
-                typedef famouso::mw::attributes::AttributeSet<AWDSAttributeList::type>::type AWDSAttributeSet;
+                typedef SetProvider<TTL, Latency, Throughput, PacketLoss>::attrSet AWDSAttributeSet;
 
                 /** The flow id of the AWDS flow manager */
                 typedef detail::FlowMgmtID<0xFFFFFFFF> FlowMgmtID;
-                typedef detail::FlowMgmtAction<0xFF> FlowMgmtAction;
 
-                typedef detail::FlowMgmtActions FlowMgmtActions;
+                typedef detail::FlowMgmtActionIDs FlowMgmtActionIDs;
 
-                typedef boost::mpl::list<FlowMgmtID, Throughput> _FlowMgmtNodeAttributeList;
-                typedef famouso::mw::attributes::AttributeSet<_FlowMgmtNodeAttributeList::type>::type FlowMgmtNodeAttributeSet;
+                typedef detail::FlowMgmtAction<FlowMgmtActionIDs::max> FlowMgmtAction;
 
-                typedef SetProvider<FlowMgmtAction >::attrSet FlowMgmtRequestAttributeSet;
-                typedef SetProvider<FlowMgmtAction, FlowMgmtID >::attrSet FlowMgmtResponseAttributeSet;
+                typedef detail::SubjectAttribute<0xFFFFFFFFFFFFFFFFull> SubjectAttribute;
+
+                typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID, Throughput>::attrSet FlowMgmtRequestAttributeSet;
+                typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID>::attrSet FlowMgmtResponseAttributeSet;
 
 #ifdef RANDOM_ATTRIBUTES
-
-                /** \brief Only used internally for simplify writing.
-                 */
-                template< typename AttrSet >
-                struct _aset {
-                        typedef famouso::mw::attributes::AttributeSet<AttrSet> t;
-                };
 
                 /** \brief Create an attributes set of random attributes.
                  *  \return An attributes set.
                  */
                 inline void _createAttrSet(uint8_t *data) {
-                    using boost::mpl::list;
 
                     switch (rand() % 11) {
                         case 0: {
-                            new (data) _aset<list<TTL> >::t;
+                            new (data) SetProvider<TTL>::attrSet;
                             break;
                         }
                         case 1: {
-                            new (data) _aset<list<Throughput> >::t;
+                            new (data) SetProvider<Throughput>::attrSet;
                             break;
                         }
                         case 2: {
-                            new (data) _aset<list<Latency> >::t;
+                            new (data) SetProvider<Latency>::attrSet;
                             break;
                         }
                         case 3: {
-                            new (data) _aset<list<PacketLoss> >::t;
+                            new (data) SetProvider<PacketLoss>::attrSet;
                             break;
                         }
                         case 4: {
-                            new (data) _aset<list<TTL, PacketLoss> >::t;
+                            new (data) SetProvider<TTL, PacketLoss>::attrSet;
                             break;
                         }
                         case 5: {
-                            new (data) _aset<list<TTL, Throughput> >::t;
+                            new (data) SetProvider<TTL, Throughput>::attrSet;
                             break;
                         }
                         case 6: {
-                            new (data) _aset<list<TTL, Latency> >::t;
+                            new (data) SetProvider<TTL, Latency>::attrSet;
                             break;
                         }
                         case 7: {
-                            new (data) _aset<list<Latency, PacketLoss> >::t;
+                            new (data) SetProvider<Latency, PacketLoss>::attrSet;
                             break;
                         }
                         case 8: {
-                            new (data) _aset<list<TTL, Throughput, PacketLoss> >::t;
+                            new (data) SetProvider<TTL, Throughput, PacketLoss>::attrSet;
                             break;
                         }
                         case 9: {
-                            new (data) _aset<list<TTL, Latency, PacketLoss> >::t;
+                            new (data) SetProvider<TTL, Latency, PacketLoss>::attrSet;
                             break;
                         }
                         default:

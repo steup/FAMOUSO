@@ -55,21 +55,22 @@ namespace famouso {
                     _maxAge(70) {
                 }
 
-                Node::type NodeRepository::find(MAC mac) {
+                Node::type NodeRepository::find(MAC &mac) {
                     log::emit<AWDS>() << "Searching node ... ";
-                    Node::type node = Node::create(mac);
 
                     // look for a node with specified mac
-                    NetworkAttributesMap::iterator it = _nodes.find(node);
 
-                    if (it != _nodes.end()) {
-                        log::emit() << "found: " << it->first << log::endl;
-                        return it->first;
+                    for (NodeList::iterator it = _nodes.begin(); it != _nodes.end(); it++) {
+                        if ((*it)->mac() == mac) {
+                            log::emit() << "found: " << *it << log::endl;
+                            return *it;
+                        }
                     }
 
                     // node not found, create a new and register
+                    Node::type node = Node::create(mac);
                     log::emit() << "not found: " << node << log::endl;
-                    _nodes[node] = Attributes::create();
+                    _nodes.add(node);
                     return node;
                 }
 
@@ -105,7 +106,7 @@ namespace famouso {
                     for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
                         Node::type node = (*it)->node; // the actual node to check
                         Attributes::type subAttr = (*it)->attribs, // The subscriber attributes
-                                        nodeAttr = _nodes[node]; // The actual network attributes
+                                        nodeAttr = node->attr(); // The actual network attributes
 
                         log::emit<AWDS>() << "Node: " << node << " " << nodeAttr << log::endl;
 
@@ -129,20 +130,43 @@ namespace famouso {
                     return result;
                 }
 
-                void NodeRepository::remove(Node::type node) {
+                FlowId NodeRepository::find(Node::type &node, SNN subject) {
+                    // look for registered subject
+                    SubscriberMap::iterator sit = _snnmap.find(subject);
+
+                    // subject not registered, return empty list
+                    if (sit == _snnmap.end()) {
+                        log::emit<AWDS>() << "Subject not found! Could not get flowid." << log::endl;
+                        return -1; // subject not registered, don't request a flow id
+                    }
+
+                    SubscriberList::type sl = sit->second;
+
+                    for (SubscriberList::iterator it = sl->begin(); it != sl->end(); it++) {
+                        if ((*it)->node == node)
+                            return (*it)->flowId;
+                    }
+
+                    log::emit<AWDS>() << "Node not found! Could not get flowid." << log::endl;
+                    return -1; // node not registered to subject, don't request a flow id
+                }
+
+                void NodeRepository::remove(Node::type &node) {
                     log::emit<AWDS>() << "Remove node: " << node << log::endl;
                     // unregister node from all subjects
                     unreg(node);
 
                     // remove node from node list
                     // look for a node with specified mac
-                    NetworkAttributesMap::iterator it = _nodes.find(node);
-
-                    if (it != _nodes.end())
-                        _nodes.erase(it);
+                    for (NodeList::iterator it = _nodes.begin(); it != _nodes.end(); it++) {
+                        if (*it == node) {
+                            _nodes.erase(it);
+                            return;
+                        }
+                    }
                 }
 
-                void NodeRepository::remove(SNN subject) {
+                void NodeRepository::remove(SNN &subject) {
                     log::emit<AWDS>() << "Remove subject: " << subject << log::endl;
 
                     SubscriberMap::iterator it = _snnmap.find(subject);
@@ -154,7 +178,7 @@ namespace famouso {
                     }
                 }
 
-                void NodeRepository::reg(Node::type client, SNN subject, Attributes::type attribs) {
+                void NodeRepository::reg(Node::type &client, SNN &subject, Attributes::type &attribs) {
                     //log::emit<AWDS>() << "Register node to subject: " << node << " | " << subject << log::endl;
                     // look for clients registered to given subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
@@ -176,7 +200,7 @@ namespace famouso {
                     _snnmap[subject]->add(Subscriber::Create(client, attribs));
                 }
 
-                void NodeRepository::reg(SNN subject, Attributes::type attribs) {
+                void NodeRepository::reg(SNN &subject, Attributes::type &attribs) {
                     log::emit<AWDS>() << "Register subject: " << subject << log::endl;
                     // look for registered subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
@@ -188,7 +212,7 @@ namespace famouso {
                     }
                 }
 
-                void NodeRepository::unreg(Node::type node) {
+                void NodeRepository::unreg(Node::type &node) {
                     log::emit<AWDS>() << "Unregister node from subjects: " << node << log::endl;
 
                     // remove node from all subjects, loop over all subjects
@@ -211,8 +235,22 @@ namespace famouso {
                     _maxAge = age;
                 }
 
-                void NodeRepository::update(Node::type node, Attributes::type attribs) {
-                    _nodes[node] = attribs;
+                void NodeRepository::update(Node::type &node, SNN subject, FlowId fId) {
+                    // look for registered subject
+                    SubscriberMap::iterator sit = _snnmap.find(subject);
+
+                    // subject not registered, return empty list
+                    if (sit == _snnmap.end()) {
+                        log::emit<AWDS>() << "Subject not found! Could not update flowid." << log::endl;
+                        return;
+                    }
+
+                    SubscriberList::type sl = sit->second;
+
+                    for (SubscriberList::iterator it = sl->begin(); it != sl->end(); it++) {
+                        if ((*it)->node == node)
+                            (*it)->flowId = fId;
+                    }
                 }
             } /* awds */
         } /* nl */

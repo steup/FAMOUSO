@@ -167,12 +167,12 @@ namespace famouso {
                     // for each node set source mac and send package
                     for (NodeRepository::NodeList::iterator it = cl->begin(); it != cl->end(); it++) {
                         Node::type node = *it;
-                        if (node->get<FlowMgmtID> () > 0) {
+                        if (_repo.find(node, p.snn) > 0) {
                             // flow id is good
                             awds_header.addr = node->mac();
                             m_socket.send(buffers);
                         } else {
-                            if (node->get<FlowMgmtID> () == 0) // no flow id requested yet
+                            if (_repo.find(node, p.snn) == 0) // no flow id requested yet
                                 badFlowNodes.push_back(node);
                         }
                     }
@@ -183,12 +183,14 @@ namespace famouso {
 
                         // setup header for flow management
                         awds_header.type = AWDS_Packet::constants::packet_type::flowmgmt;
-                        awds_header.size = htons(FlowMgmtRequestAttributeSet::overallSize + FlowMgmtNodeAttributeSet::overallSize);
+                        awds_header.size = htons(FlowMgmtRequestAttributeSet::overallSize);
                         buffers.push_back(boost::asio::buffer(&(awds_header), sizeof(AWDS_Packet::Header)));
 
                         // setup for flow request
                         FlowMgmtRequestAttributeSet aset;
-                        aset.find<FlowMgmtAction> ()->set(FlowMgmtActions::reg);
+                        aset.find<FlowMgmtAction> ()->set(FlowMgmtActionIDs::reg);
+                        aset.find<SubjectAttribute>()->subject(p.snn);
+
                         buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
 
                         for (std::list<Node::type>::iterator it = badFlowNodes.begin(); it != badFlowNodes.end(); it++) {
@@ -200,14 +202,11 @@ namespace famouso {
                             // set node to get flow id for
                             awds_header.addr = node->mac();
 
-                            // add attributes to packet
-                            buffers.push_back((boost::asio::const_buffer) *(node->attr()));
+                            // find attributes for the request
+                            _repo.find(node, p.snn, aset);
 
                             // send packet
                             m_socket.send(buffers);
-
-                            // remove attributes for next node
-                            buffers.pop_back();
                         }
                     }
                 }
@@ -289,7 +288,7 @@ namespace famouso {
                             log::emit<AWDS>() << att << log::endl;
 
                             // Update attributes of node
-                            _repo.update(src, att);
+                            src->attr(att);
                             break;
                         }
 
@@ -304,14 +303,15 @@ namespace famouso {
                             FlowMgmtResponseAttributeSet *resp = reinterpret_cast<FlowMgmtResponseAttributeSet *> (awds_packet.data);
                             FlowMgmtAction *fa = resp->find<FlowMgmtAction> ();
                             FlowMgmtID *id = resp->find<FlowMgmtID> ();
-                            if (!id || !fa)
+                            SubjectAttribute *sub = resp->find<SubjectAttribute>();
+                            if (!id || !fa || !sub)
                                 throw "Missing Attribute from AWDS FlowManagement!";
 
-                            log::emit<AWDS>() << "New ID: " << (FlowId) id->get() << (fa->get() == FlowMgmtActions::use ? " OK!" : " Bad!")
+                            log::emit<AWDS>() << "New ID: " << (FlowId) id->get() << (fa->get() == FlowMgmtActionIDs::use ? " OK!" : " Bad!")
                                             << log::endl;
 
                             // set new flow Id
-                            src->find<FlowMgmtID>()->set(id->get() > 0 ? id->get() : 0);
+                            _repo.update(src, sub->subject(), id->get() > 0 ? id->get() : 0);
                             break;
                         }
                         default:

@@ -58,7 +58,7 @@ namespace famouso {
                 /** A list of attributes to check before publishing. */
                 typedef ComparableAttributeSet<AWDSAttributeSet::type> Attributes;
 
-                typedef detail::Node<FlowMgmtNodeAttributeSet> Node;
+                typedef detail::Node<AWDSAttributeSet::type> Node;
 
                 /*! \brief A node repository for holding AWDS nodes and register nodes to subjects.
                  *
@@ -83,27 +83,31 @@ namespace famouso {
 
                         /*! \brief A class for mapping attributes to a node.
                          */
-                        class Subscriber {
+                        class Subscriber: boost::noncopyable {
                             public:
 
                                 /** \brief This type secured by a shared pointer.
                                  */
                                 typedef boost::shared_ptr<Subscriber> type;
+
                                 /** \brief Creates a new Subcriber with the given parameters.
                                  *
                                  * \param c The node on which the subscriber resides.
-                                 * \param a Attributes, which can be from network or subscriber.
+                                 * \param a Attributes, which are from a subscriber.
+                                 * \param fId The flow id of the subscriber.
                                  * \return A new Subscriber instance.
                                  */
-                                static type Create(Node::type c, Attributes::type a) {
+                                static type Create(Node::type c, Attributes::type a, FlowId fId = 0) {
                                     type res = type(new Subscriber());
                                     res->node = c;
                                     res->attribs = a;
+                                    res->flowId = fId;
                                     return res;
                                 }
 
                                 Node::type node; /**<  The node on which the subscriber resides. */
-                                Attributes::type attribs; /**< The attributes from network or subscriber */
+                                Attributes::type attribs; /**< The attributes from a subscriber. */
+                                FlowId flowId; /**< The AWDS flow id. */
 
                         };
 
@@ -121,7 +125,7 @@ namespace famouso {
 
                         /** \brief A map to assign network attributes to nodes.
                          */
-                        typedef std::map<Node::type, Attributes::type, Node::comp> NetworkAttributesMap;
+                        //typedef std::list<Node::type, Node::comp> NodeList;
 
                         /** \brief Constructor to init lists. */
                         NodeRepository();
@@ -140,7 +144,7 @@ namespace famouso {
                          *  \param mac The MAC address to find the node for.
                          *  \return The node corresponding to the MAC address.
                          */
-                        Node::type find(MAC mac);
+                        Node::type find(MAC &mac);
 
                         /*! \brief Find all nodes registered to the given Subject wich match the required attributes.
                          *         The attributes can be defined by publisher or subscriber.
@@ -152,12 +156,20 @@ namespace famouso {
                          */
                         NodeList::type find(SNN subject);
 
+                        FlowId find(Node::type &node, SNN subject);
+
+                        template< class AttrSet >
+                        void find(Node::type &node, SNN subject, AttrSet &cas) {
+                            // TODO: find strictest attributes of publisher and subscriber
+
+                        }
+
                         /*! \brief Remove a node from the repository.
                          *         It will be removed from all subjects too.
                          *
                          *  \param node The node to remove.
                          */
-                        void remove(Node::type node);
+                        void remove(Node::type &node);
 
                         /*! \brief Remove a subject from the repository.
                          *         Clients registered to the given subject will
@@ -165,7 +177,7 @@ namespace famouso {
                          *
                          *  \param subject The subject to remove.
                          */
-                        void remove(SNN subject);
+                        void remove(SNN &subject);
 
                         /*! \brief Register a node to a subject.
                          *
@@ -175,20 +187,20 @@ namespace famouso {
                          *
                          *  \todo If the subject is not registered, this function should do nothing.
                          */
-                        void reg(Node::type node, SNN subject, Attributes::type attribs = Attributes::create());
+                        void reg(Node::type &node, SNN &subject, Attributes::type &attribs);
 
                         /*! \brief Register a subject to the repository.
                          *
                          *  \param subject The subject to register.
                          *  \param attribs The attributes which the publisher requires.
                          */
-                        void reg(SNN subject, Attributes::type attribs = Attributes::create());
+                        void reg(SNN &subject, Attributes::type &attribs);
 
                         /*! \brief Unregister the given node from all known subjects.
                          *
                          *  \param node The node to unregister.
                          */
-                        void unreg(Node::type node);
+                        void unreg(Node::type &node);
 
                         /*! \brief The maximum time when a node has to be resubscribe.
                          *
@@ -198,17 +210,11 @@ namespace famouso {
                          */
                         void maxAge(int age);
 
-                        /*! \brief Update attribute of given node.
-                         *
-                         *  This function saves the given network attributes to the given node.
-                         *  \param node The node to update.
-                         *  \param attribs The new attributes to set.
-                         */
-                        void update(Node::type node, Attributes::type attribs = Attributes::create());
+                        void update(Node::type &node, SNN subject, FlowId fId);
 
                     private:
                         SubscriberMap _snnmap; /**< A map to assign nodes with attributes to subjects. */
-                        NetworkAttributesMap _nodes; /**< A map wich hold all known nodes and their network attributes at the AWDS network. */
+                        NodeList _nodes; /**< A list wich hold all known nodes and their network attributes at the AWDS network. */
                         PublisherMap _snnAttribs; /**< A map to assign attributes to a subject. */
                         int _maxAge /**< The timespan in seconds when a node is marked as offline. */;
                 };

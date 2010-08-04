@@ -55,6 +55,8 @@ namespace famouso {
 
                 namespace detail {
                     /*! \brief A node at the AWDS network identified by his MAC address.
+                     *
+                     *  \tparam AttrSet An attribute set which defines the network attributes.
                      */
                     template< class AttrSet >
                     class Node: boost::noncopyable {
@@ -120,7 +122,7 @@ namespace famouso {
                             }
 
                             void attr(NodeAttributes &attribs) {
-                                _attr = attribs.clone();
+                                _attr = attribs->clone();
                             }
 
                             template< class Attrib >
@@ -132,7 +134,7 @@ namespace famouso {
                             typename Attrib::value_type get() {
                                 Attrib *res = find<Attrib> ();
                                 if (!res)
-                                    throw "Missing Attribute of Node class";
+                                    throw "Missing Attribute";
                                 return res->get();
                             }
 
@@ -178,6 +180,7 @@ namespace logging {
      *
      * \param out The log to print to.
      * \param c The node to print.
+     * \tparam AttrSet The network attributes of the node.
      * \return The log to chain print calls.
      */
     template< class AttrSet >
@@ -191,6 +194,7 @@ namespace logging {
      *
      * \param out The log to print to.
      * \param c The node to print.
+     * \tparam AttrSet The network attributes of the node.
      * \return The log to chain print calls.
      */
     template< class AttrSet >
