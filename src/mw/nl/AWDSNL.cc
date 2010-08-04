@@ -203,6 +203,7 @@ namespace famouso {
                             awds_header.addr = node->mac();
 
                             // find attributes for the request
+                            // Todo: maybe here we should set some minimal default value, if no attributes are defined
                             _repo.find(node, p.snn, aset);
 
                             // send packet

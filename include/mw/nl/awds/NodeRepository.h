@@ -43,6 +43,7 @@
 #include <map>
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
+#include <boost/mpl/for_each.hpp>
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/MAC.h"
 #include "mw/nl/awds/Node.h"
@@ -58,6 +59,7 @@ namespace famouso {
                 /** A list of attributes to check before publishing. */
                 typedef ComparableAttributeSet<AWDSAttributeSet::type> Attributes;
 
+                /** A node with Attributes. Here we use AWDS attributes. */
                 typedef detail::Node<AWDSAttributeSet::type> Node;
 
                 /*! \brief A node repository for holding AWDS nodes and register nodes to subjects.
@@ -111,6 +113,75 @@ namespace famouso {
 
                         };
 
+                        /** \brief A function object for finding attributes and set the strictest to the result.
+                         *
+                         * The template parameter defines the attribute to search for.
+                         *
+                         * \tparam AttrSet The attributes set of the result type.
+                         */
+                        template< class AttrSet >
+                        class attr_finder {
+                                /** The boost sequence of the result set. */
+                                typedef typename AttrSet::sequence Seq;
+
+                                AttrSet &_res; /**< The result attributes set. */
+                                Attributes::type &_pub, /**< The publisher attributes set. */
+                                &_sub; /**< The subscriber attributes set. */
+
+                                /** \brief Creates a new function object for use with boost::mpl::for_each.
+                                 *
+                                 *  \param res The resulting attribute set.
+                                 *  \param pub The pubischer attribute set.
+                                 *  \param sub The subscriber attribute set.
+                                 */
+                                attr_finder(AttrSet &res, Attributes::type &pub, Attributes::type &sub) :
+                                    _res(res), _pub(pub), _sub(sub) {
+                                }
+
+                            public:
+
+                                /** \brief Apply's the function object with the given parameters.
+                                 *
+                                 *  \param res The resulting attribute set.
+                                 *  \param pub The pubischer attribute set.
+                                 *  \param sub The subscriber attribute set.
+                                 */
+                                static void apply(AttrSet &res, Attributes::type &pub, Attributes::type &sub) {
+                                    boost::mpl::for_each<Seq>(attr_finder(res, pub, sub));
+                                }
+
+                                /** \brief Finds the attributes and sets the strictest value to the result attribute.
+                                 *
+                                 *  \param a Dummy, only the type is needed.
+                                 */
+                                template< class Attrib >
+                                void operator()(Attrib a) {
+                                    /** The actual attribute comparator. */
+                                    typedef typename Attrib::comparator cmp;
+
+                                    // The resulting attribute
+                                    Attrib *r = _res.template find<Attrib> ();
+                                    // the publisher attribute
+                                    Attrib *p = _pub->template find<Attrib> ();
+                                    // the subscriber attribute
+                                    Attrib *s = _sub->template find<Attrib> ();
+
+                                    if (p) {
+                                        // publisher attibute is defined
+                                        if (s && cmp::apply_runtime(p->get(), s->get()))
+                                            // subscriber attribute is also defined and stricter, so use this
+                                            r->set(s->get());
+                                        else
+                                            // subscriber attribute not defined or not stricter, so use publisher attribute
+                                            r->set(p->get());
+                                    } else if (s) {
+                                        // only subscriber attibute is defined
+                                        r->set(s->get());
+                                    } else
+                                        log::emit<AWDS>() << "Missing attribute with id " << (int) Attrib::id << log::endl;
+                                }
+                        };
+
                         /*! \brief A list to hold subscribers with their attributes.
                          */
                         typedef Container<Subscriber::type> SubscriberList;
@@ -156,12 +227,45 @@ namespace famouso {
                          */
                         NodeList::type find(SNN subject);
 
+                        /** \brief Find the flow id for a node subscribed to a subject.
+                         *
+                         *  \param node The node to find the flow id of.
+                         *  \param subject The subject to find the flow id of.
+                         *  \return The found flow id or -1.
+                         */
                         FlowId find(Node::type &node, SNN subject);
 
+                        /** \brief Search the subscriber and publisher attributes defined by the given attribute set and set
+                         *         the strictest to the given set.
+                         *
+                         *  \param node The node to find the attributes of.
+                         *  \param subject The subject to find the attributes of.
+                         *  \param cas The attributes set to save the found attributes.
+                         *  \tparam AttrSet The atttributes set type.
+                         */
                         template< class AttrSet >
                         void find(Node::type &node, SNN subject, AttrSet &cas) {
-                            // TODO: find strictest attributes of publisher and subscriber
 
+                            SubscriberList::type cls = _snnmap[subject];
+                            Attributes::type subAttr, pubAttr = _snnAttribs[subject];
+
+                            if (!cls) {
+                                log::emit<AWDS>() << "No subscriber list found." << log::endl;
+                                return;
+                            }
+
+                            // find the subsciber
+                            for (SubscriberList::iterator it = cls->begin(); it != cls->end(); it++) {
+                                if ((*it)->node == node) { // we found the subsciber
+                                    subAttr = (*it)->attribs; // get the subscriber attributes
+                                    break; // no more iterations needed
+                                }
+                            }
+
+                            if (pubAttr && subAttr)
+                                attr_finder<AttrSet>::apply(cas, pubAttr, subAttr);
+                            else
+                                log::emit<AWDS>() << "Missing attributes of subscriber or publisher." << log::endl;
                         }
 
                         /*! \brief Remove a node from the repository.
@@ -210,6 +314,12 @@ namespace famouso {
                          */
                         void maxAge(int age);
 
+                        /** \brief Updates the flow id of a node registered to a subject.
+                         *
+                         *  \param node The node to update.
+                         *  \param subject The subject to update.
+                         *  \param fId The new flow id.
+                         */
                         void update(Node::type &node, SNN subject, FlowId fId);
 
                     private:

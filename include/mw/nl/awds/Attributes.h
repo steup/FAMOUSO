@@ -75,24 +75,28 @@ namespace famouso {
 
                     /*!
                      * \brief Holds the IDs of the defined flow management %attributes
-                     *  at one place
+                     *  at one place.
+                     *
+                     *  \todo Change ids to be grater than SystemIDs::nonSystem when Bug #80 is closed.
                      */
                     struct FlowMgmtIDs {
                             enum {
-                                action = 1,
-                                flowId = action + 1,
-                                subject = flowId + 1
+                                action = 1,             /**< The action attribute. */
+                                flowId = action + 1,    /**< The flow id attribute. */
+                                subject = flowId + 1    /**< The subject attribute. */
                             };
                     };
 
+                    /** \brief Ids used by the flow management action attribute.
+                     */
                     struct FlowMgmtActionIDs {
                             enum {
-                                reg = 1,
-                                free = 2,
-                                dead = 3,
-                                use = 4,
-                                avail = 5,
-                                max
+                                reg = 1,    /**< Register a new flow id */
+                                free = 2,   /**< Unregister a flow id. */
+                                dead = 3,   /**< Flow manager has killed a flow. */
+                                use = 4,    /**< Flow manager has registered a new flow. */
+                                avail = 5,  /**< Flow manager is available. */
+                                max         /**< Only used by the attribute to determine the maximum size. */
                             };
                     };
 
@@ -111,7 +115,7 @@ namespace famouso {
 
                     /*!
                      * \brief Defines a configurable flow management action attribute for
-                     *  describing the requestet flow at AWDS.
+                     *  describing the action to do at flow management at AWDS.
                      *
                      * \tparam id Describes the initial value to be set
                      */
@@ -122,16 +126,28 @@ namespace famouso {
                             typedef FlowMgmtAction type;
                     };
 
+                    /** \brief A attribute to hold a subject in an AttributeSet.
+                     *
+                     * \tparam snn The initial subject to set.
+                     */
                     template< uint64_t snn >
                     class SubjectAttribute: public Attribute<SubjectAttribute<0> , tags::integral_const_tag, uint64_t, snn,
                                     filter::less_than_or_equal_to, FlowMgmtIDs::subject, false> {
                         public:
                             typedef SubjectAttribute type;
 
+                            /** \brief Get the data as subject.
+                             *
+                             *  \return The subject.
+                             */
                             Subject subject() {
                                 return Subject(this->get());
                             }
 
+                            /** \brief Sets the data to the given subject.
+                             *
+                             *  \param s The subject to set.
+                             */
                             void subject(Subject s) {
                                 this->set(s.value());
                             }
@@ -159,13 +175,19 @@ namespace famouso {
                 /** The flow id of the AWDS flow manager */
                 typedef detail::FlowMgmtID<0xFFFFFFFF> FlowMgmtID;
 
+                /** \brief Ids used by the flow management action attribute. */
                 typedef detail::FlowMgmtActionIDs FlowMgmtActionIDs;
 
+                /** The flow management action. */
                 typedef detail::FlowMgmtAction<FlowMgmtActionIDs::max> FlowMgmtAction;
 
+                /** The subject to register a flow for. */
                 typedef detail::SubjectAttribute<0xFFFFFFFFFFFFFFFFull> SubjectAttribute;
 
+                /** An attribute set used by the Famouso part of the flow management. */
                 typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID, Throughput>::attrSet FlowMgmtRequestAttributeSet;
+
+                /** An attribute set used by the AWDS part of the flow mamagement. */
                 typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID>::attrSet FlowMgmtResponseAttributeSet;
 
 #ifdef RANDOM_ATTRIBUTES

@@ -76,6 +76,7 @@ namespace famouso {
                              */
                             typedef boost::shared_ptr<Node> type;
 
+                            /** \brief The attributes type. */
                             typedef typename ComparableAttributeSet<AttrSet>::type NodeAttributes;
 
                             /** \brief Comparison operator for sorting nodes.
@@ -117,19 +118,40 @@ namespace famouso {
                                 return _mac;
                             }
 
+                            /** \brief Get the attributes of the node.
+                             *
+                             *  \return The attributes set of this node.
+                             */
                             NodeAttributes &attr() {
                                 return _attr;
                             }
 
+                            /** \brief Set the attributes of the node.
+                             *
+                             *  The attributs are copied.
+                             *
+                             *  \param attribs The attributes set to set.
+                             */
                             void attr(NodeAttributes &attribs) {
                                 _attr = attribs->clone();
                             }
 
+                            /** \brief Find an attribute in the attributes set of the node.
+                             *
+                             *  \tparam Attrib The attribute to find.
+                             *  \return A pointer to the attribute if found, NULL otherwise.
+                             */
                             template< class Attrib >
                             Attrib *find() {
                                 return attr()->find<Attrib> ();
                             }
 
+                            /** \brief Finds an attribute and returns the value
+                             *
+                             *  Throws an exception when the attribute was not found.
+                             *  \tparam Attrib The attribute to find.
+                             *  \return Thje value of the found attribute.
+                             */
                             template< class Attrib >
                             typename Attrib::value_type get() {
                                 Attrib *res = find<Attrib> ();

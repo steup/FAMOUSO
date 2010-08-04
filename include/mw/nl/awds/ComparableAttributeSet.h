@@ -220,12 +220,10 @@ namespace famouso {
                                 }
                         };
 
-                        /* \brief Copy the data and search for attributes
+                        /* \brief Copy the data to this instance.
                          *
                          * \param d the data pointer
                          * \param s the size of the data
-                         *
-                         * \todo Copy only attributes, and not the whole data.
                          */
                         void set(uint8_t *d, uint16_t s) {
                             static uint8_t p[1] = { 0 };
@@ -239,8 +237,15 @@ namespace famouso {
 
                         }
 
-                        /** Compute the size of the attributes data. */
+                        /** \brief Compute the size of the attributes data.
+                         *
+                         *  \param data A pointer to the attribute set data.
+                         */
                         static uint16_t size(uint8_t* data) {
+
+                            if (!data) // just to be a little secure.
+                                return 0;
+
                             typedef famouso::mw::attributes::detail::AttributeSetHeader<0> *ASH;
 
                             const ASH setHeader = reinterpret_cast<const ASH> (&data[0]);
@@ -279,7 +284,7 @@ namespace famouso {
                             if (p.header.type != AWDS_Packet::constants::packet_type::attributes)
                                 return;
 
-                            set(p.data, ntohs(p.header.size));
+                            set(p.data, size(p.data));
                         }
 
                         /*! \brief Checks wether all attributes are matching
@@ -306,17 +311,29 @@ namespace famouso {
                             AttributeIterator<AttrSeq>::print(out, getSet());
                         }
 
+                        /** \brief Creates a copy of the attributes set.
+                         *
+                         *  \return The copied attributes set.
+                         */
                         type clone() {
                             type res = create(getSet());
                             return res;
                         }
 
+                        /** \brief Find an attribute in the set.
+                         *
+                         *  \tparam Attrib The attribute to find.
+                         *  \return A pointer to the Attribute if found, NULL otherwise.
+                         */
                         template< class Attrib >
                         Attrib *find() {
                             return getSet().find<Attrib> ();
                         }
 
-
+                        /** \brief Converts this set to a buffer to be useable by boost io.
+                         *
+                         * \return A boost buffer to use for io.
+                         */
                         operator boost::asio::const_buffer() {
                             uint8_t *d = data.get();
                             return boost::asio::buffer(d, size(d));
@@ -331,7 +348,7 @@ namespace famouso {
                             return res;
                         }
 
-                        /*! \brief Creates an empty attributes instance.
+                        /*! \brief Creates an new attributes instance.
                          *
                          *  \param p An AWDS_Packet to load attributes from.
                          *  \return An instance of attributes.
@@ -342,10 +359,12 @@ namespace famouso {
                             return res;
                         }
 
-                        /*! \brief Creates an empty attributes instance.
+                        /*! \brief Creates a new attributes instance.
                          *
-                         *  \param p An AttributeSequence to load attributes from.
-                         *  \return An instance of attributes.
+                         *  The attributes data of the given set ist copied.
+                         *
+                         *  \param p An attribute set to load attributes from.
+                         *  \return The new attributes set.
                          *  \tparam AttrSeq2 A boost mpl list of Attributes.
                          */
                         template< class AttrSeq2 >
