@@ -91,6 +91,7 @@ namespace famouso {
                                 free = 2,
                                 dead = 3,
                                 use = 4,
+                                avail = 5,
                                 max
                             };
                     };

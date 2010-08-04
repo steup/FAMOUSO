@@ -158,6 +158,7 @@ namespace famouso {
                     NodeRepository::type &_repo; /**< The node repository for registering and checking nodes before publishing. */
                     bool next_packet_is_full_packet; /**< With the next data from AWDS the packet is full. */
                     int interval; /**< Refresh time in secods to renew subscribtions to other nodes. */
+                    bool flowMgmtAvail; /**< Flow Manager available (default false). */
             };
 
         } // namespace nl

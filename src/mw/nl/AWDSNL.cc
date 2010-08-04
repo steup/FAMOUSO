@@ -82,7 +82,7 @@ namespace famouso {
 
             AWDSNL::AWDSNL() :
                 m_socket(famouso::util::ios::instance()), timer_(famouso::util::ios::instance()), _repo(NodeRepository::getInstance()),
-                                next_packet_is_full_packet(false) {
+                                next_packet_is_full_packet(false), flowMgmtAvail(false) {
             }
 
             AWDSNL::~AWDSNL() throw () {
@@ -167,8 +167,8 @@ namespace famouso {
                     // for each node set source mac and send package
                     for (NodeRepository::NodeList::iterator it = cl->begin(); it != cl->end(); it++) {
                         Node::type node = *it;
-                        if (_repo.find(node, p.snn) > 0) {
-                            // flow id is good
+                        if (!flowMgmtAvail || _repo.find(node, p.snn) > 0) {
+                            // flow id is good or no flow manager available
                             awds_header.addr = node->mac();
                             m_socket.send(buffers);
                         } else {
@@ -189,7 +189,7 @@ namespace famouso {
                         // setup for flow request
                         FlowMgmtRequestAttributeSet aset;
                         aset.find<FlowMgmtAction> ()->set(FlowMgmtActionIDs::reg);
-                        aset.find<SubjectAttribute>()->subject(p.snn);
+                        aset.find<SubjectAttribute> ()->subject(p.snn);
 
                         buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
 
@@ -295,19 +295,35 @@ namespace famouso {
                         case AWDS_Packet::constants::packet_type::flowmgmt: {
                             log::emit<AWDS>() << "=============================" << log::dec << log::endl;
 
+                            FlowMgmtResponseAttributeSet *resp = reinterpret_cast<FlowMgmtResponseAttributeSet *> (awds_packet.data);
+                            FlowMgmtAction *fa = resp->find<FlowMgmtAction> ();
+                            FlowMgmtID *id = resp->find<FlowMgmtID> ();
+
+                            if (!id || !fa)
+                                throw "Missing Action or FlowId Attribute from AWDS FlowManagement!";
+
+                            if (fa->get() == FlowMgmtActionIDs::avail) {
+                                if (id->get() > 0) {
+                                    log::emit<AWDS>() << "Flow manager available." << log::endl;
+                                    flowMgmtAvail = true;
+                                } else {
+                                    log::emit<AWDS>() << "Flow manager not available." << log::endl;
+                                    flowMgmtAvail = false;
+                                }
+                                break;
+                            }
+
                             // get the Node
                             Node::type src = _repo.find(awds_packet.header.addr);
 
                             log::emit<AWDS>() << "Updating flow id of node " << src << log::endl;
 
-                            FlowMgmtResponseAttributeSet *resp = reinterpret_cast<FlowMgmtResponseAttributeSet *> (awds_packet.data);
-                            FlowMgmtAction *fa = resp->find<FlowMgmtAction> ();
-                            FlowMgmtID *id = resp->find<FlowMgmtID> ();
-                            SubjectAttribute *sub = resp->find<SubjectAttribute>();
-                            if (!id || !fa || !sub)
-                                throw "Missing Attribute from AWDS FlowManagement!";
+                            SubjectAttribute *sub = resp->find<SubjectAttribute> ();
+                            if (!sub)
+                                throw "Missing Subject Attribute from AWDS FlowManagement!";
 
-                            log::emit<AWDS>() << "New ID: " << (FlowId) id->get() << (fa->get() == FlowMgmtActionIDs::use ? " OK!" : " Bad!")
+                            log::emit<AWDS>() << "New ID: " << (FlowId) id->get() << (fa->get() == FlowMgmtActionIDs::use ? " OK!"
+                                                                                                                          : " Bad!")
                                             << log::endl;
 
                             // set new flow Id
