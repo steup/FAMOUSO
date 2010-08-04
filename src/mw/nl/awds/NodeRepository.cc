@@ -70,15 +70,15 @@ namespace famouso {
                     // node not found, create a new and register
                     Node::type node = Node::create(mac);
                     log::emit() << "not found: " << node << log::endl;
-                    _nodes.add(node);
+                    _nodes.push_back(node);
                     return node;
                 }
 
-                NodeRepository::NodeList::type NodeRepository::find(SNN subject) {
+                std::pair<NodeRepository::NodeIterator,NodeRepository::NodeIterator> NodeRepository::find(SNN subject) {
                     log::emit<AWDS>() << "Searching nodes for subject (" << subject << ") ... " << log::endl;
 
                     // list of subscribers which match all attributes
-                    NodeList::type result = NodeList::Create();
+                    boost::shared_ptr<NodeList> result (new NodeList());
 
                     // look for registered subject
                     SubscriberMap::iterator sit = _snnmap.find(subject);
@@ -86,11 +86,11 @@ namespace famouso {
                     // subject not registered, return empty list
                     if (sit == _snnmap.end()) {
                         log::emit<AWDS>() << "no nodes found." << log::endl;
-                        return result;
+                        return boost::make_shared_container_range(result);
                     }
 
                     // list of all subscribers to the given subject
-                    SubscriberList::type cls = sit->second;
+                    boost::shared_ptr<SubscriberList> cls = sit->second;
 
                     log::emit<AWDS>() << "found " << log::dec << cls->size() << " nodes." << log::endl;
 
@@ -120,14 +120,14 @@ namespace famouso {
                         // match network attributes to subscriber attributes
                         if (Attributes::match(nodeAttr, subAttr))
                             // add good node
-                            result->add(node);
+                            result->push_back(node);
                         else
                             bad_subscribers++;
                     }
 
                     log::emit<AWDS>() << log::dec << "Found " << bad_subscribers << " bad subscribers." << log::endl;
 
-                    return result;
+                    return boost::make_shared_container_range(result);
                 }
 
                 FlowId NodeRepository::find(Node::type &node, SNN subject) {
@@ -140,7 +140,7 @@ namespace famouso {
                         return -1; // subject not registered, don't request a flow id
                     }
 
-                    SubscriberList::type sl = sit->second;
+                    boost::shared_ptr<SubscriberList> sl = sit->second;
 
                     for (SubscriberList::iterator it = sl->begin(); it != sl->end(); it++) {
                         if ((*it)->node == node)
@@ -197,7 +197,7 @@ namespace famouso {
                     }
 
                     // add node to subject
-                    _snnmap[subject]->add(Subscriber::Create(client, attribs));
+                    _snnmap[subject]->push_back(Subscriber::Create(client, attribs));
                 }
 
                 void NodeRepository::reg(SNN &subject, Attributes::type &attribs) {
@@ -207,7 +207,7 @@ namespace famouso {
 
                     // subject not registered, register it
                     if (it == _snnmap.end()) {
-                        _snnmap[subject] = SubscriberList::Create();
+                        _snnmap[subject] = boost::shared_ptr<SubscriberList>(new SubscriberList());
                         _snnAttribs[subject] = attribs;
                     }
                 }
@@ -245,7 +245,7 @@ namespace famouso {
                         return;
                     }
 
-                    SubscriberList::type sl = sit->second;
+                    boost::shared_ptr<SubscriberList> sl = sit->second;
 
                     for (SubscriberList::iterator it = sl->begin(); it != sl->end(); it++) {
                         if ((*it)->node == node)

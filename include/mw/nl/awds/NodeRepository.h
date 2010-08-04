@@ -41,15 +41,16 @@
 #define __NodeRepository_hpp__
 
 #include <map>
+#include <list>
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
+#include "boost/shared_container_iterator.hpp"
 #include <boost/mpl/for_each.hpp>
 #include "mw/common/Subject.h"
 #include "mw/nl/awds/MAC.h"
 #include "mw/nl/awds/Node.h"
 #include "mw/nl/awds/Attributes.h"
 #include "mw/nl/awds/ComparableAttributeSet.h"
-#include "mw/nl/awds/lists.h"
 
 namespace famouso {
     namespace mw {
@@ -74,8 +75,7 @@ namespace famouso {
                         /** \copydoc NodeRepository */
                         typedef NodeRepository type;
 
-                        /** \brief A List for holding Nodes */
-                        typedef Container<Node::type> NodeList;
+                        typedef boost::shared_container_iterator<std::list<Node::type> > NodeIterator;
 
                         /*! \brief A famouso Subject.
                          */
@@ -159,6 +159,9 @@ namespace famouso {
                                     /** The actual attribute comparator. */
                                     typedef typename Attrib::comparator cmp;
 
+                                    if (!Attrib::isSystem)
+                                        return; // Only system attributes are searched.
+
                                     // The resulting attribute
                                     Attrib *r = _res.template find<Attrib> ();
                                     // the publisher attribute
@@ -182,13 +185,16 @@ namespace famouso {
                                 }
                         };
 
+                        /** \brief A List for holding Nodes */
+                        typedef std::list<Node::type> NodeList;
+
                         /*! \brief A list to hold subscribers with their attributes.
                          */
-                        typedef Container<Subscriber::type> SubscriberList;
+                        typedef std::list<Subscriber::type> SubscriberList;
 
                         /*! \brief A map to assign clients to subjects.
                          */
-                        typedef std::map<SNN, SubscriberList::type> SubscriberMap;
+                        typedef std::map<SNN, boost::shared_ptr<SubscriberList> > SubscriberMap;
 
                         /*! \brief A map to assign attributes to subjects.
                          */
@@ -225,7 +231,7 @@ namespace famouso {
                          *          The list can be empty, if no node is registered or no node match the required
                          *          attributes.
                          */
-                        NodeList::type find(SNN subject);
+                        std::pair<NodeIterator, NodeIterator> find(SNN subject);
 
                         /** \brief Find the flow id for a node subscribed to a subject.
                          *
@@ -246,7 +252,7 @@ namespace famouso {
                         template< class AttrSet >
                         void find(Node::type &node, SNN subject, AttrSet &cas) {
 
-                            SubscriberList::type cls = _snnmap[subject];
+                            boost::shared_ptr<SubscriberList> cls = _snnmap[subject];
                             Attributes::type subAttr, pubAttr = _snnAttribs[subject];
 
                             if (!cls) {

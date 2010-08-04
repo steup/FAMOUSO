@@ -136,13 +136,14 @@ namespace famouso {
                     timer_.cancel();
                     announce_subscriptions(boost::system::error_code());
                 } else {
+                    log::emit<AWDS>() <<  "Publish for Subject: " << p.snn << log::endl;
 
                     // get list of subscriber for the subject
-                    NodeRepository::NodeList::type cl = _repo.find(p.snn);
+                    std::pair<NodeRepository::NodeIterator, NodeRepository::NodeIterator> nit = _repo.find(p.snn);
 
                     // if we have no subscriber, we won't send anything
-                    if (cl->size() == 0) {
-                        log::emit<AWDS>() << "No subsciber for Subject: " << p.snn << log::endl;
+                    if (nit.first == nit.second) {
+                        log::emit<AWDS>() << "No subsciber found." << log::endl;
                         return;
                     }
 
@@ -153,9 +154,7 @@ namespace famouso {
                     std::vector<boost::asio::const_buffer> buffers;
                     std::list<Node::type> badFlowNodes;
                     AWDS_Packet::Header awds_header;
-
-                    // send as unicast
-                    log::emit<AWDS>() << "Unicast (" << cl->size() << ") \t -- Subject: " << p.snn << log::endl;
+                    int subs = 0;
 
                     // set the package params
                     awds_header.type = type;
@@ -165,21 +164,27 @@ namespace famouso {
                     buffers.push_back(boost::asio::buffer(p.data, p.data_length));
 
                     // for each node set source mac and send package
-                    for (NodeRepository::NodeList::iterator it = cl->begin(); it != cl->end(); it++) {
+                    for (NodeRepository::NodeIterator it = nit.first; it != nit.second; it++) {
                         Node::type node = *it;
                         if (!flowMgmtAvail || _repo.find(node, p.snn) > 0) {
                             // flow id is good or no flow manager available
                             awds_header.addr = node->mac();
                             m_socket.send(buffers);
+                            subs++;
                         } else {
                             if (_repo.find(node, p.snn) == 0) // no flow id requested yet
                                 badFlowNodes.push_back(node);
                         }
                     }
 
+                    // send as unicast
+                    log::emit<AWDS>() << "Publishing to " << subs << " subscriber." << log::endl;
+
                     if (badFlowNodes.size() > 0) {
                         // we have nodes without flow ids
                         buffers.clear();
+
+                        log::emit<AWDS>() << "Requesting " << badFlowNodes.size() << " flow ids." << log::endl;
 
                         // setup header for flow management
                         awds_header.type = AWDS_Packet::constants::packet_type::flowmgmt;
@@ -197,7 +202,7 @@ namespace famouso {
                             Node::type node = *it;
 
                             // flow id is now requested
-                            node->find<FlowMgmtID> ()->set(-1);
+                            _repo.update(node, p.snn, -1);
 
                             // set node to get flow id for
                             awds_header.addr = node->mac();
