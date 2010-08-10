@@ -90,7 +90,7 @@ namespace famouso {
              *  accessed and, with limitations, even changed.
              *
              * The given base type is used for determining whether two given %attributes
-             *  should be considered as equal, that is of the same type. Since template classes
+             *  should be considered equal, that is of the same type. Since template classes
              *  with bound parameters always yield different types for different arguments,
              *  the plain type itself would not be considered as equal.
              *
@@ -177,7 +177,7 @@ namespace famouso {
                                 data[i--] = *ptr--;
                             } while (--j != 0);
                         } else {
-                            // If the value' representation does not need any bit we simply zero
+                            // If the value's representation does not need any bit we simply zero
                             //  out the member array, the header will overwrite everything needed
                             //
                             //  1. System attribute, non-extended value
@@ -219,6 +219,8 @@ namespace famouso {
                         const detail::AttributeElementHeader* const header =
                                 reinterpret_cast<const detail::AttributeElementHeader* const>(data);
 
+                        // TODO: isSystem must definitely be a runtime access here, since
+                        //  one could use an arbitrary attribute type
                         if ((isSystem) && (header->valueOrLengthSwitch)) {
                             if (header->extension) {
                                 if (sizeof(ValueType) == 1) {
@@ -306,6 +308,7 @@ namespace famouso {
                         detail::AttributeElementHeader* const header =
                                 reinterpret_cast<detail::AttributeElementHeader* const>(data);
 
+                        // TODO: Same here
                         if ((isSystem) && (header->valueOrLengthSwitch)) {
                             if (header->extension) {
                                 if (newBitCount > 10)
@@ -382,7 +385,7 @@ namespace famouso {
 
                             // Copy the value (we even copy the possible zero bytes of the new value to
                             //  zero out the bytes not needed, the length must not be decreased since
-                            //	it would make iterating over the byte sequence impossible)
+                            //	it would make iterating the byte sequence impossible)
                             for (uint16_t i = 0; i < length; ++i) {
                                 targetPtr[i] = newValPtr[i];
                             }

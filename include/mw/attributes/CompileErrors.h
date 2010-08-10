@@ -39,7 +39,7 @@
 #ifndef __AttributeFilterGrammarCompileErrors_h__
 #define __AttributeFilterGrammarCompileErrors_h__
 
-#include <assert/staticerror.h>
+#include "assert/staticerror.h"
 
 #include "mw/attributes/tags/AttributeTag.h"
 #include "mw/attributes/tags/SameTag.h"

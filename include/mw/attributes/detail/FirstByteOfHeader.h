@@ -70,14 +70,14 @@ namespace famouso {
                         static const uint8_t volBitOffset = 2;
 
                         // TODO: I will not apply any line breaking to this until anyone tells me how
-                        //  to make the building of the values as descriptive as they are now ;)
+                        //  to make the building of the values as descriptive as it is now ;)
 
                         // System
-                        //                            CAT                       EXT                     VOL                     LEN
-                        static const uint8_t case1 = (Attr::id << catOffset) | (0x0 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits unextended
-                        static const uint8_t case2 = (Attr::id << catOffset) | (0x1 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits extended
-                        static const uint8_t case3 = (Attr::id << catOffset) | (0x0 << extBitOffset) | (0x0 << volBitOffset) | (ValueByteCount<Attr>::value & 0x3); // Length fits unextended
-                        static const uint8_t case4 = (Attr::id << catOffset) | (0x1 << extBitOffset) | (0x0 << volBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x3); // Length fits extended
+                        //                            CAT                                EXT                     VOL                     LEN
+                        static const uint8_t case1 = ((Attr::id & 0xF) << catOffset) | (0x0 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits unextended
+                        static const uint8_t case2 = ((Attr::id & 0xF) << catOffset) | (0x1 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits extended
+                        static const uint8_t case3 = ((Attr::id & 0xF) << catOffset) | (0x0 << extBitOffset) | (0x0 << volBitOffset) | (ValueByteCount<Attr>::value & 0x3); // Length fits unextended
+                        static const uint8_t case4 = ((Attr::id & 0xF) << catOffset) | (0x1 << extBitOffset) | (0x0 << volBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x3); // Length fits extended
 
                         // Non-system
                         //                           CAT                  EXT                     LEN
