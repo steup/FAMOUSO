@@ -43,8 +43,9 @@
 
 #include <stdint.h>
 
-#include "mw/attributes/detail/AttributeSetHeader.h"
-#include "mw/attributes/detail/AttributeHeader.h"
+#include "mw/attributes/access/AttributeSetHeader_RT.h"
+#include "mw/attributes/access/AttributeHeader_RT.h"
+#include "mw/attributes/access/Attribute_RT.h"
 
 namespace famouso {
     namespace mw {
@@ -63,10 +64,8 @@ namespace famouso {
                     uint16_t seqLen;
 
                     {
-                        // TODO: Think about a special API accessor type instead of using
-                        //  the template type with zero manually
-                        const AttributeSetHeader<0>* const setHeader =
-                                reinterpret_cast<const AttributeSetHeader<0>* const>(&data[0]);
+                        const AttributeSetHeader_RT* const setHeader =
+                                reinterpret_cast<const AttributeSetHeader_RT* const>(&data[0]);
 
                         seqLen = setHeader->get();
 
@@ -76,13 +75,10 @@ namespace famouso {
                     // The pointer were the given sequence ends
                     const uint8_t* const targetPtr = data + seqLen;
 
-                    // TODO: The same about the API accessor type here, using Attr for
-                    //  the type argument is not necessary it could be any arbitrary
-                    //  attribute type
-                    AttributeHeader<Attr>* header;
+                    AttributeHeader_RT* header;
 
                     while (data < targetPtr) {
-                        header = reinterpret_cast<AttributeHeader<Attr>*>(data);
+                        header = reinterpret_cast<AttributeHeader_RT*>(data);
 
                         // Check if the encoded attribute fits the given one
                         if ((header->isSystem() == Attr::isSystem) && (header->getID() == Attr::id)) {
@@ -90,7 +86,7 @@ namespace famouso {
                         }
 
                         // We let the attribute class determine its overall size to skip it
-                        data += reinterpret_cast<const Attr* const>(header)->size();
+                        data += reinterpret_cast<const Attribute_RT* const>(header)->size();
                     }
 
                     // If we iterated the complete attribute sequence the intended attribute

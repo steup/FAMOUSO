@@ -38,8 +38,8 @@
  *
  ******************************************************************************/
 
-#ifndef _Attribute_Set_
-#define _Attribute_Set_
+#ifndef _Attribute_Set_h_
+#define _Attribute_Set_h_
 
 #include <stdint.h>
 
@@ -57,8 +57,8 @@
 #include "mw/attributes/detail/AttributeSize.h"
 #include "mw/attributes/detail/Duplicates.h"
 
-// TODO: See the TODO below
-#include "mw/attributes/TTL.h"
+#include "mw/attributes/access/Attribute_RT.h"
+#include "mw/attributes/access/AttributeSetHeader_RT.h"
 
 namespace famouso {
     namespace mw {
@@ -199,11 +199,9 @@ namespace famouso {
                      * \return The number of bytes used for the attributes of this set
                      */
                     uint16_t getSize() const {
-                        return (reinterpret_cast<const setHeader* const>(&data[0])->get());
+                        return (reinterpret_cast<const detail::AttributeSetHeader_RT* const>(&data[0])->get());
                     }
 
-                    // TODO: When there is a way for API accessor types implemented, remove this
-                    typedef TTL<0> dummyAttr;
 
                     uint16_t getCount() const {
                         const uint8_t* ptr = data;
@@ -218,10 +216,8 @@ namespace famouso {
                         uint16_t seqLen;
 
                         {
-                            // TODO: Think about a special API accessor type instead of using
-                            //  the template type with zero manually
-                            const detail::AttributeSetHeader<0>* const setHeader =
-                                    reinterpret_cast<const detail::AttributeSetHeader<0>* const>(&ptr[0]);
+                            const detail::AttributeSetHeader_RT* const setHeader =
+                                    reinterpret_cast<const detail::AttributeSetHeader_RT* const>(&ptr[0]);
 
                             seqLen = setHeader->get();
 
@@ -235,11 +231,10 @@ namespace famouso {
                             ++result;
 
                             // We let the attribute class determine its overall size to skip it
-                            ptr += reinterpret_cast<const dummyAttr* const>(&ptr[0])->size();
+                            ptr += reinterpret_cast<const Attribute_RT* const>(&ptr[0])->size();
                         }
 
-                        // If we iterated the complete attribute sequence the intended attribute
-                        //  could not be found and NULL is returned
+                        // We iterated the complete set and so return the counted attributes
                         return (result);
                     }
 

@@ -71,14 +71,14 @@ namespace famouso {
                     /*!
                      * The calculated value offset
                      */
-                    static const uint8_t value = CaseSelector<Attr, uint8_t,
+                    static const uint8_t value = CaseSelector<uint8_t,
                                                               0,
                                                               res2,
                                                               1,
                                                               2,
                                                               2,
                                                               3
-                                                             >::value;
+                                                             >::template select_ct<Attr>::value;
             };
 
             } // end namespace detail

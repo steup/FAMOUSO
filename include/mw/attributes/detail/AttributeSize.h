@@ -68,14 +68,14 @@ namespace famouso {
                         /*!
                          * \brief The calculated overall attribute size in bytes
                          */
-                        static const uint16_t value = CaseSelector<Attr, uint16_t,
-                                                                   1,
-                                                                   2,
-                                                                   (1 + byteCount),
-                                                                   (2 + byteCount),
-                                                                   (1 + 1 + byteCount),
-                                                                   (2 + 1 + byteCount)
-                                                                  >::value;
+                        static const uint16_t value = CaseSelector<uint16_t,
+                                                        1,
+                                                        2,
+                                                        (1 + byteCount),
+                                                        (2 + byteCount),
+                                                        (1 + 1 + byteCount),
+                                                        (2 + 1 + byteCount)
+                                                       >::template select_ct<Attr>::value;
                 };
 
 		    } // end namespace detail

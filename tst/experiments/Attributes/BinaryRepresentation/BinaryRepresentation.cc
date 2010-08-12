@@ -47,32 +47,17 @@
 
 #include "mw/common/ExtendedEvent.h"
 
+#include "mw/attributes/access/Attribute_RT.h"
+
 #include "logging/logging.h"
 
 #include "AttribTests.h"
 
 #include "typeinfo"
 
-// ----- First idea of a warning generating macro
-
-#define ASSERT_WARNING(cond, msg) \
-    template <bool c> \
-    struct msg##struct { \
-        msg##struct() { \
-            int msg; \
-        }\
-    };\
-    \
-    template <> \
-    struct msg##struct<true> { }; \
-    \
-    msg##struct<cond> msg##struct_instance;
-
-// ------------------------------------------------
-
 template <typename Attr, typename Event>
 void testFind(Event& ev) {
-	Attr* a = ev.template find<Attr>();
+    Attr* a = ev.template find<Attr>();
 
 	if (a != NULL) {
 		::logging::log::emit() << "Attribute with ID " << (uint16_t) Attr::id << " could be found" << ::logging::log::endl;

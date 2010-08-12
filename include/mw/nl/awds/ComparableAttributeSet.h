@@ -51,6 +51,8 @@
 #include "mw/nl/awds/AWDS_Packet.h"
 #include "mw/nl/awds/logging.h"
 
+#include "mw/attributes/access/Attribute_RT.h"
+
 namespace famouso {
     namespace mw {
         namespace nl {

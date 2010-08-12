@@ -88,7 +88,7 @@ namespace famouso {
                         /*!
                          * \brief The first byte of a header for the given attribute.
                          */
-                        static const uint8_t value = CaseSelector<Attr, uint8_t, case1, case2, case3, case4, case5, case6>::value;
+                        static const uint8_t value = CaseSelector<uint8_t, case1, case2, case3, case4, case5, case6>::template select_ct<Attr>::value;
                 };
 
             } // end namespace detail

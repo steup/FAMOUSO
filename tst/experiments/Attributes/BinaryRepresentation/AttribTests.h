@@ -86,7 +86,7 @@ void print(const uint8_t* array, uint8_t length) {
 template <typename Attr>
 void printCase() {
     ::logging::log::emit() << "Selected case "
-            << static_cast<uint16_t> (detail::CaseSelector<Attr, uint16_t, 1, 2, 3, 4, 5, 6>::value)
+            << static_cast<uint16_t> (detail::CaseSelector<uint16_t, 1, 2, 3, 4, 5, 6>::template select_ct<Attr>::value)
             << ::logging::log::endl;
 }
 

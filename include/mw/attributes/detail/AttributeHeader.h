@@ -49,9 +49,6 @@
 #include "mw/attributes/detail/ValueByteCount.h"
 #include "mw/attributes/detail/CaseSelector.h"
 
-#include "mw/attributes/detail/AttributeElementHeader.h"
-#include "mw/attributes/detail/SystemIDs.h"
-
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -67,23 +64,23 @@ namespace famouso {
                 struct AttributeHeader {
                     private:
                         typedef typename CaseSelector<
-                                          Attr, uint8_t, 1, 1, 1, 2, (1 + 1), (1 + 1 + 1)
+                                          uint8_t, 1, 1, 1, 2, (1 + 1), (1 + 1 + 1)
                                          >::type sizeSelector;
 
                         // The byte count for the attribute header (It could also include a
                         //  part of the attribute's value if the VOL switch is set)
-                        static const uint8_t size = sizeSelector::value;
+                        static const uint8_t size = sizeSelector::template select_ct<Attr>::value;
 
                         static const bool res2 = (ValueBitCount<Attr>::value < 9) ? false : true;
 
-                        static const bool useOr = CaseSelector<Attr, bool,
+                        static const bool useOr = CaseSelector<bool,
                                                                true,
                                                                res2,
                                                                false,
                                                                false,
                                                                false,
                                                                false
-                                                              >::value;
+                                                              >::template select_ct<Attr>::value;
 
                         enum {
                             writeLowerLengthBits     = 0x10,
@@ -94,24 +91,16 @@ namespace famouso {
 
                         // We use this to decide in the code below if further bytes
                         //  must be manipulated
-                        static const uint8_t toWrite = CaseSelector<Attr, uint8_t,
+                        static const uint8_t toWrite = CaseSelector<uint8_t,
                                                                     nothingMore,
                                                                     nothingMore,
                                                                     nothingMore,
                                                                     writeLowerLengthBits,
                                                                     writeType,
                                                                     writeLowerLenBitsAndType
-                                                                   >::value;
+                                                                   >::template select_ct<Attr>::value;
 
                         uint8_t data[size];
-
-                        const AttributeElementHeader* const asElementHeader() const {
-                            return (reinterpret_cast<const AttributeElementHeader* const>(&data[0]));
-                        }
-
-                        bool isExtended() const {
-                            return (asElementHeader()->extension);
-                        }
 
                     public:
                         typedef AttributeHeader type;
@@ -140,73 +129,6 @@ namespace famouso {
                                 data[1] = (ValueByteCount<Attr>::value & 0xFF);
                                 data[2] = (Attr::id & 0xFF);
                             }
-                        }
-
-                        bool isSystem() const {
-                            return (asElementHeader()->isSystem());
-                        }
-
-                        uint8_t getID() const {
-                            if (isSystem()) {
-                                return (asElementHeader()->category);
-                            } else {
-                                return (data[isExtended() ? 2 : 1]);
-                            }
-                        }
-
-                        /*!
-                         * \brief Returns the length encoded in this attribute header
-                         *
-                         * The returned length is determined considering all fields
-                         *  of the header, that is it always returns the correct
-                         *  length for all possible header structures
-                         * The returned value should be interpreted as the number
-                         *  of bytes needed by the attribute's value, so the special
-                         *  case of a system attribute with its value encoded in the
-                         *  header 0 respective 1 will be returned.
-                         *
-                         * \return The encoded length field of this attribute header
-                         */
-                        uint16_t getLength() const {
-                            if (isSystem()) {
-                                if (asElementHeader()->valueOrLengthSwitch) {
-                                    // Special case that a system attribute's value is
-                                    //  encoded as a part of the header
-                                    return (isExtended() ? 1 : 0);
-                                } else {
-                                    if (isExtended()) {
-                                        return (ntohs(*(reinterpret_cast<
-                                                         const uint16_t*
-                                                        >(&data[0]))) & 0x03FF);
-                                    } else {
-                                        return (asElementHeader()->valueOrLength);
-                                    }
-                                }
-                            } else {
-                                if (isExtended()) {
-                                    return (ntohs(*(reinterpret_cast<
-                                                     const uint16_t*
-                                                    >(&data[0]))) & 0x07FF);
-                                } else {
-                                    return (asElementHeader()->length);
-                                }
-                            }
-                        }
-
-
-                        // Additional helper methods
-
-                        /*!
-                         * \brief Runtime accessor for the number of bytes needed by
-                         *  this attribute header
-                         *
-                         * It has the same semantics as type::size
-                         *
-                         * \return The number of bytes needed by this attribute
-                         *  header
-                         */
-                        uint8_t getSize() const {
-                            return (sizeSelector::select(asElementHeader()));
                         }
                 };
 

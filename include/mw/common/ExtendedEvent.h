@@ -52,6 +52,7 @@
 
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/AttributeSet.h"
+#include "mw/attributes/access/Attribute_RT.h"
 
 namespace famouso {
     namespace mw {
