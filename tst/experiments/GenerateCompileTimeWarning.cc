@@ -41,78 +41,95 @@
 #define DO_JOIN( X, Y ) DO_JOIN2(X,Y)
 #define DO_JOIN2( X, Y ) X##Y
 
-template<int>
-struct CompileTimeWarningTest;
+#include "boost/mpl/eval_if.hpp"
+#include <stdint.h>
 
-struct CompileTime{
+namespace failed_assertion {
+
     template<int>
-    struct warning_in_line_{
+    struct CompileTimeWarningTest;
+
+    struct Integer {
+        typedef Integer type;
+        static const unsigned int w=8;
+    };
+
+    template<typename,typename>
+    struct _warning_ {
+        typedef _warning_ type;
         enum _ {w};
     };
-};
 
-template<bool, typename T1, typename T2>
-struct EnumTester {
-    typedef EnumTester type;
-    enum { w = T1::w == T2::w};
-};
+    template<int i>
+    struct Ret {
+        uint8_t array[i];
+    };
 
-template<typename T1, typename T2>
-struct EnumTester<true,T1,T2> {
-    enum { w = T1::w == T1::w};
-};
+    Ret<1> CountParameter(void (*)());
+    template<typename T1>
+    Ret<2> CountParameter(void (*)(T1));
+    template<typename T1, typename T2>
+    Ret<3> CountParameter(void (*)(T1,T2));
+    template<typename T1, typename T2, typename T3>
+    Ret<4> CountParameter(void (*)(T1,T2,T3));
 
-// 1. Solution which works in all contexts
-#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
-        typedef CompileTimeWarningTest<                                     \
-                    sizeof( EnumTester<                                     \
-                        expr,                                               \
-                        CompileTime::warning_in_line_<__LINE__>,            \
-                        msg                                                 \
-                    > )                                                     \
-                > JOIN(__warning_in_line__,__LINE__)
+    struct args;
 
-// 2. Solution which works in not in a function contexts like main
-//#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
-        struct JOIN(JOIN(_,__LINE__),_) {                                   \
-                enum msg {w};                                               \
-        };                                                                  \
-        typedef CompileTimeWarningTest<                                     \
-                    sizeof( EnumTester<                                     \
-                                expr,                                       \
-                                CompileTime::warning_in_line_<__LINE__>,    \
-                                JOIN(JOIN(_,__LINE__),_)                    \
-                            >)                                              \
-                > JOIN(__warning_in_line__,__LINE__)
-
-
-#define GENERATE_WARNING_MSG(msg)                                           \
-struct msg {                                                                \
-        enum _ {w};                                                         \
+    template<int>
+    struct argument_count;
 }
 
-GENERATE_WARNING_MSG(WarningInClassTemplateContext);
-GENERATE_WARNING_MSG(WarningInFunctionTemplateContext);
-GENERATE_WARNING_MSG(GlobalContext);
-GENERATE_WARNING_MSG(MainContext);
+#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
+    struct JOIN(JOIN(_failed_assertion_in_line_,__LINE__),_with_message_) { \
+        enum JOIN(JOIN(__,msg),__) {w};                                     \
+        static void args types { }                                          \
+    };                                                                      \
+    typedef ::failed_assertion::CompileTimeWarningTest<                     \
+                JOIN(                                                       \
+                    JOIN(                                                   \
+                        _failed_assertion_in_line_,__LINE__                 \
+                    ),                                                      \
+                    _with_message_                                          \
+                )::w                                                        \
+                    ==                                                      \
+                boost::mpl::eval_if_c<                                      \
+                    expr,                                                   \
+                    ::failed_assertion::Integer,                            \
+                    ::failed_assertion::_warning_<                          \
+                        failed_assertion::argument_count<                   \
+                            sizeof(                                         \
+                                ::failed_assertion::CountParameter(         \
+                                    JOIN(                                   \
+                                        JOIN(                               \
+                                            _failed_assertion_in_line_,     \
+                                            __LINE__                        \
+                                        ),                                  \
+                                        _with_message_                      \
+                                    )::args)                                \
+                            )-1                                             \
+                        >,                                                  \
+                       void**** (::failed_assertion::args::****) types >    \
+                >::type::w                                                  \
+            > JOIN(__warning_in_line__,__LINE__)
 
 template <typename t>
 struct ClassTemplate {
-    FAMOUSO_STATIC_ASSERT_WARNING(true, WarningInClassTemplateContext, () );
-    FAMOUSO_STATIC_ASSERT_WARNING(sizeof(t) == 0 && false, WarningInClassTemplateContext, () );
+    FAMOUSO_STATIC_ASSERT_WARNING(true, ClassTemplateContext, () );
+    FAMOUSO_STATIC_ASSERT_WARNING(sizeof(t) == 0 && false, ClassTemplateContext, (t) );
 };
 ClassTemplate<int> lll;
 
 template <typename t>
 void FunctionTemplate () {
-    FAMOUSO_STATIC_ASSERT_WARNING(true, WarningInFunctionTemplateContext, () );
-    FAMOUSO_STATIC_ASSERT_WARNING(sizeof(t) == 0 && false, WarningInFunctionTemplateContext, () );
+    FAMOUSO_STATIC_ASSERT_WARNING(true, FunctionTemplateContext, () );
+    FAMOUSO_STATIC_ASSERT_WARNING(sizeof(t) == 0 && false, FunctionTemplateContext, (t,int) );
 }
 
 FAMOUSO_STATIC_ASSERT_WARNING(true, GlobalContext, () );
 FAMOUSO_STATIC_ASSERT_WARNING(false, GlobalContext, () );
 
 int main() {
+
     FAMOUSO_STATIC_ASSERT_WARNING(true, MainContext, () );
     FAMOUSO_STATIC_ASSERT_WARNING(false, MainContext, () );
 
