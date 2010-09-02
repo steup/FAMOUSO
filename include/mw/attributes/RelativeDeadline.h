@@ -45,7 +45,7 @@
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/Attribute.h"
 
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
@@ -66,7 +66,7 @@ namespace famouso {
             class RelativeDeadline : public Attribute<
                                        RelativeDeadline<0>, tags::integral_const_tag,
                                        uint64_t, deadline, filter::less_than_or_equal_to,
-                                       detail::SystemIDs::relDeadline, true
+                                       detail::HighDensityIDs::relDeadline, true
                                       > {
                 public:
                     typedef RelativeDeadline type;

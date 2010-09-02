@@ -80,7 +80,7 @@ namespace famouso {
              *  time composability checks. %Attribute attachment is generally done using
              *  type lists containing the specific attribute types.
              *
-             * An attribute is defined by being either a system or a non-system attribute
+             * An attribute is defined by being either a high density or low density attribute
              *  and having a specific identifier. Related to this unique type an
              *  attribute has a specific value type describing the range of values it can
              *  have.
@@ -103,10 +103,10 @@ namespace famouso {
              * \tparam Comparator The filter expression struct defining how attributes
              *  of this type are compared, i.e. which are better than others
              * \tparam ID The identifier of this attribute
-             * \tparam IsSystem True, if this is a system attribute
+             * \tparam HighDensity True, if this is a high density attribute
              */
             template <typename BaseType, typename CompareTag, typename ValueType,
-                      ValueType Value, typename Comparator, uint8_t ID, bool IsSystem = false>
+                      ValueType Value, typename Comparator, uint8_t ID, bool HighDensity = false>
             class Attribute : public Attribute_RT {
                 public:
                     // The boost tag type, declaring the attribute class to be an
@@ -130,7 +130,7 @@ namespace famouso {
                     static const uint8_t id = ID;
 
                     // Determines whether this attribute is a system attribute
-                    static const bool isSystem = IsSystem;
+                    static const bool highDensity = HighDensity;
 
                     // A struct implementing the stronger relation between attributes
                     //  (generally delegates to less-than-or-equal respective
@@ -138,7 +138,7 @@ namespace famouso {
                     template <typename OtherAttr>
                     struct isStronger : public comparator::template apply_compiletime<Attribute, OtherAttr> {
                         FAMOUSO_STATIC_ASSERT_ERROR(
-                            isSystem,
+                            highDensity,
                             only_system_attributes_may_have_a_stronger_relation,
                             (Attribute));
                     };
@@ -149,8 +149,8 @@ namespace famouso {
 
                 private:
                     // Static dummy typedefs
-                    typedef typename detail::ValueTypeAssert<value_type>::dummy    valueTypeAssert;
-                    typedef typename detail::IdBitCountAssert<isSystem, id>::dummy idBitCountAssert;
+                    typedef typename detail::ValueTypeAssert<value_type>::dummy       valueTypeAssert;
+                    typedef typename detail::IdBitCountAssert<highDensity, id>::dummy idBitCountAssert;
 
                 protected:
                     Attribute() {
@@ -190,7 +190,7 @@ namespace famouso {
                             //      -Nothing more has to be done here, since the
                             //       header will assign (not OR) itself to the first
                             //       two bytes (0xFFFF+length-part and the ID-part)
-                            if (isSystem) {
+                            if (highDensity) {
                                   data[0] = 0x00;
                             }
                         }

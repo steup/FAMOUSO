@@ -48,7 +48,7 @@
 #include "mw/attributes/detail/CaseSelector.h"
 
 #include "mw/attributes/detail/AttributeElementHeader.h"
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 
 namespace famouso {
     namespace mw {
@@ -73,12 +73,12 @@ namespace famouso {
                         }
 
                     public:
-                        bool isSystem() const {
-                            return (asElementHeader()->isSystem());
+                        bool isHighDensity() const {
+                            return (asElementHeader()->isHighDensity());
                         }
 
                         uint8_t getID() const {
-                            if (isSystem()) {
+                            if (isHighDensity()) {
                                 return (asElementHeader()->category);
                             } else {
                                 return (data[isExtended() ? 2 : 1]);
@@ -93,16 +93,16 @@ namespace famouso {
                          *  length for all possible header structures
                          * The returned value should be interpreted as the number
                          *  of bytes needed by the attribute's value, so the special
-                         *  case of a system attribute with its value encoded in the
-                         *  header 0 respective 1 will be returned.
+                         *  case of a high density attribute with its value encoded
+                         *  in the header 0 respective 1 will be returned.
                          *
                          * \return The encoded length field of this attribute header
                          */
                         uint16_t getLength() const {
-                            if (isSystem()) {
+                            if (isHighDensity()) {
                                 if (asElementHeader()->valueOrLengthSwitch) {
-                                    // Special case that a system attribute's value is
-                                    //  encoded as a part of the header
+                                    // Special case that a high density attribute's
+                                    //  value is encoded as a part of the header
                                     return (isExtended() ? 1 : 0);
                                 } else {
                                     if (isExtended()) {

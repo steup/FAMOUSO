@@ -45,7 +45,7 @@
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/Attribute.h"
 
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
@@ -67,7 +67,7 @@ namespace famouso {
                                        uint64_t, timeStamp,
                                        // A comparator does not make much sense here at all
                                        filter::less_than_or_equal_to,
-                                       detail::SystemIDs::timeStamp, true
+                                       detail::HighDensityIDs::timeStamp, true
                                       > {
                 public:
                     typedef TimeStamp type;

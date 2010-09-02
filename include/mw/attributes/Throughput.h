@@ -45,7 +45,7 @@
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/Attribute.h"
 
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/greater_than_or_equal_to.h"
 
 namespace famouso {
@@ -53,18 +53,18 @@ namespace famouso {
         namespace attributes {
 
             /*!
-             * \brief Defines a configurable bandwidth attribute for
+             * \brief Defines a configurable throughput attribute for
              *  describing how many bytes per second can be transmitted.
              *
              * The unit of the attribute value is bytes per second.
              *
-             * \tparam bandwidth Describes the initial value to be set
+             * \tparam throughput Describes the initial value to be set
              */
-            template<uint32_t bandwidth>
+            template<uint32_t throughput>
             class Throughput : public Attribute<
                                       Throughput<0>, tags::integral_const_tag,
-                                      uint32_t, bandwidth, filter::greater_than_or_equal_to,
-                                      detail::SystemIDs::bandwidth, true
+                                      uint32_t, throughput, filter::greater_than_or_equal_to,
+                                      detail::HighDensityIDs::throughput, true
                                      > {
                 public:
                     typedef Throughput type;

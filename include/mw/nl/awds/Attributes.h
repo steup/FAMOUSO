@@ -71,7 +71,7 @@ namespace famouso {
                 namespace detail {
 
                     using namespace famouso::mw::attributes;
-                    using famouso::mw::attributes::detail::SystemIDs;
+                    using famouso::mw::attributes::detail::HighDensityIDs;
 
                     /*!
                      * \brief Holds the IDs of the defined flow management %attributes

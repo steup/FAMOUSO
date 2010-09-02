@@ -50,11 +50,11 @@ namespace famouso {
                  * \brief Holds the IDs of the defined system %attributes
                  *  at one place
                  */
-                struct SystemIDs {
+                struct HighDensityIDs {
                         enum {
                                 ttl         = 1,
                                 latency     = 2,
-                                bandwidth   = 3,
+                                throughput  = 3,
                                 packetLoss  = 4,
                                 omission    = 5,
 
@@ -66,7 +66,7 @@ namespace famouso {
 
                                 // position / coordinates ???
 
-                                nonSystem   = 15
+                                lowDensity   = 15
                         };
                 };
 

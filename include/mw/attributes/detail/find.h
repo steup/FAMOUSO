@@ -81,7 +81,7 @@ namespace famouso {
                         header = reinterpret_cast<AttributeHeader_RT*>(data);
 
                         // Check if the encoded attribute fits the given one
-                        if ((header->isSystem() == Attr::isSystem) && (header->getID() == Attr::id)) {
+                        if ((header->isHighDensity() == Attr::highDensity) && (header->getID() == Attr::id)) {
                             return (reinterpret_cast<Attr*>(header));
                         }
 

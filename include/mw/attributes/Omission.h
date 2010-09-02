@@ -45,7 +45,7 @@
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/Attribute.h"
 
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
@@ -64,7 +64,7 @@ namespace famouso {
             class Omission : public Attribute<
                                        Omission<0>, tags::integral_const_tag,
                                        uint16_t, omission, filter::less_than_or_equal_to,
-                                       detail::SystemIDs::omission, true
+                                       detail::HighDensityIDs::omission, true
                                       > {
                 public:
                     typedef Omission type;

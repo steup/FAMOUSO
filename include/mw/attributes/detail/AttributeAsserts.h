@@ -100,21 +100,21 @@ namespace famouso {
                  * \brief Struct to statically assert that an ID of a system attribute
                  *  only has 4 bits.
                  *
-                 * \tparam IsSystem True if it is a system attribute
+                 * \tparam HighDensity True if it is a high density attribute
                  * \tparam ID The identifier of the attribute
                  */
-                template <bool IsSystem, uint8_t ID>
+                template <bool HighDensity, uint8_t ID>
                 struct IdBitCountAssert {
                         typedef uint8_t dummy;
 
                     private:
                         static const uint16_t bitCount = BitCount<uint8_t, ID>::value;
 
-                        static const bool cond = ((!IsSystem) || (bitCount < 5));
+                        static const bool cond = ((!HighDensity) || (bitCount < 5));
 
                         FAMOUSO_STATIC_ASSERT_ERROR(
                             cond,
-                            system_attribute_ID_cannot_have_more_than_4_bits,
+                            high_density_attribute_ID_cannot_have_more_than_4_bits,
                             (boost::mpl::int_<ID>, boost::mpl::int_<bitCount>));
                 };
             }; // end namespace binrep

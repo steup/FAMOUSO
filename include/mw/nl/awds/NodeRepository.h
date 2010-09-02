@@ -172,8 +172,8 @@ namespace famouso {
                                     /** The actual attribute comparator. */
                                     typedef typename Attrib::comparator cmp;
 
-                                    if (!Attrib::isSystem)
-                                        return; // Only system attributes are searched.
+                                    if (!Attrib::highDensity)
+                                        return; // Only high density attributes are searched.
 
                                     // The resulting attribute
                                     Attrib *r = _res.template find<Attrib> ();

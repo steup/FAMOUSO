@@ -45,7 +45,7 @@
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/Attribute.h"
 
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
 namespace famouso {
@@ -65,7 +65,7 @@ namespace famouso {
             class Latency : public Attribute<
                                     Latency<0>, tags::integral_const_tag,
                                     uint32_t, latency, filter::less_than_or_equal_to,
-                                    detail::SystemIDs::latency, true
+                                    detail::HighDensityIDs::latency, true
                                    > {
                 public:
                     typedef Latency type;

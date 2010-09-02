@@ -69,7 +69,7 @@ namespace famouso {
                      *
                      * The value is parsed from the binary representation of this attribute.
                      *  That means this attribute's static properties are not used except for
-                     *  the type and the is-system-flag.
+                     *  the type and the high-density-flag.
                      *
                      * \tparam ValueType The type of this attribute's value
                      *
@@ -85,9 +85,9 @@ namespace famouso {
                                 reinterpret_cast<const detail::AttributeElementHeader* const>(data);
 
                         // TODO: Change this to Attribute_Header_RT somehow
-                        bool isSystem = header->category != detail::SystemIDs::nonSystem;
+                        const bool highDensity = header->category != detail::HighDensityIDs::lowDensity;
 
-                        if ((isSystem) && (header->valueOrLengthSwitch)) {
+                        if ((highDensity) && (header->valueOrLengthSwitch)) {
                             if (header->extension) {
                                 if (sizeof(ValueType) == 1) {
                                     // If the value type has only one byte, the two remaining bits
@@ -119,8 +119,8 @@ namespace famouso {
                             // Number of bytes to copy from the val-array
                             uint16_t length;
 
-                            const uint16_t lengthMask = (isSystem ? 0x3FF : 0x7FF);
-                            const uint8_t valueOffset = (isSystem ? 1 : 2);
+                            const uint16_t lengthMask = (highDensity ? 0x3FF : 0x7FF);
+                            const uint8_t valueOffset = (highDensity ? 1 : 2);
 
                             // Read the length in big-endian order
                             if (header->extension) {
@@ -178,9 +178,9 @@ namespace famouso {
                                 reinterpret_cast<detail::AttributeElementHeader* const>(data);
 
                         // TODO: Change this to Attribute_Header_RT somehow
-                        bool isSystem = header->category != detail::SystemIDs::nonSystem;
+                        const bool highDensity = header->category != detail::HighDensityIDs::lowDensity;
 
-                        if ((isSystem) && (header->valueOrLengthSwitch)) {
+                        if ((highDensity) && (header->valueOrLengthSwitch)) {
                             if (header->extension) {
                                 if (newBitCount > 10)
                                     return (false);
@@ -231,12 +231,12 @@ namespace famouso {
                             // The length read
                             uint16_t length;
 
-                            const uint8_t  valueOffset = (isSystem ? 1 : 2);
+                            const uint8_t  valueOffset = (highDensity ? 1 : 2);
 
                             // Read the length in big-endian order
                             if (header->extension) {
                                 length    = *(reinterpret_cast<const uint16_t*>(data));
-                                length    = (ntohs(length) & (isSystem ? 0x3FF : 0x7FF));
+                                length    = (ntohs(length) & (highDensity ? 0x3FF : 0x7FF));
                                 targetPtr = &data[valueOffset + 1];
                             } else {
                                 // Expand the single byte to a 16 bit value and only apply the

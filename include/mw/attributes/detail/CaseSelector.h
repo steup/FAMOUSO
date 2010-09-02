@@ -46,7 +46,7 @@
 #include "config/type_traits/ByteCount.h"
 
 #include "mw/attributes/detail/AttributeElementHeader.h"
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 
 namespace famouso {
     namespace mw {
@@ -57,13 +57,13 @@ namespace famouso {
                  * Template struct allowing to decide the 6 different cases for
                  *  the structure of an attribute header:
                  *
-                 * 1. System attribute, value fits unextended
-                 * 2. System attribute, value fits extended
-                 * 3. System attribute, length fits unextended
-                 * 4. System attribute, length fits extended
+                 * 1. High density attribute, value fits unextended
+                 * 2. High density attribute, value fits extended
+                 * 3. High density attribute, length fits unextended
+                 * 4. High density attribute, length fits extended
                  *
-                 * 5. Non-system attribute, length fits unextended
-                 * 6. Non-system attribute, length fits extended
+                 * 5. Low density attribute, length fits unextended
+                 * 6. Low density attribute, length fits extended
                  *
                  * The specific case is decided on the given attribute type
                  *  and depending on the decided case one of the arguments
@@ -87,8 +87,8 @@ namespace famouso {
 
                             public:
                                 static const ResultType value =
-                                    (Attr::isSystem) ?
-                                        ( // For system attributes
+                                    (Attr::highDensity) ?
+                                        ( // For high density attributes
                                             (bitCount < 3) ?
                                                 // If the value fits the header byte unextended, this is
                                                 //  the first case
@@ -117,7 +117,7 @@ namespace famouso {
                                                         //  case
                                                         res4) :
 
-                                        ( // For non system attributes
+                                        ( // For low density attributes
 
                                             // The last part of the header byte is always the length, we
                                             //  now must find out, if the header must be extended for the
@@ -148,8 +148,8 @@ namespace famouso {
                             //  attribute header struct since we would create circular include
                             //  dependencies otherwise
 
-                            if (header->isSystem()) {
-                                // System attributes
+                            if (header->isHighDensity()) {
+                                // High density attributes
                                 if (header->valueOrLengthSwitch) {
                                     // Value is contained
                                     if (header->extension) {
@@ -170,7 +170,7 @@ namespace famouso {
                                     }
                                 }
                             } else {
-                                // Non-system attributes
+                                // Low density attributes
                                 if (header->extension) {
                                     // Length fits extended
                                     return (res6);

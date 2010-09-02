@@ -43,7 +43,7 @@
 
 #include <stdint.h>
 
-#include "mw/attributes/detail/SystemIDs.h"
+#include "mw/attributes/detail/HighDensityIDs.h"
 
 namespace famouso {
     namespace mw {
@@ -54,7 +54,7 @@ namespace famouso {
                  * \brief Represents the structure a single attribute's header.
                  */
                 union AttributeElementHeader {
-                        // For system attributes
+                        // For high density attributes
                         struct {
                                 uint8_t valueOrLength :2;
                                 uint8_t valueOrLengthSwitch :1;
@@ -62,11 +62,11 @@ namespace famouso {
                                 uint8_t category :4;
                         }__attribute__((packed));
 
-                        // For non system attributes
+                        // For low density attributes
                         uint8_t length :3;
 
-                        bool isSystem() const {
-                            return (category != SystemIDs::nonSystem);
+                        bool isHighDensity() const {
+                            return (category != HighDensityIDs::lowDensity);
                         }
                 };
             } // end namespace attributes
