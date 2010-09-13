@@ -111,7 +111,7 @@ namespace famouso {
                      */
                     template< FlowId id >
                     class FlowMgmtID: public Attribute<FlowMgmtID<0> , tags::integral_const_tag, FlowId, id, filter::less_than_or_equal_to,
-                                    FlowMgmtIDs::flowId, false> {
+                                    FlowMgmtIDs::flowId> {
                         public:
                             typedef FlowMgmtID type;
                     };
@@ -124,7 +124,7 @@ namespace famouso {
                      */
                     template< uint8_t action >
                     class FlowMgmtAction: public Attribute<FlowMgmtAction<0> , tags::integral_const_tag, uint8_t, action,
-                                    filter::less_than_or_equal_to, FlowMgmtIDs::action, false> {
+                                    filter::less_than_or_equal_to, FlowMgmtIDs::action> {
                         public:
                             typedef FlowMgmtAction type;
                     };
@@ -135,7 +135,7 @@ namespace famouso {
                      */
                     template< uint64_t snn >
                     class SubjectAttribute: public Attribute<SubjectAttribute<0> , tags::integral_const_tag, uint64_t, snn,
-                                    filter::less_than_or_equal_to, FlowMgmtIDs::subject, false> {
+                                    filter::less_than_or_equal_to, FlowMgmtIDs::subject> {
                         public:
                             typedef SubjectAttribute type;
 
@@ -164,7 +164,7 @@ namespace famouso {
                      */
                     template< int8_t prio >
                     class Priority: public Attribute<Priority<0> , tags::integral_const_tag, int8_t, prio,
-                                    filter::less_than_or_equal_to, FlowMgmtIDs::prio, false> {
+                                    filter::less_than_or_equal_to, FlowMgmtIDs::prio> {
                         public:
                             typedef Priority type;
                     };

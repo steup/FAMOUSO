@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,44 +38,28 @@
  *
  ******************************************************************************/
 
-#ifndef __TTL_h__
-#define __TTL_h__
+#ifndef _Tag_h_
+#define _Tag_h_
 
-#include <stdint.h>
-
-#include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/Attribute.h"
-
-#include "mw/attributes/detail/HighDensityIDs.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
-
-#include "mw/attributes/detail/tags/TagSet.h"
-#include "mw/attributes/detail/tags/IsHighDensity.h"
+#include "mw/attributes/type_traits/is_same_base_type.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
+            namespace detail {
 
-            /*!\brief   defines a configurable Time-To-Live attribute for
-             *          describing how many different networks can be passed
-             *          via gateways. If the ttl attached on an event reaches
-             *          zero, the event will be discarded.
-             *
-             * \tparam  ttl describes the initial value to be set
-             */
-            template<uint8_t ttl>
-            class TTL : public Attribute<
-                                TTL<0>, tags::integral_const_tag,
-                                uint8_t, ttl, filter::less_than_or_equal_to,
-                                detail::HighDensityIDs::ttl,
-                                detail::TagSet<detail::IsHighDensity>
-                               > {
-                public:
-                    typedef TTL type;
-            };
+                struct Tag {
+                        typedef Tag base_type;
+                };
 
-        } /* attributes */
-    } /* mw */
-} /* famouso */
+                template <typename Type>
+                struct is_tag :
+                    famouso::mw::attributes::type_traits::is_same_base_type<Type, Tag> {
+                };
 
-#endif
+            } // end namespace detail
+        } // end namespace attributes
+    } // end namespace mw
+} // end namespace famouso
+
+#endif // _Tag_h_

@@ -45,6 +45,8 @@
 #include "boost/utility/enable_if.hpp"
 #include "boost/mpl/vector.hpp"
 #include "boost/mpl/is_sequence.hpp"
+#include "boost/mpl/sort.hpp"
+#include "boost/mpl/eval_if.hpp"
 #include "boost/mpl/bool.hpp"
 
 #include "mw/attributes/AttributeSet.h"
@@ -99,6 +101,37 @@ namespace famouso {
                         typedef is_sequence type;
 
                         static const bool value = false;
+                };
+
+                struct SorterPredicate {
+                        // For both types being attributes
+                        template <typename A1, typename A2>
+                        struct apply {
+                                static const bool value = A1::id > A2::id;
+
+                                typedef apply type;
+                        };
+
+                        // For only the first type being an attribute
+                        template <typename T1>
+                        struct apply<T1, boost::mpl::na> {
+                                static const bool value = true;
+
+                                typedef apply type;
+                        };
+
+                        // For only the second type being an attribute
+                        template <typename T2>
+                        struct apply<boost::mpl::na, T2> : public apply<T2, boost::mpl::na> {};
+
+                        typedef SorterPredicate type;
+                };
+
+                template <typename Seq>
+                struct SortedAttributeSequence {
+                        typedef typename boost::mpl::sort<Seq, SorterPredicate>::type result;
+
+                        typedef SortedAttributeSequence type;
                 };
 
                 /*!
@@ -157,9 +190,11 @@ namespace famouso {
 
                         // If none of the assertions was violated, define a vector
                         //  containing the given attribute types
-                        typedef boost::mpl::vector<A1, A2, A3, A4, A5,
+                        typedef typename SortedAttributeSequence<
+                                          boost::mpl::vector<A1, A2, A3, A4, A5,
                                                    A6, A7, A8, A9, A10
-                                                  > attribs;
+                                          >
+                                         >::result attribs;
 
                     public:
                         /*!
@@ -179,12 +214,15 @@ namespace famouso {
                         // Specialized template cares for the case that only a forward
                         //  sequence of attributes is given as the first type
 
+                        typedef typename SortedAttributeSequence<
+                                          ForwardSeq
+                                         >::result attribs;
+
                     public:
                         /*!
                          * \brief The provided attribute sequence
                          */
-                        typedef attributes::AttributeSet<ForwardSeq> attrSet;
-
+                        typedef attributes::AttributeSet<attribs> attrSet;
                 };
 
             }  // end namespace detail

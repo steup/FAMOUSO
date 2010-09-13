@@ -48,6 +48,9 @@
 #include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -65,7 +68,8 @@ namespace famouso {
             class Latency : public Attribute<
                                     Latency<0>, tags::integral_const_tag,
                                     uint32_t, latency, filter::less_than_or_equal_to,
-                                    detail::HighDensityIDs::latency, true
+                                    detail::HighDensityIDs::latency,
+                                    detail::TagSet<detail::IsHighDensity>
                                    > {
                 public:
                     typedef Latency type;

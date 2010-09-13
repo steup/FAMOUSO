@@ -48,6 +48,9 @@
 #include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/greater_than_or_equal_to.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -64,7 +67,8 @@ namespace famouso {
             class Throughput : public Attribute<
                                       Throughput<0>, tags::integral_const_tag,
                                       uint32_t, throughput, filter::greater_than_or_equal_to,
-                                      detail::HighDensityIDs::throughput, true
+                                      detail::HighDensityIDs::throughput,
+                                      detail::TagSet<detail::IsHighDensity>
                                      > {
                 public:
                     typedef Throughput type;

@@ -48,6 +48,9 @@
 #include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -66,7 +69,8 @@ namespace famouso {
             class RelativeDeadline : public Attribute<
                                        RelativeDeadline<0>, tags::integral_const_tag,
                                        uint64_t, deadline, filter::less_than_or_equal_to,
-                                       detail::HighDensityIDs::relDeadline, true
+                                       detail::HighDensityIDs::relDeadline,
+                                       detail::TagSet<detail::IsHighDensity>
                                       > {
                 public:
                     typedef RelativeDeadline type;

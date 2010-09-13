@@ -61,6 +61,9 @@
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/tags/AttributeTag.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+
 #include "config/type_traits/ByteCount.h"
 
 #include "assert/staticerror.h"
@@ -103,10 +106,12 @@ namespace famouso {
              * \tparam Comparator The filter expression struct defining how attributes
              *  of this type are compared, i.e. which are better than others
              * \tparam ID The identifier of this attribute
-             * \tparam HighDensity True, if this is a high density attribute
+             * \tparam TagSet The tags attached to this attribute, an empty tag set
+             *  by default
              */
             template <typename BaseType, typename CompareTag, typename ValueType,
-                      ValueType Value, typename Comparator, uint8_t ID, bool HighDensity = false>
+                      ValueType Value, typename Comparator, uint8_t ID,
+                      typename TagSet = detail::TagSet<> >
             class Attribute : public Attribute_RT {
                 public:
                     // The boost tag type, declaring the attribute class to be an
@@ -129,14 +134,16 @@ namespace famouso {
                     // The ID (aka category for system attributes) of this attribute
                     static const uint8_t id = ID;
 
-                    // Determines whether this attribute is a system attribute
-                    static const bool highDensity = HighDensity;
+                    // Determines whether this attribute is a high density attribute
+                    static const bool highDensity =
+                            TagSet::template contains_tag<detail::IsHighDensity>::value;
 
                     // A struct implementing the stronger relation between attributes
                     //  (generally delegates to less-than-or-equal respective
                     //   greater-than-or-equal relations)
                     template <typename OtherAttr>
-                    struct isStronger : public comparator::template apply_compiletime<Attribute, OtherAttr> {
+                    struct isStronger :
+                        public comparator::template apply_compiletime<Attribute, OtherAttr> {
                         FAMOUSO_STATIC_ASSERT_ERROR(
                             highDensity,
                             only_system_attributes_may_have_a_stronger_relation,

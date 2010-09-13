@@ -48,6 +48,9 @@
 #include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -64,7 +67,8 @@ namespace famouso {
             class Omission : public Attribute<
                                        Omission<0>, tags::integral_const_tag,
                                        uint16_t, omission, filter::less_than_or_equal_to,
-                                       detail::HighDensityIDs::omission, true
+                                       detail::HighDensityIDs::omission,
+                                       detail::TagSet<detail::IsHighDensity>
                                       > {
                 public:
                     typedef Omission type;

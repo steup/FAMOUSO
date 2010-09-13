@@ -48,6 +48,9 @@
 #include "mw/attributes/detail/HighDensityIDs.h"
 #include "mw/attributes/filter/less_than_or_equal_to.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+
 namespace famouso {
     namespace mw {
         namespace attributes {
@@ -64,7 +67,8 @@ namespace famouso {
             class Period : public Attribute<
                                        Period<0>, tags::integral_const_tag,
                                        uint16_t, period, filter::less_than_or_equal_to,
-                                       detail::HighDensityIDs::period, true
+                                       detail::HighDensityIDs::period,
+                                       detail::TagSet<detail::IsHighDensity>
                                       > {
                 public:
                     typedef Period type;

@@ -59,6 +59,9 @@
 #include "mw/attributes/Latency.h"
 #include "mw/attributes/Omission.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+
 #define TO_HEX ::logging::log::emit() << ::logging::log::hex
 #define TO_DEC ::logging::log::emit() << ::logging::log::dec
 #define DBG_MSG(x) ::logging::log::emit() << x << ::logging::log::endl
@@ -67,6 +70,9 @@ using namespace famouso::mw::attributes;
 
 typedef tags::integral_const_tag tag;
 typedef filter::less_than_or_equal_to comp;
+
+typedef detail::TagSet<>                      emptyTagSet;
+typedef detail::TagSet<detail::IsHighDensity> highDensityTagSet;
 
 void print(const uint8_t* array, uint8_t length) {
     ::logging::log::emit() << ::logging::log::hex;
@@ -139,8 +145,17 @@ typedef TTL<255> World;
 
 typedef Omission<0> None;
 
+template <bool IS>
+struct set {
+        typedef emptyTagSet type;
+};
+template <>
+struct set<true> {
+        typedef highDensityTagSet type;
+};
+
 template <typename VT, VT V, uint8_t ID, bool IS>
-struct TestAttrib : public Attribute<boost::mpl::int_<ID>, tag, VT, V, comp, ID, IS> {
+struct TestAttrib : public Attribute<boost::mpl::int_<ID>, tag, VT, V, comp, ID, typename set<IS>::type> {
     typedef TestAttrib type;
 };
 

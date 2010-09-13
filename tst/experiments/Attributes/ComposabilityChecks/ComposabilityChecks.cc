@@ -3,6 +3,7 @@
 #define EMIT ::logging::log::emit()
 #define ENDL ::logging::log::endl
 
+#include <typeinfo>
 #include <stdint.h>
 
 #include "mw/attributes/TTL.h"
@@ -15,9 +16,10 @@
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/detail/RequirementChecker.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+
 #include "boost/mpl/vector.hpp"
 #include "boost/mpl/list.hpp"
-
 
 using namespace famouso::mw::attributes;
 
@@ -40,7 +42,36 @@ typedef famouso::mw::ExtendedEvent<> ev8; // OK -> no attribute is given at all
 typedef detail::SetProvider<TTL<2>, Latency<10>, Throughput<310> >::attrSet prov;
 typedef detail::SetProvider<TTL<2>, Latency<20>, Throughput<310> >::attrSet req;
 
-typedef detail::RequirementChecker<prov, req> checker;
+typedef detail::RequirementChecker<prov, req, true> checker;
+
+typedef detail::TagSet<>::type tagset;
+
+
+typedef boost::mpl::vector<Omission<3>, TTL<1>, Throughput<20>, Latency<150> >::type toSort;
+
+typedef detail::SortedAttributeSequence<toSort>::result::type sorted;
+
+template <typename S, typename I = typename boost::mpl::begin<S>::type>
+struct printer {
+        static void print() {
+            EMIT << typeid(typename boost::mpl::deref<I>::type).name() << ", ";
+
+            printer<S, typename boost::mpl::next<I>::type>::print();
+        }
+};
+template <typename S>
+struct printer<S, typename boost::mpl::end<S>::type> {
+        static void print() {
+            EMIT << ENDL;
+        }
+};
+
+template <typename S>
+struct Babel {
+        Babel() {
+            int a;
+        }
+};
 
 int main(int argc, char* args[]) {
     famouso::mw::Subject s(0x01);
@@ -59,6 +90,12 @@ int main(int argc, char* args[]) {
     ev8 e8(s);
 
     EMIT << (int) checker::value << ENDL;
+
+    printer<toSort>::print();
+    printer<sorted>::print();
+
+    Babel<toSort> b1;
+    Babel<sorted> b2;
 
     return (0);
 }
