@@ -220,6 +220,17 @@ namespace famouso {
                                 // subscribers and then we are done.
 
                                 // If the packet was a fragment the event may not be complete
+                                /*! \todo The integration of AFP within the
+                                 *        event-layer is not correct at the
+                                 *        moment. It relies on the assumption
+                                 *        that the data part of a right event
+                                 *        is never zero but that can not be
+                                 *        assured. If an application sends only
+                                 *        an event maybe a heart-beat the event
+                                 *        will not has have data. However, in
+                                 *        the current implementation such an
+                                 *        event gets not notified.
+                                 */
                                 if (e.data)
                                     publish_local(e);
 

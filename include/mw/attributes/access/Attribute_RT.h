@@ -52,6 +52,14 @@ namespace famouso {
     namespace mw {
         namespace attributes {
 
+             /*!
+              * \todo The implementation of get and set should be more resource
+              *       efficient because if different Attributes are in use, the
+              *       methods are compiler-generated multiple times. However,
+              *       this needs not to be so. A possible solution would be to
+              *       factor out the common parts and only the for type-safety
+              *       let the compiler generate a small cast method.
+              */
             class Attribute_RT {
                 protected:
                     Attribute_RT() {
