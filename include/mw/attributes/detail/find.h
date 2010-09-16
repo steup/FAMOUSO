@@ -57,6 +57,14 @@ namespace famouso {
                     return (find<Attr>(const_cast<uint8_t*>(data)));
                 }
 
+                /*!
+                 * \todo The implementation of find should be more resource
+                 *       efficient because if different Attributes are in use, the
+                 *       method is generated multiple times. However,
+                 *       this needs not to be so. A possible solution would be to
+                 *       factor out the common parts and only for type-safety
+                 *       let the compiler generate a small cast method.
+                 */
                 template <typename Attr>
                 Attr* find(uint8_t* data) {
                     // The number of bytes needed by the attributes
