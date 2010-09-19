@@ -50,6 +50,7 @@
 
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
+#include "mw/attributes/detail/tags/IsRequirable.h"
 
 namespace famouso {
     namespace mw {
@@ -68,7 +69,7 @@ namespace famouso {
                                       Throughput<0>, tags::integral_const_tag,
                                       uint32_t, throughput, filter::greater_than_or_equal_to,
                                       detail::HighDensityIDs::throughput,
-                                      detail::TagSet<detail::IsHighDensity>
+                                      detail::TagSet<detail::IsHighDensity, detail::IsRequirable>
                                      > {
                 public:
                     typedef Throughput type;

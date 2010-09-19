@@ -48,6 +48,15 @@ namespace famouso {
         namespace attributes {
             namespace detail {
 
+                /*!
+                 * \brief Attribute tag signaling that this attribute
+                 *  should be written with a compact binary representation.
+                 *
+                 * High density attributes use another range of IDs which
+                 *  are independent from the ordinary IDs. Attributes which
+                 *  are expected to be often transferred in the network
+                 *  should be tagged as high density attributes.
+                 */
                 struct IsHighDensity : public Tag {};
 
             } // end namespace detail

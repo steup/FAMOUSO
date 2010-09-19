@@ -7,9 +7,11 @@
 #include <stdint.h>
 
 #include "mw/attributes/TTL.h"
+#include "mw/attributes/Jitter.h"
 #include "mw/attributes/Latency.h"
 #include "mw/attributes/Omission.h"
 #include "mw/attributes/Throughput.h"
+#include "mw/attributes/PacketLoss.h"
 #include "mw/common/ExtendedEvent.h"
 #include "mw/common/Subject.h"
 
@@ -39,8 +41,8 @@ typedef famouso::mw::ExtendedEvent<16, TTL<1>, TTL<2> > ev7; // error -> duplica
 
 typedef famouso::mw::ExtendedEvent<> ev8; // OK -> no attribute is given at all
 
-typedef detail::SetProvider<TTL<2>, Latency<10>, Throughput<310> >::attrSet prov;
-typedef detail::SetProvider<TTL<2>, Latency<20>, Throughput<310> >::attrSet req;
+typedef detail::SetProvider<TTL<5>, Jitter<5>, Latency<10>, Throughput<310> >::attrSet prov;
+typedef detail::SetProvider<Jitter<6>, Latency<20>, Throughput<310> >::attrSet req;
 
 typedef detail::RequirementChecker<prov, req, true> checker;
 
@@ -66,13 +68,6 @@ struct printer<S, typename boost::mpl::end<S>::type> {
         }
 };
 
-template <typename S>
-struct Babel {
-        Babel() {
-            int a;
-        }
-};
-
 int main(int argc, char* args[]) {
     famouso::mw::Subject s(0x01);
 
@@ -93,9 +88,6 @@ int main(int argc, char* args[]) {
 
     printer<toSort>::print();
     printer<sorted>::print();
-
-    Babel<toSort> b1;
-    Babel<sorted> b2;
 
     return (0);
 }

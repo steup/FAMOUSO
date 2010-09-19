@@ -50,6 +50,7 @@
 
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
+#include "mw/attributes/detail/tags/IsRequirable.h"
 
 namespace famouso {
     namespace mw {
@@ -68,7 +69,7 @@ namespace famouso {
                                        Jitter<0>, tags::integral_const_tag,
                                        uint16_t, jitter, filter::less_than_or_equal_to,
                                        detail::HighDensityIDs::jitter,
-                                       detail::TagSet<detail::IsHighDensity>
+                                       detail::TagSet<detail::IsHighDensity, detail::IsRequirable>
                                       > {
                 public:
                     typedef Jitter type;

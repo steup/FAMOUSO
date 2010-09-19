@@ -48,10 +48,18 @@ namespace famouso {
         namespace attributes {
             namespace detail {
 
+                /*!
+                 * \brief Base type of all attribute tags.
+                 */
                 struct Tag {
                         typedef Tag base_type;
                 };
 
+                /*!
+                 * \brief Checks whether the given type is a
+                 *  tag, that is defines Tag as a type called
+                 *  base_type.
+                 */
                 template <typename Type>
                 struct is_tag :
                     famouso::mw::attributes::type_traits::is_same_base_type<Type, Tag> {

@@ -63,6 +63,7 @@
 
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
+#include "mw/attributes/detail/tags/IsRequirable.h"
 
 #include "config/type_traits/ByteCount.h"
 
@@ -138,6 +139,10 @@ namespace famouso {
                     static const bool highDensity =
                             TagSet::template contains_tag<detail::IsHighDensity>::value;
 
+                    // Determines whether this attribute can occur in a requirement
+                    static const bool requirable =
+                            TagSet::template contains_tag<detail::IsRequirable>::value;
+
                     // A struct implementing the stronger relation between attributes
                     //  (generally delegates to less-than-or-equal respective
                     //   greater-than-or-equal relations)
@@ -145,8 +150,8 @@ namespace famouso {
                     struct isStronger :
                         public comparator::template apply_compiletime<Attribute, OtherAttr> {
                         FAMOUSO_STATIC_ASSERT_ERROR(
-                            highDensity,
-                            only_system_attributes_may_have_a_stronger_relation,
+                            requirable,
+                            only_requirable_attributes_may_have_a_stronger_relation,
                             (Attribute));
                     };
 

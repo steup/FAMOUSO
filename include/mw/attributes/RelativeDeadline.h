@@ -70,6 +70,7 @@ namespace famouso {
                                        RelativeDeadline<0>, tags::integral_const_tag,
                                        uint64_t, deadline, filter::less_than_or_equal_to,
                                        detail::HighDensityIDs::relDeadline,
+                                       // TODO: Should the deadline attribute be requirable?
                                        detail::TagSet<detail::IsHighDensity>
                                       > {
                 public:

@@ -109,10 +109,15 @@ namespace famouso {
                                  typename Prov::sequence
                                 >::result provAttr;
 
-                        typedef typename curAttr::type::comparator::template apply_compiletime  <
-                                                                     provAttr,
-                                                                     curAttr
-                                                                    > compare;
+                        /*!
+                         * \brief The comparator used for checking the values of the
+                         *  attributes.
+                         *
+                         * It is defined by the attribute itself in the meaning of a
+                         *  stronger relation. Only requireable attributes may be used
+                         *  here, this is asserted by the attribute's isStronger struct.
+                         */
+                        typedef typename provAttr::template isStronger<curAttr> compare;
 
                         /*!
                          * \brief Determines whether the attribute values fit and therefore

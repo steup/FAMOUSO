@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,47 +38,30 @@
  *
  ******************************************************************************/
 
-#ifndef __Latency_h__
-#define __Latency_h__
+#ifndef _IsRequirable_h_
+#define _IsRequirable_h_
 
-#include <stdint.h>
-
-#include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/Attribute.h"
-
-#include "mw/attributes/detail/HighDensityIDs.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
-
-#include "mw/attributes/detail/tags/TagSet.h"
-#include "mw/attributes/detail/tags/IsHighDensity.h"
-#include "mw/attributes/detail/tags/IsRequirable.h"
+#include "mw/attributes/detail/tags/Tag.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
+            namespace detail {
 
-            /*!
-             * \brief Defines a configurable Latency attribute for
-             *  describing the delay between sending a packet and
-             *  receiving it at the destination.
-             *
-             * The unit of the attribute value is micro seconds.
-             *
-             * \tparam latency Describes the initial value to be set
-             */
-            template<uint32_t latency>
-            class Latency : public Attribute<
-                                    Latency<0>, tags::integral_const_tag,
-                                    uint32_t, latency, filter::less_than_or_equal_to,
-                                    detail::HighDensityIDs::latency,
-                                    detail::TagSet<detail::IsHighDensity, detail::IsRequirable>
-                                   > {
-                public:
-                    typedef Latency type;
-            };
+                /*!
+                 * \brief Attribute tag signaling that this attribute
+                 *  can be used for a composability check, that is this
+                 *  attribute can occur in an attribute requirement
+                 *
+                 * The composablity checking framework will generate a
+                 *  compile error if an attribute which is not tagged as
+                 *  requirable will be used in an attribute requirement.
+                 */
+                struct IsRequirable : public Tag {};
 
-        } /* attributes */
-    } /* mw */
-} /* famouso */
+            } // end namespace detail
+        } // end namespace attributes
+    } // end namespace mw
+} // end namespace famouso
 
-#endif
+#endif // _IsHighDensity_h_

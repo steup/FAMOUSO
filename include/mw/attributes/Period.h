@@ -68,6 +68,7 @@ namespace famouso {
                                        Period<0>, tags::integral_const_tag,
                                        uint16_t, period, filter::less_than_or_equal_to,
                                        detail::HighDensityIDs::period,
+                                       // TODO: Should the period attribute be requirable?
                                        detail::TagSet<detail::IsHighDensity>
                                       > {
                 public:
