@@ -94,14 +94,6 @@ namespace famouso {
                                          >::result contained;
 
                         /*!
-                         * Issue a compiler error if the current attribute is
-                         *  not contained in the provision.
-                         */
-                        typedef typename RequiredAttributeNotContainedInProvision<
-                                          contained::value, curAttr, Prov, compileError
-                                         >::type assert1;
-
-                        /*!
                          * \brief The provision attribute which is equal to the current
                          *  requirement attribute.
                          */
@@ -135,13 +127,29 @@ namespace famouso {
                          */
                         static const bool valueFits = comparatorExtractor<provAttr, false>::compare::value;
 
+                        typedef typename AttributeIsNotRequireable<
+                                          curAttr::requirable, curAttr, Req, compileError
+                                         >::type assert1;
+
+                        // Only issue the "attribute is not contained..." error if the error regarding
+                        //  requirable attributes was not issued
+                        static const bool issueNotContainedError = (!contained::value && curAttr::requirable);
+
+                        /*!
+                         * Issue a compiler error if the current attribute is
+                         *  not contained in the provision.
+                         */
+                        typedef typename RequiredAttributeNotContainedInProvision<
+                                         !issueNotContainedError , curAttr, Prov, compileError
+                                         >::type assert2;
+
                         /*!
                          * Issue a compiler error if the values of the related attributes do
                          *  not fit
                          */
                         typedef typename RequiredValueNotProvided<
                                           valueFits, curAttr, provAttr, compileError
-                                         >::type assert2;
+                                         >::type assert3;
 
                         /*!
                          * \brief Instantiation of the checker instance responsible for the

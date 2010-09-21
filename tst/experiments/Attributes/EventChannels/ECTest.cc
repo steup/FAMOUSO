@@ -12,6 +12,7 @@
 
 #include "mw/attributes/Latency.h"
 #include "mw/attributes/Throughput.h"
+#include "mw/attributes/TTL.h"
 
 #include "mw/api/ExtendedPublisherEventChannel.h"
 #include "mw/api/ExtendedSubscriberEventChannel.h"
@@ -46,8 +47,14 @@ typedef famouso::mw::attributes::detail::SetProvider<
          famouso::mw::attributes::Throughput<1000>
         >::attrSet req3;
 
+// Will fail, TTL is not a requirable attribute
+typedef famouso::mw::attributes::detail::SetProvider<
+         famouso::mw::attributes::Latency<10>,
+         famouso::mw::attributes::TTL<5>
+        >::attrSet req4;
+
 // The requirement of the publisher event channel
-typedef req1 PubReq;
+typedef req4 PubReq;
 
 // The requirement of the subscriber event channel
 typedef PubReq SubReq;

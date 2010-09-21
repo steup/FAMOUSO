@@ -92,6 +92,22 @@ namespace famouso {
                  *  checks.
                  *
                  */
+                template <bool isRequirable, typename RelatedAttr, typename Requirement, bool compileError>
+                struct AttributeIsNotRequireable {
+                        typedef AttributeIsNotRequireable type;
+
+                        FAMOUSO_STATIC_ASSERT(
+                            isRequirable,
+                            only_requirable_attributes_may_be_used_in_a_requirement,
+                            (RelatedAttr, Requirement),
+                            compileError);
+                };
+
+                /*!
+                 * \brief Configurable error struct used for the static composability
+                 *  checks.
+                 *
+                 */
                 template <bool contained, typename RelatedAttr, typename Provision, bool compileError>
                 struct RequiredAttributeNotContainedInProvision {
                         typedef RequiredAttributeNotContainedInProvision type;
