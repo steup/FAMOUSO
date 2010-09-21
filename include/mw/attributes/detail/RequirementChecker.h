@@ -47,6 +47,7 @@
 #include "boost/mpl/next.hpp"
 #include "boost/mpl/eval_if.hpp"
 #include "boost/mpl/integral_c.hpp"
+#include "boost/mpl/bool.hpp"
 
 #include "mw/attributes/detail/FindStatic.h"
 #include "mw/attributes/detail/AttributeCompileErrors.h"
@@ -117,13 +118,22 @@ namespace famouso {
                          *  stronger relation. Only requireable attributes may be used
                          *  here, this is asserted by the attribute's isStronger struct.
                          */
-                        typedef typename provAttr::template isStronger<curAttr> compare;
+                        template <typename Attribute, bool dummy>
+                        struct comparatorExtractor {
+                                typedef typename Attribute::template isStronger<curAttr> compare;
+                        };
+                        template <bool dummy>
+                        struct comparatorExtractor<boost::mpl::na, dummy> {
+                                // We let this default to true to not issue two errors if a
+                                //  required attribute is not found
+                                typedef boost::mpl::bool_<true> compare;
+                        };
 
                         /*!
                          * \brief Determines whether the attribute values fit and therefore
                          *  the system can be composed without violating the requirement.
                          */
-                        static const bool valueFits = compare::value;
+                        static const bool valueFits = comparatorExtractor<provAttr, false>::compare::value;
 
                         /*!
                          * Issue a compiler error if the values of the related attributes do
