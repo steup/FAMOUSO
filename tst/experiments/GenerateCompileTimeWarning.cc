@@ -42,7 +42,6 @@
 #define DO_JOIN2( X, Y ) X##Y
 
 #include "boost/mpl/eval_if.hpp"
-#include <stdint.h>
 
 namespace failed_assertion {
 
@@ -54,29 +53,13 @@ namespace failed_assertion {
         static const unsigned int w=8;
     };
 
-    template<typename,typename>
+    template<typename>
     struct _warning_ {
         typedef _warning_ type;
         enum _ {w};
     };
 
-    template<int i>
-    struct Ret {
-        uint8_t array[i];
-    };
-
-    Ret<1> CountParameter(void (*)());
-    template<typename T1>
-    Ret<2> CountParameter(void (*)(T1));
-    template<typename T1, typename T2>
-    Ret<3> CountParameter(void (*)(T1,T2));
-    template<typename T1, typename T2, typename T3>
-    Ret<4> CountParameter(void (*)(T1,T2,T3));
-
     struct args;
-
-    template<int>
-    struct argument_count;
 }
 
 #define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
@@ -96,19 +79,8 @@ namespace failed_assertion {
                     expr,                                                   \
                     ::failed_assertion::Integer,                            \
                     ::failed_assertion::_warning_<                          \
-                        failed_assertion::argument_count<                   \
-                            sizeof(                                         \
-                                ::failed_assertion::CountParameter(         \
-                                    JOIN(                                   \
-                                        JOIN(                               \
-                                            _failed_assertion_in_line_,     \
-                                            __LINE__                        \
-                                        ),                                  \
-                                        _with_message_                      \
-                                    )::args)                                \
-                            )-1                                             \
-                        >,                                                  \
-                       void**** (::failed_assertion::args::****) types >    \
+                        void**** (::failed_assertion::args::****) types     \
+                    >                                                       \
                 >::type::w                                                  \
             > JOIN(__warning_in_line__,__LINE__)
 

@@ -41,32 +41,98 @@
 #ifndef _STATIC_WARNING_H_
 #define _STATIC_WARNING_H_
 
-#include "boost/mpl/if.hpp"
-#include "boost/mpl/int.hpp"
-#include "boost/mpl/bool.hpp"
+#define JOIN( X, Y ) DO_JOIN( X, Y )
+#define DO_JOIN( X, Y ) DO_JOIN2(X,Y)
+#define DO_JOIN2( X, Y ) X##Y
 
-namespace famouso {
-    namespace assert {
+#include "boost/mpl/eval_if.hpp"
 
-        template <bool cond>
-        struct ResultSwitch {
-                static const int value = 0x0;
-        };
+namespace failed_assertion {
 
-        template <>
-        struct ResultSwitch<false> {
-                static const int value = 0xFFFF;
-        };
-    }
+    template<int>
+    struct CompileTimeWarningTest;
+
+    struct args;
 }
 
-#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)            \
-    struct _##msg##_ {                                             \
-        typedef char _assert_;                                     \
-                                                                   \
-        _assert_ with types {                                      \
-            return (famouso::assert::ResultSwitch<(expr)>::value); \
-        }                                                          \
-    }                                                              \
+#if defined __GNUC__
+
+namespace failed_assertion {
+
+    struct Integer {
+        typedef Integer type;
+        static const unsigned int w=8;
+    };
+
+
+    template<typename>
+    struct _warning_ {
+        typedef _warning_ type;
+        enum _ {w};
+    };
+
+}
+#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
+    struct JOIN(JOIN(_failed_assertion_in_line_,__LINE__),_with_message_) { \
+        enum JOIN(JOIN(__,msg),__) {w};                                     \
+        static void args types { }                                          \
+    };                                                                      \
+    typedef ::failed_assertion::CompileTimeWarningTest<                     \
+                JOIN(                                                       \
+                    JOIN(                                                   \
+                        _failed_assertion_in_line_,__LINE__                 \
+                    ),                                                      \
+                    _with_message_                                          \
+                )::w                                                        \
+                    ==                                                      \
+                boost::mpl::eval_if_c<                                      \
+                    expr,                                                   \
+                    ::failed_assertion::Integer,                            \
+                    ::failed_assertion::_warning_<                          \
+                        void**** (::failed_assertion::args::****) types     \
+                    >                                                       \
+                >::type::w                                                  \
+            > JOIN(__warning_in_line__,__LINE__)
+
+#elif defined _MSC_VER
+
+namespace failed_assertion {
+
+    template<typename,bool>
+    struct _warning_ {
+        typedef _warning_ type;
+    };
+}
+
+#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
+    __pragma(warning (push, 1))                                             \
+    __pragma(warning (1:4263))                                              \
+    struct JOIN(_failed_assertion_line_,__LINE__)              {            \
+        struct _ {                                                          \
+            virtual void _ ## msg ## _( ::failed_assertion::_warning_<      \
+                        void**** (::failed_assertion::args::****) types,    \
+                        true                                                \
+                   >) = 0;                                                  \
+        };                                                                  \
+        struct __ : _ {                                                     \
+            void _ ## msg ## _(::failed_assertion::_warning_<               \
+                        void**** (::failed_assertion::args::****) types,    \
+                        (expr)                                              \
+                   > );                                                     \
+        };                                                                  \
+        typedef ::failed_assertion::CompileTimeWarningTest<sizeof(__)> ___; \
+    };                                                                      \
+    __pragma(warning (pop))                                                 \
+    typedef ::failed_assertion::CompileTimeWarningTest<                     \
+                sizeof(JOIN(_failed_assertion_line_,__LINE__))              \
+            > JOIN(__,__LINE__)
+
+
+#else
+
+#warning "Compiler is not supported by the FAMOUSO_STATIC_ASSERT_WARNING macro"
+#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)
+
+#endif
 
 #endif

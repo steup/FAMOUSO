@@ -17,7 +17,7 @@ struct T {
 
 template <typename U>
 struct V {
-        FAMOUSO_STATIC_ASSERT(true && sizeof(U) == 0, no_warning_within_template_struct_context, (U), false);
+        FAMOUSO_STATIC_ASSERT(true && sizeof(U) != 0, no_warning_within_template_struct_context, (U), false);
         FAMOUSO_STATIC_ASSERT(!globalErrorFlag, no_error_within_template_struct_context, (U), true);
 
         FAMOUSO_STATIC_ASSERT(false && sizeof(U) == 0, warning_within_template_struct_context, (U), false);
