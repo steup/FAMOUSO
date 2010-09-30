@@ -87,6 +87,10 @@ namespace famouso {
                      */
                     typedef typename LL::SNN SNN;
 
+                    /*! \brief  self type
+                     */
+                    typedef EventLayer type;
+
                     /*! \brief  initialize the middleware core
                      */
                     void init() {

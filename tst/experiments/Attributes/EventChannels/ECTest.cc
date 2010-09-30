@@ -7,6 +7,8 @@
 #include "mw/el/EventLayer.h"
 #include "mw/common/Subject.h"
 #include "mw/api/CallBack.h"
+#include "mw/api/PublisherEventChannel.h"
+#include "mw/api/SubscriberEventChannel.h"
 #include "mw/common/ExtendedEvent.h"
 #include "util/Idler.h"
 
@@ -14,8 +16,7 @@
 #include "mw/attributes/Throughput.h"
 #include "mw/attributes/TTL.h"
 
-#include "mw/api/ExtendedPublisherEventChannel.h"
-#include "mw/api/ExtendedSubscriberEventChannel.h"
+#include "mw/api/ExtendedEventChannel.h"
 
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/AttributeSet.h"
@@ -28,6 +29,9 @@ class ProvidingNL : public NL {
                  famouso::mw::attributes::Latency<10>
                 >::attrSet attributeProvision;
 };
+
+// Works fine, nothing is required at all
+typedef famouso::mw::attributes::detail::SetProvider<>::attrSet req0;
 
 // Works fine, the required latency is provided by the NL
 typedef famouso::mw::attributes::detail::SetProvider<
@@ -54,7 +58,7 @@ typedef famouso::mw::attributes::detail::SetProvider<
         >::attrSet req4;
 
 // The requirement of the publisher event channel
-typedef req4 PubReq;
+typedef req1 PubReq;
 
 // The requirement of the subscriber event channel
 typedef PubReq SubReq;
@@ -64,10 +68,11 @@ static const bool compileError = true;
 struct config {
     typedef ProvidingNL<famouso::mw::nl::UDPBroadCastNL> nl;
     typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
+
     typedef famouso::mw::el::EventLayer< anl > EL;
 
-    typedef famouso::mw::api::ExtendedPublisherEventChannel<EL, PubReq, compileError> PEC;
-    typedef famouso::mw::api::ExtendedSubscriberEventChannel<EL, SubReq, compileError> SEC;
+    typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
+    typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
 };
 
 typedef config::PEC PEC;
@@ -82,9 +87,9 @@ void cb(famouso::mw::api::SECCallBackData& data) {
 int main(int argc, char **argv) {
     famouso::init<config>();
 
-    PEC pub(subject);
+    famouso::mw::api::ExtendedEventChannel<PEC, PubReq, compileError> pub(subject);
 
-    SEC sub(subject);
+    famouso::mw::api::ExtendedEventChannel<SEC, SubReq, compileError> sub(subject);
 
     sub.subscribe();
     sub.callback.bind<&cb>();

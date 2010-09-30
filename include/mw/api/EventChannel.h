@@ -47,12 +47,6 @@
 #include "object/Chain.h"
 #include "case/Delegate.h"
 
-#include "boost/mpl/vector.hpp"
-#include "mw/attributes/AttributeSet.h"
-#include "config/type_traits/if_contains_select_type.h"
-
-IF_CONTAINS_SELECT_TYPE_(attributeProvision);
-
 namespace famouso {
     namespace mw {
         namespace api {
@@ -77,14 +71,7 @@ namespace famouso {
                     typename ECH::SNN _snn;
 
                 protected:
-                   // attribute provision of the given event channel handler (or an
-                   //  an empty provision if the handler did not define any)
-                   // TODO: Should a non-existing provision be accepted or should every
-                   //  NL be forced to extend BaseNL?
-                   typedef typename if_contains_select_type_attributeProvision<
-                                     ECH,
-                                     attributes::AttributeSet<boost::mpl::vector<> >
-                                    >::type echProvision;
+                   typedef ECH eventChannelHandler;
 
                 public:
                     /*! \brief get the local event channel handler object
