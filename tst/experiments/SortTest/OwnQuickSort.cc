@@ -18,7 +18,7 @@ struct divide {
 
         typedef typename boost::mpl::deref<Iter>::type curElem;
 
-        static const bool result = pred::template apply<curElem, Pivot>::type::value;
+        static const bool result = pred::template apply<Pivot, curElem>::type::value;
 
         typedef typename boost::mpl::eval_if_c<
                                       invert ? !result : result,
@@ -33,19 +33,6 @@ struct divide {
 };
 template <typename Seq, typename Pivot, typename Pred, bool invert, typename Result>
 struct divide<Seq, Pivot, Pred, invert, typename boost::mpl::end<Seq>::type, Result> {
-        typedef Result type;
-};
-
-template <typename Result, typename Seq, typename Iter = typename boost::mpl::begin<Seq>::type>
-struct merge {
-        typedef typename boost::mpl::deref<Iter>::type curElem;
-
-        typedef typename boost::mpl::push_back<Result, curElem>::type tmpResult;
-
-        typedef typename merge<tmpResult, Seq, typename boost::mpl::next<Iter>::type>::type type;
-};
-template <typename Result, typename Seq>
-struct merge<Result, Seq, typename boost::mpl::end<Seq>::type> {
         typedef Result type;
 };
 

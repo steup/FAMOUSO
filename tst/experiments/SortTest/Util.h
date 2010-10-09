@@ -1,3 +1,6 @@
+#ifndef _SORT_UTIL_H_
+#define _SORT_UTIL_H_
+
 #include <typeinfo>
 
 #include "logging/logging.h"
@@ -8,17 +11,17 @@
 #include "boost/mpl/eval_if.hpp"
 #include "boost/mpl/less.hpp"
 #include "boost/mpl/lambda.hpp"
-#include "boost/mpl/vector_c.hpp"
 #include "boost/mpl/bool.hpp"
 #include "boost/mpl/integral_c.hpp"
 #include "boost/mpl/deref.hpp"
 #include "boost/mpl/begin.hpp"
 #include "boost/mpl/end.hpp"
 #include "boost/mpl/next.hpp"
+#include "boost/mpl/list_c.hpp"
 
 #ifndef LIST
 #warning No list defined, using default
-typedef boost::mpl::vector_c<int, 10, 1, 2, 3, 4, 9>::type list;
+typedef boost::mpl::list_c<int, 10, 1, 2, 3, 4, 9>::type list;
 #else
 typedef LIST list;
 #endif
@@ -34,6 +37,20 @@ struct is_integral_wrapper {
                                                boost::is_same<typename T::tag, boost::mpl::integral_c_tag>,
                                                boost::mpl::bool_<false>
                                               >::type::value;
+};
+
+// Merges the sequence Result and Seq in that order
+template <typename Result, typename Seq, typename Iter = typename boost::mpl::begin<Seq>::type>
+struct merge {
+        typedef typename boost::mpl::deref<Iter>::type curElem;
+
+        typedef typename boost::mpl::push_back<Result, curElem>::type tmpResult;
+
+        typedef typename merge<tmpResult, Seq, typename boost::mpl::next<Iter>::type>::type type;
+};
+template <typename Result, typename Seq>
+struct merge<Result, Seq, typename boost::mpl::end<Seq>::type> {
+        typedef Result type;
 };
 
 template <typename S, typename I = typename boost::mpl::begin<S>::type>
@@ -56,3 +73,5 @@ struct printer<S, typename boost::mpl::end<S>::type> {
             ::logging::log::emit() << ::logging::log::endl;
         }
 };
+
+#endif // _SORT_UTIL_H_
