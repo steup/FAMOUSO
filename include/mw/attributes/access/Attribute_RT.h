@@ -66,9 +66,8 @@ namespace famouso {
                         // Visibility
                     }
 
-                public:
                     // Dummy data array
-                    uint8_t data[1];
+                    uint8_t data[0];
 
                 public:
                     /*!
