@@ -52,11 +52,6 @@ namespace famouso {
         namespace attributes {
             namespace detail {
 
-                template <typename Attr>
-                static inline const Attr* find(const uint8_t* data) {
-                    return (find<Attr>(const_cast<uint8_t*>(data)));
-                }
-
                 /*!
                  * \todo The implementation of find should be more resource
                  *       efficient because if different Attributes are in use, the
@@ -100,6 +95,11 @@ namespace famouso {
                     // If we iterated the complete attribute sequence the intended attribute
                     //  could not be found and NULL is returned
                     return (reinterpret_cast<Attr*>(NULL));
+                }
+
+                template <typename Attr>
+                static inline const Attr* find(const uint8_t* data) {
+                    return (find<Attr>(const_cast<uint8_t*>(data)));
                 }
 
             } // end namespace detail
