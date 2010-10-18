@@ -101,7 +101,7 @@ namespace famouso {
                         driver.init();
                         // the CAN Configuration Protocol has to run, before this
                         // function returns
-                        tx_node = ccp.ccp_configure_tx_node(UID("Schulze\0"), driver);
+                        tx_node = ccp.ccp_configure_tx_node(getNodeID<void>(), driver);
                         famouso::util::Delegate<> dg;
                         dg.bind<type, &type::rx_interrupt>(this);
                         driver.set_rx_Interrupt(dg);

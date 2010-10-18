@@ -45,5 +45,35 @@
 
 typedef UID NodeID;
 
+/*! \brief The getNodeID function template returns the unique identifier of a
+ *         node also know as its name.
+ *
+ *  \tparam T is not used within the function template. Its purpose is having
+ *          a possibility to overload the function template within user code
+ *          as a specialization and using that function template instead of
+ *          this default implementation. The user may provide a specialization
+ *          for the type "void" and the middleware will use this automatically.
+ *          If the user does not provide such a specialization, the
+ *          fallback/default function template will be used.
+ *  \return UID that contains the node ID
+ *
+ *  Here is an example on how to specialize the function method in order to
+ *  allow simple self specification of the node's UID.
+ *  \code
+template<>
+UID getNodeID<void>() {
+    // provide your code here that determines the UID and return it
+    //
+    // As an example we return a simple string constant
+    return UID("FAMOUSO");
+}
+ *  \endcode
+ */
+template<typename T>
+UID getNodeID() {
+    // The default implementation returns the name of the main developer ;)
+    return UID("Schulze\0");
+}
+
 #endif /* __NodeID_h__ */
 
