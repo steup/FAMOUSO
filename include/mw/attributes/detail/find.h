@@ -52,16 +52,7 @@ namespace famouso {
         namespace attributes {
             namespace detail {
 
-                /*!
-                 * \todo The implementation of find should be more resource
-                 *       efficient because if different Attributes are in use, the
-                 *       method is generated multiple times. However,
-                 *       this needs not to be so. A possible solution would be to
-                 *       factor out the common parts and only for type-safety
-                 *       let the compiler generate a small cast method.
-                 */
-                template <typename Attr>
-                Attr* find(uint8_t* data) {
+                void* find_impl(uint8_t* data, const uint8_t id, const bool highDensity) {
                     // The number of bytes needed by the attributes
                     //  contained in the given sequence
                     uint16_t seqLen;
@@ -78,14 +69,14 @@ namespace famouso {
                     // The pointer were the given sequence ends
                     const uint8_t* const targetPtr = data + seqLen;
 
-                    AttributeHeader_RT* header;
+                    const AttributeHeader_RT* header;
 
                     while (data < targetPtr) {
                         header = reinterpret_cast<AttributeHeader_RT*>(data);
 
                         // Check if the encoded attribute fits the given one
-                        if ((header->isHighDensity() == Attr::highDensity) && (header->getID() == Attr::id)) {
-                            return (reinterpret_cast<Attr*>(header));
+                        if ((header->isHighDensity() == highDensity) && (header->getID() == id)) {
+                            return (data);
                         }
 
                         // We let the attribute class determine its overall size to skip it
@@ -94,12 +85,17 @@ namespace famouso {
 
                     // If we iterated the complete attribute sequence the intended attribute
                     //  could not be found and NULL is returned
-                    return (reinterpret_cast<Attr*>(NULL));
+                    return (NULL);
+                }
+
+                template <typename Attr>
+                static inline Attr* find(uint8_t* data) {
+                    return (reinterpret_cast<Attr*>(find_impl(data, Attr::id, Attr::highDensity)));
                 }
 
                 template <typename Attr>
                 static inline const Attr* find(const uint8_t* data) {
-                    return (find<Attr>(const_cast<uint8_t*>(data)));
+                    return (reinterpret_cast<const Attr*>(find_impl(const_cast<uint8_t*>(data), Attr::id, Attr::highDensity)));
                 }
 
             } // end namespace detail
