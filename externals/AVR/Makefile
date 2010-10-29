@@ -50,7 +50,7 @@ avr-halib:
 
 build-avr-halib:
 	@echo Building avr-halib
-	@make -C avr-halib ${MCU} portmapgen
+	@make -C avr-halib CHIP=${MCU}
 	@cp avr-halib/build/libavr-halib-${MCU}.a ${LIBDIR}
 
 avr-maclib:
