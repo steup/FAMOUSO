@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-%% Copyright (c) 2008-2010 André Dietrich <dietrich@ivs.cs.uni-magdeburg.de>
+%% Copyright (c) 2008-2010 Andre Dietrich <dietrich@ivs.cs.uni-magdeburg.de>
 %% All rights reserved.
 %%
 %%    Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -module(famouso).
+
+%% @headerfile "famouso.hrl" 
 -include("famouso.hrl").
--author("André Dietrich <dietrich@ivs.cs.uni-magdeburg.de>").
+
+-author("Andre Dietrich <dietrich@ivs.cs.uni-magdeburg.de>").
 -export([event_channel/1, init_event_handler/1, event_handler/3, subscribe/1, unsubscribe/1, announce/1, unannounce/1, publish/2]).
 
-% local defines
+%% local Famouso-definitions
 -define(HOST, "localhost").
 -define(PORT, 5005).
 
@@ -50,72 +53,98 @@
 -define(OP_PUBLISH,  "R").
 -define(OP_SUBSCRIBE,"P").
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc starts a new process as EventChannelHandler
+%% @spec event_channel( string() ) -> event_channel()
 event_channel(Subject) -> 
 	Pid = spawn(?MODULE, init_event_handler, [Subject]),
 	#event_channel{subject=Subject, pid=Pid}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc send subscribtion-command to the EventChannelHandler 
+%% @spec subscribe( event_channel() ) -> none()
 subscribe(EventChannel) ->
 	EventChannel#event_channel.pid ! {subscribe, self()}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc send unsubscribtion-command to the EventChannelHandler
+%% @spec unsubscribe( event_channel() ) -> none()
 unsubscribe(EventChannel) ->
 	EventChannel#event_channel.pid ! stop.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc send announce-command to the EventChannelHandler
+%% @spec announce( event_channel() ) -> none()
 announce(EventChannel) ->
 	EventChannel#event_channel.pid ! {announce, self()}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc send unannounce-command to the EventChannelHandler
+%% @spec unannounce( event_channel() ) -> none()
 unannounce(EventChannel) ->
 	EventChannel#event_channel.pid ! stop.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc send data to the EventChannelHandler for publishing
+%% @spec publish( event_channel() , binary() ) -> none()
 publish(EventChannel, Data) ->
 	EventChannel#event_channel.pid ! {publish, Data}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc generates a socket and starts the event_handler routine
+%% @spec init_event_handler( string(8) ) -> none()
+%% @private
 init_event_handler(Subject) ->
 	{ok, Socket} = gen_tcp:connect(?HOST, ?PORT, [binary]),
 	event_handler(Subject, Socket, []).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% @doc eventhandler routine comunicates only with messages
+%% @spec event_handler( string(8), Socket, pid() ) -> none()
+%% @private
 event_handler(Subject, Socket, Pid) ->
 	% reset the socket for flow control
 	inet:setopts(Socket, [{active, true}]),
 	receive
-		% do something with the data you receive
+		%% receive subscribtion and save subscriber pid
 		{subscribe, Subscriber} ->
 			Subscription = [?OP_SUBSCRIBE, Subject],
 			ok = gen_tcp:send(Socket, Subscription),
 			Subscriber ! ok,
 			event_handler(Subject, Socket, Subscriber);
-
+		%% receive announcement and save publisher pid
 		{announce, Publisher} ->
 			Announcement = [?OP_ANNOUNCE, Subject],
 			Publisher ! ok,
 			ok = gen_tcp:send(Socket, Announcement),
 			event_handler(Subject, Socket, Publisher);
-
+		%% receive message to publish data
 		{publish, Data} ->
+			%% generate famouso event
 			DataLength = length(Data),
-			Msg = [	?OP_PUBLISH,
-				Subject, 
-				<<DataLength:32>>,
-				Data],
+			Msg = [	?OP_PUBLISH, Subject, <<DataLength:32>>, Data],
+			%% transmit the event
 			ok = gen_tcp:send(Socket, Msg),
 			Pid ! ok,
 			event_handler(Subject, Socket, Pid);
-
+		%% receive signal to stop the event_channel_handler
 		stop ->
 			ok = gen_tcp:close(Socket),
 			Pid ! ok;
-
-		% do something with the data you receive
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%% receive data from the socket 
 		{tcp, Socket, Msg} ->
 			<< _:8, _:64, Length:32, Data/binary>> = Msg,
 			Event = #event{subject=Subject, length=Length, data=Data},
 			Pid ! {event, Event},
 			event_handler(Subject, Socket, Pid);
+		%% tcp socket connection failes
 		{tcp_error, Socket, Reason} ->
 			exit(Reason);
-		% exit loop if the client disconnects
+		%% exit, socket connection was closed 
 		{tcp_closed, Socket} ->
 			io:format("~p Client Disconnected.~n", [erlang:localtime()]);
-
+		%% default, for debuging purposes
 		Msg -> 
 			io:format("Received ~p~n", [Msg]),
 			event_handler(Subject, Socket, Pid)

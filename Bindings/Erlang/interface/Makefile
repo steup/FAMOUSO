@@ -40,5 +40,11 @@
 all:
 	erlc famouso.erl
 
+docs:
+	erl -noshell -run edoc_run application "'famouso'" '"."' '[{def,{vsn,"$(VSN)"}}]' 
+	
 clean:
 	rm *.beam
+	
+cleanall: clean
+	rm -rf doc

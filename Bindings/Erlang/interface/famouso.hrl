@@ -39,6 +39,8 @@
 
 %% famouso.hrl
 
+%% @type event_channel() = #event_channel{subject = string(8), pid=pid()}
 -record(event_channel, {subject, pid}).
 
+%% @type event() = #event{subject = string(8), length=int() ,data=binary()}
 -record(event, {subject, length, data}).
