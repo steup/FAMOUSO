@@ -42,35 +42,47 @@
 require_once("FamousoDefines.php");
 require_once("EventChannel.php");
 
-class Subscriber{
+/**
+* Famouso-Subscriber
+* @author André Dietrich
+* @version 0.1
+*/
 
+class Subscriber{
+	
+	/** object of the eventchannel */	
 	protected $m_EventChannel;
 
+	/**
+  	 * Constructer
+  	 * @param EventChannel eventchannel for receiving new events 
+  	*/	
 	public function __construct( $EventChannel) {
 		$this->m_EventChannel = $EventChannel;
 	}
 
+	/**
+  	 * create socket and send subscribtion to the Famouso-EventChannelHandler
+  	 * @return true, if subscribtion was succesful, else false 
+  	*/
 	public function subscribe() {
-
-		if( ! $this->m_EventChannel->connect()) {
-			return false;
+		if( $this->m_EventChannel->connect() ) {
+			return $this->m_EventChannel->send(OP_SUBSCRIBE);
 		}
-
-		$subscribtion = OP_SUBSCRIBE . $this->m_EventChannel->subject();
-
-		$this->m_EventChannel->send($subscribtion);
-
-		return true;
+		return false;
 	}
 
+	/**
+  	 * get the next event by polling (socket is blocking)
+  	 * @return the event = array('opcode' => , 'subject' =>, 'length' =>, 'data'=>);
+  	*/
 	public function getEvent() {
-		$data = $this->m_EventChannel->receive();
-
-		$event = unpack("a1opcode/a8subject/Nlength/a*data", $data);
-
-		return $event;
+		return $this->m_EventChannel->receive();
 	}
 
+	/**
+  	 * unsubscribing means losing the socket
+  	*/
 	public function unsubscribe() {
 		$this->m_EventChannel->disconnect();
 	}

@@ -42,34 +42,58 @@
 require_once("FamousoDefines.php");
 require_once("EventChannel.php");
 
+/**
+* Famouso-Publisher
+* @author André Dietrich
+* @version 0.1
+*/
+
 class Publisher{
 
+	/** object of the eventchannel */	
 	protected $m_EventChannel;
 
+	/**
+  	 * Constructer
+  	 * @param EventChannel eventchannel for publishing 
+  	*/	
 	public function __construct( $EventChannel ) {
 		$this->m_EventChannel = $EventChannel;
 	}
 
+	/**
+  	 * announce the subject
+  	 * @return true if announcement was successful, else false 
+  	*/
 	public function announce() {
 
+		/// open socket
 		if( ! $this->m_EventChannel->connect()) {
 			return false;
 		}
-
-		$announcement = OP_ANNOUNCE . $this->m_EventChannel->subject();
-
-		$this->m_EventChannel->send($announcement);
+		
+		/// send announcement
+		if( ! $this->m_EventChannel->send(OP_ANNOUNCE) ){
+			return false;
+		}
 
 		return true;
 	}
 
+	/**
+  	 * publish data via the eventchannel
+  	 * @param data arbitrary data to publish
+  	 * @return true if publishing was successful, else false 
+  	*/
 	public function publish($data) {
-		$message = OP_PUBLISH . $this->m_EventChannel->subject() . pack("N", strlen($data)) . $data;
-
-		$this->m_EventChannel->send($message);
+		return $this->m_EventChannel->send(OP_PUBLISH, $data);
 	}
 
+	/**
+  	 * unannounce the subject 
+  	*/
 	public function unannounce() {
+		/// close socket
 		$this->m_EventChannel->disconnect();
 	}
 }

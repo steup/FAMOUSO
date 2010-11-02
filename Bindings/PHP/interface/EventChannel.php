@@ -41,46 +41,101 @@
 
 require_once("FamousoDefines.php");
 
+/**
+* EventChannel
+* @author André Dietrich
+* @version 0.1
+*/
+
+
 class EventChannel{
 
+	/** subject string */
 	protected $m_Subject;
+	/** communication socket */
 	protected $m_Socket;
 
+	/**
+  	 * Constructer
+  	 * @param $Subject subject of the eventchannel 
+  	*/	
 	public function __construct( $Subject ) {
 		$this->m_Subject = $Subject;
 	}
 
-	public function subject(){
-		return $this->m_Subject;
-	}
-
+	/**
+	 * Creates a socket to communicate with the Famouso-EventChannelHandler 
+  	 * @return true if connection established, else false 
+  	*/	
 	public function connect() {
 
 		$this->m_Socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-		if ($this->m_Socket == false) {
+		if ( ! $this->m_Socket) {
 			return false;
 		}
 
-		if( !socket_connect($this->m_Socket, FAMOUSO_HOST, FAMOUSO_PORT) ) {
+		if( ! socket_connect($this->m_Socket, FAMOUSO_HOST, FAMOUSO_PORT) ) {
 			return false;
 		}
 
 		return true;
 	}
 
+	/**
+	 * close communication socket to the Famouso-EventChannelHandler 
+  	 * @return true if connection established, else false 
+  	*/
 	public function disconnect() {
 		socket_close($this->m_Socket);
 	}
 
-	public function send($event) {
-		socket_write($this->m_Socket, $event, strlen($event));
+	/**
+	 * send a meassage to the Famouso-EventChannelHandler
+	 * @param $op one of the possible opcodes OP_ANNOUNCE|OP_PUBLISH|OP_SUBSCRIBE 
+	 * (see FamousoDefines.php)
+	 * @param $data data to send
+  	 * @return true if sendig was succesful, else false 
+  	*/
+	public function send($op, $data="") {
+		switch ($op) {
+			case OP_ANNOUNCE:
+			case OP_SUBSCRIBE: {
+				$event = $op . $this->m_Subject;
+				break;
+			}			
+			case OP_PUBLISH : {
+				$event = OP_PUBLISH . $this->m_Subject . pack("N", strlen($data)) . $data;
+				break;
+			}
+			default: {
+				return false;
+			}	
+		}
+
+		if( socket_write($this->m_Socket, $event, strlen($event)) ) {
+			return true;
+		}
+		
+		return false;
 	}
 
+	/**
+	 * receives a message from the Famouso-EventChannelHandler and converts it to an associative array
+  	 * @return $event = array('opcode' => , 'subject' =>, 'length' =>, 'data'=>);
+  	*/
 	public function receive() {
-		return socket_read($this->m_Socket, MAX_PACKET_SIZE);
+		$data = socket_read($this->m_Socket, MAX_PACKET_SIZE);
+		
+		$event = unpack("a1opcode/a8subject/Nlength/a*data", $data);
+
+		return $event;
 	}
 
+	/**
+	 * waits for a message from the Famouso-EventChannelHandler starting with opcode OP_PUBLISH
+  	 * @return true if a message starting with OP_PUBLISH was received, else false
+  	*/
 	public function listen() {
 		socket_recv($this->m_Socket, $buff, 1, MSG_PEEK);
 

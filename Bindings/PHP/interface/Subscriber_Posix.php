@@ -42,13 +42,29 @@
 require_once("Subscriber.php");
 require_once("EventChannel.php");
 
+/**
+* Experimental Famouso-Subscriber with callback functionality.
+* This kind of callback-handling works only with Posix compatible operating system.
+* @author André Dietrich
+* @version 0.1
+*/
+
 class Subscriber_Posix extends Subscriber{
 
+	/** string or array of userdefined callback-function */
 	protected $m_Callback;
 
+	/** process-id of the child-process */
 	protected $m_PidChild;
+	/** process-id of the parent-process */
 	protected $m_PidParent;
 
+	/**
+  	 * send subscribtion and fork the process, the child-process listens the socket for new events
+  	 * while the parent-pocess continues working
+  	 * @param $Callback stringrepresentation of the callback-function
+  	 * @return true, if subscribtion and fork were succesful, else false 
+  	*/
 	public function subscribe( $Callback ) {
 		
 		if( ! parent::subscribe() ){
@@ -60,37 +76,53 @@ class Subscriber_Posix extends Subscriber{
 		$this->m_PidChild  = pcntl_fork();
 
 		if ($this->m_PidChild == -1) {
-			die('Konnte nicht verzweigen');
+			die('could not create child-process');
 			return false;
 		} else if ($this->m_PidChild) {
+			// parent registers signal-handler
 			pcntl_signal(SIGUSR1, array($this, 'sig_handler'));
 		} else {
+			// start listening at the socket
 			$this->listen();		  
 		}
 
 		return true;
 	}
 
-	protected function callback($event) {
-		call_user_func($this->m_Callback, $event);
-	}
-
+	/**
+  	 * signal handler is called from the child, if an event is received
+  	 * and calls the userdefined callback 
+  	 * @param $signo (waiting for signal SIGUSR1) 
+  	*/
 	public function sig_handler($signo) 
 	{
-		$this->callback( $this->getEvent() );
-		posix_kill($this->m_PidChild, SIGCONT);
+		if($signo == SIGUSR1) {
+			// call callback
+			call_user_func($this->m_Callback, $this->getEvent() );
+			// tell the child-process to go on
+			posix_kill($this->m_PidChild, SIGCONT);
+		}
 	}
 
+	/**
+  	 * unsubscribing means losing the socket and kill the child-process
+  	*/
 	public function unsubscribe() {
 		parent::unsubscribe();
 
 		posix_kill($this->m_PidChild, SIGABRT);
 	}
-
+	
+	/**
+  	 * listening child-process
+  	*/
 	protected function listen(){
 		while(true){
+			/// if a famouso-message was received 
 			if( $this->m_EventChannel->listen() ) {
+				/// send signal to the parent
 				posix_kill($this->m_PidParent, SIGUSR1);
+				/// wait until the parent sends a signal to go on
 				posix_kill(getmypid(), SIGSTOP);
 			}
 		}
