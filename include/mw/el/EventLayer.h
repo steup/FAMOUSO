@@ -70,6 +70,10 @@ namespace famouso {
             template < class LL >
             class EventLayer : public LL {
 
+                protected:
+
+                    typedef LL LowerLayer;
+
                     // potentiell gefaerdete Datenstrukturen
                     // wegen Nebenlaeufigkeit
 
@@ -93,10 +97,11 @@ namespace famouso {
 
                     /*! \brief  initialize the middleware core
                      */
+                    template <class ECH>
                     void init() {
                         // initialization code
                         // e.g. set callbacks and initalize all lower layers too
-                        IncommingEventFromNL.bind<EventLayer<LL>, &EventLayer<LL>::fetch >(this);
+                        IncommingEventFromNL.bind<EventLayer<LL>, &EventLayer<LL>::template fetch<ECH> >(this);
                         LL::init();
                     }
 
@@ -106,7 +111,8 @@ namespace famouso {
                      *
                      *  \param[in]  ec the publishing event channel that is announced
                      */
-                    void announce(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    template <class EventChannel>
+                    void announce(EventChannel &ec) {
                         TRACE_FUNCTION;
                         LL::announce(ec.subject(), ec.snn());
                         Publisher.append(ec);
@@ -118,7 +124,8 @@ namespace famouso {
                      *  \param[in]  e the event that is published
                      *
                      */
-                    void publish(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e) {
+                    template <class EventChannel>
+                    void publish(const EventChannel &ec, const Event &e) {
                         TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Info>()
                             << PROGMEMSTRING("Publish channel with addr=")
@@ -131,7 +138,7 @@ namespace famouso {
                         LL::publish(ec.snn(), e);
 
                         // publish locally on all subscribed event channels
-                        publish_local(e);
+                        publish_local<typename EventChannel::eventChannelHandler>(e);
                     }
 
                     /*! \brief  subscribe an event channel on all lower layers and register
@@ -139,7 +146,8 @@ namespace famouso {
                      *
                      *  \param[in]  ec the subscribing event channel that is announced
                      */
-                    void subscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    template <class EventChannel>
+                    void subscribe(EventChannel &ec) {
                         TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Info>()
                             << PROGMEMSTRING("Subscribe channel with addr=")
@@ -157,7 +165,8 @@ namespace famouso {
                      *
                      *  \param[in]  ec the unsubscribed event channel
                      */
-                    void unsubscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    template <class EventChannel>
+                    void unsubscribe(EventChannel &ec) {
                         TRACE_FUNCTION;
                         Subscriber.remove(ec);
                     }
@@ -167,7 +176,8 @@ namespace famouso {
                      *
                      *  \param[in]  ec the unsubscribed event channel
                      */
-                    void unannounce(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    template <class EventChannel>
+                    void unannounce(EventChannel &ec) {
                         TRACE_FUNCTION;
                         Publisher.remove(ec);
                     }
@@ -179,10 +189,11 @@ namespace famouso {
                      *  \param[in]  e the event that is published
                      *
                      */
+                    template <class ECH>
                     void publish_local(const Event &e) {
                         TRACE_FUNCTION;
                         // give start of the SubsriberList
-                        typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
+                        typedef famouso::mw::api::SubscriberEventChannel<ECH> ec_t;
                         ec_t* sec = static_cast<ec_t*>(Subscriber.select());
                         // traverse the list and call the respective subscriber notify callback
                         // in case subject matching
@@ -204,11 +215,12 @@ namespace famouso {
                      *              periodically without interrupt support from lower network
                      *              layer.
                      */
+                    template <class ECH>
                     void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
                         TRACE_FUNCTION;
 
                         // give start of the SubsriberList
-                        typedef famouso::mw::api::SubscriberEventChannel< EventLayer >ec_t;
+                        typedef famouso::mw::api::SubscriberEventChannel<ECH> ec_t;
                         ec_t* sec = static_cast<ec_t*>(Subscriber.select());
 
                         // inform low layer about fetching starts
@@ -231,7 +243,7 @@ namespace famouso {
                                 // respective subscribers (if the packet was a fragment
                                 // the corresponding event may not be complete)
                                 if (result > 0)
-                                    publish_local<EL>(e);
+                                    publish_local<ECH>(e);
 
                                 // packet/event processed (fetch called for each packet)
                                 break;

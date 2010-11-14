@@ -70,10 +70,9 @@ namespace famouso {
                     // definition of the short network names of a subjectes
                     typename ECH::SNN _snn;
 
-                protected:
-                   typedef ECH eventChannelHandler;
-
                 public:
+                    typedef ECH eventChannelHandler;
+
                     /*! \brief get the local event channel handler object
                      */
                     ECH& ech() const {
