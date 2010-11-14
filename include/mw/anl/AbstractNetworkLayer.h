@@ -180,10 +180,11 @@ namespace famouso {
                      *                  event), e.data is set to NULL.
                      *  \param[in]  bnl the sub network in that the event \e e will be published.
                      *
-                     *  \return \li \b true if \e snn and the snn of the last arosen packet are equal
-                     *          \li \b false otherwise
+                     *  \return \li \b -1 if \e snn and the snn of the last arosen packet are different
+                     *          \li \b 0 if they are equal but there is no complete event to fetch
+                     *          \li \b 1 if they are equal and \e e contains a complete event
                      */
-                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
+                    int8_t fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
                         TRACE_FUNCTION;
                         if (snn == NL::lastPacketSNN()) {
                             typename NL::Packet_t p;
@@ -191,20 +192,21 @@ namespace famouso {
                             if (!p.fragment) {
                                 e.length = p.data_length;
                                 e.data = p.data;
+                                return 1;
                             } else {
                                 // Apply AFP
-                                afp::DefragmentationStep<AFP_DefragConfig> ds(p.data, p.data_length, NL::lastPacketSNN());
+                                afp::DefragmentationStep<AFP_DefragConfig> ds(p.data, p.data_length, snn);
                                 defrag.process_fragment(ds);
                                 if (ds.event_complete()) {
                                     e.data = ds.get_event_data();
                                     e.length = ds.get_event_length();
+                                    return 1;
                                 } else {
-                                    e.data = 0;
+                                    return 0;
                                 }
                             }
-                            return true;
                         } else {
-                            return false;
+                            return -1;
                         }
                     }
 

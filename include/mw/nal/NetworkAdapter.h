@@ -176,8 +176,11 @@ namespace famouso {
                      *              of the event for both sub networks.
                      *  \param[out] e the event that is filled with the received event
                      *  \param[in]  bnl the network from where an event fetching was requested.
+                     *  \return \li \b -1 if \e snn and the snn of the last arosen packet are different
+                     *          \li \b 0 if they are equal but there is no complete event to fetch
+                     *          \li \b 1 if they are equal and \e e contains a complete event
                      */
-                    bool fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
+                    int8_t fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
                         /*! \todo fetching of stacked gateway are not implemented at this stage and
                          *        time triggered fetching is also not supported. */
                         if (_ANL_A.id() == bnl)
