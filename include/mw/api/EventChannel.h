@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -43,6 +44,7 @@
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
 #include "mw/el/EventChannelHandler.h"
+#include "mw/attributes/AttributeSet.h"
 
 #include "object/Chain.h"
 #include "case/Delegate.h"
@@ -69,6 +71,47 @@ namespace famouso {
                     Subject _subj;
                     // definition of the short network names of a subjectes
                     typename ECH::SNN _snn;
+
+                protected:
+                    struct MWAction {
+                        enum {
+                            /*! \brief Get the channel's requirement attributes
+                             *
+                             *  Action trigger function returns length of the
+                             *  attribute set and writes the binary
+                             *  representation into buffer if \e buffer does
+                             *  not equal NULL.
+                             */
+                            get_requirements
+                        } action;
+                        uint8_t * buffer;
+                    };
+
+                    /*! \brief  Triggers a channel action that needs information
+                     *          from higher class derivation level
+                     *  \note   Only one delegate for multiple function (and no
+                     *          virtuals) to save RAM.
+                     *  \todo   Save RAM by replacing this with another type of delegate wich
+                     *          does not store an object pointer, because the this pointer
+                     *          is known at invocation time.
+                     *  \todo   Save RAM for configurations without a management channel by
+                     *          leaving it out in that cases.
+                     */
+                    util::Delegate<MWAction &, uint16_t> mw_action_trampoline;
+
+                    uint16_t dummy_mw_action_impl(MWAction & mw_action) {
+                        if (mw_action.action == MWAction::get_requirements) {
+                            // Return empty requirement attribute set
+                            typedef attributes::AttributeSet<> ReqAttr;
+                            if (mw_action.buffer) {
+                                new (mw_action.buffer) ReqAttr;
+                            }
+                            return ReqAttr::overallSize;
+                        }
+                        return 0;
+                    }
+
+                    template <class LL> friend class ManagementLayer;
 
                 public:
                     typedef ECH eventChannelHandler;
@@ -100,11 +143,32 @@ namespace famouso {
                         return _subj;
                     }
 
+                    /*! \brief get channel requirement attribute set (binary
+                     *         representation)
+                     *  \param buffer Buffer to store the binary
+                     *                representation of the attribute set or
+                     *                NULL.
+                     *  \return length of the binary representation in bytes
+                     *  \note   You must ensure that \p buffer is large
+                     *          enough to hold the attribute set. Call this
+                     *          function with a NULL argument to get the
+                     *          size for buffer allocation.
+                     */
+                    uint16_t get_requirements(uint8_t * buffer) const {
+                        MWAction mwa;
+                        mwa.action = MWAction::get_requirements;
+                        mwa.buffer = buffer;
+                        return mw_action_trampoline(mwa);
+                    }
+
                 protected:
                     /*! \brief Constructor of the class is protected to avoid
                      *         instanciating objects.
                      */
                     EventChannel(const Subject& s) : _subj(s) {
+                        mw_action_trampoline.template bind<
+                                EventChannel,
+                                &EventChannel::dummy_mw_action_impl>(this);
                     }
 
 
