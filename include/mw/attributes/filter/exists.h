@@ -61,7 +61,7 @@ namespace famouso {
                      */
                     template< typename T>
                     static bool apply(const T& e) {
-                        return !!(find<exists>(e));
+                        return !!(::famouso::mw::attributes::filter::find<exists>(e));
                     }
 
                     /*! \brief  checking function for the runtime %filter
