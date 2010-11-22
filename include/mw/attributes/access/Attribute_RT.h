@@ -66,9 +66,6 @@ namespace famouso {
                         // Visibility
                     }
 
-                    // Dummy data array
-                    uint8_t data[0];
-
                 public:
                     /*!
                      * \brief Returns the value from the binary representation of
@@ -88,30 +85,25 @@ namespace famouso {
                         //  it is returned)
                         ValueType res;
 
+                        const uint8_t* const data = reinterpret_cast<const uint8_t* const>(this);
+
                         const detail::AttributeElementHeader* const header =
                                 reinterpret_cast<const detail::AttributeElementHeader* const>(data);
 
-                        // TODO: Change this to Attribute_Header_RT somehow
-                        const bool highDensity = header->category != detail::HighDensityIDs::lowDensity;
-
-                        if ((highDensity) && (header->valueOrLengthSwitch)) {
+                        if ((header->isHighDensity()) && (header->valueOrLengthSwitch)) {
                             if (header->extension) {
                                 if (sizeof(ValueType) == 1) {
                                     // If the value type has only one byte, the two remaining bits
                                     //  of the header byte are zero, since all 8 bits of the value
                                     //  fit the extended byte
+                                    // (Implicit conversion: data[1] -> uint8_t -> static_cast -> ValueType)
                                     res = static_cast<ValueType>(data[1]);
                                 } else {
-                                    // In all other cases the 10 bits must be copied manually into
-                                    //  the result
+                                    // In all other cases the 10 bits of the 2-byte-header must be used
+                                    const uint16_t tmp = *(reinterpret_cast<const uint16_t* const>(data));
 
-                                    // Assign the value directly to the result (The unnecessary
-                                    //  header bits are still contained, they are masked after byte
-                                    //  order conversion)
-                                    res = *(reinterpret_cast<const ValueType*>(data));
-                                    // Convert the value to host byte order and mask out the
-                                    //  unnecessary header bits
-                                    res = (famouso::util::ntoh(res) & 0x3FF);
+                                    // Adjust endianess and mask out the upper 6 header meta-bits
+                                    res = (famouso::util::ntoh(tmp) & 0x3FF);
                                 }
                             } else {
                                 res = static_cast<ValueType> (data[0] & 0x3);
@@ -126,8 +118,8 @@ namespace famouso {
                             // Number of bytes to copy from the val-array
                             uint16_t length;
 
-                            const uint16_t lengthMask = (highDensity ? 0x3FF : 0x7FF);
-                            const uint8_t valueOffset = (highDensity ? 1 : 2);
+                            const uint16_t lengthMask  = ((header->isHighDensity()) ? 0x3FF : 0x7FF);
+                            const uint8_t  valueOffset = ((header->isHighDensity()) ? 1 : 2);
 
                             // Read the length in big-endian order
                             if (header->extension) {
@@ -178,17 +170,17 @@ namespace famouso {
                      */
                     template <typename ValueType>
                     const bool set(const ValueType newValue) {
+                        uint8_t* const data = reinterpret_cast<uint8_t* const>(this);
+
                         // Determine the bit count of the value to set
                         const uint16_t newBitCount = getBitCount(newValue);
 
                         detail::AttributeElementHeader* const header =
                                 reinterpret_cast<detail::AttributeElementHeader* const>(data);
 
-                        // TODO: Change this to Attribute_Header_RT somehow
-                        const bool highDensity = header->category != detail::HighDensityIDs::lowDensity;
-
-                        if ((highDensity) && (header->valueOrLengthSwitch)) {
+                        if ((header->isHighDensity()) && (header->valueOrLengthSwitch)) {
                             if (header->extension) {
+                                // 10 bits at max are allowed in this case
                                 if (newBitCount > 10)
                                     return (false);
 
@@ -198,7 +190,7 @@ namespace famouso {
 
                                     header->valueOrLength = 0x0;
 
-                                    data[1] = static_cast<uint8_t> (newValue);
+                                    data[1] = static_cast<uint8_t>(newValue);
                                 } else {
                                     // This case can never be reached by a negative value (it would have
                                     //  taken 16 bits, which is not allowed here)
@@ -218,6 +210,7 @@ namespace famouso {
                                     data[1] = *tmp;
                                 }
                             } else {
+                                // Only 2 bits at max are allowed here
                                 if (newBitCount > 2)
                                     return (false);
 
@@ -236,14 +229,15 @@ namespace famouso {
                             //  (depends on the extension flag)
                             uint8_t* targetPtr;
                             // The length read
+                            // TODO: Use AttributeHeader_RT.getLength() here
                             uint16_t length;
 
-                            const uint8_t  valueOffset = (highDensity ? 1 : 2);
+                            const uint8_t valueOffset = ((header->isHighDensity()) ? 1 : 2);
 
                             // Read the length in big-endian order
                             if (header->extension) {
                                 length    = *(reinterpret_cast<const uint16_t*>(data));
-                                length    = (ntohs(length) & (highDensity ? 0x3FF : 0x7FF));
+                                length    = (ntohs(length) & ((header->isHighDensity()) ? 0x3FF : 0x7FF));
                                 targetPtr = &data[valueOffset + 1];
                             } else {
                                 // Expand the single byte to a 16 bit value and only apply the
@@ -276,16 +270,11 @@ namespace famouso {
                      * \brief Determines the number of bytes used by the binary representation
                      *  of this attribute.
                      *
-                     * This method uses the binary representation of this attribute only, that
-                     *  is the structure defined by the template argument "value" is not
-                     *  considered. This allows determining the size of %attributes that are
-                     *  for instance received from the network.
-                     *
                      * \return This attribute's size in bytes
                      */
                     uint16_t size() const {
                         const detail::AttributeHeader_RT* const header =
-                                reinterpret_cast<const detail::AttributeHeader_RT* const>(&data[0]);
+                                reinterpret_cast<const detail::AttributeHeader_RT* const>(this);
 
                         // The sum of the header size (which eventually includes an encoded
                         //  attribute value) and the encoded length is the overall size of

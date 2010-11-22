@@ -57,15 +57,18 @@ namespace famouso {
 
                 struct AttributeSetHeader_RT {
                     private:
-                        // Dummy data array
-                        uint8_t data[1];
+                        AttributeSetHeader_RT() {
+                            // Visibility
+                        }
 
                     public:
                         const bool isExtended() const {
-                            return ((data[0] & 0x80) != 0);
+                            return ((*reinterpret_cast<const uint8_t* const>(this) & 0x80) != 0);
                         }
 
                         const uint16_t get() const {
+                        	const uint8_t* const data = reinterpret_cast<const uint8_t* const>(this);
+
                             if (isExtended()) {
                                 // Get the first two bytes, convert them to host byte order and mask the
                                 //  extension bit
@@ -97,6 +100,8 @@ namespace famouso {
 
                     private:
                         void writeSize(const uint16_t size, const bool extension) {
+                            uint8_t* const data = reinterpret_cast<uint8_t* const>(this);
+
                             // Depending on whether the sequence header is extended either 1
                             //  or 2 two bytes must be written accordingly
                             if (extension) {
@@ -104,7 +109,7 @@ namespace famouso {
                                 //  extension bit
                                 const uint16_t tmpSize = htons(size | 0x8000);
                                 // Assign the converted value to the array
-                                *(reinterpret_cast<uint16_t*> (data)) = tmpSize;
+                                *(reinterpret_cast<uint16_t*>(data)) = tmpSize;
                             } else {
                                 // Write the lower 7 bits of the sequence size into the first
                                 //  and only byte (The extension flag assures that the given

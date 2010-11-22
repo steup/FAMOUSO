@@ -61,11 +61,12 @@ namespace famouso {
                                  uint8_t, 1, 1, 1, 2, (1 + 1), (1 + 1 + 1)
                                 >::type sizeSelector;
 
-                        // Dummy data array
-                        uint8_t data[1];
+                        AttributeHeader_RT() {
+                            // Visibility
+                        }
 
                         const AttributeElementHeader* const asElementHeader() const {
-                            return (reinterpret_cast<const AttributeElementHeader* const>(&data[0]));
+                            return (reinterpret_cast<const AttributeElementHeader* const>(this));
                         }
 
                         bool isExtended() const {
@@ -81,6 +82,8 @@ namespace famouso {
                             if (isHighDensity()) {
                                 return (asElementHeader()->category);
                             } else {
+                                const uint8_t* const data = reinterpret_cast<const uint8_t* const>(this);
+
                                 return (data[isExtended() ? 2 : 1]);
                             }
                         }
@@ -92,7 +95,7 @@ namespace famouso {
                          *  of the header, that is it always returns the correct
                          *  length for all possible header structures
                          * The returned value should be interpreted as the number
-                         *  of bytes needed by the attribute's value, so the special
+                         *  of bytes needed by the attribute's value, so for the special
                          *  case of a high density attribute with its value encoded
                          *  in the header 0 respective 1 will be returned.
                          *
@@ -108,7 +111,7 @@ namespace famouso {
                                     if (isExtended()) {
                                         return (ntohs(*(reinterpret_cast<
                                                          const uint16_t*
-                                                        >(&data[0]))) & 0x03FF);
+                                                        >(this))) & 0x03FF);
                                     } else {
                                         return (asElementHeader()->valueOrLength);
                                     }
@@ -117,7 +120,7 @@ namespace famouso {
                                 if (isExtended()) {
                                     return (ntohs(*(reinterpret_cast<
                                                      const uint16_t*
-                                                    >(&data[0]))) & 0x07FF);
+                                                    >(this))) & 0x07FF);
                                 } else {
                                     return (asElementHeader()->length);
                                 }
