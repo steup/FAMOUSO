@@ -184,15 +184,15 @@ namespace famouso {
 
                                     if (p) {
                                         // publisher attibute is defined
-                                        if (s && cmp::apply_runtime(p->get(), s->get()))
+                                        if (s && cmp::apply_runtime(p->getValue(), s->getValue()))
                                             // subscriber attribute is also defined and stricter, so use this
-                                            r->set(s->get());
+                                            r->setValue(s->getValue());
                                         else
                                             // subscriber attribute not defined or not stricter, so use publisher attribute
-                                            r->set(p->get());
+                                            r->setValue(p->getValue());
                                     } else if (s) {
                                         // only subscriber attibute is defined
-                                        r->set(s->get());
+                                        r->setValue(s->getValue());
                                     } else
                                         log::emit<AWDS>() << "Missing attribute with id " << (int) Attrib::id << log::endl;
                                 }

@@ -215,12 +215,12 @@ namespace famouso {
                     }
 
                 public:
-                    const ValueType get() const {
-                        return (Attribute_RT::get<ValueType>());
+                    const ValueType getValue() const {
+                        return (Attribute_RT::getValue<ValueType>());
                     }
 
-                    const bool set(const ValueType newValue) {
-                        return (Attribute_RT::set<ValueType>(newValue));
+                    const bool setValue(const ValueType newValue) {
+                        return (Attribute_RT::setValue<ValueType>(newValue));
                     }
 
             };

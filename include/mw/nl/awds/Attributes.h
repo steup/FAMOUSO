@@ -144,7 +144,7 @@ namespace famouso {
                              *  \return The subject.
                              */
                             Subject subject() {
-                                return Subject(this->get());
+                                return Subject(this->getValue());
                             }
 
                             /** \brief Sets the data to the given subject.
@@ -152,7 +152,7 @@ namespace famouso {
                              *  \param s The subject to set.
                              */
                             void subject(Subject s) {
-                                this->set(s.value());
+                                this->setValue(s.value());
                             }
                     };
 

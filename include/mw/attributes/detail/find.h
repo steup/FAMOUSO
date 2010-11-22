@@ -80,7 +80,7 @@ namespace famouso {
                         }
 
                         // We let the attribute class determine its overall size to skip it
-                        data += reinterpret_cast<const Attribute_RT* const>(header)->size();
+                        data += reinterpret_cast<const Attribute_RT* const>(header)->length();
                     }
 
                     // If we iterated the complete attribute sequence the intended attribute

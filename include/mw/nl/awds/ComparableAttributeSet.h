@@ -122,7 +122,7 @@ namespace famouso {
                                  */
                                 static void echo(::logging::loggingReturnType &out, attrib *a) {
                                     if (a)
-                                        out << (intmax_t) a->get();
+                                        out << (intmax_t) a->getValue();
                                     else
                                         out << "nd";
                                 }
@@ -144,7 +144,7 @@ namespace famouso {
                                         return true;
 
                                     // if attrib b is not empty, attrib a has to be not empty too, so check if it matches
-                                    if (a && cmp::apply_runtime(a->get(), b->get()))
+                                    if (a && cmp::apply_runtime(a->getValue(), b->getValue()))
                                         return true;
 
                                     // attributes doesn't match
@@ -196,7 +196,7 @@ namespace famouso {
                                     attrib *attr = a.template find<attrib> ();
                                     if (attr) {
                                         // found, so print name and value
-                                        out << " [" << (int) attrib::id << "]={" << (intmax_t) attr->get() << "}";
+                                        out << " [" << (int) attrib::id << "]={" << (intmax_t) attr->getValue() << "}";
                                     }
 
                                     // print next attribute in list

@@ -80,7 +80,7 @@ namespace famouso {
                      * \return This attribute's value
                      */
                     template <typename ValueType>
-                    const ValueType get() const {
+                    const ValueType getValue() const {
                         // The result (in big endian order first, it will be converted when
                         //  it is returned)
                         ValueType res;
@@ -169,7 +169,7 @@ namespace famouso {
                      *  its previous value
                      */
                     template <typename ValueType>
-                    const bool set(const ValueType newValue) {
+                    const bool setValue(const ValueType newValue) {
                         uint8_t* const data = reinterpret_cast<uint8_t* const>(this);
 
                         // Determine the bit count of the value to set
@@ -272,7 +272,7 @@ namespace famouso {
                      *
                      * \return This attribute's size in bytes
                      */
-                    uint16_t size() const {
+                    uint16_t length() const {
                         const detail::AttributeHeader_RT* const header =
                                 reinterpret_cast<const detail::AttributeHeader_RT* const>(this);
 
@@ -280,6 +280,26 @@ namespace famouso {
                         //  attribute value) and the encoded length is the overall size of
                         //  the attribute
                         return (header->getSize() + header->getLength());
+                    }
+
+                    /*!
+                     * \brief Returns the length of this attribute's encoded value
+                     *
+                     * The returned length is determined considering all fields
+                     *  of the header, that is it always returns the correct
+                     *  length for all possible header structures
+                     * The returned value should be interpreted as the number
+                     *  of bytes needed by the attribute's value, so for the special
+                     *  case of a high density attribute with its value encoded
+                     *  in the header 0 respective 1 will be returned.
+                     *
+                     * \return The bytes needed for encoding this attribute's value
+                     */
+                    uint16_t valueLength() const {
+                        const detail::AttributeHeader_RT* const header =
+                                reinterpret_cast<const detail::AttributeHeader_RT* const>(this);
+
+                        return (header->getLength());
                     }
             };
 

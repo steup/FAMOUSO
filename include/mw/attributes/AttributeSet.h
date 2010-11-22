@@ -42,6 +42,7 @@
 #define _Attribute_Set_h_
 
 #include <stdint.h>
+#include <string.h>
 
 #include "boost/mpl/is_sequence.hpp"
 #include "boost/mpl/vector.hpp"
@@ -198,12 +199,28 @@ namespace famouso {
                      *
                      * \return The number of bytes used for the attributes of this set
                      */
-                    uint16_t getSize() const {
+                    uint16_t contentLength() const {
                         return (reinterpret_cast<const detail::AttributeSetHeader_RT* const>(&data[0])->get());
                     }
 
+                    /**
+                     * \brief Returns the number of bytes used for the complete encoded
+                     *  attribute set.
+                     *
+                     * This also includes the number of bytes used for the set header itself.
+                     *
+                     * \return The number of bytes used for this attribute set
+                     */
+                    uint16_t length() const {
+                        return (contentLength() + (isExtended() ? 2 : 1));
+                    }
 
-                    uint16_t getCount() const {
+                    /**
+                     * \brief Returns the number of attributes encoded in this set.
+                     *
+                     * \return The number of encoded attributes
+                     */
+                    uint16_t size() const {
                         const uint8_t* ptr = data;
 
                         uint16_t result = 0;
@@ -211,34 +228,36 @@ namespace famouso {
                         // TODO: This is a copy-paste-version of the find method, consider implementing
                         //  an iterator class
 
-                        // The number of bytes needed by the attributes
-                        //  contained in the given sequence
-                        uint16_t seqLen;
-
-                        {
-                            const detail::AttributeSetHeader_RT* const setHeader =
-                                    reinterpret_cast<const detail::AttributeSetHeader_RT* const>(&ptr[0]);
-
-                            seqLen = setHeader->get();
-
-                            ptr += (setHeader->isExtended() ? 2 : 1);
-                        }
+                        ptr += (isExtended() ? 2 : 1);
 
                         // The pointer were the given sequence ends
-                        const uint8_t* const targetPtr = ptr + seqLen;
+                        const uint8_t* const targetPtr = ptr + contentLength();
 
                         while (ptr < targetPtr) {
                             ++result;
 
                             // We let the attribute class determine its overall size to skip it
-                            ptr += reinterpret_cast<const Attribute_RT* const>(&ptr[0])->size();
+                            ptr += reinterpret_cast<const Attribute_RT* const>(&ptr[0])->length();
                         }
 
                         // We iterated the complete set and so return the counted attributes
                         return (result);
                     }
 
+                    /**
+                     * \brief Copies the content of this set (i.e. the encoded attributes) to the
+                     *  specified buffer
+                     */
+                    void content(uint8_t* buffer) const {
+                        memcpy(buffer, &data[(isExtended() ? 2 : 1)], contentLength());
+                    }
+
                     // TODO: Implement methods for manipulation of the attribute set at runtime
+
+                private:
+                    bool isExtended() const {
+                        return (reinterpret_cast<const detail::AttributeSetHeader_RT* const>(&data[0])->isExtended());
+                    }
             };
 
         } // end namespace attributes

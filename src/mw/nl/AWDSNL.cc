@@ -220,9 +220,9 @@ namespace famouso {
 
                         // setup for flow request
                         FlowMgmtRequestAttributeSet aset;
-                        aset.find<FlowMgmtAction> ()->set(FlowMgmtActionIDs::reg);
+                        aset.find<FlowMgmtAction> ()->setValue(FlowMgmtActionIDs::reg);
                         aset.find<SubjectAttribute> ()->subject(p.snn);
-                        aset.find<Priority> ()->set(_flowPrio);
+                        aset.find<Priority> ()->setValue(_flowPrio);
 
                         buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
 
@@ -261,7 +261,7 @@ namespace famouso {
                             buffers.push_back(boost::asio::buffer(&(awds_header), sizeof(AWDS_Packet::Header)));
 
                             // setup for flow free
-                            aset.find<FlowMgmtAction> ()->set(FlowMgmtActionIDs::free);
+                            aset.find<FlowMgmtAction> ()->setValue(FlowMgmtActionIDs::free);
                             aset.find<SubjectAttribute> ()->subject(p.snn);
                             buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
                         }
@@ -276,7 +276,7 @@ namespace famouso {
                                     // set node to free flow id for
                                     awds_header.addr = node->mac();
                                     // set flow id to free
-                                    aset.find<FlowMgmtID> ()->set(fid);
+                                    aset.find<FlowMgmtID> ()->setValue(fid);
 
                                     // send packet
                                     m_socket.send(buffers);
@@ -375,8 +375,8 @@ namespace famouso {
                             if (!id || !fa)
                                 throw "Missing Action or FlowId Attribute from AWDS FlowManagement!";
 
-                            if (fa->get() == FlowMgmtActionIDs::avail) {
-                                if (id->get() > 0) {
+                            if (fa->getValue() == FlowMgmtActionIDs::avail) {
+                                if (id->getValue() > 0) {
                                     log::emit<AWDS>() << "Flow manager available." << log::endl;
                                     flowMgmtAvail = true;
                                 } else {
@@ -395,12 +395,12 @@ namespace famouso {
                             if (!sub)
                                 throw "Missing Subject Attribute from AWDS FlowManagement!";
 
-                            log::emit<AWDS>() << "New ID: " << (FlowId) id->get() << (fa->get() == FlowMgmtActionIDs::use ? " OK!"
+                            log::emit<AWDS>() << "New ID: " << (FlowId) id->getValue() << (fa->getValue() == FlowMgmtActionIDs::use ? " OK!"
                                                                                                                           : " Bad!")
                                             << log::endl;
 
                             // set new flow Id
-                            _repo.update(src, sub->subject(), id->get() > 0 ? id->get() : 0);
+                            _repo.update(src, sub->subject(), id->getValue() > 0 ? id->getValue() : 0);
                             break;
                         }
                         default:

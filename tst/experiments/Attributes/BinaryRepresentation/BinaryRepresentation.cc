@@ -61,8 +61,8 @@ void testFind(Event& ev) {
 
 	if (a != NULL) {
 		::logging::log::emit() << "Attribute with ID " << (uint16_t) Attr::id << " could be found" << ::logging::log::endl;
-		::logging::log::emit() << "Value: " << ::logging::log::hex << (uint64_t) a->get() << ::logging::log::dec << ::logging::log::endl;
-		::logging::log::emit() << "Size:  " << ::logging::log::hex << (uint64_t) a->size() << ::logging::log::dec << ::logging::log::endl;
+		::logging::log::emit() << "Value: " << ::logging::log::hex << (uint64_t) a->getValue() << ::logging::log::dec << ::logging::log::endl;
+		::logging::log::emit() << "Size:  " << ::logging::log::hex << (uint64_t) a->length() << ::logging::log::dec << ::logging::log::endl;
 	} else {
 		::logging::log::emit() << "Attribute with ID " << (uint16_t) Attr::id << " could not be found" << ::logging::log::endl;
 	}
@@ -80,8 +80,8 @@ void testSet(Event& ev, const typename Attr::value_type newValue) {
 		TO_HEX;
 		DBG_MSG("Attribute: " << reinterpret_cast<size_t>(a));
 
-		if (a->set(newValue)) {
-			DBG_MSG((uint64_t) newValue << " set successfully, look: " << (uint64_t) a->get());
+		if (a->setValue(newValue)) {
+			DBG_MSG((uint64_t) newValue << " set successfully, look: " << (uint64_t) a->getValue());
 		} else {
 			DBG_MSG("Setting value to " << (uint64_t) newValue << " failed!");
 		}
@@ -94,7 +94,7 @@ using namespace famouso::mw;
 using namespace famouso::mw::attributes;
 
 int main() {
-	typedef boost::mpl::list<a1, a2, a3, a4, a5, a6, a7, a8>::type attribList;
+	typedef boost::mpl::list<a8, a7, a6, a5, a4, a3, a2, a1>::type attribList;
 	typedef ExtendedEvent<16, attribList> eventType;
 
 	typedef AttributeSet<attribList> attrSet;
@@ -135,8 +135,20 @@ int main() {
 
 	testSet<a8, eventType>(ev, -0x1);
 
-	print(ev.data, sizeof(eventType));
+	attrSet* set = reinterpret_cast<attrSet*>(ev.data);
+
+	const uint16_t contentLen = set->contentLength();
+
+	print(ev.data, set->length());
 	DBG_MSG("");
 
-	DBG_MSG("SetCount: " << reinterpret_cast<attrSet*>(ev.data)->getCount());
+	DBG_MSG("SetCount:   " << set->size());
+	DBG_MSG("ContentLen: " << contentLen);
+	DBG_MSG("OverallLen: " << set->length());
+
+	uint8_t buf[contentLen];
+
+	set->content(buf);
+
+	print(buf, contentLen);
 }
