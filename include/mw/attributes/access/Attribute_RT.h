@@ -54,23 +54,26 @@ namespace famouso {
             namespace access {
 
                  /*!
-                  * \todo The implementation of get and set should be more resource
+                  * \brief A structure that extends the AttributeHeader_RT type
+                  *  providing access to the encoded value of the attribute.
+                  *
+                  * As the AttributeHeader_RT type this type is also not constructible.
+                  *  Since AttributeHeader_RT is extended by this type without adding
+                  *  actual data deriving types must also care that 'this' points to an
+                  *  encoded attribute.
+                  *
+                  * \todo The implementation of getValue and setValue should be more resource
                   *       efficient because if different Attributes are in use, the
                   *       methods are compiler-generated multiple times. However,
                   *       this needs not to be so. A possible solution would be to
                   *       factor out the common parts and only the for type-safety
                   *       let the compiler generate a small cast method.
                   */
-                class Attribute_RT {
+                class Attribute_RT : public AttributeHeader_RT {
                     protected:
                         Attribute_RT() {
                             // Visibility
                         }
-
-                    private:
-                        typedef famouso::mw::attributes::access::AttributeHeader_RT headerType;
-
-                        typedef famouso::mw::attributes::detail::AttributeElementHeader elemHeaderType;
 
                     public:
                         /*!
@@ -93,8 +96,7 @@ namespace famouso {
 
                             const uint8_t* const data = reinterpret_cast<const uint8_t* const>(this);
 
-                            const elemHeaderType* const header =
-                                    reinterpret_cast<const elemHeaderType* const>(data);
+                            const elemHeader_t* const header = asElementHeader();
 
                             if ((header->isHighDensity()) && (header->valueOrLengthSwitch)) {
                                 if (header->extension) {
@@ -181,7 +183,7 @@ namespace famouso {
                             // Determine the bit count of the value to set
                             const uint16_t newBitCount = getBitCount(newValue);
 
-                            elemHeaderType* const header = reinterpret_cast<elemHeaderType* const>(data);
+                            elemHeader_t* const header = asElementHeader();
 
                             if ((header->isHighDensity()) && (header->valueOrLengthSwitch)) {
                                 if (header->extension) {
@@ -278,34 +280,12 @@ namespace famouso {
                          * \return This attribute's size in bytes
                          */
                         uint16_t length() const {
-                            const headerType* const header =
-                                    reinterpret_cast<const headerType* const>(this);
-
                             // The sum of the header size (which eventually includes an encoded
                             //  attribute value) and the encoded length is the overall size of
                             //  the attribute
-                            return (header->getSize() + header->getLength());
+                            return (headerLength() + valueLength());
                         }
 
-                        /*!
-                         * \brief Returns the length of this attribute's encoded value
-                         *
-                         * The returned length is determined considering all fields
-                         *  of the header, that is it always returns the correct
-                         *  length for all possible header structures
-                         * The returned value should be interpreted as the number
-                         *  of bytes needed by the attribute's value, so for the special
-                         *  case of a high density attribute with its value encoded
-                         *  in the header 0 respective 1 will be returned.
-                         *
-                         * \return The bytes needed for encoding this attribute's value
-                         */
-                        uint16_t valueLength() const {
-                            const headerType* const header =
-                                    reinterpret_cast<const headerType* const>(this);
-
-                            return (header->getLength());
-                        }
                 };
 
             } // end namespace access

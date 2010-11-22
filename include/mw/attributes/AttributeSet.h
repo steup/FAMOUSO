@@ -63,6 +63,8 @@
 #include "mw/attributes/detail/Duplicates.h"
 
 #include "mw/attributes/access/Attribute_RT.h"
+
+#include "mw/attributes/access/AttributeSet_RT.h"
 #include "mw/attributes/access/AttributeSetHeader_RT.h"
 
 #include "mw/attributes/Null.h"
@@ -80,7 +82,7 @@ namespace famouso {
              *  for requirements concerning an attribute type
              */
             template <typename AttrSeq = boost::mpl::vector<> >
-            struct AttributeSet {
+            struct AttributeSet : public famouso::mw::attributes::access::AttributeSet_RT {
                 private:
                     // Assert that a forward sequence is given
                     FAMOUSO_STATIC_ASSERT_ERROR(
@@ -163,43 +165,6 @@ namespace famouso {
                     }
 
                     /*!
-                     * \brief Searches for the attribute given as a template argument in the
-                     *  binary representation of this attribute set and returns it
-                     *
-                     * The target attribute is searched for using the high density property and
-                     *  the ID of the given attribute type. The returned instance can then
-                     *  be used to access the value.
-                     * If the given attribute could not be found in the set, NULL is returned.
-                     *
-                     * \tparam Attr The attribute type which should be searched for
-                     *
-                     * \return An instance of Attr or NULL if the attribute could not be found
-                     */
-                    template <typename Attr>
-                    Attr* find_rt() {
-                        return (famouso::mw::attributes::detail::find<Attr>(&data[0]));
-                    }
-
-                    /*!
-                     * \brief Searches for the attribute given as a template argument in the
-                     *  binary representation of this attribute set and returns it.
-                     *
-                     * The target attribute is searched for using the high density property and
-                     *  the ID of the given attribute type. The returned instance can then
-                     *  be used to access the value.
-                     * If the given attribute could not be found in the set, NULL is returned.
-                     *
-                     * \tparam Attr The attribute type which should be searched for
-                     *
-                     * \return A constant instance of Attr or NULL if the attribute could
-                     *  not be found
-                     */
-                    template <typename Attr>
-                    const Attr* find_rt() const {
-                        return (famouso::mw::attributes::detail::find<Attr>(&data[0]));
-                    }
-
-                    /*!
                      * \brief Searches for the attribute given as a template argument in
                      *  the compile time representation of this attribute set.
                      *
@@ -240,75 +205,6 @@ namespace famouso {
                                              >::type type;
                     };
 
-                    /*!
-                     * \brief Returns the number of bytes used for the encoded attributes in
-                     *  this set.
-                     *
-                     * This excludes the number of bytes used for the set header itself.
-                     *
-                     * \return The number of bytes used for the attributes of this set
-                     */
-                    uint16_t contentLength() const {
-                        return (reinterpret_cast<const setHeaderType* const>(&data[0])->get());
-                    }
-
-                    /**
-                     * \brief Returns the number of bytes used for the complete encoded
-                     *  attribute set.
-                     *
-                     * This also includes the number of bytes used for the set header itself.
-                     *
-                     * \return The number of bytes used for this attribute set
-                     */
-                    uint16_t length() const {
-                        return (contentLength() + (isExtended() ? 2 : 1));
-                    }
-
-                    /**
-                     * \brief Returns the number of attributes encoded in this set.
-                     *
-                     * \return The number of encoded attributes
-                     */
-                    uint16_t size() const {
-                        const uint8_t* ptr = data;
-
-                        uint16_t result = 0;
-
-                        // TODO: This is a copy-paste-version of the find method, consider implementing
-                        //  an iterator class
-
-                        ptr += (isExtended() ? 2 : 1);
-
-                        // The pointer were the given sequence ends
-                        const uint8_t* const targetPtr = ptr + contentLength();
-
-                        typedef famouso::mw::attributes::access::Attribute_RT attrType;
-
-                        while (ptr < targetPtr) {
-                            ++result;
-
-                            // We let the attribute class determine its overall size to skip it
-                            ptr += reinterpret_cast<const attrType* const>(&ptr[0])->length();
-                        }
-
-                        // We iterated the complete set and so return the counted attributes
-                        return (result);
-                    }
-
-                    /**
-                     * \brief Copies the content of this set (i.e. the encoded attributes) to the
-                     *  specified buffer
-                     */
-                    void content(uint8_t* buffer) const {
-                        memcpy(buffer, &data[(isExtended() ? 2 : 1)], contentLength());
-                    }
-
-                    // TODO: Implement methods for manipulation of the attribute set at runtime
-
-                private:
-                    bool isExtended() const {
-                        return (reinterpret_cast<const setHeaderType* const>(&data[0])->isExtended());
-                    }
             };
 
         } // end namespace attributes

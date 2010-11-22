@@ -56,17 +56,25 @@ namespace famouso {
             namespace access {
 
                 struct AttributeSetHeader_RT {
-                    private:
+                    protected:
                         AttributeSetHeader_RT() {
                             // Visibility
                         }
 
-                    public:
-                        const bool isExtended() const {
+                        bool isExtended() const {
                             return ((*reinterpret_cast<const uint8_t* const>(this) & 0x80) != 0);
                         }
 
-                        const uint16_t get() const {
+                    public:
+                        /*!
+                         * \brief Returns the number of bytes used for the encoded attributes in
+                         *  this set.
+                         *
+                         * This excludes the number of bytes used for the set header itself.
+                         *
+                         * \return The number of bytes used for the attributes of this set
+                         */
+                        uint16_t contentLength() const {
                         	const uint8_t* const data = reinterpret_cast<const uint8_t* const>(this);
 
                             if (isExtended()) {
@@ -80,7 +88,24 @@ namespace famouso {
                             }
                         }
 
-                        bool set(uint16_t newSize) {
+                        uint8_t headerLength() const {
+                            return (isExtended() ? 2 : 1);
+                        }
+
+                        /**
+                         * \brief Returns the number of bytes used for the complete encoded
+                         *  attribute set.
+                         *
+                         * This also includes the number of bytes used for the set header itself.
+                         *
+                         * \return The number of bytes used for this attribute set
+                         */
+                        uint16_t length() const {
+                            return (contentLength() + headerLength());
+                        }
+
+                    protected:
+                        bool contentLength(const uint16_t newSize) {
                             // Check if the extension bit is set in the current representation
                             const bool currentExtension = isExtended();
 

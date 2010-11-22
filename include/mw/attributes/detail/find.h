@@ -62,9 +62,9 @@ namespace famouso {
 
                         const setHeaderType* const setHeader = reinterpret_cast<const setHeaderType* const>(&data[0]);
 
-                        seqLen = setHeader->get();
+                        seqLen = setHeader->contentLength();
 
-                        data += (setHeader->isExtended() ? 2 : 1);
+                        data += setHeader->headerLength();
                     }
 
                     // The pointer were the given sequence ends

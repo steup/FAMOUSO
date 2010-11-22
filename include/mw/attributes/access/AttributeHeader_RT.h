@@ -55,31 +55,61 @@ namespace famouso {
         namespace attributes {
             namespace access {
 
+                /*!
+                 * \brief A structure that provides functionality to access attribute
+                 *  header fields at a higher level
+                 *
+                 * It is considered to be the base type of the attribute type hierarchy
+                 *  since basic functionality related to header field access is provided
+                 *  here. This type basically provides methods for accessing the ID, the
+                 *  extension bit and the encoded value length of the attribute. The
+                 *  number of bytes used by the header only can also be calculated.
+                 *
+                 * It is not constructible itself since it has its constructor declared
+                 *  protected. It is assumed that this type is derived by a type for which
+                 *  'this' directly points to the first byte of an encoded attribute.
+                 */
                 struct AttributeHeader_RT {
                     private:
                         typedef famouso::mw::attributes::detail::CaseSelector<
                                  uint8_t, 1, 1, 1, 2, (1 + 1), (1 + 1 + 1)
                                 >::type sizeSelector;
 
-                        typedef famouso::mw::attributes::detail::AttributeElementHeader elemHeader;
-
+                    protected:
                         AttributeHeader_RT() {
                             // Visibility
                         }
 
-                        const elemHeader* const asElementHeader() const {
-                            return (reinterpret_cast<const elemHeader* const>(this));
+                        // Shortcut typedef for the attribute header union type
+                        typedef famouso::mw::attributes::detail::AttributeElementHeader elemHeader_t;
+
+                        const elemHeader_t* const asElementHeader() const {
+                            return (reinterpret_cast<const elemHeader_t* const>(this));
                         }
 
+                        elemHeader_t* const asElementHeader() {
+                            return (reinterpret_cast<elemHeader_t* const>(this));
+                        }
+
+                        /*!
+                         * \brief Read access to the ext-Bit
+                         */
                         bool isExtended() const {
                             return (asElementHeader()->extension);
                         }
 
                     public:
+                        /*!
+                         * \brief Returns true if the attribute is encoded with high density
+                         */
                         bool isHighDensity() const {
                             return (asElementHeader()->isHighDensity());
                         }
 
+                        /*!
+                         * \brief Returns the encoded attribute ID no matter if it is encoded
+                         *  with high or low density
+                         */
                         uint8_t getID() const {
                             if (isHighDensity()) {
                                 return (asElementHeader()->category);
@@ -91,7 +121,7 @@ namespace famouso {
                         }
 
                         /*!
-                         * \brief Returns the length encoded in this attribute header
+                         * \brief Returns the length of this attribute's encoded value
                          *
                          * The returned length is determined considering all fields
                          *  of the header, that is it always returns the correct
@@ -101,9 +131,9 @@ namespace famouso {
                          *  case of a high density attribute with its value encoded
                          *  in the header 0 respective 1 will be returned.
                          *
-                         * \return The encoded length field of this attribute header
+                         * \return The bytes needed for encoding this attribute's value
                          */
-                        uint16_t getLength() const {
+                        uint16_t valueLength() const {
                             if (isHighDensity()) {
                                 if (asElementHeader()->valueOrLengthSwitch) {
                                     // Special case that a high density attribute's
@@ -141,7 +171,7 @@ namespace famouso {
                          * \return The number of bytes needed by this attribute
                          *  header
                          */
-                        uint8_t getSize() const {
+                        uint8_t headerLength() const {
                             return (sizeSelector::select_rt(asElementHeader()));
                         }
                 };
