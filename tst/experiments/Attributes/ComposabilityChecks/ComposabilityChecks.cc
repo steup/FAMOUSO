@@ -23,6 +23,8 @@
 #include "boost/mpl/vector.hpp"
 #include "boost/mpl/list.hpp"
 
+#include "mw/attributes/type_traits/is_null.h"
+
 using namespace famouso::mw::attributes;
 
 typedef boost::mpl::vector<TTL<1>, Latency<100>, Omission<10> > vec;
@@ -52,6 +54,31 @@ typedef detail::TagSet<>::type tagset;
 typedef boost::mpl::vector<Omission<3>, TTL<1>, Throughput<20>, Latency<150> >::type toSort;
 
 typedef detail::SortedAttributeSequence<toSort>::result::type sorted;
+
+
+typedef req::find_ct<Jitter<0> >::type foundAttr;
+
+typedef type_traits::is_null<foundAttr>::type res;
+
+template <typename T>
+struct B {
+        B() {
+            int i;
+        }
+};
+
+template <bool b>
+struct C {
+        C() {
+            int i;
+        }
+};
+
+B<foundAttr> b;
+
+B<res> b2;
+
+C<res::value> c;
 
 template <typename S, typename I = typename boost::mpl::begin<S>::type>
 struct printer {

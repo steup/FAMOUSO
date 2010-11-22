@@ -176,7 +176,7 @@ namespace famouso {
                                         return; // Only high density attributes are searched.
 
                                     // The resulting attribute
-                                    Attrib *r = _res.template find<Attrib> ();
+                                    Attrib *r = _res.template find_rt<Attrib> ();
                                     // the publisher attribute
                                     Attrib *p = _pub->template find<Attrib> ();
                                     // the subscriber attribute

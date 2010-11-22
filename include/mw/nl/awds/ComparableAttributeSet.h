@@ -164,8 +164,8 @@ namespace famouso {
                                  */
                                 static bool match(AttrSet &a, AttrSet &b) {
                                     // find attributes
-                                    attrib *l = a.template find<attrib> ();
-                                    attrib *r = b.template find<attrib> ();
+                                    attrib *l = a.template find_rt<attrib> ();
+                                    attrib *r = b.template find_rt<attrib> ();
 
                                     ::logging::loggingReturnType &out = log::emit<ATTR>();
 
@@ -193,7 +193,7 @@ namespace famouso {
                                  */
                                 static void print(::logging::loggingReturnType &out, AttrSet &a) {
                                     // find the attribute
-                                    attrib *attr = a.template find<attrib> ();
+                                    attrib *attr = a.template find_rt<attrib> ();
                                     if (attr) {
                                         // found, so print name and value
                                         out << " [" << (int) attrib::id << "]={" << (intmax_t) attr->getValue() << "}";
@@ -329,7 +329,7 @@ namespace famouso {
                          */
                         template< class Attrib >
                         Attrib *find() {
-                            return getSet().find<Attrib> ();
+                            return getSet().template find_rt<Attrib> ();
                         }
 
                         /** \brief Converts this set to a buffer to be useable by boost io.

@@ -107,12 +107,12 @@ namespace famouso {
 
                 template <typename Attr>
                 Attr* find() {
-                    return ((reinterpret_cast<attrSet*>(_edata))->find<Attr>());
+                    return ((reinterpret_cast<attrSet*>(_edata))->template find_rt<Attr>());
                 }
 
                 template <typename Attr>
                 const Attr* find() const {
-                    return ((reinterpret_cast<attrSet*>(_edata))->find<Attr>());
+                    return ((reinterpret_cast<attrSet*>(_edata))->template find_rt<Attr>());
                 }
         };
 

@@ -46,6 +46,10 @@
 
 #include "boost/mpl/is_sequence.hpp"
 #include "boost/mpl/vector.hpp"
+#include "boost/mpl/find_if.hpp"
+#include "boost/mpl/void.hpp"
+#include "boost/mpl/placeholders.hpp"
+#include "boost/mpl/deref.hpp"
 
 #include "assert/staticerror.h"
 
@@ -60,6 +64,9 @@
 
 #include "mw/attributes/access/Attribute_RT.h"
 #include "mw/attributes/access/AttributeSetHeader_RT.h"
+
+#include "mw/attributes/Null.h"
+#include "mw/attributes/type_traits/is_same_base_type.h"
 
 namespace famouso {
     namespace mw {
@@ -158,7 +165,7 @@ namespace famouso {
                      * \brief Searches for the attribute given as a template argument in the
                      *  binary representation of this attribute set and returns it
                      *
-                     * The target attribute is searched for using the isSystem property and
+                     * The target attribute is searched for using the high density property and
                      *  the ID of the given attribute type. The returned instance can then
                      *  be used to access the value.
                      * If the given attribute could not be found in the set, NULL is returned.
@@ -168,7 +175,7 @@ namespace famouso {
                      * \return An instance of Attr or NULL if the attribute could not be found
                      */
                     template <typename Attr>
-                    Attr* find() {
+                    Attr* find_rt() {
                         return (famouso::mw::attributes::detail::find<Attr>(&data[0]));
                     }
 
@@ -176,7 +183,7 @@ namespace famouso {
                      * \brief Searches for the attribute given as a template argument in the
                      *  binary representation of this attribute set and returns it.
                      *
-                     * The target attribute is searched for using the isSystem property and
+                     * The target attribute is searched for using the high density property and
                      *  the ID of the given attribute type. The returned instance can then
                      *  be used to access the value.
                      * If the given attribute could not be found in the set, NULL is returned.
@@ -187,9 +194,50 @@ namespace famouso {
                      *  not be found
                      */
                     template <typename Attr>
-                    const Attr* find() const {
+                    const Attr* find_rt() const {
                         return (famouso::mw::attributes::detail::find<Attr>(&data[0]));
                     }
+
+                    /*!
+                     * \brief Searches for the attribute given as a template argument in
+                     *  the compile time representation of this attribute set.
+                     *
+                     * The found attribute can be accessed by the typedef "type". If the
+                     *  given attribute could not be found, type will be the Null attribute.
+                     *
+                     * \tparam Attr The attribute type which should be searched for
+                     */
+                    template <typename Attr>
+                    struct find_ct {
+                        private:
+                            // The predicate for finding the specified attribute
+                            typedef famouso::mw::attributes::type_traits::is_same_base_type<
+                                                                           boost::mpl::_1,
+                                                                           Attr
+                                                                          > pred;
+
+                            // Search the attribute in the underlying sequence
+                            typedef typename boost::mpl::find_if<
+                                                          sequence,
+                                                          pred
+                                                         >::type found;
+
+                            // Helper struct to map void_ to Null
+                            template <typename Found, bool dummy>
+                            struct helper {
+                                    typedef Found type;
+                            };
+                            template <bool dummy>
+                            struct helper<boost::mpl::void_, dummy> {
+                                    typedef Null type;
+                            };
+
+                        public:
+                            typedef typename helper<
+                                              typename boost::mpl::deref<found>::type,
+                                              true
+                                             >::type type;
+                    };
 
                     /*!
                      * \brief Returns the number of bytes used for the encoded attributes in

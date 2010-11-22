@@ -220,9 +220,9 @@ namespace famouso {
 
                         // setup for flow request
                         FlowMgmtRequestAttributeSet aset;
-                        aset.find<FlowMgmtAction> ()->setValue(FlowMgmtActionIDs::reg);
-                        aset.find<SubjectAttribute> ()->subject(p.snn);
-                        aset.find<Priority> ()->setValue(_flowPrio);
+                        aset.find_rt<FlowMgmtAction> ()->setValue(FlowMgmtActionIDs::reg);
+                        aset.find_rt<SubjectAttribute> ()->subject(p.snn);
+                        aset.find_rt<Priority> ()->setValue(_flowPrio);
 
                         buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
 
@@ -261,8 +261,8 @@ namespace famouso {
                             buffers.push_back(boost::asio::buffer(&(awds_header), sizeof(AWDS_Packet::Header)));
 
                             // setup for flow free
-                            aset.find<FlowMgmtAction> ()->setValue(FlowMgmtActionIDs::free);
-                            aset.find<SubjectAttribute> ()->subject(p.snn);
+                            aset.find_rt<FlowMgmtAction> ()->setValue(FlowMgmtActionIDs::free);
+                            aset.find_rt<SubjectAttribute> ()->subject(p.snn);
                             buffers.push_back(boost::asio::buffer(&(aset), FlowMgmtRequestAttributeSet::overallSize));
                         }
 
@@ -276,7 +276,7 @@ namespace famouso {
                                     // set node to free flow id for
                                     awds_header.addr = node->mac();
                                     // set flow id to free
-                                    aset.find<FlowMgmtID> ()->setValue(fid);
+                                    aset.find_rt<FlowMgmtID> ()->setValue(fid);
 
                                     // send packet
                                     m_socket.send(buffers);
@@ -369,8 +369,8 @@ namespace famouso {
                             log::emit<AWDS>() << "=============================" << log::dec << log::endl;
 
                             FlowMgmtResponseAttributeSet *resp = reinterpret_cast<FlowMgmtResponseAttributeSet *> (awds_packet.data);
-                            FlowMgmtAction *fa = resp->find<FlowMgmtAction> ();
-                            FlowMgmtID *id = resp->find<FlowMgmtID> ();
+                            FlowMgmtAction *fa = resp->find_rt<FlowMgmtAction> ();
+                            FlowMgmtID *id = resp->find_rt<FlowMgmtID> ();
 
                             if (!id || !fa)
                                 throw "Missing Action or FlowId Attribute from AWDS FlowManagement!";
@@ -391,7 +391,7 @@ namespace famouso {
 
                             log::emit<AWDS>() << "Updating flow id of node " << src << log::endl;
 
-                            SubjectAttribute *sub = resp->find<SubjectAttribute> ();
+                            SubjectAttribute *sub = resp->find_rt<SubjectAttribute> ();
                             if (!sub)
                                 throw "Missing Subject Attribute from AWDS FlowManagement!";
 
