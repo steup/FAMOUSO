@@ -53,20 +53,22 @@
 namespace famouso {
     namespace mw {
         namespace attributes {
-            namespace detail {
+            namespace access {
 
                 struct AttributeHeader_RT {
                     private:
-                        typedef CaseSelector<
+                        typedef famouso::mw::attributes::detail::CaseSelector<
                                  uint8_t, 1, 1, 1, 2, (1 + 1), (1 + 1 + 1)
                                 >::type sizeSelector;
+
+                        typedef famouso::mw::attributes::detail::AttributeElementHeader elemHeader;
 
                         AttributeHeader_RT() {
                             // Visibility
                         }
 
-                        const AttributeElementHeader* const asElementHeader() const {
-                            return (reinterpret_cast<const AttributeElementHeader* const>(this));
+                        const elemHeader* const asElementHeader() const {
+                            return (reinterpret_cast<const elemHeader* const>(this));
                         }
 
                         bool isExtended() const {
@@ -144,7 +146,7 @@ namespace famouso {
                         }
                 };
 
-            } // end namespace detail
+            } // end namespace access
         } // end namespace attributes
     } // end namespace mw
 } // end namespace famouso

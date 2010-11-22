@@ -113,7 +113,7 @@ namespace famouso {
             template <typename BaseType, typename CompareTag, typename ValueType,
                       ValueType Value, typename Comparator, uint8_t ID,
                       typename TagSet = detail::TagSet<> >
-            class Attribute : public Attribute_RT {
+            class Attribute : public famouso::mw::attributes::access::Attribute_RT {
                 public:
                     // The boost tag type, declaring the attribute class to be an
                     //  integral constant

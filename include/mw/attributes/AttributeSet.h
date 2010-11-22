@@ -138,6 +138,8 @@ namespace famouso {
                      */
                     uint8_t data[overallSize];
 
+                    typedef famouso::mw::attributes::access::AttributeSetHeader_RT setHeaderType;
+
                 public:
                     /*!
                      * \brief Constructor creating the binary representation of the attribute
@@ -160,7 +162,6 @@ namespace famouso {
                         impl::construct(&data[setHeader::size]);
                     }
 
-                public:
                     /*!
                      * \brief Searches for the attribute given as a template argument in the
                      *  binary representation of this attribute set and returns it
@@ -248,7 +249,7 @@ namespace famouso {
                      * \return The number of bytes used for the attributes of this set
                      */
                     uint16_t contentLength() const {
-                        return (reinterpret_cast<const detail::AttributeSetHeader_RT* const>(&data[0])->get());
+                        return (reinterpret_cast<const setHeaderType* const>(&data[0])->get());
                     }
 
                     /**
@@ -281,11 +282,13 @@ namespace famouso {
                         // The pointer were the given sequence ends
                         const uint8_t* const targetPtr = ptr + contentLength();
 
+                        typedef famouso::mw::attributes::access::Attribute_RT attrType;
+
                         while (ptr < targetPtr) {
                             ++result;
 
                             // We let the attribute class determine its overall size to skip it
-                            ptr += reinterpret_cast<const Attribute_RT* const>(&ptr[0])->length();
+                            ptr += reinterpret_cast<const attrType* const>(&ptr[0])->length();
                         }
 
                         // We iterated the complete set and so return the counted attributes
@@ -304,7 +307,7 @@ namespace famouso {
 
                 private:
                     bool isExtended() const {
-                        return (reinterpret_cast<const detail::AttributeSetHeader_RT* const>(&data[0])->isExtended());
+                        return (reinterpret_cast<const setHeaderType* const>(&data[0])->isExtended());
                     }
             };
 

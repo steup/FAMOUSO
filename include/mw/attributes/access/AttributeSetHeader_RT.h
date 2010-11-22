@@ -53,7 +53,7 @@
 namespace famouso {
     namespace mw {
         namespace attributes {
-            namespace detail {
+            namespace access {
 
                 struct AttributeSetHeader_RT {
                     private:
@@ -119,7 +119,7 @@ namespace famouso {
                         }
                 };
 
-            } // end namespace detail
+            } // end namespace access
         } // end namespace attributes
     } // end namespace mw
 } // end namespace famouso

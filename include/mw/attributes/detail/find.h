@@ -58,8 +58,9 @@ namespace famouso {
                     uint16_t seqLen;
 
                     {
-                        const AttributeSetHeader_RT* const setHeader =
-                                reinterpret_cast<const AttributeSetHeader_RT* const>(&data[0]);
+                        typedef famouso::mw::attributes::access::AttributeSetHeader_RT setHeaderType;
+
+                        const setHeaderType* const setHeader = reinterpret_cast<const setHeaderType* const>(&data[0]);
 
                         seqLen = setHeader->get();
 
@@ -69,10 +70,13 @@ namespace famouso {
                     // The pointer were the given sequence ends
                     const uint8_t* const targetPtr = data + seqLen;
 
-                    const AttributeHeader_RT* header;
+                    typedef famouso::mw::attributes::access::AttributeHeader_RT headerType;
+                    typedef famouso::mw::attributes::access::Attribute_RT attrType;
+
+                    const headerType* header;
 
                     while (data < targetPtr) {
-                        header = reinterpret_cast<AttributeHeader_RT*>(data);
+                        header = reinterpret_cast<const headerType*>(data);
 
                         // Check if the encoded attribute fits the given one
                         if ((header->isHighDensity() == highDensity) && (header->getID() == id)) {
@@ -80,7 +84,7 @@ namespace famouso {
                         }
 
                         // We let the attribute class determine its overall size to skip it
-                        data += reinterpret_cast<const Attribute_RT* const>(header)->length();
+                        data += reinterpret_cast<const attrType* const>(header)->length();
                     }
 
                     // If we iterated the complete attribute sequence the intended attribute
