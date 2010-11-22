@@ -52,7 +52,7 @@ namespace famouso {
         namespace attributes {
             namespace detail {
 
-                void* find_impl(uint8_t* data, const uint8_t id, const bool highDensity) {
+                static void* find_impl(uint8_t* data, const uint8_t id, const bool highDensity) {
                     // The number of bytes needed by the attributes
                     //  contained in the given sequence
                     uint16_t seqLen;
