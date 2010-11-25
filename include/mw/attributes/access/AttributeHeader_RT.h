@@ -91,6 +91,7 @@ namespace famouso {
                             return (reinterpret_cast<elemHeader_t* const>(this));
                         }
 
+                    private:
                         /*!
                          * \brief Read access to the ext-Bit
                          */

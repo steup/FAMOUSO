@@ -61,10 +61,6 @@ namespace famouso {
                             // Visibility
                         }
 
-                        bool isExtended() const {
-                            return ((*reinterpret_cast<const uint8_t* const>(this) & 0x80) != 0);
-                        }
-
                     public:
                         /*!
                          * \brief Returns the number of bytes used for the encoded attributes in
@@ -92,19 +88,7 @@ namespace famouso {
                             return (isExtended() ? 2 : 1);
                         }
 
-                        /**
-                         * \brief Returns the number of bytes used for the complete encoded
-                         *  attribute set.
-                         *
-                         * This also includes the number of bytes used for the set header itself.
-                         *
-                         * \return The number of bytes used for this attribute set
-                         */
-                        uint16_t length() const {
-                            return (contentLength() + headerLength());
-                        }
-
-                    protected:
+                    private:
                         bool contentLength(const uint16_t newSize) {
                             // Check if the extension bit is set in the current representation
                             const bool currentExtension = isExtended();
@@ -123,7 +107,10 @@ namespace famouso {
                             return (true);
                         }
 
-                    private:
+                        bool isExtended() const {
+                            return ((*reinterpret_cast<const uint8_t* const>(this) & 0x80) != 0);
+                        }
+
                         void writeSize(const uint16_t size, const bool extension) {
                             uint8_t* const data = reinterpret_cast<uint8_t* const>(this);
 

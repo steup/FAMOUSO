@@ -99,6 +99,18 @@ namespace famouso {
                         }
 
                         /**
+                         * \brief Returns the number of bytes used for the complete encoded
+                         *  attribute set.
+                         *
+                         * This also includes the number of bytes used for the set header itself.
+                         *
+                         * \return The number of bytes used for this attribute set
+                         */
+                        uint16_t length() const {
+                            return (contentLength() + headerLength());
+                        }
+
+                        /**
                          * \brief Returns the number of attributes encoded in this set.
                          *
                          * \return The number of encoded attributes
@@ -136,7 +148,7 @@ namespace famouso {
                         void content(uint8_t* buffer) const {
                             const uint8_t* const data = reinterpret_cast<const uint8_t* const>(this);
 
-                            memcpy(buffer, &data[(isExtended() ? 2 : 1)], contentLength());
+                            memcpy(buffer, &data[headerLength()], contentLength());
                         }
 
                         // TODO: Implement methods for manipulation of the attribute set at runtime
