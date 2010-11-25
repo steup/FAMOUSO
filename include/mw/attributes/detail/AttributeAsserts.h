@@ -97,8 +97,8 @@ namespace famouso {
                 };
 
                 /*!
-                 * \brief Struct to statically assert that an ID of a system attribute
-                 *  only has 4 bits.
+                 * \brief Struct to statically assert that an ID of a high density
+                 *  attribute only has 4 bits.
                  *
                  * \tparam HighDensity True if it is a high density attribute
                  * \tparam ID The identifier of the attribute

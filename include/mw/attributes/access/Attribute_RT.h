@@ -81,8 +81,7 @@ namespace famouso {
                          *  this attribute instance.
                          *
                          * The value is parsed from the binary representation of this attribute.
-                         *  That means this attribute's static properties are not used except for
-                         *  the type and the high-density-flag.
+                         *  That means this attribute's static properties are not used at all.
                          *
                          * \tparam ValueType The type of this attribute's value
                          *

@@ -51,7 +51,7 @@ namespace famouso {
             namespace detail {
 
                 /**
-                 * \brief Represents the structure a single attribute's header.
+                 * \brief Represents the structure of a single attribute's header.
                  */
                 union AttributeElementHeader {
                         // For high density attributes
