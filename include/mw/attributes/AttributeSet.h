@@ -75,9 +75,9 @@ namespace famouso {
         namespace attributes {
 
             /*!
-             * \brief Represents a sequence of attributes in binary representation
+             * \brief Represents a sequence of %attributes in binary representation
              *
-             * \tparam AttrSeq The sequence of attributes, the sequence elements
+             * \tparam AttrSeq The sequence of %attributes, the sequence elements
              *  should be derived from Attribute, see this struct's description
              *  for requirements concerning an attribute type
              */

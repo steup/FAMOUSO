@@ -50,9 +50,9 @@
 #include "mw/attributes/Throughput.h"
 #include "mw/attributes/PacketLoss.h"
 #include "mw/attributes/filter/find.h"
-#include "mw/attributes/filter/greater_than_or_equal_to.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
 #include "mw/attributes/detail/AttributeSetProvider.h"
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/HasLessThanRelation.h"
 #include "mw/nl/awds/logging.h"
 #include "mw/nl/awds/FlowId.h"
 
@@ -110,8 +110,9 @@ namespace famouso {
                      * \tparam id Describes the initial value to be set
                      */
                     template< FlowId id >
-                    class FlowMgmtID: public Attribute<FlowMgmtID<0> , tags::integral_const_tag, FlowId, id, filter::less_than_or_equal_to,
-                                    FlowMgmtIDs::flowId> {
+                    class FlowMgmtID: public Attribute<FlowMgmtID<0> , tags::integral_const_tag, FlowId, id,
+                                    FlowMgmtIDs::flowId,
+                                    attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef FlowMgmtID type;
                     };
@@ -124,7 +125,8 @@ namespace famouso {
                      */
                     template< uint8_t action >
                     class FlowMgmtAction: public Attribute<FlowMgmtAction<0> , tags::integral_const_tag, uint8_t, action,
-                                    filter::less_than_or_equal_to, FlowMgmtIDs::action> {
+                                    FlowMgmtIDs::action,
+                                    attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef FlowMgmtAction type;
                     };
@@ -135,7 +137,8 @@ namespace famouso {
                      */
                     template< uint64_t snn >
                     class SubjectAttribute: public Attribute<SubjectAttribute<0> , tags::integral_const_tag, uint64_t, snn,
-                                    filter::less_than_or_equal_to, FlowMgmtIDs::subject> {
+                                    FlowMgmtIDs::subject,
+                                    attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef SubjectAttribute type;
 
@@ -164,7 +167,8 @@ namespace famouso {
                      */
                     template< int8_t prio >
                     class Priority: public Attribute<Priority<0> , tags::integral_const_tag, int8_t, prio,
-                                    filter::less_than_or_equal_to, FlowMgmtIDs::prio> {
+                                    FlowMgmtIDs::prio,
+                                    attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef Priority type;
                     };

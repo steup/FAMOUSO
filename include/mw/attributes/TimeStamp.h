@@ -46,7 +46,6 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/HighDensityIDs.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
@@ -68,8 +67,6 @@ namespace famouso {
             class TimeStamp : public Attribute<
                                        TimeStamp<0>, tags::integral_const_tag,
                                        uint64_t, timeStamp,
-                                       // A comparator does not make much sense here at all
-                                       filter::less_than_or_equal_to,
                                        detail::HighDensityIDs::timeStamp,
                                        detail::TagSet<detail::IsHighDensity>
                                       > {

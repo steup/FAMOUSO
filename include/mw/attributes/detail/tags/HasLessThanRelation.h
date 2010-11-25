@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,49 +38,51 @@
  *
  ******************************************************************************/
 
-#ifndef __Omission_h__
-#define __Omission_h__
+#ifndef _HasLessThanRelation_h_
+#define _HasLessThanRelation_h_
 
-#include <stdint.h>
+#include "mw/attributes/detail/tags/Tag.h"
 
-#include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/Attribute.h"
+#include "boost/mpl/if.hpp"
 
-#include "mw/attributes/detail/HighDensityIDs.h"
-
-#include "mw/attributes/detail/tags/TagSet.h"
-#include "mw/attributes/detail/tags/IsHighDensity.h"
-#include "mw/attributes/detail/tags/IsRequirable.h"
-#include "mw/attributes/detail/tags/HasLessThanRelation.h"
+#include "mw/attributes/filter/less_than_or_equal_to.h"
+#include "mw/attributes/filter/greater_than_or_equal_to.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
+            namespace detail {
 
-            /*!
-             * \brief Defines a configurable omission degree attribute for
-             *  describing how many packets can be consecutively lost
-             *
-             * The unit of the attribute value is the number of packets
-             *
-             * \tparam omission Describes the initial value to be set
-             */
-            template<uint16_t omission>
-            class Omission : public Attribute<
-                                       Omission<0>, tags::integral_const_tag,
-                                       uint16_t, omission, detail::HighDensityIDs::omission,
-                                       detail::TagSet<
-                                                detail::IsHighDensity,
-                                                detail::IsRequirable,
-                                                detail::HasLessThanRelation
-                                               >
-                                      > {
-                public:
-                    typedef Omission type;
-            };
+                /*!
+                 * \brief Attribute tag deciding the stronger-weaker-relation
+                 *  of the attribute
+                 */
+                struct HasLessThanRelation : public Tag {
+                    /*!
+                     * \brief Extracts the attribute comparator (i.e. the stronger-
+                     *  weaker-relation) of an attribute from the given tag set.
+                     *
+                     * To perform this the given tag set is checked for containing
+                     *  the HasLessThanRelation attribute tag. If it does a comparator
+                     *  representing a less-than-relation is returned. Otherwise a
+                     *  comparator for a greater-than-relation is returned. Each
+                     *  comparator also covers the equal-to case.
+                     */
+                    template <typename TagSet>
+                    struct get_comparator {
+                            typedef typename boost::mpl::if_<
+                                              typename TagSet::template contains_tag<HasLessThanRelation>,
 
-        } /* attributes */
-    } /* mw */
-} /* famouso */
+                                              famouso::mw::attributes::filter::less_than_or_equal_to,
 
-#endif
+                                              famouso::mw::attributes::filter::greater_than_or_equal_to
+                                             >::type type;
+                    };
+                };
+
+            } // end namespace detail
+        } // end namespace attributes
+    } // end namespace mw
+} // end namespace famouso
+
+#endif // _HasLessThanRelation_h_

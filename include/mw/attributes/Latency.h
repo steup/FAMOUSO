@@ -46,11 +46,11 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/HighDensityIDs.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
 #include "mw/attributes/detail/tags/IsRequirable.h"
+#include "mw/attributes/detail/tags/HasLessThanRelation.h"
 
 namespace famouso {
     namespace mw {
@@ -68,9 +68,12 @@ namespace famouso {
             template<uint32_t latency>
             class Latency : public Attribute<
                                     Latency<0>, tags::integral_const_tag,
-                                    uint32_t, latency, filter::less_than_or_equal_to,
-                                    detail::HighDensityIDs::latency,
-                                    detail::TagSet<detail::IsHighDensity, detail::IsRequirable>
+                                    uint32_t, latency, detail::HighDensityIDs::latency,
+                                    detail::TagSet<
+                                             detail::IsHighDensity,
+                                             detail::IsRequirable,
+                                             detail::HasLessThanRelation
+                                            >
                                    > {
                 public:
                     typedef Latency type;

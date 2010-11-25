@@ -44,7 +44,6 @@
 
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/Attribute.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
 #include "mw/attributes/detail/tags/TagSet.h"
 
 namespace famouso {
@@ -55,7 +54,7 @@ namespace famouso {
              * to a NULL-pointer
              */
             class Null : public Attribute<Null, tags::integral_const_tag, uint8_t, 0,
-                                 filter::less_than_or_equal_to, 0, detail::TagSet<>
+                                 0, detail::TagSet<>
                                 > {
                private:
                     Null() {

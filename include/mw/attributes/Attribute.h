@@ -64,6 +64,7 @@
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
 #include "mw/attributes/detail/tags/IsRequirable.h"
+#include "mw/attributes/detail/tags/HasLessThanRelation.h"
 
 #include "config/type_traits/ByteCount.h"
 
@@ -74,7 +75,7 @@ namespace famouso {
         namespace attributes {
 
             /*!
-             * \brief Represents an attribute as a part of the FAMOUSO generic attribute
+             * \brief Represents an attribute as a part of the %FAMOUSO generic attribute
              *  framework.
              *
              * This is the central entity of the attribute framework. It can be attached to
@@ -100,7 +101,7 @@ namespace famouso {
              *  with bound parameters always yield different types for different arguments,
              *  the plain type itself would not be considered as equal.
              *
-             * \tparam BaseType The type which is used to compare attributes of the same type
+             * \tparam BaseType The type which is used to compare %attributes of the same type
              * \tparam CompareTag The tag which defines how this attribute can be compared
              * \tparam ValueType The type of this attribute's value
              * \tparam Value The compile time value of this attribute
@@ -111,10 +112,14 @@ namespace famouso {
              *  by default
              */
             template <typename BaseType, typename CompareTag, typename ValueType,
-                      ValueType Value, typename Comparator, uint8_t ID,
-                      typename TagSet = detail::TagSet<> >
+                      ValueType Value, uint8_t ID, typename TagSet = detail::TagSet<> >
             class Attribute : public famouso::mw::attributes::access::Attribute_RT {
                 public:
+                    // TODO: Consider to move the compare tag and the comparator into
+                    //  the tag set, to shrink the type interface of the Attribute class
+                    //  on the one hand and to unify attribute type tagging on the other
+                    //  hand
+
                     // The boost tag type, declaring the attribute class to be an
                     //  integral constant
                     typedef boost::mpl::integral_c_tag tag;
@@ -129,8 +134,10 @@ namespace famouso {
                     // The static value of this attribute
                     static const ValueType value = Value;
 
-                    // The comparator filter expression for this attribute class
-                    typedef Comparator comparator;
+                    // The comparator filter expression for this attribute class, determined from
+                    //  the given tag set
+                    typedef typename
+                        detail::HasLessThanRelation::template get_comparator<TagSet>::type comparator;
 
                     // The ID (aka category for system attributes) of this attribute
                     static const uint8_t id = ID;

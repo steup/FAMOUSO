@@ -46,7 +46,6 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/HighDensityIDs.h"
-#include "mw/attributes/filter/greater_than_or_equal_to.h"
 
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
@@ -67,9 +66,12 @@ namespace famouso {
             template<uint32_t throughput>
             class Throughput : public Attribute<
                                       Throughput<0>, tags::integral_const_tag,
-                                      uint32_t, throughput, filter::greater_than_or_equal_to,
+                                      uint32_t, throughput,
                                       detail::HighDensityIDs::throughput,
-                                      detail::TagSet<detail::IsHighDensity, detail::IsRequirable>
+                                      detail::TagSet<
+                                               detail::IsHighDensity,
+                                               detail::IsRequirable
+                                              >
                                      > {
                 public:
                     typedef Throughput type;

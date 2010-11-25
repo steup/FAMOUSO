@@ -46,11 +46,11 @@
 #include "mw/attributes/Attribute.h"
 
 #include "mw/attributes/detail/HighDensityIDs.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
 
 #include "mw/attributes/detail/tags/TagSet.h"
 #include "mw/attributes/detail/tags/IsHighDensity.h"
 #include "mw/attributes/detail/tags/IsRequirable.h"
+#include "mw/attributes/detail/tags/HasLessThanRelation.h"
 
 namespace famouso {
     namespace mw {
@@ -69,9 +69,12 @@ namespace famouso {
             template<uint16_t packetLoss>
             class PacketLoss : public Attribute<
                                        PacketLoss<0>, tags::integral_const_tag,
-                                       uint16_t, packetLoss, filter::less_than_or_equal_to,
-                                       detail::HighDensityIDs::packetLoss,
-                                       detail::TagSet<detail::IsHighDensity, detail::IsRequirable>
+                                       uint16_t, packetLoss, detail::HighDensityIDs::packetLoss,
+                                       detail::TagSet<
+                                                detail::IsHighDensity,
+                                                detail::IsRequirable,
+                                                detail::HasLessThanRelation
+                                               >
                                       > {
                 public:
                     typedef PacketLoss type;
