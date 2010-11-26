@@ -86,7 +86,7 @@ namespace famouso {
                     template< typename T>
                     bool operator () (const T& e) const {
                         A* a=filter::find<A>(e);
-                        return !!(a && op::apply_runtime( a->get(), __b.get() ) );
+                        return !!(a && op::apply_runtime( a->getValue(), __b.getValue() ) );
                     }
                 };
 
@@ -114,7 +114,7 @@ namespace famouso {
                     template< typename T>
                     static bool apply(const T& e) {
                         A* a=filter::find<A>(e);
-                        return !!(a && op::apply_runtime( a->get(), B::value ) );
+                        return !!(a && op::apply_runtime( a->getValue(), B::value ) );
                     }
 
                     /*!\brief   the %filter acts as functor, thus its interface
