@@ -60,7 +60,7 @@ namespace famouso {
 
                 /*! \brief  method to get the value of the constant
                  */
-                T get () const {
+                T getValue () const {
                     return __t;
                 }
 
