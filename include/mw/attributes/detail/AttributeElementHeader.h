@@ -56,14 +56,14 @@ namespace famouso {
                 union AttributeElementHeader {
                         // For high density attributes
                         struct {
-                                uint8_t valueOrLength :2;
-                                uint8_t valueOrLengthSwitch :1;
-                                uint8_t extension :1;
-                                uint8_t category :4;
+                                uint8_t valueOrLength     :2;
+                                uint8_t lengthValueSwitch :1;
+                                uint8_t extension         :1;
+                                uint8_t category          :4;
                         }__attribute__((packed));
 
                         // For low density attributes
-                        uint8_t length :3;
+                        uint8_t length                    :3;
 
                         bool isHighDensity() const {
                             return (category != HighDensityIDs::lowDensity);

@@ -52,6 +52,7 @@
 #include "mw/nl/awds/logging.h"
 
 #include "mw/attributes/access/Attribute_RT.h"
+#include "mw/attributes/access/AttributeSet_RT.h"
 
 namespace famouso {
     namespace mw {
@@ -248,11 +249,11 @@ namespace famouso {
                             if (!data) // just to be a little secure.
                                 return 0;
 
-                            typedef famouso::mw::attributes::detail::AttributeSetHeader<0> *ASH;
+                            typedef famouso::mw::attributes::access::AttributeSet_RT *AS;
 
-                            const ASH setHeader = reinterpret_cast<const ASH> (&data[0]);
+                            const AS set_rt = reinterpret_cast<const AS> (&data[0]);
 
-                            return setHeader->get() + (setHeader->isExtended() ? 2 : 1);
+                            return set_rt->length();
                         }
 
                         /** \brief Contructor to init the set with no attributes.

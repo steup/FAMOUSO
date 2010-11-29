@@ -150,7 +150,7 @@ namespace famouso {
 
                             if (header->isHighDensity()) {
                                 // High density attributes
-                                if (header->valueOrLengthSwitch) {
+                                if (header->lengthValueSwitch) {
                                     // Value is contained
                                     if (header->extension) {
                                         // Value fits extended

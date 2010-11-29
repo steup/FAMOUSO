@@ -61,6 +61,25 @@ namespace famouso {
                             // Visibility
                         }
 
+                        void writeSize(const uint16_t size, const bool extension) {
+                            uint8_t* const data = reinterpret_cast<uint8_t* const>(this);
+
+                            // Depending on whether the sequence header is extended either 1
+                            //  or 2 two bytes must be written accordingly
+                            if (extension) {
+                                // Convert the length to network byte order and set the
+                                //  extension bit
+                                const uint16_t tmpSize = htons(size | 0x8000);
+                                // Assign the converted value to the array
+                                *(reinterpret_cast<uint16_t*>(data)) = tmpSize;
+                            } else {
+                                // Write the lower 7 bits of the sequence size into the first
+                                //  and only byte (The extension flag assures that the given
+                                //  sequence size fits 7 bits)
+                                data[0] = (size & 0x7F);
+                            }
+                        }
+
                     public:
                         /*!
                          * \brief Returns the number of bytes used for the encoded attributes in
@@ -109,25 +128,6 @@ namespace famouso {
 
                         bool isExtended() const {
                             return ((*reinterpret_cast<const uint8_t* const>(this) & 0x80) != 0);
-                        }
-
-                        void writeSize(const uint16_t size, const bool extension) {
-                            uint8_t* const data = reinterpret_cast<uint8_t* const>(this);
-
-                            // Depending on whether the sequence header is extended either 1
-                            //  or 2 two bytes must be written accordingly
-                            if (extension) {
-                                // Convert the length to network byte order and set the
-                                //  extension bit
-                                const uint16_t tmpSize = htons(size | 0x8000);
-                                // Assign the converted value to the array
-                                *(reinterpret_cast<uint16_t*>(data)) = tmpSize;
-                            } else {
-                                // Write the lower 7 bits of the sequence size into the first
-                                //  and only byte (The extension flag assures that the given
-                                //  sequence size fits 7 bits)
-                                data[0] = (size & 0x7F);
-                            }
                         }
                 };
 

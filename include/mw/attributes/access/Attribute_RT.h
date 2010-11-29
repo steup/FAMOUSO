@@ -97,7 +97,7 @@ namespace famouso {
 
                             const elemHeader_t* const header = asElementHeader();
 
-                            if ((header->isHighDensity()) && (header->valueOrLengthSwitch)) {
+                            if ((header->isHighDensity()) && (header->lengthValueSwitch)) {
                                 if (header->extension) {
                                     if (sizeof(ValueType) == 1) {
                                         // If the value type has only one byte, the two remaining bits
@@ -184,7 +184,7 @@ namespace famouso {
 
                             elemHeader_t* const header = asElementHeader();
 
-                            if ((header->isHighDensity()) && (header->valueOrLengthSwitch)) {
+                            if ((header->isHighDensity()) && (header->lengthValueSwitch)) {
                                 if (header->extension) {
                                     // 10 bits at max are allowed in this case
                                     if (newBitCount > 10)

@@ -50,6 +50,7 @@
 #include "boost/mpl/void.hpp"
 #include "boost/mpl/placeholders.hpp"
 #include "boost/mpl/deref.hpp"
+#include "boost/mpl/eval_if.hpp"
 
 #include "assert/staticerror.h"
 
@@ -57,13 +58,11 @@
 
 #include "mw/attributes/detail/AttributeSetImpl.h"
 #include "mw/attributes/detail/find.h"
-#include "mw/attributes/detail/FindStatic.h"
-#include "mw/attributes/detail/AttributeSetHeader.h"
 #include "mw/attributes/detail/AttributeSize.h"
 #include "mw/attributes/detail/Duplicates.h"
+#include "mw/attributes/detail/AttributeCompileErrors.h"
 
 #include "mw/attributes/access/Attribute_RT.h"
-
 #include "mw/attributes/access/AttributeSet_RT.h"
 #include "mw/attributes/access/AttributeSetHeader_RT.h"
 
@@ -104,6 +103,10 @@ namespace famouso {
                     // The implementation struct of the actual attribute set
                     typedef detail::AttributeSetImpl<AttrSeq> impl;
 
+                    // The content size (the bytes needed for the attribute data) is determined
+                    //  by the implementation struct
+                    static const uint16_t contentSize = impl::size;
+
                 public:
                     /*!
                      * \brief This type
@@ -116,9 +119,20 @@ namespace famouso {
                     typedef AttrSeq sequence;
 
                 private:
-                    // The sequence header structure type is instantiated with the size of the
-                    //  complete attribute sequence
-                    typedef detail::AttributeSetHeader<impl::size> setHeader;
+                    // True, if the set header will be written extended, false if the
+                    //  header fits one byte
+                    static const bool extension = (contentSize > 0x7F);
+
+                    // Assert that the sequence size fits the format bounds
+                    typedef typename boost::mpl::eval_if_c<
+                                                  extension,
+                                                  detail::ExtendedSequenceBoundError<contentSize>,
+                                                  detail::UnextendedSequenceBoundError<contentSize>
+                                                 >::type assertDummy;
+
+                    // The size of the header is 1 byte if it is not extended and 2 bytes
+                    //  if it is extended
+                    static const uint8_t headerSize = (extension ? 2 : 1);
 
                 public:
                     /*!
@@ -127,15 +141,14 @@ namespace famouso {
                      * This includes the sequence header and every single attribute contained in
                      *  the sequence.
                      */
-                    static const uint16_t overallSize = setHeader::size + impl::size;
+                    static const uint16_t overallSize = headerSize + contentSize;
 
                 private:
                     /*!
                      * \brief The member array containing the complete attribute sequence
+                     * 	including its header
                      */
                     uint8_t data[overallSize];
-
-                    typedef famouso::mw::attributes::access::AttributeSetHeader_RT setHeaderType;
 
                 public:
                     /*!
@@ -145,11 +158,11 @@ namespace famouso {
                     AttributeSet() {
                         // The header always starts at index 0 (In this case we do not have
                         //  to consider the offset since it is always 0 at this point)
-                        new (&data[0]) setHeader;
+                        writeSize(contentSize, extension);
 
                         // The construction of the attribute binary data is done by the
                         //  wrapped implementation
-                        impl::construct(&data[setHeader::size]);
+                        impl::construct(&data[headerSize]);
                     }
 
                     /*!

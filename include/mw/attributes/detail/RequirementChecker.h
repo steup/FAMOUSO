@@ -49,13 +49,24 @@
 #include "boost/mpl/integral_c.hpp"
 #include "boost/mpl/bool.hpp"
 
-#include "mw/attributes/detail/FindStatic.h"
+#include "boost/mpl/filter_view.hpp"
+
+#include "mw/attributes/type_traits/is_null.h"
 #include "mw/attributes/detail/AttributeCompileErrors.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
             namespace detail {
+
+                /*!
+                 * \brief Predicate to filter out non-requirable attributes from
+                 *  a requirement specification
+                 */
+                struct RequirablePred {
+                    template <typename Attr>
+                    struct apply : boost::mpl::bool_<Attr::requirable> {};
+                };
 
                 /*!
                  * \brief Checks the given attribute requirement against the given
@@ -75,9 +86,41 @@ namespace famouso {
                  *  attribute, should be left at default from the outside
                  */
                 template <typename Prov, typename Req, bool compileError = true,
-                          typename ReqIter = typename boost::mpl::begin<typename Req::sequence>::type>
+                          typename FilteredReq = typename boost::mpl::filter_view<
+                                                  typename Req::sequence,
+                                                  RequirablePred
+                                                 >::type,
+                          typename ReqIter = typename boost::mpl::begin<FilteredReq>::type
+                         >
                 struct RequirementChecker {
                     private:
+                        // TODO: Rework the requirable assertion so that a more simply error message
+                        //  is generated (e.g. by using the invert predicate of RequirablePred)
+                        template <typename Pr, typename PrIter = typename boost::mpl::begin<Pr>::type>
+                        struct provision_assertion {
+                            private:
+                                typedef typename boost::mpl::deref<PrIter>::type curProvAttr;
+
+                                FAMOUSO_STATIC_ASSERT_ERROR(
+                                        (curProvAttr::requirable),
+                                        provision_contains_non_requirable_attribute,
+                                        (curProvAttr, Pr));
+
+                            public:
+                                typedef typename provision_assertion<
+                                                  Pr,
+                                                  typename boost::mpl::next<PrIter>::type
+                                                 >::type type;
+                        };
+                        template <typename Pr>
+                        struct provision_assertion<Pr, typename boost::mpl::end<Pr>::type> {
+                                typedef provision_assertion type;
+                        };
+
+                        typedef typename provision_assertion<
+                                          typename Prov::sequence
+                                         >::type assertProvision;
+
                         /*!
                          * \brief The current attribute of the requirement, determined
                          *  by the iterator.
@@ -85,22 +128,18 @@ namespace famouso {
                         typedef typename boost::mpl::deref<ReqIter>::type curAttr;
 
                         /*!
-                         * \brief Determines whether the current attribute is contained
-                         *  in the provision.
-                         */
-                        typedef typename IsContained<
-                                          curAttr,
-                                          typename Prov::sequence
-                                         >::result contained;
-
-                        /*!
                          * \brief The provision attribute which is equal to the current
                          *  requirement attribute.
                          */
-                        typedef typename Find<
-                                 typename curAttr::type,
-                                 typename Prov::sequence
-                                >::result provAttr;
+                        typedef typename Prov::template find_ct<curAttr>::type provAttr;
+
+                        /*!
+                         * \brief Determines whether the current attribute is not contained
+                         *  in the provision.
+                         */
+                        typedef famouso::mw::attributes::type_traits::is_null<
+                                                                       provAttr
+                                                                      > notContained;
 
                         /*!
                          * \brief The comparator used for checking the values of the
@@ -115,7 +154,7 @@ namespace famouso {
                                 typedef typename Attribute::template isStronger<curAttr> compare;
                         };
                         template <bool dummy>
-                        struct comparatorExtractor<boost::mpl::na, dummy> {
+                        struct comparatorExtractor<famouso::mw::attributes::Null, dummy> {
                                 // We let this default to true to not issue two errors if a
                                 //  required attribute is not found
                                 typedef boost::mpl::bool_<true> compare;
@@ -133,7 +172,7 @@ namespace famouso {
 
                         // Only issue the "attribute is not contained..." error if the error regarding
                         //  requirable attributes was not issued
-                        static const bool issueNotContainedError = (!contained::value && curAttr::requirable);
+                        static const bool issueNotContainedError = (notContained::value && curAttr::requirable);
 
                         /*!
                          * Issue a compiler error if the current attribute is
@@ -159,6 +198,7 @@ namespace famouso {
                                           Prov,
                                           Req,
                                           compileError,
+                                          FilteredReq,
                                           typename boost::mpl::next<ReqIter>::type
                                          >::result nextResult;
                     public:
@@ -172,7 +212,7 @@ namespace famouso {
                         typedef bool value_type;
 
                         typedef typename boost::mpl::eval_if_c<
-                                                      (contained::value && valueFits),
+                                                      (!notContained::value && valueFits),
                                                       nextResult,
                                                       boost::mpl::bool_<false>
                                                      >::type result;
@@ -192,12 +232,13 @@ namespace famouso {
                         }
                 };
 
-                template <typename Prov, typename Req>
+                template <typename Prov, typename Req, typename FilteredReq>
                 struct RequirementChecker<
                         Prov,
                         Req,
                         true,
-                        typename boost::mpl::end<typename Req::sequence>::type
+                        FilteredReq,
+                        typename boost::mpl::end<FilteredReq>::type
                        > : public boost::mpl::integral_c<bool, true> {
                     public:
                         typedef RequirementChecker type;
@@ -205,12 +246,13 @@ namespace famouso {
                         typedef boost::mpl::bool_<true> result;
                 };
 
-                template <typename Prov, typename Req>
+                template <typename Prov, typename Req, typename FilteredReq>
                 struct RequirementChecker<
                         Prov,
                         Req,
                         false,
-                        typename boost::mpl::end<typename Req::sequence>::type
+                        FilteredReq,
+                        typename boost::mpl::end<FilteredReq>::type
                        > : public boost::mpl::integral_c<bool, true> {
                     public:
                         typedef RequirementChecker type;

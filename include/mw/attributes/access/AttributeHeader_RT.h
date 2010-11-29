@@ -136,7 +136,7 @@ namespace famouso {
                          */
                         uint16_t valueLength() const {
                             if (isHighDensity()) {
-                                if (asElementHeader()->valueOrLengthSwitch) {
+                                if (asElementHeader()->lengthValueSwitch) {
                                     // Special case that a high density attribute's
                                     //  value is encoded as a part of the header
                                     return (isExtended() ? 1 : 0);
