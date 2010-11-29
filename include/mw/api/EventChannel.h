@@ -82,7 +82,15 @@ namespace famouso {
                              *  representation into buffer if \e buffer does
                              *  not equal NULL.
                              */
-                            get_requirements
+                            get_requirements,
+
+                            /*! \brief Start to publish events to network on
+                             *         a real time channel
+                             *
+                             *  The data is passed via \e buffer pointing to a
+                             *  ChannelReservationData struct.
+                             */
+                            start_real_time_delivery
                         } action;
                         uint8_t * buffer;
                     };
