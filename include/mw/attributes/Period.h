@@ -63,10 +63,10 @@ namespace famouso {
              *
              * \tparam Period Describes the initial value to be set
              */
-            template<uint16_t period>
+            template<uint32_t period>
             class Period : public Attribute<
                                        Period<0>, tags::integral_const_tag,
-                                       uint16_t, period, detail::HighDensityIDs::period,
+                                       uint32_t, period, detail::HighDensityIDs::period,
                                        // TODO: Should the period attribute be requirable?
                                        detail::TagSet<
                                                 detail::IsHighDensity,
