@@ -44,14 +44,18 @@
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/TTL.h"
 #include "mw/attributes/Attribute.h"
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/HasLessThanRelation.h"
 #include "mw/attributes/filter/RelationalOperatorFilterReturnTypeCalculator.h"
 
 using namespace famouso::mw::attributes;
 using namespace famouso::mw::attributes::filter;
 
+typedef detail::TagSet<detail::HasLessThanRelation> tagSet;
+
 // defines a configurable user defined attribute
 template<uint8_t v>
-class UserDefined : public Attribute<UserDefined<0>, tags::same_tag, uint8_t, v, less_than_or_equal_to, 42> {
+class UserDefined : public Attribute<UserDefined<0>, tags::same_tag, uint8_t, v, 42, tagSet> {
 public:
     typedef UserDefined type;
 };
