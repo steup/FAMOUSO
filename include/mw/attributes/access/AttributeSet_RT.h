@@ -93,7 +93,7 @@ namespace famouso {
                          */
                         template <typename Attr>
                         const Attr* find_rt() const {
-                            uint8_t* const data = reinterpret_cast<uint8_t* const>(this);
+                            const uint8_t* const data = reinterpret_cast<const uint8_t* const>(this);
 
                             return (famouso::mw::attributes::detail::find<Attr>(&data[0]));
                         }
