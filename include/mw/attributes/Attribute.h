@@ -115,11 +115,6 @@ namespace famouso {
                       ValueType Value, uint8_t ID, typename TagSet = detail::TagSet<> >
             class Attribute : public famouso::mw::attributes::access::Attribute_RT {
                 public:
-                    // TODO: Consider to move the compare tag and the comparator into
-                    //  the tag set, to shrink the type interface of the Attribute class
-                    //  on the one hand and to unify attribute type tagging on the other
-                    //  hand
-
                     // The boost tag type, declaring the attribute class to be an
                     //  integral constant
                     typedef boost::mpl::integral_c_tag tag;

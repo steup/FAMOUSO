@@ -47,8 +47,8 @@ namespace famouso {
             namespace detail {
 
                 /*!
-                 * \brief Holds the IDs of the defined system %attributes
-                 *  at one place
+                 * \brief Holds the IDs of the defined high density
+                 *  %attributes at one place
                  */
                 struct HighDensityIDs {
                         enum {

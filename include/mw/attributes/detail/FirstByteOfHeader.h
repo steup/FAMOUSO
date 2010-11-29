@@ -62,27 +62,27 @@ namespace famouso {
                 template <typename Attr>
                 struct FirstByteOfHeader {
                     private:
-                        // The category starts from the 5th bit
-                        static const uint8_t catOffset = 4;
+                        // The type starts from the 5th bit (for high density attributes)
+                        static const uint8_t typeOffset = 4;
                         // The extension bit is always the 4th bit
                         static const uint8_t extBitOffset = 3;
-                        // For system attributes the VOL (value-or-length) bit is the 3rd
-                        static const uint8_t volBitOffset = 2;
+                        // For system attributes the LVS (length/value-switch) bit is the 3rd
+                        static const uint8_t lvsBitOffset = 2;
 
                         // TODO: I will not apply any line breaking to this until anyone tells me how
                         //  to make the building of the values as descriptive as it is now ;)
 
-                        // System
-                        //                            CAT                                EXT                     VOL                     LEN
-                        static const uint8_t case1 = ((Attr::id & 0xF) << catOffset) | (0x0 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits unextended
-                        static const uint8_t case2 = ((Attr::id & 0xF) << catOffset) | (0x1 << extBitOffset) | (0x1 << volBitOffset) | (0x00); // Value fits extended
-                        static const uint8_t case3 = ((Attr::id & 0xF) << catOffset) | (0x0 << extBitOffset) | (0x0 << volBitOffset) | (ValueByteCount<Attr>::value & 0x3); // Length fits unextended
-                        static const uint8_t case4 = ((Attr::id & 0xF) << catOffset) | (0x1 << extBitOffset) | (0x0 << volBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x3); // Length fits extended
+                        // High density
+                        //                            TYPE                               EXT                     LVS                     LEN
+                        static const uint8_t case1 = ((Attr::id & 0xF) << typeOffset) | (0x0 << extBitOffset) | (0x1 << lvsBitOffset) | (0x00); // Value fits unextended
+                        static const uint8_t case2 = ((Attr::id & 0xF) << typeOffset) | (0x1 << extBitOffset) | (0x1 << lvsBitOffset) | (0x00); // Value fits extended
+                        static const uint8_t case3 = ((Attr::id & 0xF) << typeOffset) | (0x0 << extBitOffset) | (0x0 << lvsBitOffset) | (ValueByteCount<Attr>::value & 0x3); // Length fits unextended
+                        static const uint8_t case4 = ((Attr::id & 0xF) << typeOffset) | (0x1 << extBitOffset) | (0x0 << lvsBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x3); // Length fits extended
 
-                        // Non-system
-                        //                           CAT                  EXT                     LEN
-                        static const uint8_t case5 = (0xF << catOffset) | (0x0 << extBitOffset) | (ValueByteCount<Attr>::value & 0x7); // Length fits unextended
-                        static const uint8_t case6 = (0xF << catOffset) | (0x1 << extBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x7); // Length fits extended
+                        // Low density
+                        //                           TYPE                   EXT                     LEN
+                        static const uint8_t case5 = (0xF << typeOffset) | (0x0 << extBitOffset) | (ValueByteCount<Attr>::value & 0x7); // Length fits unextended
+                        static const uint8_t case6 = (0xF << typeOffset) | (0x1 << extBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x7); // Length fits extended
 
                     public:
                         /*!

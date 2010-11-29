@@ -56,6 +56,10 @@ namespace famouso {
         namespace attributes {
             namespace detail {
 
+                // TODO: Move this into the "tags" namespace directly in "attributes",
+                //  consider if this is useful since the filter tags also remain there,
+                //  perhaps they should be moved into a "filter::tags" namespace
+
                 template <typename T>
                 struct assert_is_tag_or_na {
                         static const bool cond = (is_tag<T>::value) ||

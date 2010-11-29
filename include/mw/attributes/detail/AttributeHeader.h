@@ -68,7 +68,7 @@ namespace famouso {
                                          >::type sizeSelector;
 
                         // The byte count for the attribute header (It could also include a
-                        //  part of the attribute's value if the VOL switch is set)
+                        //  part of the attribute's value if the LVS switch is set)
                         static const uint8_t size = sizeSelector::template select_ct<Attr>::value;
 
                         static const bool res2 = (ValueBitCount<Attr>::value < 9) ? false : true;
@@ -120,7 +120,7 @@ namespace famouso {
                             }
 
                             // Handle eventually further written bytes (depending on extension,
-                            //  VOL etc.)
+                            //  LVS etc.)
                             if (toWrite == writeLowerLengthBits) {
                                 data[1] = (ValueByteCount<Attr>::value & 0xFF);
                             } else if (toWrite == writeType) {

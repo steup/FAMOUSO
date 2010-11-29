@@ -132,11 +132,6 @@ namespace famouso {
                 private:
                     /*!
                      * \brief The member array containing the complete attribute sequence
-                     *
-                     * This should only be accessed with no specific iterator (i.e. the iterator
-                     *  pointing to first sequence element) given in the type argument list.
-                     *  Otherwise it would contain just the attribute sequence starting from the
-                     *  given iterator and no sequence header.
                      */
                     uint8_t data[overallSize];
 
@@ -146,13 +141,6 @@ namespace famouso {
                     /*!
                      * \brief Constructor creating the binary representation of the attribute
                      *  sequence into its member array.
-                     *
-                     * Since this class is a recursive structure, the constructor only creates
-                     *  the binary representation of the current single attribute. The remaining
-                     *  attributes (the current sequence position is given by the iterator type
-                     *  argument above) are written by another recursively instantiated class of
-                     *  this template class. If the current attribute is the first one in the
-                     *  sequence the list header (i.e. the attribute count) is also written.
                      */
                     AttributeSet() {
                         // The header always starts at index 0 (In this case we do not have
