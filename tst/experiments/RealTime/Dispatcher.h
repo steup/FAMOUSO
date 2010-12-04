@@ -41,11 +41,15 @@
 #ifndef __DISPATCHER_H_65D8DDCDE85B34__
 #define __DISPATCHER_H_65D8DDCDE85B34__
 
-#include "mw/afp/shared/Time.h"
+#include "Singleton.h"
+#include "TFW.h"
 #include "case/Delegate.h"
 #include "object/Queue.h"
 
+#include "util/ios.h"
 #include <signal.h>
+
+using famouso::TimeSource;
 
 volatile bool ___done = false;
 
@@ -57,27 +61,43 @@ void siginthandler(int) {
 
 
 struct Task : public Chain {
-    Time start;
+    famouso::time::Time start;
     uint64_t period;                        // in usec, Zero for non-periodic
     famouso::util::Delegate<void> function; // Later we need argument binding
 };
 
-// little dispatcher sketch for first testing while waiting for real dispatcher implementation
-class Dispatcher {
+// simple function dispatcher sketch for first testing
+// no real time scheduling!!!
+class DispatcherImpl {
         Queue tasks;
 
-        Task * next_task() {
-            // Returns first task in timeline
-            Task * earliest = 0;
+        void insert_task(Task & new_task) {
+            // Sort list for starting time
+            Chain * predecessor = &tasks;
             Task * task = static_cast<Task*>(tasks.select());
-            while (task) {
-                if (!earliest || task->start < earliest->start) {
-                    earliest = task;
-                }
+            while (task && task->start < new_task.start) {
+                predecessor = task;
                 task = static_cast<Task*>(task->select());
             }
-            return earliest;
+            new_task.select(task);
+            predecessor->select(&new_task);
         }
+
+        void remove_task(Task & task) {
+            tasks.remove(&task);
+        }
+
+        void wait_for_next_task() {
+            // TODO: wenn nebenläufiges ändern von tasks (z.b. in callbacks während dispatcher läuft): warten ggf. abzubrechen
+            Task * task = static_cast<Task*>(tasks.select());
+            if (task) {
+                TimeSource::wait_until(task->start);
+            } else {
+                // No tasks
+                usleep(500000);
+            }
+        }
+
 
     public:
 
@@ -90,43 +110,44 @@ class Dispatcher {
             return "[DISPATCH] ";
         }
 
-        static Dispatcher & instance() {
-            static Dispatcher d;
-            return d;
-        }
-
+        // Nicht 2x enqueuen
+        // Nicht nachträglich zu ändern!
+        // TODO: prüfen ob zeit in zukunft?
         void enqueue(Task & task) {
-            tasks.append(task);
+            insert_task(task);
         }
 
         void dequeue(Task & task) {
-            tasks.remove(task);
+            remove_task(task);
         }
 
-        // No real time!!!
         void run() {
             signal(SIGINT, siginthandler);
             while (!___done) {
-                Task * next = next_task();
+                wait_for_next_task();
+                Task * next = static_cast<Task *>(tasks.unlink());
                 if (next) {
-                    Time curr = Time/*Source*/::current();
-                    if (next->start < curr) {
-                        ::logging::log::emit<Dispatcher>() << "task scheduled for " << next->start << " started " << curr << "\n";
-                        // Run task
-                        next->function();
-                        if (next->period == 0) {
-                            dequeue(*next);
-                        } else {
-                            next->start.add_usec(next->period);
-                            //next->start = Time::current().add_usec(next->period);
-                        }
+                    famouso::time::Time curr = TimeSource::current();
+                    ::logging::log::emit<DispatcherImpl>() << "task scheduled for " << next->start << " started " << curr << "\n";
+                    // Run task
+                    next->function();
+                    if (next->period != 0) {
+                        // Insert periodic task into queue again
+                        // TODO: futurify?
+                        next->start.add_usec(next->period);
+                        insert_task(*next);
                     }
-                } else {
-                    usleep(100);
                 }
             }
+
+            // signalise the ios to exit
+            famouso::util::impl::exit_ios();
         }
 };
+
+// TODO: maybe static + init in famouso-init is sufficient (save if)
+typedef Singleton<DispatcherImpl> Dispatcher;
+
 
 #endif // __DISPATCHER_H_65D8DDCDE85B34__
 

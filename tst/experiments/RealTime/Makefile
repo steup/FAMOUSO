@@ -53,6 +53,8 @@ ifneq ($(ADD_FLAGS),)
 CXXFLAGS += $(ADD_FLAGS)
 endif
 
+CXXFLAGS += -lrt
+
 all: $(BINS)
 
 

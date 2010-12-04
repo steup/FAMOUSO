@@ -47,6 +47,7 @@
 
 #include "mw/common/Event.h"
 
+using namespace famouso;
 using namespace famouso::mw;
 
 // TODO: move down in inheritance stack
@@ -87,21 +88,38 @@ class RealTimePublisherEventChannel : public EC {
             // TODO: wider range (us)
             expire = TimeSource::current().add_usec(get_period());
             ::logging::log::emit<RT>()
-                << "publish on " << ::logging::log::hex << static_cast<void*>(this)
-                << " at " << Time::current() << " expiring at " << expire << "\n";
+                << "publish: chan " << ::logging::log::hex << static_cast<void*>(this)
+                << " at " << TimeSource::current() << " expiring at " << expire << "\n";
         }
 
     private:
         // Event-Daten + expire-time intern (TODO: interner puffer, double buffered?!?)
         const Event * event;
         // Setting initial expire to a time in past will prevent to deliver an uninitalized event buffer
-        Time expire;
+        time::Time expire;
 
         // je netz: (slot-length), timer-handles, (RT-State)
         Task deliver_task;
         bool delivering;
 
         typedef typename EC::MWAction MWAction;
+
+        /*!
+         *  \brief  Ensure that time is in future by adding the period n times if neccessary
+         */
+        uint64_t futurify(uint64_t time) {
+            uint64_t curr = TimeSource::current().get();
+            /*
+            while (time < curr) {
+                time += get_period();
+            }
+            */
+            if (time < curr) {
+                // time before reference time -> move after it
+                time += (((curr - time) / get_period()) + 1) * get_period();
+            }
+            return time;
+        }
 
         uint16_t mw_action_impl(MWAction & mw_action) {
             if (mw_action.action == MWAction::get_requirements) {
@@ -119,7 +137,7 @@ class RealTimePublisherEventChannel : public EC {
                 delivering = true;
 
                 // Schedule periodic deliver task
-                deliver_task.start.set(rd->tx_ready_time);
+                deliver_task.start.set(futurify(rd->tx_ready_time));
                 deliver_task.period = get_period();
                 deliver_task.function.bind<type, &type::deliver>(this);
                 Dispatcher::instance().enqueue(deliver_task);
@@ -127,30 +145,30 @@ class RealTimePublisherEventChannel : public EC {
                 // TODO: rd->tx_window_time for guard
 
                 ::logging::log::emit<RT>()
-                    << "start deliver: on "
+                    << "start deliver: chan "
                     << ::logging::log::hex << reinterpret_cast<uint64_t>(this)
-                    << " at " << Time::current() << ": first deliver at "
+                    << " at " << TimeSource::current() << ": first deliver at "
                     << ::logging::log::dec << deliver_task.start << "\n";
                 return 1;
             }
             return 0;
-        }
-
-        void deliver(/* NetworkID */) const {
+        } void deliver(/* NetworkID */) const {
             // publish_local bei voidNL?
             // bei "erstem" netz publish_local
             if (event) {
-                if (TimeSource::in_future(expire)) {
+                if (TimeSource::current() < expire) {
+                    // expire in future
                     ::logging::log::emit<RT>()
-                        << "deliver: from "
+                        << "deliver: chan "
                         << ::logging::log::hex << reinterpret_cast<uint64_t>(this)
-                        << " at " << Time::current() << " expiring at " << expire << "\n";
-                    EC::ech().template publish_local<typename EC::eventChannelHandler>(*event);
+                        << " at " << TimeSource::current() << " expiring at " << expire << "\n";
+                    EC::ech().publish(*this, *event);
                 } else {
+                    // expire in past
                     ::logging::log::emit<RT>()
-                        << "deliver: from "
+                        << "deliver: chan "
                         << ::logging::log::hex << reinterpret_cast<uint64_t>(this)
-                        << " at " << Time::current() << " EXPIRED at " << expire << "\n";
+                        << " at " << TimeSource::current() << " EXPIRED at " << expire << "\n";
                 }
             }
         }

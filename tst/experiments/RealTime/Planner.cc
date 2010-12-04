@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2009-2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,23 @@
  ******************************************************************************/
 
 
+#define LOGGING_OUTPUT_FILE "log_Planner.txt"
 #define LOGGING_DEFINE_EXTENDED_OUTPUT_TYPE
 #define LOGGING_DEFINE_OWN_OUTPUT_TYPE
 #include "RealTimeLogger.h"
 #include "logging/logging.h"
 LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputStream< ::logging::RTFileOutput > > )
+
+#include "TFW.h"
+typedef famouso::time::GlobalClock<famouso::time::ClockDriverGPOS> Clock;
+FAMOUSO_TIME_SOURCE(Clock)
+
+#include "mw/common/NodeID.h"
+template <>
+UID getNodeID<void>() {
+    return UID("RTSchedN");
+}
+
 
 #include "SlotScheduler.h"
 #include "NetworkParameters.h"
@@ -50,6 +62,12 @@ LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputSt
 #include "mw/api/EventChannel.h"
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
+
+#include "devices/nic/can/SocketCAN/SocketCAN.h"
+//#include "devices/nic/can/peak/PeakCAN.h"
+#include "mw/nl/can/etagBP/Client.h"
+#include "mw/nl/can/ccp/Client.h"
+#include "mw/nl/CANNL.h"
 
 //#include "mw/el/EventLayerClientStub.h"
 #include "mw/nl/voidNL.h"
@@ -65,9 +83,15 @@ LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputSt
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/api/ExtendedEventChannel.h"
 
+
 namespace famouso {
     class config {
-            typedef famouso::mw::nl::voidNL NL;
+            typedef device::nic::CAN::SocketCAN can;
+            //typedef device::nic::CAN::PeakCAN can;
+            typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
+            typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
+            typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> NL;
+            //typedef famouso::mw::nl::voidNL NL;
             typedef famouso::mw::anl::AbstractNetworkLayer<NL> ANL;
             typedef famouso::mw::el::EventLayer<ANL> BaseEL;
 
@@ -79,10 +103,10 @@ namespace famouso {
     };
 }
 
-#include "TFW.h"
 #include "Dispatcher.h"
 
-
+//#include "mw/afp/shared/hexdump.h"
+//using famouso::mw::afp::shared::hexdump;
 
 
 #include <stdio.h>
@@ -244,12 +268,36 @@ class RealTimeAnnouncements : public std::list<RealTimePublisher> {
 
 
 class SingleNetworkSchedule {
+        uint64_t cycle_time;
+        uint64_t cycle_start;
+
     public:
+        SingleNetworkSchedule() : cycle_time(0), cycle_start(0) {
+        }
+
         // NetworkID
         RealTimeAnnouncements rt_announcements;
         //Subscriptions subscriptions;
         SlotScheduler slot_scheduler;
         NetworkParameters net_params;
+
+        uint64_t get_next_cycle_start() {
+            uint64_t curr = TimeSource::current().get();
+            if (curr >= cycle_start) {
+                // cycle_start in past -> calculate new
+                uint64_t dt = curr - cycle_start;
+                uint64_t rounds = dt / cycle_time;
+                cycle_start += (rounds + 1) * cycle_time;
+            }
+            return cycle_start;
+        }
+
+        void set_cycle_time(uint64_t duration) {
+            // Set cycle_time and update cycle_start
+            cycle_time = duration;
+            // TODO FIXME: bei mehreren changes hintereinander fehlerhaft!?!
+            get_next_cycle_start();
+        }
 };
 
 
@@ -275,33 +323,33 @@ class RTNetPlanner {
 
 
         void print_pub_info(const Subject & subject, uint64_t lc_id, const AttrSet * req_attr) {
-                ::logging::log::emit() << "\tpublisher : subject " << subject
-                                       << ", this " << ::logging::log::hex << lc_id
-                                       << ", Attribute:"
+            ::logging::log::emit() << "\tpublisher : subject " << subject
+                                   << ", this " << ::logging::log::hex << lc_id
+                                   << ", Attribute:"
+                                   << ::logging::log::endl;
+            //hexdump((uint8_t*)req_attr, req_attr->length());
+
+            const PeriodType * period_p = req_attr->template find_rt<PeriodType>();
+            if (period_p) {
+                period_t period = period_p->getValue();
+                ::logging::log::emit() << "\t\tperiod " << ::logging::log::dec
+                                       << period
                                        << ::logging::log::endl;
-                hexdump((uint8_t*)req_attr, req_attr->length());
+            }
 
-                const PeriodType * period_p = req_attr->template find_rt<PeriodType>();
-                if (period_p) {
-                    period_t period = period_p->getValue();
-                    ::logging::log::emit() << "\t\tperiod " << ::logging::log::dec
-                                           << period
-                                           << ::logging::log::endl;
-                }
+            const MaxEventSizeType * mes_p = req_attr->template find_rt<MaxEventSizeType>();
+            if (mes_p) {
+                elen_t max_event_length = mes_p->getValue();
+                ::logging::log::emit() << "\t\tmax_event_size " << ::logging::log::dec
+                                       << max_event_length
+                                       << ::logging::log::endl;
+            }
 
-                const MaxEventSizeType * mes_p = req_attr->template find_rt<MaxEventSizeType>();
-                if (mes_p) {
-                    elen_t max_event_length = mes_p->getValue();
-                    ::logging::log::emit() << "\t\tmax_event_size " << ::logging::log::dec
-                                           << max_event_length
-                                           << ::logging::log::endl;
-                }
-
-                const RealTime * rt_p = req_attr->template find_rt<RealTime>();
-                if (rt_p) {
-                    ::logging::log::emit() << "\t\tRealTime!"
-                                           << ::logging::log::endl;
-                }
+            const RealTime * rt_p = req_attr->template find_rt<RealTime>();
+            if (rt_p) {
+                ::logging::log::emit() << "\t\tRealTime!"
+                                       << ::logging::log::endl;
+            }
         }
 
         void process_announcements(const Event & event) {
@@ -349,6 +397,7 @@ class RTNetPlanner {
                             ::logging::log::emit() << "Newly announced channel: trying to reserve real time network resources... ";
                             if (net.slot_scheduler.reserve(rt_pub->slot_aslot.period, rt_pub->slot_aslot.length, aslot_shift)) {
                                 ::logging::log::emit() << "success!" << ::logging::log::endl;
+                                net.set_cycle_time(net.slot_scheduler.cycle_length() * net.net_params.usec_per_aslot);
                                 rt_pub->set_scheduled(aslot_shift, net.net_params);
                                 // TODO: if neccessary, send free_slots to BE-Poller and wait for ACK before sending reservation (only once per announcements msg?)
                                 // wait for subscribers?
@@ -357,7 +406,7 @@ class RTNetPlanner {
                                     // Send reservation for this channel
                                     ChannelReservationData crd;
                                     crd.lc_id = lc_id;
-                                    crd.tx_ready_time = /*next_cycle_start_us*/ 0 + rt_pub->slot_usec.shift /*TODO*/;
+                                    crd.tx_ready_time = net.get_next_cycle_start() + rt_pub->slot_usec.shift;
                                     crd.tx_window_time = rt_pub->slot_usec.tx_window;
 
                                     uint16_t len = manchan::Reservation::size(1);
@@ -447,7 +496,7 @@ class PEC2 : public RealTimePublisherEventChannel<famouso::config::PEC, rt_req> 
             RealTimePublisherEventChannel<famouso::config::PEC, rt_req>("rt__subj"),
             event(subject())
         {
-            pub_task.start = Time::current().add_usec(500000);
+            pub_task.start = TimeSource::current().add_usec(500000);
             pub_task.period = get_period();
             pub_task.function.bind<PEC2, &PEC2::publish_task>(this);
             Dispatcher::instance().enqueue(pub_task);
@@ -462,17 +511,26 @@ class PEC2 : public RealTimePublisherEventChannel<famouso::config::PEC, rt_req> 
 
 
 void subscriber_callback(const famouso::mw::api::SECCallBackData& event) {
-    ::logging::log::emit() << "cb\n";
-    /*
     ::logging::log::emit() << "callback: subject " << event.subject
                            << ", length " << ::logging::log::dec << event.length
                            << ", data " << event.data
+                           << ", time " << famouso::TimeSource::current()
                            << logging::log::endl;
-                           */
 }
 
 int main(int argc, char ** argv) {
     famouso::init<famouso::config>();
+
+    // can be integrated into famouso init
+    famouso::config::SEC time_chan("TimeSync");
+    typedef famouso::TimeSource::clock_type Clock;
+    time_chan.callback.bind<Clock, &Clock::tick>(&famouso::TimeSource::instance());
+    time_chan.subscribe();
+
+    while (famouso::TimeSource::out_of_sync()) {
+        usleep(1000);
+    }
+    printf("Clock in sync\n");
 
     RTNetPlanner<famouso::config::PEC, famouso::config::SEC> planner;
 
@@ -488,6 +546,7 @@ int main(int argc, char ** argv) {
     pec2.announce();
 //    }
 
+    printf("Start dispatcher\n");
     Dispatcher::instance().run();
 
     return 0;

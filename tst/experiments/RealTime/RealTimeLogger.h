@@ -43,6 +43,10 @@
 
 #include <stdio.h>
 
+#ifndef LOGGING_OUTPUT_FILE
+#define LOGGING_OUTPUT_FILE "rt.log"
+#endif
+
 namespace logging {
 
     /*! \brief Provides an interface to the standard
@@ -71,9 +75,9 @@ namespace logging {
              *         it should be persitent.
              */
             ~RTFileOutput() {
-                printf("shutting down logging ... writing rt.log\n");
+                printf("shutting down logging ... writing %s\n", LOGGING_OUTPUT_FILE);
                 size_t used = (size_t)(curr - buffer);
-                FILE * f = fopen("rt.log", "w");
+                FILE * f = fopen(LOGGING_OUTPUT_FILE, "w");
                 fwrite(buffer, used, 1, f);
                 fclose(f);
                 delete [] buffer;

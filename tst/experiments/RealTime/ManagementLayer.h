@@ -61,9 +61,6 @@
 #include "ManagementChannelEvents.h"
 
 
-#include "mw/afp/shared/hexdump.h"
-using namespace famouso::mw::afp::shared;
-
 
 using namespace famouso::mw;
 using famouso::mw::el::IncommingEventFromNL;
@@ -193,7 +190,6 @@ class ManagementLayer : public EL {
             Event e(man_chan_subject);
             e.data = data_buffer;
             e.length = length;
-            hexdump(e.data, e.length);
             BelowEL::publish(man_chan_snn, e);
             EL::template publish_local<ML>(e);
         }

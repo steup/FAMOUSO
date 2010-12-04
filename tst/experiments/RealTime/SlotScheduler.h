@@ -61,6 +61,11 @@ class SlotScheduler {
             free_slots.resize(1);
         }
 
+        unsigned int cycle_length() {
+            return free_slots.size();
+        }
+
+
         // hinzufügen: Netz-ID, ...
         // Interface-Funktion
 
@@ -71,7 +76,7 @@ class SlotScheduler {
 
             enum { invalid = (unsigned int)(-1) };
 
-            unsigned int old_cycle_len = free_slots.size();
+            unsigned int old_cycle_len = cycle_length();
             unsigned int new_cycle_len = least_common_multiple(old_cycle_len, period);
 
             // First fitting slot search
@@ -131,6 +136,8 @@ class SlotScheduler {
                     free_slots[k % new_cycle_len].clear();
                 }
             }
+
+            shift = ffs_start;
 
             return true;
         }
