@@ -404,10 +404,10 @@ namespace famouso {
                                 // is given relative to the last time no async write was pending.
                                 if (!incomplete_async_writes) {
                                     // All async writes complete -> reset deadline
-                                    drop_deadline = Time::current().add_sec(1);
+                                    drop_deadline = afp::shared::Time::current().add_sec(1);
                                 }
 
-                                if (incomplete_async_write_bytes < 100000 || Time::current() < drop_deadline) {
+                                if (incomplete_async_write_bytes < 100000 || afp::shared::Time::current() < drop_deadline) {
                                     // To enable asynchronous write operations (needed to avoid flow dependencies)
                                     // we use buffers that are managed by shared_ptr pointers and are deleted
                                     // automatically after async write is completed.
@@ -510,7 +510,7 @@ namespace famouso {
                             unsigned int incomplete_async_writes;
 
                             /// After this time no async write requests get queued anymore (subscriber crash detection and flow control)
-                            Time drop_deadline;
+                            afp::shared::Time drop_deadline;
 
                             /// Queue of async write requests to the subscribing client not yet posted
                             std::queue<AsyncWriteRequest> async_write_requests;

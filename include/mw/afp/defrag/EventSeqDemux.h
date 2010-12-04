@@ -174,7 +174,7 @@ namespace famouso {
                                  * If status == event_incomplete it is the time after which this event is dropped,
                                  * removed from event map and freed.
                                  */
-                                Time expire_time;
+                                shared::Time expire_time;
 
 
                                 /// Constructor
@@ -195,7 +195,7 @@ namespace famouso {
                                  */
                                 void touch() {
                                     // Postpone time to drop incomplete fragment (3 seconds from now)
-                                    Time::get_current_time(expire_time);
+                                    shared::Time::get_current_time(expire_time);
                                     expire_time.add_sec(3);
                                 }
 
@@ -254,7 +254,7 @@ namespace famouso {
                                 // Keep event sequence number for some time to detect late duplicates.
                                 e->status = Event<KeyType>::event_outdated;
 
-                                Time::get_current_time(e->expire_time);
+                                shared::Time::get_current_time(e->expire_time);
 
                                 // Use time for cleaning outdated events
                                 clean_outdated_events(e->expire_time);
@@ -273,7 +273,7 @@ namespace famouso {
                          *
                          * Function is called from set_event_outdated to save syscall for getting current time.
                          */
-                        void clean_outdated_events(const Time & curr_time) {
+                        void clean_outdated_events(const shared::Time & curr_time) {
                             while (!outdated_events.empty()) {
                                 Event<KeyType> * e = outdated_events.front();
 
@@ -296,10 +296,10 @@ namespace famouso {
                          * \brief Remove all incomplete events with expired drop time (expensive! not thread safe!)
                          */
                         void clean_incomplete_untouched_events() {
-                            Time curr_time;
+                            shared::Time curr_time;
                             Event<KeyType> * e;
 
-                            Time::get_current_time(curr_time);
+                            shared::Time::get_current_time(curr_time);
 
                             typename EventMap::iterator it = events.begin();
                             while (it != events.end()) {
