@@ -67,7 +67,7 @@ namespace famouso {
             class TimeStamp : public Attribute<
                                        TimeStamp<0>, tags::integral_const_tag,
                                        uint64_t, timeStamp,
-                                       detail::HighDensityIDs::timeStamp,
+                                       detail::HighDensityIDs::timestamp,
                                        detail::TagSet<detail::IsHighDensity>
                                       > {
                 public:

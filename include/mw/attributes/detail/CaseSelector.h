@@ -74,6 +74,10 @@ namespace famouso {
                 struct CaseSelector {
                         typedef CaseSelector type;
 
+                        // TODO: This could be a static method, the static constants which are
+                        //  calculated below could be members of an inner struct very similar to
+                        //  this one and the method only needs to access these; The interface is
+                        //  a lot simpler to explain if this is a method
                         template <typename Attr>
                         struct select_ct {
                             private:
@@ -109,8 +113,8 @@ namespace famouso {
                                                     //  which would be remaining)
                                                     (byteCount < 4) ?
 
-                                                         // So this is the third case
-                                                         res3 :
+                                                        // So this is the third case
+                                                        res3 :
 
                                                         // Otherwise we would extend the header byte
                                                         //  and so need one more byte which is the fourth

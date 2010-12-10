@@ -75,6 +75,10 @@ namespace famouso {
                             // Visibility
                         }
 
+                        // TODO: Think about the usage of CaseSelector<>::select_rt() for
+                        //  getting and setting the attribute's value or even for all
+                        //  case specific implementations of attribute runtime access
+
                     public:
                         /*!
                          * \brief Returns the value from the binary representation of

@@ -100,6 +100,8 @@ namespace famouso {
                                                                     writeLowerLenBitsAndType
                                                                    >::template select_ct<Attr>::value;
 
+                        // TODO: Let this class also work on the this pointer not having real
+                        //  own memory
                         uint8_t data[size];
 
                     public:
