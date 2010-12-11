@@ -58,6 +58,7 @@
 #include "mw/attributes/detail/ValueByteCount.h"
 #include "mw/attributes/detail/AttributeHeader.h"
 #include "mw/attributes/detail/AttributeElementHeader.h"
+#include "mw/attributes/detail/SmallestValueType.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
 #include "mw/attributes/tags/AttributeTag.h"
 
@@ -174,12 +175,18 @@ namespace famouso {
                         // The complex initialization (i.e. copying the bytes into the array)
                         //  only applies if the value takes at least one bit (e.g. 0 does not)
                         if (BitCount<value_type, value>::value > 0) {
+                            // We help the compiler by determining the smallest type needed to
+                            //  represent the initial attribute value
+                            typedef typename detail::SmallestValueType<
+                                                      ValueType, value
+                                                     >::type smallest_type;
+
                             // Get a big endian representation of the value
-                            const ValueType bigEndian = famouso::util::hton(value);
+                            const smallest_type bigEndian = famouso::util::hton(static_cast<smallest_type>(value));
                             // Get a pointer to the value
                             const uint8_t* ptr = reinterpret_cast<const uint8_t*> (&bigEndian);
                             // Move the pointer to the last byte
-                            ptr += sizeof(ValueType) - 1;
+                            ptr += sizeof(smallest_type) - 1;
 
                             // The index where we start writing the value (starts at the last
                             //  byte which will be written and will then be decremented)
