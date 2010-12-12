@@ -137,19 +137,27 @@ namespace famouso {
                         uint16_t valueLength() const {
                             if (isHighDensity()) {
                                 if (asElementHeader()->lengthValueSwitch) {
-                                    // Special case that a high density attribute's
-                                    //  value is encoded as a part of the header
-                                    return (isExtended() ? 1 : 0);
-                                } else {
+                                    // The length is encoded
                                     if (isExtended()) {
+                                        // The length is encoded extended, so we reinterpret
+                                        //  the masked header as the value length
                                         return (ntohs(*(reinterpret_cast<
                                                          const uint16_t*
                                                         >(this))) & 0x03FF);
                                     } else {
+                                        // The length is encoded unextended so we access
+                                        //  the encoded length using the union member
                                         return (asElementHeader()->valueOrLength);
                                     }
+                                } else {
+                                    // Special case that a high density attribute's
+                                    //  value is encoded as a part of the header
+                                    return (isExtended() ? 1 : 0);
                                 }
                             } else {
+                                // LD-attributes always have their lengths encoded as
+                                //  a part of the header, we only have to check the
+                                //  extension bit
                                 if (isExtended()) {
                                     return (ntohs(*(reinterpret_cast<
                                                      const uint16_t*

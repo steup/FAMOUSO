@@ -155,15 +155,6 @@ namespace famouso {
                             if (header->isHighDensity()) {
                                 // High density attributes
                                 if (header->lengthValueSwitch) {
-                                    // Value is contained
-                                    if (header->extension) {
-                                        // Value fits extended
-                                        return (res2);
-                                    } else {
-                                        // Value fits unextended
-                                        return (res1);
-                                    }
-                                } else {
                                     // Length is contained
                                     if (header->extension) {
                                         // Length fits extended
@@ -171,6 +162,15 @@ namespace famouso {
                                     } else {
                                         // Length fits unextended
                                         return (res3);
+                                    }
+                                } else {
+                                    // Value is contained
+                                    if (header->extension) {
+                                        // Value fits extended
+                                        return (res2);
+                                    } else {
+                                        // Value fits unextended
+                                        return (res1);
                                     }
                                 }
                             } else {

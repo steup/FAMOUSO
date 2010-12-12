@@ -101,7 +101,9 @@ namespace famouso {
 
                             const elemHeader_t* const header = asElementHeader();
 
-                            if ((header->isHighDensity()) && (header->lengthValueSwitch)) {
+                            if ((header->isHighDensity()) && (!header->lengthValueSwitch)) {
+                                // We have a HD-attribute with its value encoded as a part of the header
+
                                 if (header->extension) {
                                     if (sizeof(ValueType) == 1) {
                                         // If the value type has only one byte, the two remaining bits
@@ -188,7 +190,7 @@ namespace famouso {
 
                             elemHeader_t* const header = asElementHeader();
 
-                            if ((header->isHighDensity()) && (header->lengthValueSwitch)) {
+                            if ((header->isHighDensity()) && (!header->lengthValueSwitch)) {
                                 if (header->extension) {
                                     // 10 bits at max are allowed in this case
                                     if (newBitCount > 10)

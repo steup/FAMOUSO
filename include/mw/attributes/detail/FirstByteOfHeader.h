@@ -74,10 +74,10 @@ namespace famouso {
 
                         // High density
                         //                            TYPE                               EXT                     LVS                     LEN
-                        static const uint8_t case1 = ((Attr::id & 0xF) << typeOffset) | (0x0 << extBitOffset) | (0x1 << lvsBitOffset) | (0x00); // Value fits unextended
-                        static const uint8_t case2 = ((Attr::id & 0xF) << typeOffset) | (0x1 << extBitOffset) | (0x1 << lvsBitOffset) | (0x00); // Value fits extended
-                        static const uint8_t case3 = ((Attr::id & 0xF) << typeOffset) | (0x0 << extBitOffset) | (0x0 << lvsBitOffset) | (ValueByteCount<Attr>::value & 0x3); // Length fits unextended
-                        static const uint8_t case4 = ((Attr::id & 0xF) << typeOffset) | (0x1 << extBitOffset) | (0x0 << lvsBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x3); // Length fits extended
+                        static const uint8_t case1 = ((Attr::id & 0xF) << typeOffset) | (0x0 << extBitOffset) | (0x0 << lvsBitOffset) | (0x00); // Value fits unextended
+                        static const uint8_t case2 = ((Attr::id & 0xF) << typeOffset) | (0x1 << extBitOffset) | (0x0 << lvsBitOffset) | (0x00); // Value fits extended
+                        static const uint8_t case3 = ((Attr::id & 0xF) << typeOffset) | (0x0 << extBitOffset) | (0x1 << lvsBitOffset) | (ValueByteCount<Attr>::value & 0x3); // Length fits unextended
+                        static const uint8_t case4 = ((Attr::id & 0xF) << typeOffset) | (0x1 << extBitOffset) | (0x1 << lvsBitOffset) | ((ValueByteCount<Attr>::value >> 8) & 0x3); // Length fits extended
 
                         // Low density
                         //                           TYPE                   EXT                     LEN
