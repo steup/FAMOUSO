@@ -119,7 +119,7 @@ namespace famouso {
                         return 0;
                     }
 
-                    template <class LL> friend class ManagementLayer;
+                    template <class LL, class EL> friend class ManagementLayer;
 
                 public:
                     typedef ECH eventChannelHandler;

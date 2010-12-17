@@ -68,18 +68,18 @@ using namespace famouso::mw::el;
 
 
 // ManagementChannelLayer
-template <class EL>
-class ManagementLayer : public EL {
+template <class LL, class EL>
+class ManagementLayer : public LL {
 
         typedef ManagementLayer ML;
-        typedef typename EL::LowerLayer BelowEL;
+        typedef typename LL::LowerLayer BelowEL;
 
-        typedef famouso::mw::api::EventChannel<ManagementLayer> EC;
+        typedef famouso::mw::api::EventChannel<EL> EC;
 
     public:
         /*! \brief  short network representation of the subject
          */
-        typedef typename EL::SNN SNN;
+        typedef typename LL::SNN SNN;
     protected:
 
         struct config {
@@ -118,7 +118,7 @@ class ManagementLayer : public EL {
                         reserv.read_channel(crd);
 
                         EC * wanted = reinterpret_cast<EC*>(crd.lc_id);
-                        EC * ec = static_cast<EC*>(EL::Publisher.select());
+                        EC * ec = static_cast<EC*>(LL::Publisher.select());
                         while (ec) {
                             if (ec == wanted) {
                                 typedef typename EC::MWAction MWAction;
@@ -137,14 +137,13 @@ class ManagementLayer : public EL {
 
     public:
 
-        template <class ECH>
         void init() {
             // initialization of lower layers
-            EL::template init<ML>();
+            LL::init();
 
             // overwrite callback set by EventLayer
             if (config::subscribe_man_chan)
-                IncommingEventFromNL.bind<ML, &ML::fetch<ECH> >(this);
+                IncommingEventFromNL.template bind<ML, &ML::fetch >(this);
 
             // get the management event channel ready for use
             if (config::announce_man_chan)
@@ -191,14 +190,14 @@ class ManagementLayer : public EL {
             e.data = data_buffer;
             e.length = length;
             BelowEL::publish(man_chan_snn, e);
-            EL::template publish_local<ML>(e);
+            LL::publish_local(e);
         }
 
         // Publish all current announcements in one event on management channel
         void publish_announcements() {
             if (config::publish_announcements) {
-                // ManChan wird nicht announced
-                publish_channel_info(EL::Publisher, manchan::announce_msg);
+                // TODO: ManChan hinzufügen
+                publish_channel_info(LL::Publisher, manchan::announce_msg);
             }
         }
 
@@ -207,12 +206,12 @@ class ManagementLayer : public EL {
         void publish_subscriptions() {
             if (config::publish_subscriptions) {
                 // TODO: subscription des ManChan, wenn support_real_time publizieren
-                publish_channel_info(EL::Subscriber, manchan::subscribe_msg);
+                publish_channel_info(LL::Subscriber, manchan::subscribe_msg);
             }
         }
 
         void announce(EC & ec) {
-            EL::announce(ec);
+            LL::announce(ec);
             // Problem: floods net in usual case of multiple consecutive announcements
             /*! \todo publish_announcements() has to be called in a cyclic manner.
                       The invocation period should be a configuration parameter.
@@ -223,32 +222,37 @@ class ManagementLayer : public EL {
         }
 
         void unannounce(EC & ec) {
-            EL::unannounce(ec);
+            LL::unannounce(ec);
             // Problem: floods net in usual case of multiple consecutive unannouncements
             publish_announcements();
         }
 
         void subscribe(EC & ec) {
-            EL::subscribe(ec);
+            LL::subscribe(ec);
+            publish_subscriptions();
         }
 
         void unsubscribe(EC & ec) {
-            EL::unsubscribe(ec);
+            LL::unsubscribe(ec);
+            publish_subscriptions();
         }
 
         void publish(const EC &ec, const Event &e) {
-            if (e.subject == man_chan_subject)
-                incoming_reservation_event(e);
-            EL::publish(ec, e);
+            LL::publish(ec, e);
         }
 
-        template <class ECH>
+        void publish_local(const Event &e) {
+            if (e.subject == man_chan_subject)
+                incoming_reservation_event(e);
+            LL::publish_local(e);
+        }
+
         void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
             // Handle management channel first (in this layer, incoming
             // events are only needed for real time support)
             if (config::subscribe_man_chan) {
                 // inform low layer about fetching starts
-                EL::event_process_request(bnl);
+                LL::event_process_request(bnl);
 
                 Event e(man_chan_subject);
 
@@ -260,26 +264,25 @@ class ManagementLayer : public EL {
                     // check if we got a complete event, process it
                     // in that case
                     if (result > 0) {
-                        incoming_reservation_event(e);
-                        EL::template publish_local<ECH>(e);
+                        static_cast<EL*>(this)->publish_local(e);
                     }
 
                     // packet/event processed
-                    EL::event_processed();
+                    LL::event_processed();
                     return;
                 }
 
                 // inform lower layer that we are done
-                EL::event_processed();
+                LL::event_processed();
             }
 
             // Handle events for other channels
-            EL::template fetch<ECH>(bnl);
+            LL::fetch(bnl);
         }
 };
 
-template <class EL>
-const char * const ManagementLayer<EL>::man_chan_subject = "ManChan!";
+template <class LL, class EL>
+const char * const ManagementLayer<LL, EL>::man_chan_subject = "ManChan!";
 
 #endif // __MANAGEMENTLAYER_H_C1ACE57CB36BA9__
 

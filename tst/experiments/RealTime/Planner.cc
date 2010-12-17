@@ -82,6 +82,8 @@ UID getNodeID<void>() {
 
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/api/ExtendedEventChannel.h"
+#include "EventDispatcher.h"
+#include "NewEventLayer.h"
 
 
 namespace famouso {
@@ -93,11 +95,10 @@ namespace famouso {
             typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> NL;
             //typedef famouso::mw::nl::voidNL NL;
             typedef famouso::mw::anl::AbstractNetworkLayer<NL> ANL;
-            typedef famouso::mw::el::EventLayer<ANL> BaseEL;
 
             //typedef famouso::mw::el::EventLayerClientStub BaseEL;
         public:
-            typedef ManagementLayer<BaseEL> EL;
+            typedef NewEventLayer<ANL, ManagementLayer> EL;
             typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
             typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
     };
@@ -503,8 +504,8 @@ class PEC2 : public RealTimePublisherEventChannel<famouso::config::PEC, rt_req> 
         }
 
         void publish_task() {
-            event.data = (uint8_t *)"1234567890";
-            event.length = 10;
+            event.data = (uint8_t *)"from_planner";
+            event.length = 12;
             publish(event);
         }
 };
