@@ -97,7 +97,13 @@ class NewEventLayer : public ELStackBuilder<LL, ManLayPolicy>::type {
         }
 
         void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
+            // inform low layer about fetching starts
+            LL::event_process_request(bnl);
+
             SL::fetch(bnl);
+
+            // inform lower layer that we are done
+            LL::event_processed();
         }
 };
 

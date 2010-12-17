@@ -218,35 +218,38 @@ namespace famouso {
                         typedef famouso::mw::api::SubscriberEventChannel<EL> ec_t;
                         ec_t* sec = static_cast<ec_t*>(Subscriber.select());
 
-                        // inform low layer about fetching starts
-                        LL::event_process_request(bnl);
-
                         // traverse the list and try to find the correct subject,
                         // corresponding to the arised event.
                         while (sec) {
-                            Event e(sec->subject());
-
-                            // try to fetch an event from a specific subnet and SNN
-                            int8_t result = LL::fetch(sec->snn(), e, bnl);
-
-                            // incoming packet on this SNN?
-                            if (result >= 0) {
-                                // subject of last incoming packet matches that of the
-                                // current event channel
-
-                                // if we got a new event, publish it locally to the
-                                // respective subscribers (if the packet was a fragment
-                                // the corresponding event may not be complete)
-                                if (result > 0)
-                                    static_cast<EL*>(this)->publish_local(e);
-
-                                // packet/event processed (fetch called for each packet)
+                            if (try_fetch_and_process(sec->subject(), sec->snn(), bnl))
                                 break;
-                            }
                             sec = static_cast<ec_t*>(sec->select());
                         }
-                        // inform lower layer that we are done
-                        LL::event_processed();
+                    }
+
+                protected:
+                    bool try_fetch_and_process(const Subject &subj, const SNN &snn, famouso::mw::nl::DistinctNL *bnl = 0) {
+                        Event e(subj);
+
+                        // try to fetch an event from a specific subnet and SNN
+                        int8_t result = LL::fetch(snn, e, bnl);
+
+                        // incoming packet on this SNN?
+                        if (result >= 0) {
+                            // subject of last incoming packet matches that of the
+                            // current event channel
+
+                            // if we got a new event, publish it locally to the
+                            // respective subscribers (if the packet was a fragment
+                            // the corresponding event may not be complete)
+                            if (result > 0)
+                                static_cast<EL*>(this)->publish_local(e);
+
+                            // packet/event processed (fetch called for each packet)
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
             };
 

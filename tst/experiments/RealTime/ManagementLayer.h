@@ -248,36 +248,14 @@ class ManagementLayer : public LL {
         }
 
         void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
-            // Handle management channel first (in this layer, incoming
-            // events are only needed for real time support)
             if (config::subscribe_man_chan) {
-                // inform low layer about fetching starts
-                LL::event_process_request(bnl);
-
-                Event e(man_chan_subject);
-
-                // try to fetch an event from management channel
-                int8_t result = BelowEL::fetch(man_chan_snn, e, bnl);
-                if (result >= 0) {
-                    // incoming packet from management channel
-
-                    // check if we got a complete event, process it
-                    // in that case
-                    if (result > 0) {
-                        static_cast<EL*>(this)->publish_local(e);
-                    }
-
-                    // packet/event processed
-                    LL::event_processed();
-                    return;
-                }
-
-                // inform lower layer that we are done
-                LL::event_processed();
+                // Only call lower layer fetch if it is no management event
+                if (!LL::try_fetch_and_process(man_chan_subject, man_chan_snn, bnl))
+                    LL::fetch(bnl);
+            } else {
+                // Lower layer handles events for normal channels
+                LL::fetch(bnl);
             }
-
-            // Handle events for other channels
-            LL::fetch(bnl);
         }
 };
 
