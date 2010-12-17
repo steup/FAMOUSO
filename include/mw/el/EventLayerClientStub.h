@@ -120,13 +120,12 @@ namespace famouso {
                 public:
                     typedef boost::asio::ip::tcp::socket *SNN;
 
-                    template <class ECH>
                     void init() {
                         famouso::util::impl::start_ios();
                     }
 
                     EventLayerClientStub() {
-                        init<EventLayerClientStub>();
+                        init();
                     }
 
                     // announce legt hier nur einen Socket an und meldet sich

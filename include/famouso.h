@@ -81,7 +81,7 @@ namespace famouso {
     template <class T>
     inline void init() {
         famouso::mw::el::EventChannelHandler<typename T::EL>::create();
-        famouso::mw::el::EventChannelHandler<typename T::EL>::ech().init<typename T::EL>();
+        famouso::mw::el::EventChannelHandler<typename T::EL>::ech().init();
 
         // dependent initialization, if the event layer middleware stub is configured
         configuration::if_contains_type_ELMS<T>::template ThenElse<StaticCreatorPolicy>::process();
