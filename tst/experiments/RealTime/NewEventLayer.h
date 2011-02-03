@@ -68,6 +68,8 @@ class NewEventLayer : public ELStackBuilder<LL, ManLayPolicy>::type {
 
     public:
 
+        typedef typename SL::ChannelTrampolinePolicy ChannelTrampolinePolicy;
+
         void init() {
             SL::init();
         }

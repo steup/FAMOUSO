@@ -46,6 +46,7 @@
 #include "mw/common/Event.h"
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/EventChannel.h"
+#include "mw/api/detail/NoChannelTrampoline.h"
 #include "mw/nl/DistinctNL.h"
 #include "mw/el/EventLayerCallBack.h"
 
@@ -94,6 +95,10 @@ namespace famouso {
                     /*! \brief  self type
                      */
                     typedef EventLayer type;
+
+                    /*! \brief  Channel trampoline policy: no trampoline needed
+                     */
+                    typedef famouso::mw::api::detail::NoChannelTrampoline ChannelTrampolinePolicy;
 
                     /*! \brief  initialize the middleware core
                      */

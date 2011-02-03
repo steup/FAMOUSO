@@ -48,6 +48,7 @@
 #include "mw/common/Event.h"
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/EventChannel.h"
+#include "mw/api/detail/ChannelTrampoline.h"
 #include "mw/nl/DistinctNL.h"
 #include "mw/el/EventLayerCallBack.h"
 
@@ -80,6 +81,10 @@ class ManagementLayer : public LL {
         /*! \brief  short network representation of the subject
          */
         typedef typename LL::SNN SNN;
+
+        /*! \brief  Channel trampoline policy: trampoline needed
+         */
+        typedef famouso::mw::api::detail::ChannelTrampoline ChannelTrampolinePolicy;
     protected:
 
         struct config {
@@ -114,18 +119,14 @@ class ManagementLayer : public LL {
                         return;
 
                     while (reserv.further_channel()) {
-                        ChannelReservationData crd;
+                        ml::ChannelReservationData crd;
                         reserv.read_channel(crd);
 
                         EC * wanted = reinterpret_cast<EC*>(crd.lc_id);
                         EC * ec = static_cast<EC*>(LL::Publisher.select());
                         while (ec) {
                             if (ec == wanted) {
-                                typedef typename EC::MWAction MWAction;
-                                MWAction mwa;
-                                mwa.action = MWAction::start_real_time_delivery;
-                                mwa.buffer = reinterpret_cast<uint8_t*>(&crd);
-                                ec->mw_action_trampoline(mwa);
+                                ec->start_real_time_delivery(&crd);
                                 break;
                             }
                             ec = static_cast<EC*>(ec->select());

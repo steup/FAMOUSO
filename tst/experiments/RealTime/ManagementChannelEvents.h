@@ -45,20 +45,10 @@
 #include "mw/attributes/AttributeSet.h"
 #include "mw/common/UID.h"
 #include "mw/common/Subject.h"
+#include "mw/el/ml/ChannelReservationData.h"
 
 // TODO: split file: in detail oder events Reservation, ChannelRequirements, SeralizationBase
 
-// RT struct
-struct ChannelReservationData {
-    /// Local channel ID (this pointer of channel)
-    uint64_t lc_id;
-
-    uint64_t tx_ready_time;
-
-    uint32_t tx_window_time;
-
-    // NodeID?
-};
 
 namespace famouso {
 namespace mw {
@@ -294,7 +284,7 @@ class ReservationWriter : public Reservation {
             write(nodeID);
         }
 
-        void write_channel(const ChannelReservationData & crd) {
+        void write_channel(const ml::ChannelReservationData & crd) {
             FAMOUSO_ASSERT(further_space(entry_size()));
             write_u64(crd.lc_id);
             write_u64(crd.tx_ready_time);
@@ -320,7 +310,7 @@ class ReservationReader : public Reservation {
             return further_space(entry_size());
         }
 
-        void read_channel(ChannelReservationData & crd) {
+        void read_channel(ml::ChannelReservationData & crd) {
             FAMOUSO_ASSERT(further_space(entry_size()));
             // This-Pointer
             read_u64(crd.lc_id);

@@ -46,6 +46,7 @@
 #include "Attributes.h"
 
 #include "mw/common/Event.h"
+#include "mw/el/ml/ChannelReservationData.h"
 
 using namespace famouso;
 using namespace famouso::mw;
@@ -77,7 +78,7 @@ class RealTimePublisherEventChannel : public EC {
         };
 
         RealTimePublisherEventChannel(const Subject& subject) : EC(subject) {
-            EC::mw_action_trampoline.template bind<type, &type::mw_action_impl>(this);
+            EC::trampoline.template bind<type, &type::mw_action_impl>(this);
             delivering = false;
             event = 0;
         }
@@ -102,7 +103,7 @@ class RealTimePublisherEventChannel : public EC {
         Task deliver_task;
         bool delivering;
 
-        typedef typename EC::MWAction MWAction;
+        typedef typename EC::Action MWAction;
 
         /*!
          *  \brief  Ensure that time is in future by adding the period n times if neccessary
@@ -131,7 +132,7 @@ class RealTimePublisherEventChannel : public EC {
             }
             if (mw_action.action == MWAction::start_real_time_delivery) {
                 // Start periodic delivery of published data
-                const ChannelReservationData * rd = reinterpret_cast<const ChannelReservationData *>(mw_action.buffer);
+                const ml::ChannelReservationData * rd = reinterpret_cast<const ml::ChannelReservationData *>(mw_action.buffer);
 
                 // Set RT status
                 delivering = true;

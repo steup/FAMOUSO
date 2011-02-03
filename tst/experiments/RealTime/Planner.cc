@@ -405,7 +405,7 @@ class RTNetPlanner {
                                 // Send reservations in one msg
                                 {
                                     // Send reservation for this channel
-                                    ChannelReservationData crd;
+                                    ml::ChannelReservationData crd;
                                     crd.lc_id = lc_id;
                                     crd.tx_ready_time = net.get_next_cycle_start() + rt_pub->slot_usec.shift;
                                     crd.tx_window_time = rt_pub->slot_usec.tx_window;

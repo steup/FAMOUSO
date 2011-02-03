@@ -51,6 +51,7 @@
 
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/PublisherEventChannel.h"
+#include "mw/api/detail/NoChannelTrampoline.h"
 
 #include "mw/el/LocalConnectionParameters.h"
 #include "util/endianness.h"
@@ -119,6 +120,10 @@ namespace famouso {
                     }
                 public:
                     typedef boost::asio::ip::tcp::socket *SNN;
+
+                    /*! \brief  Channel trampoline policy: no trampoline needed
+                     */
+                    typedef famouso::mw::api::detail::NoChannelTrampoline ChannelTrampolinePolicy;
 
                     void init() {
                         famouso::util::impl::start_ios();
