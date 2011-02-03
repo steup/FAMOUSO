@@ -61,6 +61,15 @@ namespace famouso {
          * \brief The extension of the Event class with support for %attributes.
          *
          *
+         * \todo    Provide support for event attributes on subscriber side.
+         *          For convenience it should be possible to read payload and
+         *          look for attributes from a binary blob by interpreting it
+         *          as an ExtendedEvent or a corresponding runtime type.
+         * \todo    Integrate event attributes into the middleware core.
+         *          The information whether an event contains attributes
+         *          must be handed over to the network layer in interest of
+         *          efficient transmission. Otherwise we need an empty
+         *          attribute set in events without attributes.
          */
         template <famouso::mw::Event::Type payLoadSize = 0,
                   typename A1orSeq = boost::mpl::na, typename A2 = boost::mpl::na,
