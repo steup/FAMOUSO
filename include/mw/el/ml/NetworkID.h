@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,28 +37,22 @@
  *
  ******************************************************************************/
 
-#include "mw/api/CallBack.h"
+#ifndef __NETWORKID_H_E327FAA36511B2__
+#define __NETWORKID_H_E327FAA36511B2__
+
+#include "mw/common/UID.h"
 
 namespace famouso {
     namespace mw {
-        namespace api {
+        namespace el {
+            namespace ml {
 
-            /*! \brief cb is the default callback
-              *
-              * \note Probably not needed, because of defining callback by the application
-              * itself. However for testing is nice to have. Future versions will remove
-              * that function.
-              */
-            void cb(SECCallBackData& cbd) {}
+                typedef UID NetworkID;
 
-            /*! \brief ecb is the default exception callback
-              *
-              * \note Probably not needed, because of defining callback by the application
-              * itself. However for testing is nice to have. Future versions will remove
-              * that function.
-              */
-            void ecb(const ExceptionInfo &) {}
+            } // namespace ml
+        } // namespace el
+    } // namespace mw
+} // namespace famouso
 
-        }
-    }
-}
+#endif // __NETWORKID_H_E327FAA36511B2__
+

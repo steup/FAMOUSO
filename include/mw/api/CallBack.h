@@ -42,6 +42,7 @@
 
 #include "mw/common/Event.h"
 #include "mw/nl/DistinctNL.h"
+#include "mw/el/ml/NetworkID.h"
 
 #include "case/Delegate.h"
 
@@ -65,6 +66,39 @@ namespace famouso {
               * that function.
               */
             void cb(SECCallBackData& cbd);
+
+
+            /*! \brief Definition of the data that the EventChannel exception callbacks will get as parameter
+             */
+            struct ExceptionInfo {
+                enum Type {
+                    NoEvent,
+                    TransmissionFailed,
+                    RealTimeReservationFailed,
+                };
+
+                Type type;
+
+                /// For publisher exceptions: ID of the network; unused otherwise
+                famouso::mw::el::ml::NetworkID network_id;
+
+                ExceptionInfo(Type t, famouso::mw::el::ml::NetworkID net_id) :
+                    type(t), network_id(net_id) {
+                }
+            };
+
+            /*! \brief Definition of exception callback delegate type
+             */
+            typedef famouso::util::Delegate<const ExceptionInfo&> ExceptionCallBack;
+
+            /*! \brief ecb is the default exception callback
+              *
+              * \note Probably not needed, because of defining callback by the application
+              * itself. However for testing is nice to have. Future versions will remove
+              * that function.
+              */
+            void ecb(const ExceptionInfo &);
+
 
         }
     }
