@@ -102,8 +102,6 @@ namespace famouso {
                      */
                     void init() {
                         // initialization code
-                        // e.g. set callbacks and initalize all lower layers too
-                        IncommingEventFromNL.bind<EL, &EL::fetch>(static_cast<EL*>(this));
                         LL::init();
                     }
 

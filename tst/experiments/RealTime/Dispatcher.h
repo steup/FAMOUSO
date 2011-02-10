@@ -128,12 +128,11 @@ class DispatcherImpl {
                 Task * next = static_cast<Task *>(tasks.unlink());
                 if (next) {
                     famouso::time::Time curr = TimeSource::current();
-                    ::logging::log::emit<DispatcherImpl>() << "task scheduled for " << next->start << " started " << curr << "\n";
+                    //::logging::log::emit<DispatcherImpl>() << "task scheduled for " << next->start << " started " << curr << "\n";
                     // Run task
                     next->function();
                     if (next->period != 0) {
                         // Insert periodic task into queue again
-                        // TODO: futurify?
                         next->start.add_usec(next->period);
                         insert_task(*next);
                     }

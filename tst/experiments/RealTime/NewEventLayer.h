@@ -41,6 +41,9 @@
 #ifndef __NEWEVENTLAYER_H_2A2AEDA368D391__
 #define __NEWEVENTLAYER_H_2A2AEDA368D391__
 
+namespace famouso {
+namespace mw {
+namespace el {
 
 template <class LL, template <class, class> class ManLayPolicy>
 class NewEventLayer;
@@ -61,6 +64,8 @@ class ELStackBuilder {
 template <class LL, template <class, class> class ManLayPolicy>
 class NewEventLayer : public ELStackBuilder<LL, ManLayPolicy>::type {
 
+        typedef NewEventLayer ThisType;
+
         /// First sublayer
         typedef typename ELStackBuilder<LL, ManLayPolicy>::type SL;
 
@@ -71,6 +76,7 @@ class NewEventLayer : public ELStackBuilder<LL, ManLayPolicy>::type {
         typedef typename SL::ChannelTrampolinePolicy ChannelTrampolinePolicy;
 
         void init() {
+            IncommingEventFromNL.bind<ThisType, &ThisType::fetch>(this);
             SL::init();
         }
 
@@ -109,6 +115,9 @@ class NewEventLayer : public ELStackBuilder<LL, ManLayPolicy>::type {
         }
 };
 
+} // namespace famouso
+} // namespace mw
+} // namespace el
 
 #endif // __NEWEVENTLAYER_H_2A2AEDA368D391__
 

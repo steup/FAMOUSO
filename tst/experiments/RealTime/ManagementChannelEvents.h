@@ -43,20 +43,36 @@
 
 #include <stdint.h>
 #include "mw/attributes/AttributeSet.h"
-#include "mw/common/UID.h"
 #include "mw/common/Subject.h"
+#include "mw/common/NodeID.h"
+#include "mw/el/ml/NetworkID.h"
+#include "mw/el/ml/LocalChanID.h"
 #include "mw/el/ml/ChannelReservationData.h"
 
-// TODO: split file: in detail oder events Reservation, ChannelRequirements, SeralizationBase
+// TODO: split file: in detail oder events RealTimeReservationEvents.h, ChannelRequirementsEvent, SeralizationBase
 
 
 namespace famouso {
 namespace mw {
 namespace el {
-namespace manchan {
-// detail?
+namespace ml {
 
-enum { announce_msg = 0, subscribe_msg = 1, rt_reservation_msg = 2 };
+enum {
+    announce_event = 0,
+    subscribe_event = 1,
+    rt_reservation_event = 2,
+    rt_no_reservation_event = 3,
+    rt_no_subscriber_event = 4,
+    last_supported_event = 4,
+    unsupported_event = 255
+};
+
+static inline uint8_t get_event_type(const uint8_t * data, uint16_t length) {
+    if (!length || *data > last_supported_event)
+        return unsupported_event;
+    else
+        return *data;
+}
 
 // TODO: bei readern buffer/length-checks auch bei abgeschalteten asserts (security)
 class SerializationBase {
@@ -177,13 +193,13 @@ class SerializationBase {
 
 
 // ChannelSet
-class ChannelRequirements : public SerializationBase {
+class ChannelRequirementsEvent : public SerializationBase {
             // Once: Message-Type, NodeID, count of NetworkIDs, NetworkIDs
             // Per channel: Subject, This (PubID, 4B), Requirements
     public:
 
         static uint16_t header_size() {
-            return 1 + sizeof(UID) + 1 + 0 /* TODO: NetworkIDs */;
+            return 1 + sizeof(NodeID) + 1 + 1 * sizeof(NetworkID) /* TODO: NetworkIDs */;
         }
 
         static uint16_t entry_size(uint16_t attribute_size) {
@@ -191,20 +207,21 @@ class ChannelRequirements : public SerializationBase {
         }
 };
 
-class ChannelRequirementsWriter : public ChannelRequirements {
+class ChannelRequirementsWriter : public ChannelRequirementsEvent {
     public:
         ChannelRequirementsWriter() {
             length_add(header_size());
         }
 
-        void write_head(uint8_t message_type, const UID & nodeID) {
+        void write_head(uint8_t message_type, const NodeID & nodeID, const NetworkID & network_id) {
             FAMOUSO_ASSERT(further_space(header_size()));
             write_u8(message_type);
             write(nodeID);
 
             // Count of NetworkIDs
-            write_u8(0);
-            // TODO: networkIDs
+            write_u8(1);
+            // TODO: support multi-net
+            write(network_id);
         }
 
         template <class EventChannel>
@@ -220,13 +237,13 @@ class ChannelRequirementsWriter : public ChannelRequirements {
         }
 };
 
-class ChannelRequirementsReader : public ChannelRequirements {
+class ChannelRequirementsReader : public ChannelRequirementsEvent {
     public:
         ChannelRequirementsReader(uint8_t * buffer, uint16_t length) {
             init(buffer, length);
         }
 
-        void read_head(uint8_t & message_type, UID & nodeID) {
+        void read_head(uint8_t & message_type, NodeID & nodeID, NetworkID & network_id) {
             FAMOUSO_ASSERT(further_space(header_size()));
             read_u8(message_type);
             read(nodeID);
@@ -234,7 +251,9 @@ class ChannelRequirementsReader : public ChannelRequirements {
             // Count of NetworkIDs
             uint8_t nid_count;
             read_u8(nid_count);
-            // TODO: networkIDs
+            FAMOUSO_ASSERT(nid_count == 1);
+            // TODO: support multi-net
+            read(network_id);
         }
 
         bool further_channel() {
@@ -242,86 +261,97 @@ class ChannelRequirementsReader : public ChannelRequirements {
         }
 
         // as points into event data buffer
-        void read_channel(Subject & subj, uint64_t & lc_id, const attributes::AttributeSet<> *& as) {
+        void read_channel(Subject & subj, LocalChanID & lc_id, const attributes::AttributeSet<> *& as) {
             FAMOUSO_ASSERT(further_space(entry_size(1)));   // does not catch all buffer overflow leaks
             read(subj);
-            read_u64(lc_id);
+            read(lc_id);
             read_as(as);
         }
 };
 
-class Reservation : public SerializationBase {
+
+/*!
+ *  \brief  Real time reservation event writer and reader
+ *
+ *  Use it either for reading or for writing.
+ *  Always first read/write the head, afterwards read/write
+ *  the tail. To read again, you have to reinitialize the
+ *  object.
+ */
+class RealTimeSetResStateEvent : public SerializationBase {
+
     public:
-        // Once: Message-Type, NodeID, TODO: NetworkID
-        // Per channel: This, StartTime, SlotTimespan (letzter erlaubter Sendezeitpunkt - erster erlaubter)
 
         static uint16_t header_size() {
-            return 1 + sizeof(UID);
+            return 1 + sizeof(NodeID);
         }
 
-        static uint16_t entry_size() {
-            return sizeof(uint64_t) + sizeof(uint64_t) + sizeof(uint32_t);
+        static uint16_t tail_size(bool reserv) {
+            if (reserv)
+                return sizeof(LocalChanID) + sizeof(NetworkID) + 8 + 4;
+            else
+                return sizeof(LocalChanID) + sizeof(NetworkID);
         }
 
-        static uint16_t size(uint16_t channel_count) {
-            return header_size() + channel_count * entry_size();
+        static uint16_t size(bool reserv) {
+            return header_size() + tail_size(reserv);
         }
-};
 
-class ReservationWriter : public Reservation {
-    public:
-        ReservationWriter(uint8_t * buffer, uint16_t length) {
+        RealTimeSetResStateEvent(uint8_t * buffer, uint16_t length) {
             init(buffer, length);
         }
 
-        ~ReservationWriter() {
-            FAMOUSO_ASSERT(buffer_full());
-        }
-
-        void write_head(const UID & nodeID) {
+        void write_head(uint8_t type, const NodeID & nodeID) {
             FAMOUSO_ASSERT(further_space(header_size()));
-            write_u8(rt_reservation_msg);
+            write_u8(type);
             write(nodeID);
         }
 
-        void write_channel(const ml::ChannelReservationData & crd) {
-            FAMOUSO_ASSERT(further_space(entry_size()));
-            write_u64(crd.lc_id);
-            write_u64(crd.tx_ready_time);
-            write_u32(crd.tx_window_time);
-        }
-};
-
-class ReservationReader : public Reservation {
-    public:
-        ReservationReader(uint8_t * buffer, uint16_t length) {
-            init(buffer, length);
-        }
-
-        void read_head(UID & nodeID) {
+        uint8_t read_head(NodeID & nodeID) {
             FAMOUSO_ASSERT(further_space(header_size()));
-            uint8_t msg_type;
-            read_u8(msg_type);
-            FAMOUSO_ASSERT(msg_type == rt_reservation_msg);
+            uint8_t type;
+            read_u8(type);
             read(nodeID);
+            if (type == rt_reservation_event || type == rt_no_reservation_event || type == rt_no_subscriber_event)
+                return type;
+            else
+                return unsupported_event;
         }
 
-        bool further_channel() {
-            return further_space(entry_size());
+        void write_reserv_tail(const LocalChanID & lc_id, const NetworkID & network_id,
+                               uint64_t tx_ready_time, uint32_t tx_window_time) {
+            FAMOUSO_ASSERT(further_space(tail_size(true)));
+            write(lc_id);
+            write(network_id);
+            write_u64(tx_ready_time);
+            write_u32(tx_window_time);
         }
 
-        void read_channel(ml::ChannelReservationData & crd) {
-            FAMOUSO_ASSERT(further_space(entry_size()));
-            // This-Pointer
-            read_u64(crd.lc_id);
-            // Start-Time
+        void read_reserv_tail(ChannelReservationData & crd) {
+            FAMOUSO_ASSERT(further_space(tail_size(true)));
+            read(crd.lc_id);
+            read(crd.network_id);
             read_u64(crd.tx_ready_time);
-            // Slot-Length-Time
             read_u32(crd.tx_window_time);
         }
+
+        void write_no_reserv_tail(const LocalChanID & lc_id, const NetworkID & network_id) {
+            FAMOUSO_ASSERT(further_space(tail_size(false)));
+            write(network_id);
+            write(lc_id);
+        }
+
+        void read_no_reserv_tail(ChannelReservationData & crd) {
+            FAMOUSO_ASSERT(further_space(tail_size(false)));
+            read(crd.network_id);
+            read(crd.lc_id);
+        }
 };
 
 
+// Planer -> Producer Channel could be sent in SetResState-Event containing multiple state changes (erhöht aber auch Wahrscheinlichkeit für Verlust)
+
+// Optierungspotential: Extra event-typen ohne Netzwerk-ID, wenn Gesamt-System nur ein Echtzeit-Netzwerk hat
 }
 }
 }

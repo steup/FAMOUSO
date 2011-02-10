@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,68 +37,31 @@
  *
  ******************************************************************************/
 
+#ifndef __COMMON_TYPES_H_8386B1602061D8__
+#define __COMMON_TYPES_H_8386B1602061D8__
 
-#ifndef __MATH_H_B17EDA6C8EF650__
-#define __MATH_H_B17EDA6C8EF650__
+#include <stdint.h>
 
-// TODO: div_round_up -> div_ceil
-#include "mw/afp/shared/div_round_up.h"
-using famouso::mw::afp::shared::div_round_up;
+namespace famouso {
+    namespace mw {
+        namespace rt_net_sched {
+
+            /// Period value type
+            typedef uint32_t period_t;
+
+            /// Maximum event length value type
+            typedef uint16_t mel_t;
+
+            /// Reservation state value type
+            typedef uint8_t res_state_t;
+
+            /// Repetition value type
+            typedef uint8_t repetition_t;
 
 
-bool odd(int a) {
-    return a & 1;
-}
+        } // namespace rt_net_sched
+    } // namespace mw
+} // namespace famouso
 
-// by stein
-int greatest_common_divisor(int a, int b) {
-    int k, t;
-    k = 0;
-
-    while (!odd(a) && !odd(b)) {
-        a /= 2;
-        b /= 2;
-        k++;
-    }
-
-    if (odd(a))
-        t = -b;
-    else
-        t = a;
-
-    while (t != 0) {
-        while (!odd(t))
-            t /= 2;
-        if (t > 0)
-            a = t;
-        else
-            b = -t;
-        t = a - b;
-    }
-
-    return a * (1 << k);
-}
-
-int least_common_multiple(int a, int b) {
-    return /*abs*/(a * b) / greatest_common_divisor(a,b);
-}
-
-/*!
- *  \brief  Increase \p a by multpile of \p b to a return value greater than \p c
- */
-template <typename T>
-static inline T increase_by_multiple_above(T a, T b, T c) {
-    // while (a < c) a += b;
-    if (a < c) {
-        a += (((c - a) / b) + 1) * b;
-    }
-    return a;
-}
-
-template <typename T>
-static inline T increase_to_multiple(T a, T b) {
-    return div_round_up(a, b) * b;
-}
-
-#endif // __MATH_H_B17EDA6C8EF650__
+#endif // __COMMON_TYPES_H_8386B1602061D8__
 

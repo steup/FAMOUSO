@@ -46,7 +46,6 @@
 
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
-#include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/EventChannel.h"
 #include "mw/api/detail/ChannelTrampoline.h"
 #include "mw/nl/DistinctNL.h"
@@ -54,7 +53,6 @@
 
 #include "object/Queue.h"
 
-#include "Attributes.h"
 #include "mw/attributes/AttributeSet.h"
 
 #include "mw/common/NodeID.h"
@@ -62,13 +60,16 @@
 #include "ManagementChannelEvents.h"
 
 
+//#include "mw/afp/shared/hexdump.h"
+//using famouso::mw::afp::shared::hexdump;
 
-using namespace famouso::mw;
-using famouso::mw::el::IncommingEventFromNL;
-using namespace famouso::mw::el;
 
+namespace famouso {
+namespace mw {
+namespace el {
 
 // ManagementChannelLayer
+// LowerLayer, EventLayer
 template <class LL, class EL>
 class ManagementLayer : public LL {
 
@@ -107,31 +108,42 @@ class ManagementLayer : public LL {
         SNN man_chan_snn;
 
 
-        void incoming_reservation_event(famouso::mw::api::SECCallBackData & event) {
+        void incoming_event(famouso::mw::api::SECCallBackData & event) {
             if (config::support_real_time) {
-                if (*event.data == el::manchan::rt_reservation_msg) {
-                    // Start delivery of successfully reserved channels
-                    el::manchan::ReservationReader reserv(event.data, event.length);
+                // Is this event a real time reservation protocol event?
+                uint8_t event_type = ml::get_event_type(event.data, event.length);
+                if (event_type != ml::rt_reservation_event &&
+                    event_type != ml::rt_no_reservation_event &&
+                    event_type != ml::rt_no_subscriber_event)
+                    return;
 
-                    UID node_id;
-                    reserv.read_head(node_id);
-                    if (!(node_id == getNodeID<void>()))
-                        return;
+                ml::RealTimeSetResStateEvent reserv(event.data, event.length);
+                NodeID node_id;
+                ml::ChannelReservationData crd;
 
-                    while (reserv.further_channel()) {
-                        ml::ChannelReservationData crd;
-                        reserv.read_channel(crd);
+                reserv.read_head(node_id);
 
-                        EC * wanted = reinterpret_cast<EC*>(crd.lc_id);
-                        EC * ec = static_cast<EC*>(LL::Publisher.select());
-                        while (ec) {
-                            if (ec == wanted) {
-                                ec->start_real_time_delivery(&crd);
-                                break;
-                            }
-                            ec = static_cast<EC*>(ec->select());
-                        }
+                // This event is for another node...
+                if (!(node_id == getNodeID<void>()))
+                    return;
+
+                // Read rest of the event
+                if (event_type == ml::rt_reservation_event) {
+                    reserv.read_reserv_tail(crd);
+                } else {
+                    reserv.read_no_reserv_tail(crd);
+                }
+                crd.event_type = event_type;
+
+                // Inform channel
+                EC * wanted = reinterpret_cast<EC*>(crd.lc_id.value());
+                EC * ec = static_cast<EC*>(LL::Publisher.select());
+                while (ec) {
+                    if (ec == wanted) {
+                        ec->set_real_time_reserv_state(&crd);
+                        break;
                     }
+                    ec = static_cast<EC*>(ec->select());
                 }
             }
         }
@@ -141,10 +153,6 @@ class ManagementLayer : public LL {
         void init() {
             // initialization of lower layers
             LL::init();
-
-            // overwrite callback set by EventLayer
-            if (config::subscribe_man_chan)
-                IncommingEventFromNL.template bind<ML, &ML::fetch >(this);
 
             // get the management event channel ready for use
             if (config::announce_man_chan)
@@ -159,25 +167,25 @@ class ManagementLayer : public LL {
         // TODO: sicherzustellen, dass während event-zusammenbau keine änderungen in Listen (nebenläufigkeit?)
         void publish_channel_info(const Queue & channel_list, uint8_t msg_type) {
             EC * ec;
-            uint16_t length = manchan::ChannelRequirements::header_size();
+            uint16_t length = ml::ChannelRequirementsEvent::header_size();
 
             // Calculate length of event
             // (TODO: maybe create this value during announce/unannounce -> length changes in Runtime?)
             {
                 ec = static_cast<EC*>(channel_list.select());
                 while (ec) {
-                    length += manchan::ChannelRequirements::entry_size(ec->get_requirements(0));
+                    length += ml::ChannelRequirementsEvent::entry_size(ec->get_requirements(0));
                     ec = static_cast<EC*>(ec->select());
                 }
             }
 
             // Create event data
             uint8_t data_buffer[length];
-            manchan::ChannelRequirementsWriter crw;
+            ml::ChannelRequirementsWriter crw;
             crw.init(data_buffer, length);
             {
                 // TODO: networkIDs
-                crw.write_head(msg_type, getNodeID<void>());
+                crw.write_head(msg_type, getNodeID<void>(), UID((uint64_t)0/* TODO */));
 
                 ec = static_cast<EC*>(channel_list.select());
                 while (ec) {
@@ -191,14 +199,14 @@ class ManagementLayer : public LL {
             e.data = data_buffer;
             e.length = length;
             BelowEL::publish(man_chan_snn, e);
-            LL::publish_local(e);
+            static_cast<EL*>(this)->publish_local(e);
         }
 
         // Publish all current announcements in one event on management channel
         void publish_announcements() {
             if (config::publish_announcements) {
                 // TODO: ManChan hinzufügen
-                publish_channel_info(LL::Publisher, manchan::announce_msg);
+                publish_channel_info(LL::Publisher, ml::announce_event);
             }
         }
 
@@ -207,7 +215,7 @@ class ManagementLayer : public LL {
         void publish_subscriptions() {
             if (config::publish_subscriptions) {
                 // TODO: subscription des ManChan, wenn support_real_time publizieren
-                publish_channel_info(LL::Subscriber, manchan::subscribe_msg);
+                publish_channel_info(LL::Subscriber, ml::subscribe_event);
             }
         }
 
@@ -243,8 +251,10 @@ class ManagementLayer : public LL {
         }
 
         void publish_local(const Event &e) {
-            if (e.subject == man_chan_subject)
-                incoming_reservation_event(e);
+            if (config::subscribe_man_chan) {
+                if (e.subject == man_chan_subject)
+                    incoming_event(e);
+            }
             LL::publish_local(e);
         }
 
@@ -262,6 +272,10 @@ class ManagementLayer : public LL {
 
 template <class LL, class EL>
 const char * const ManagementLayer<LL, EL>::man_chan_subject = "ManChan!";
+
+        } // namespace famouso
+    } // namespace mw
+} // namespace el
 
 #endif // __MANAGEMENTLAYER_H_C1ACE57CB36BA9__
 

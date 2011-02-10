@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,48 +37,54 @@
  *
  ******************************************************************************/
 
-#ifndef __NETWORKPARAMETERS_H_FA83C39FD78C37__
-#define __NETWORKPARAMETERS_H_FA83C39FD78C37__
+#ifndef __SUBSCRIBER_H_40DF327C2B24CC__
+#define __SUBSCRIBER_H_40DF327C2B24CC__
 
 #include <stdint.h>
 
-//void CAN(bits_per_sec, network_id, clock_granul, slot_granul)
-// us_per_slot = clock_granul * slot_granul
-void bytes_to_slot_params_test(uint16_t payload_bytes, uint32_t & slot_length_us, uint32_t & slot_last_transm_us) {
-    // dummy impl
-    slot_length_us = 2*payload_bytes;
-    slot_last_transm_us = payload_bytes;
-    // packetzugabe (zeitpuffer pro paket)
-}
+#include "mw/common/Subject.h"
+#include "mw/common/NodeID.h"
+#include "mw/el/ml/LocalChanID.h"
+#include "mw/el/ml/NetworkID.h"
 
 
-struct NetworkParameters {
-    // muss auch header des NL und darunter betrachten
-    void (* bytes_to_slot_params)(uint16_t payload_bytes, uint32_t & slot_length_us, uint32_t & slot_last_transm_us);
-    uint32_t usec_per_aslot;
-    bool need_free_slots;
-    uint64_t network_id;
+namespace famouso {
+    namespace mw {
+        namespace rt_net_sched {
 
-    // TODO: init externally
-    NetworkParameters() {
-        // atomic slot: 10 milli sec
-        usec_per_aslot = 10000;         // vielfaches von Uhrengranularität!
-        need_free_slots = false;        // frei-liste publishen und auf ACK warten?
-        network_id = 0;
-        bytes_to_slot_params = &bytes_to_slot_params_test;
-    }
-    // Funktionen:
-    // bytes_to_slots (inklusive reserve, fragmentierungsoverhead)
-    // - bytes -> (slot time, slot last transmission time)
+            struct Subscriber {
+                NodeID node_id;
 
-    // CAN:
-    // #fragments = f(#bytes)
-    // time = 2 * #fragments * wc_bits_per_fragment / bits_per_us)     // Backgroundtraffic kommt dazwischen -> Faktor 2
-    // last_trans_time = time(#fragments - 1)
-    // !! + zustätzliche Latenz auf Senderechner bedenken (auf uC Latenz durch Codeausführung nicht vernachlässigbar, auf PC untersuchen!)
-};
+                /// Local channel ID
+                el::ml::LocalChanID lc_id;
 
+                el::ml::NetworkID network_id;
 
+                Subject subject;
 
-#endif // __NETWORKPARAMETERS_H_FA83C39FD78C37__
+                void init(const NodeID & node_id,
+                          const el::ml::LocalChanID & lc_id,
+                          const el::ml::NetworkID & network_id,
+                          const Subject & subj) {
+                    this->node_id = node_id;
+                    this->lc_id = lc_id;
+                    this->network_id = network_id;
+                    this->subject = subj;
+                }
+
+                void log() {
+                    using namespace ::logging;
+                    log::emit()
+                        << "- Subscriber " << log::hex << lc_id << ": subject " << subject
+                        << ", node_id " << node_id
+                        << ", network_id " << network_id
+                        << ::logging::log::endl;
+                }
+            };
+
+        } // namespace rt_net_sched
+    } // namespace mw
+} // namespace famouso
+
+#endif // __SUBSCRIBER_H_40DF327C2B24CC__
 

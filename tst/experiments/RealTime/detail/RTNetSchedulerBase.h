@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,68 +37,36 @@
  *
  ******************************************************************************/
 
+#ifndef __RTNETSCHEDULERBASE_H_DA957A38AD3639__
+#define __RTNETSCHEDULERBASE_H_DA957A38AD3639__
 
-#ifndef __MATH_H_B17EDA6C8EF650__
-#define __MATH_H_B17EDA6C8EF650__
+namespace famouso {
+    namespace mw {
+        namespace rt_net_sched {
 
-// TODO: div_round_up -> div_ceil
-#include "mw/afp/shared/div_round_up.h"
-using famouso::mw::afp::shared::div_round_up;
+            /*!
+             *  \brief  Real time network scheduler base class
+             *
+             *  Used as a publishing interface for NetworkScheduler.
+             */
+            class RTNetSchedulerBase {
+                public:
+                    virtual void publish_reservation(const NodeID & node_id,
+                                                     const el::ml::LocalChanID & lc_id,
+                                                     const el::ml::NetworkID & net_id,
+                                                     uint64_t tx_ready_time,
+                                                     uint64_t tx_window_time) = 0;
+                    virtual void publish_no_reservation(const NodeID & node_id,
+                                                        const el::ml::LocalChanID & lc_id,
+                                                        const el::ml::NetworkID & net_id) = 0;
+                    virtual void publish_no_subscriber(const NodeID & node_id,
+                                                       const el::ml::LocalChanID & lc_id,
+                                                       const el::ml::NetworkID & net_id) = 0;
+            };
 
+        } // namespace rt_net_sched
+    } // namespace mw
+} // namespace famouso
 
-bool odd(int a) {
-    return a & 1;
-}
-
-// by stein
-int greatest_common_divisor(int a, int b) {
-    int k, t;
-    k = 0;
-
-    while (!odd(a) && !odd(b)) {
-        a /= 2;
-        b /= 2;
-        k++;
-    }
-
-    if (odd(a))
-        t = -b;
-    else
-        t = a;
-
-    while (t != 0) {
-        while (!odd(t))
-            t /= 2;
-        if (t > 0)
-            a = t;
-        else
-            b = -t;
-        t = a - b;
-    }
-
-    return a * (1 << k);
-}
-
-int least_common_multiple(int a, int b) {
-    return /*abs*/(a * b) / greatest_common_divisor(a,b);
-}
-
-/*!
- *  \brief  Increase \p a by multpile of \p b to a return value greater than \p c
- */
-template <typename T>
-static inline T increase_by_multiple_above(T a, T b, T c) {
-    // while (a < c) a += b;
-    if (a < c) {
-        a += (((c - a) / b) + 1) * b;
-    }
-    return a;
-}
-
-template <typename T>
-static inline T increase_to_multiple(T a, T b) {
-    return div_round_up(a, b) * b;
-}
-
-#endif // __MATH_H_B17EDA6C8EF650__
+#endif // __RTNETSCHEDULERBASE_H_DA957A38AD3639__
 

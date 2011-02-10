@@ -37,106 +37,34 @@
  *
  ******************************************************************************/
 
-
-#define LOGGING_OUTPUT_FILE "log_Publisher.txt"
-#define LOGGING_DEFINE_EXTENDED_OUTPUT_TYPE
-#define LOGGING_DEFINE_OWN_OUTPUT_TYPE
-#include "RealTimeLogger.h"
-#include "logging/logging.h"
-LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputStream< ::logging::RTFileOutput > > )
-
-#include "TFW.h"
-typedef famouso::time::GlobalClock<famouso::time::ClockDriverGPOS> Clock;
-FAMOUSO_TIME_SOURCE(Clock)
-
-#include "mw/common/NodeID.h"
-template <>
-UID getNodeID<void>() {
-    return UID("RT_Node1");
-}
-
-
-#include "SlotScheduler.h"
-#include "NetworkParameters.h"
-
-#include "mw/api/EventChannel.h"
-#include "mw/api/PublisherEventChannel.h"
-#include "mw/api/SubscriberEventChannel.h"
-
-#include "devices/nic/can/SocketCAN/SocketCAN.h"
-//#include "devices/nic/can/peak/PeakCAN.h"
-#include "mw/nl/can/etagBP/Client.h"
-#include "mw/nl/can/ccp/Client.h"
-#include "mw/nl/CANNL.h"
-
-//#include "mw/el/EventLayerClientStub.h"
-#include "mw/nl/voidNL.h"
-#include "mw/anl/AbstractNetworkLayer.h"
-#include "mw/el/EventLayer.h"
-
-#include "mw/common/Event.h"
-#include "famouso.h"
-
-#include "ManagementLayer.h"
-#include "Attributes.h"
-
-#include "mw/attributes/detail/AttributeSetProvider.h"
-#include "mw/api/ExtendedEventChannel.h"
-#include "EventDispatcher.h"
-#include "NewEventLayer.h"
-
-
-namespace famouso {
-    class config {
-            typedef device::nic::CAN::SocketCAN can;
-            //typedef device::nic::CAN::PeakCAN can;
-            typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
-            typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
-            typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> NL;
-            //typedef famouso::mw::nl::voidNL NL;
-            typedef famouso::mw::anl::AbstractNetworkLayer<NL> ANL;
-
-            //typedef famouso::mw::el::EventLayerClientStub BaseEL;
-        public:
-            typedef NewEventLayer<ANL, ManagementLayer> EL;
-            typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
-            typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
-    };
-}
-
-#include "Dispatcher.h"
-#include "RealTimePublisherEventChannel.h"
-
-// Output of UIDs
-#include "mw/nl/awds/logging.h"
-
+#define FAMOUSO_NODE_ID "RT_Node1"
+#include "RTNodeCommon.h"
 
 
 typedef famouso::mw::attributes::detail::SetProvider<
-         famouso::mw::attributes::Period<200000>,
-         MaxEventSize<10000>,
-         RealTime
+         famouso::mw::attributes::Period<200000>,       // 200 ms
+         famouso::mw::attributes::MaxEventLength<16>    // 16 Byte -> bei CAN 3 Fragmente
         >::attrSet rt_req;
 
-class PEC3 : public RealTimePublisherEventChannel<famouso::config::PEC, rt_req> {
+class PEC3 : public famouso::mw::api::RealTimePublisherEventChannel<famouso::config::PEC, rt_req> {
         Task pub_task;
-        Event event;
+        famouso::mw::Event event;
     public:
-        typedef RealTimePublisherEventChannel<famouso::config::PEC, rt_req> Base;
+        typedef famouso::mw::api::RealTimePublisherEventChannel<famouso::config::PEC, rt_req> Base;
 
-        PEC3() :
-            RealTimePublisherEventChannel<famouso::config::PEC, rt_req>("rt__subj"),
-            event(subject())
+        PEC3(const famouso::mw::Subject & subj) :
+            Base(subj),
+            event(subj)
         {
             pub_task.start = TimeSource::current().add_usec(500000);
-            pub_task.period = get_period();
+            pub_task.period = period;
             pub_task.function.bind<PEC3, &PEC3::publish_task>(this);
             Dispatcher::instance().enqueue(pub_task);
         }
 
         void publish_task() {
-            event.data = (uint8_t *)"from_publisher";
-            event.length = 14;
+            event.data = (uint8_t *)"data_from_node_1";
+            event.length = 16;
             publish(event);
         }
 };
@@ -165,15 +93,15 @@ int main(int argc, char ** argv) {
     printf("Clock in sync\n");
 
 
-    famouso::config::SEC sec1("rt__subj");
+    famouso::config::SEC sec1("rt_____0");
     sec1.callback.bind<&subscriber_callback>();
     sec1.subscribe();
 
-    famouso::config::PEC pec1("01234567");
+    famouso::config::PEC pec1("nrt____0");
     pec1.announce();
 
 //    {
-    PEC3 pec2;
+    PEC3 pec2("rt_____1");
     pec2.announce();
 //    }
 
