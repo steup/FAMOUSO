@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,53 +37,51 @@
  *
  ******************************************************************************/
 
-#ifndef __ATTRIBUTES_H_9A5C730A2145CB__
-#define __ATTRIBUTES_H_9A5C730A2145CB__
+#ifndef __MAXEVENTLENGTH_H_4517B510FC1BDA__
+#define __MAXEVENTLENGTH_H_4517B510FC1BDA__
 
-#include <stdint.h>
+#include "mw/common/Event.h"
 
-#include "mw/attributes/Attribute.h"
 #include "mw/attributes/tags/IntegralConstTag.h"
-#include "mw/attributes/filter/less_than_or_equal_to.h"
-#include "mw/attributes/filter/equal_to.h"
+#include "mw/attributes/Attribute.h"
+
+#include "mw/attributes/detail/HighDensityIDs.h"
 
 #include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
 #include "mw/attributes/detail/tags/HasLessThanRelation.h"
 
-#include "mw/attributes/Period.h"
+namespace famouso {
+    namespace mw {
+        namespace attributes {
 
-struct AttributeIDs {
-    enum {
-        maxEventSizeId = 16,
-        realTimeId = 17
-    };
-};
+            /*!
+             * \brief Defines a configurable attribute for describing
+             *        the maximum length events.
+             *
+             * The unit of the attribute value is bytes.
+             *
+             * \tparam size Describes the initial value to be set
+             */
+            template <famouso::mw::Event::Type size>
+            class MaxEventLength : public Attribute<
+                                            MaxEventLength<0>,
+                                            tags::integral_const_tag,
+                                            famouso::mw::Event::Type,
+                                            size,
+                                            detail::HighDensityIDs::maxEventLengthId,
+                                            detail::TagSet<
+                                                    detail::IsHighDensity,
+                                                    detail::HasLessThanRelation /// \todo Here we need a less than or equal to realtion for checking requirement against provision attributes.
+                                                   >
+                                        > {
+                public:
+                    typedef MaxEventLength type;
+            };
 
-template <uint16_t size>
-class MaxEventSize : public famouso::mw::attributes::Attribute<
-                                MaxEventSize<0>,
-                                famouso::mw::attributes::tags::integral_const_tag,
-                                uint16_t,
-                                size,
-                                AttributeIDs::maxEventSizeId,
-                                famouso::mw::attributes::detail::TagSet<famouso::mw::attributes::detail::HasLessThanRelation> // less than or equal to!
-                            > {
-    public:
-        typedef MaxEventSize type;
-};
+        } /* attributes */
+    } /* mw */
+} /* famouso */
 
-// Value: RT state (inital highest) TODO
-class RealTime : public famouso::mw::attributes::Attribute<
-                                RealTime,
-                                famouso::mw::attributes::tags::integral_const_tag,
-                                uint8_t,
-                                1,
-                                AttributeIDs::maxEventSizeId,
-                                famouso::mw::attributes::detail::TagSet<famouso::mw::attributes::detail::HasLessThanRelation> // TODO: equal_to filter!!
-                            > {
-    public:
-        typedef RealTime type;
-};
-
-#endif // __ATTRIBUTES_H_9A5C730A2145CB__
+#endif // __MAXEVENTLENGTH_H_4517B510FC1BDA__
 

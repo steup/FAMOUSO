@@ -1,7 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
- *                    2010 Marcus Foerster <MarcusFoerster1@gmx.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -38,44 +37,49 @@
  *
  ******************************************************************************/
 
-#ifndef _System_IDs_h_
-#define _System_IDs_h_
+#ifndef __RESERVATIONSTATE_H_AD65724EDA0DD5__
+#define __RESERVATIONSTATE_H_AD65724EDA0DD5__
+
+#include <stdint.h>
+
+#include "mw/attributes/tags/IntegralConstTag.h"
+#include "mw/attributes/Attribute.h"
+
+#include "mw/attributes/detail/HighDensityIDs.h"
+
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
+#include "mw/attributes/detail/tags/HasLessThanRelation.h"
 
 namespace famouso {
     namespace mw {
         namespace attributes {
-            namespace detail {
 
-                /*!
-                 * \brief Holds the IDs of the defined high density
-                 *  %attributes at one place
-                 */
-                struct HighDensityIDs {
-                        enum {
-                                ttl         = 1,
-                                latency     = 2,
-                                throughput  = 3,
-                                packetLoss  = 4,
-                                omission    = 5,
+            /*!
+             * \brief Defines a reservation state attribute
+             *
+             * \note  It is used internally for transmitting the reservation
+             *        state of a real time producer, i.e. of a publisher
+             *        concerning a specific network.
+             */
+            class ReservationState : public Attribute<
+                                            ReservationState,
+                                            tags::integral_const_tag,
+                                            uint8_t,
+                                            3,
+                                            detail::HighDensityIDs::reservationStateId,
+                                            detail::TagSet<
+                                                    detail::IsHighDensity,
+                                                    detail::HasLessThanRelation // If this attribute is used for filtering at all, an equal_to filter should be used!!
+                                                   >
+                                        > {
+                public:
+                    typedef ReservationState type;
+            };
 
-                                jitter      = 6,
-                                period      = 7,
-                                absDeadline = 8,
-                                relDeadline = 9,
-                                timestamp   = 10,
+        } /* attributes */
+    } /* mw */
+} /* famouso */
 
-                                maxEventLengthId = 11,
-                                reservationStateId = 12,
+#endif // __RESERVATIONSTATE_H_AD65724EDA0DD5__
 
-                                // position / coordinates ???
-
-                                lowDensity   = 15
-                        };
-                };
-
-            }  // namespace detail
-        }  // namespace attributes
-    }  // namespace mw
-}  // namespace famouso
-
-#endif
