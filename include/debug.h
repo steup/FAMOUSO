@@ -61,6 +61,7 @@ LOGGING_DISABLE_LEVEL(::logging::Info);
        << ::logging::log::endl;                                     \
 } while(0)
 
+#include "logging/UID.h"
 
 #if !defined(ASSERT_FAILED_HANDLER)
 
