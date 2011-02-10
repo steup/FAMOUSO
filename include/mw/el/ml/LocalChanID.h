@@ -37,42 +37,22 @@
  *
  ******************************************************************************/
 
+#ifndef __LOCALCHANID_H_9CCAE6FC60B110__
+#define __LOCALCHANID_H_9CCAE6FC60B110__
 
-#ifndef __CHANNELRESERVATIONDATA_H_932F3D5C28DF45__
-#define __CHANNELRESERVATIONDATA_H_932F3D5C28DF45__
-
-#include "mw/el/ml/LocalChanID.h"
-#include "mw/el/ml/NetworkID.h"
+#include "mw/common/UID.h"
 
 namespace famouso {
     namespace mw {
         namespace el {
             namespace ml {
 
-
-                /*!
-                 *  \brief  Real time transmission channel reservation data
-                 */
-                struct ChannelReservationData {
-                    /// Local channel ID
-                    LocalChanID lc_id;
-
-                    NetworkID network_id;
-
-                    uint64_t tx_ready_time;
-
-                    uint32_t tx_window_time;
-
-                    /// Event type (in event channel trampoline use case)
-                    uint8_t event_type;
-                };
-
+                typedef UID LocalChanID;
 
             } // namespace ml
         } // namespace el
     } // namespace mw
 } // namespace famouso
 
-
-#endif // __CHANNELRESERVATIONDATA_H_932F3D5C28DF45__
+#endif // __LOCALCHANID_H_9CCAE6FC60B110__
 

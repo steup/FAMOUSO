@@ -74,22 +74,13 @@ namespace famouso {
                                  */
                                 get_requirements,
 
-                                /*! \brief Start to publish events to network on
-                                 *         a real time channel
+                                /*! \brief Set real time reservation state of a
+                                 *         publisher concerning a specific network
                                  *
                                  *  The data is passed via \e buffer pointing to a
                                  *  ChannelReservationData struct.
                                  */
-                                start_real_time_delivery,
-
-                                /*! \brief Delivering events to network is not
-                                 *         neccessary, because there are no subscribers
-                                 */
-                                out_of_subscribers,
-
-                                /*! \brief Transmission channel cannot be reserved
-                                 */
-                                out_of_ressources
+                                set_real_time_reserv_state,
                             } action;
                             uint8_t * buffer;
                         };
@@ -137,14 +128,14 @@ namespace famouso {
                         }
 
 
-                        /*! \brief Starts network delivery of real time events
-                         *  \param crd  Contains real time transmission channel infos.
+                        /*! \brief Sets the real time reservation state
+                         *  \param crd  Contains real time reservation infos.
                          *  \note  This needs only to be implemented for real time
                          *         publishers.
                          */
-                        void start_real_time_delivery(famouso::mw::el::ml::ChannelReservationData * crd) const {
+                        void set_real_time_reserv_state(famouso::mw::el::ml::ChannelReservationData * crd) const {
                             Action a;
-                            a.action = Action::start_real_time_delivery;
+                            a.action = Action::set_real_time_reserv_state;
                             a.buffer = reinterpret_cast<uint8_t*>(crd);
                             trampoline(a);
                         }
