@@ -80,7 +80,7 @@ namespace object {
             /// Buffer for memory to allocate and memory management information (AllocInfo structs)
             uint8_t data [size];
 
-            /// Offset in data where we find first AllocInfo instance (if alloc_count != size)
+            /// Offset in data where we find first AllocInfo instance (equals \c size if there is no allocation).
             SizeT first_allocated;
 
             /// Memory management information. In front of each allocated block.
@@ -88,7 +88,7 @@ namespace object {
                 /// Length of the allocated block
                 SizeT block_length;
 
-                /// Offset in data where we find next AllocInfo instance (size if this is last)
+                /// Offset in data where we find next AllocInfo instance (\c size if this is last)
                 SizeT next_allocated;
             };
 
