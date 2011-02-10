@@ -46,6 +46,7 @@
 
 namespace logging {
 
+#if 0
     /*! \brief Operator to print a %Subject.
      *
      * \param out The output stream to print to.
@@ -62,6 +63,7 @@ namespace logging {
         out << ' ' << '(' << log::hex << s.value() << ')';
         return out;
     }
+#endif
 
     /*! \brief This class is intended to be used as a template argument for
      *         the logging::log::emit() function.
