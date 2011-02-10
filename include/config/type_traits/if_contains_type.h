@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *                    2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -61,6 +62,12 @@
        example, on how to provide a policy template class with the correct
        interface see ThenPolicyExample or ElsePolicyExample.
 
+       The generated class if_contains_type_\a NAME has three template
+       parameters: first the type for which you want to check, whether
+       it contains NAME, second an optional return type, third an optional
+       parameter type. For an example of a policy template class with
+       parameter support, see ThenWithParameterPolicyExample and EmptyPolicy.
+
        How to use it? Here is an example:
 
 \code
@@ -89,6 +96,10 @@ if_contains_type_TestType<int>::ThenElse<Then, Else>::process();
 // executes the Then policy, because the requested type is contained
 if_contains_type_TestType<TypeWithTestType>::ThenElse<Then>::process();
 
+// executes the Then policy, because the requested type is contained
+// passes the integer parameter 5 to the policy and returns a boolean
+if_contains_type_TestType<TypeWithTestType, bool, int>::ThenElse<Then>::process(5);
+
 ...
 \endcode
 
@@ -96,7 +107,7 @@ if_contains_type_TestType<TypeWithTestType>::ThenElse<Then>::process();
 
  */
 #define IF_CONTAINS_TYPE_(NAME)                                             \
-template < typename T, typename R = void>                                   \
+template < typename T, typename R = void, typename P = void>                \
 class if_contains_type_##NAME {                                             \
         CONTAINS_TYPE_(NAME);                                               \
         /* Generates Comile-Time Error if used in an ElsePolicy          */ \
@@ -105,16 +116,35 @@ class if_contains_type_##NAME {                                             \
         /* a compile time selector for the policies the first is        */  \
         /* the general purpose template and the second is a             */  \
         /* specialization that is used if the subtype exists            */  \
+        /* For both there is a version with and without parameter.      */  \
         template<bool U, typename ThenPolicy,                               \
-                 typename ElsePolicy>                                       \
+                 typename ElsePolicy, typename Param = P>                   \
         struct PolicySelect_##NAME {                                        \
+            static inline R do_it(Param p) {                                \
+                return ElsePolicy::template process<T, NAME, R, Param>(p);  \
+            }                                                               \
+        };                                                                  \
+                                                                            \
+        template<typename ThenPolicy, typename ElsePolicy>                  \
+        struct PolicySelect_##NAME<false, ThenPolicy, ElsePolicy, void> {   \
             static inline R do_it() {                                       \
                 return ElsePolicy::template process<T, NAME, R>();          \
             }                                                               \
         };                                                                  \
                                                                             \
+        template<typename ThenPolicy, typename ElsePolicy, typename Param>  \
+        struct PolicySelect_##NAME<true, ThenPolicy, ElsePolicy, Param> {   \
+            static inline R do_it(Param p) {                                \
+                return ThenPolicy::template process<T,                      \
+                                                    typename T::NAME,       \
+                                                    R,                      \
+                                                    Param                   \
+                                                    >(p);                   \
+            }                                                               \
+        };                                                                  \
+                                                                            \
         template<typename ThenPolicy, typename ElsePolicy>                  \
-        struct PolicySelect_##NAME<true, ThenPolicy, ElsePolicy> {          \
+        struct PolicySelect_##NAME<true, ThenPolicy, ElsePolicy, void> {    \
             static inline R do_it() {                                       \
                 return ThenPolicy::template process<T,                      \
                                                     typename T::NAME,       \
@@ -130,8 +160,21 @@ class if_contains_type_##NAME {                                             \
         /* processes dependent on the value the respective template     */  \
         /* which leads to generating code                               */  \
         template <typename ThenPolicy,                                      \
-                  typename ElsePolicy=EmptyPolicy >                         \
+                  typename ElsePolicy = EmptyPolicy,                        \
+                  typename Parameter = P>                                   \
         struct ThenElse {                                                   \
+            static inline R process(Parameter p) {                          \
+                return PolicySelect_##NAME<                                 \
+                            value,                                          \
+                            ThenPolicy,                                     \
+                            ElsePolicy                                      \
+                       >::do_it(p);                                         \
+            }                                                               \
+        };                                                                  \
+                                                                            \
+        template <typename ThenPolicy,                                      \
+                  typename ElsePolicy>                                      \
+        struct ThenElse<ThenPolicy, ElsePolicy, void> {                     \
             static inline R process() {                                     \
                 return PolicySelect_##NAME<                                 \
                             value,                                          \

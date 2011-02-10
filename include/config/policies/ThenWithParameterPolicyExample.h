@@ -37,50 +37,40 @@
  *
  ******************************************************************************/
 
-#ifndef __EmptyPolicy_h__
-#define __EmptyPolicy_h__
+#ifndef __ThenWithParameterPolicyExample_h__
+#define __ThenWithParameterPolicyExample_h__
 
-/*! \brief EmptyPolicy is a policy template for the compile time selection
- *         utility IF_CONTAINS_TYPE_(NAME).
+#include "debug.h"
+
+/*! \brief ThenWithParameterPolicyExample is a policy template for the compile
+ *         time selection utility IF_CONTAINS_TYPE_(NAME).
  *
- *         It provides the else (ElsePolicyExample) path of the compile time
- *         switch if no else policy template is given by the user. It evaluates
- *         to an empty function, leading to no code execution except the call
- *         itself, but in case of completely inlining (as the attribute
- *         enforces) it is quite compiled away.
+ *         It is an example on how to write such a policy, that can be used in
+ *         the metioned context. It is intended to be used for the then path of
+ *         the compile time switch, although the ThenPolicy as well as the
+ *         ElsePolicy have the same interface.
  *
  */
-struct EmptyPolicy {
-    /*! \brief The method is provided for calling with a parameter within the context of a
-     *         selector template. As the name of the policy class describes this
-     *         needs to be empty.
-     *
-     *  \tparam T is a type normally a configuration type/class
-     *  \tparam NoSubType is a type and you can not instantiate an object of
-     *          it. Trying instantiation, leads to a compile time error if the
-     *          policy is used in the context of IF_CONTAINS_TYPE_(NAME)
-     *  \tparam R is the return value of the static process method and its
-     *          default is \c void
-     *  \tparam P is the parameter type.
-     */
-    template< typename T, typename NoSubType, typename R, typename P>
-    static  R process(P p) {
-        return R();
-    }
-
+struct ThenWithParameterPolicyExample {
     /*! \brief The method is provided for calling within the context of a
      *         selector template. As the name of the policy class describes this
-     *         needs to be empty.
+     *         is intended to be called within the then clause of the selector
+     *         policy. This example outputs the function signature and it can
+     *         be used as starting point for developing own user-specific
+     *         ThenPolicies.
      *
      *  \tparam T is a type normally a configuration type/class
-     *  \tparam NoSubType is a type and you can not instantiate an object of
-     *          it. Trying instantiation, leads to a compile time error if the
-     *          policy is used in the context of IF_CONTAINS_TYPE_(NAME)
+     *  \tparam SubType is a type and you can instantiate an
+     *          object of it. If the policy is used in the context of
+     *          IF_CONTAINS_TYPE_(NAME) it is guaranteed, that SubType is the
+     *          requested type.
      *  \tparam R is the return value of the static process method and its
      *          default is \c void
+     *
      */
-    template< typename T, typename NoSubType, typename R>
-    static  R process() {
+    template< typename T, typename SubType, typename R, typename P>
+    static  R process(P p) {
+        TRACE_FUNCTION;
         return R();
     }
 };

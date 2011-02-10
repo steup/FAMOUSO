@@ -62,6 +62,22 @@ struct StructWithNoGW {
     typedef int blubb;
 };
 
+struct ThenWithParamPolicy {
+    template< typename T, typename SubType, typename R, typename P>
+    static  R process(P p) {
+        std::cout << "from then: " << p << std::endl;
+        return true;
+    }
+};
+
+struct ElseWithParamPolicy {
+    template< typename T, typename SubType, typename R, typename P>
+    static  R process(P p) {
+        std::cout << "from else: " << p << std::endl;
+        return false;
+    }
+};
+
 IF_CONTAINS_TYPE_(gw);
 
 int main() {
@@ -74,6 +90,15 @@ int main() {
     std::cout << if_contains_type_gw<StructWithGW, int>::ThenElse<ThenPolicyExample, ElsePolicyExample>::process()<< std::endl;
     std::cout << if_contains_type_gw<StructWithNoGW, int>::ThenElse<ThenPolicyExample, ElsePolicyExample>::process()<< std::endl;
     if_contains_type_gw<int>::ThenElse<ThenPolicyExample>::process();
+
+    std::cout << if_contains_type_gw<int, bool, const char *>::ThenElse<
+                        ThenWithParamPolicy,
+                        ElseWithParamPolicy>::process("should be else")
+              << std::endl;
+    std::cout << if_contains_type_gw<StructWithGW, bool, const char *>::ThenElse<
+                        ThenWithParamPolicy,
+                        ElseWithParamPolicy>::process("should be then")
+              << std::endl;
 
     return 0;
 }
