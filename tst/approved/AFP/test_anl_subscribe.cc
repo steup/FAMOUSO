@@ -88,12 +88,6 @@ namespace famouso {
 
 #endif
 
-// output subjects to logging framework
-::logging::loggingReturnType & operator<<(::logging::loggingReturnType & out, const famouso::mw::Subject & s) {
-    for (uint8_t c = 0; c < 8; c++)
-        out << s.tab()[c];
-    return out;
-}
 
 static uint32_t count = 0;
 
