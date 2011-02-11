@@ -66,6 +66,7 @@ struct ThenWithParameterPolicyExample {
      *          requested type.
      *  \tparam R is the return value of the static process method and its
      *          default is \c void
+     *  \tparam P is the parameter type of the static process method
      *
      */
     template< typename T, typename SubType, typename R, typename P>
