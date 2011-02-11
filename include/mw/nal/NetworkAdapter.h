@@ -193,13 +193,14 @@ namespace famouso {
                      *         an event processing request was arised.
                      *
                      *  \param[in]  bnl the sub network-ID from where the request came.
+                     *  \return     Returns whether to continue with event processing.
                      */
-                    void event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
+                    bool event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
                         _bnl = bnl;
                         if (_ANL_A.id() == bnl)
-                            _ANL_A.event_process_request(bnl);
+                            return _ANL_A.event_process_request(bnl);
                         else
-                            _ANL_B.event_process_request(bnl);
+                            return _ANL_B.event_process_request(bnl);
                     }
 
                     /*! \brief Is called by the higher layer to signalise that

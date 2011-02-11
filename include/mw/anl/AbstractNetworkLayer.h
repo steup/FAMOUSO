@@ -214,8 +214,10 @@ namespace famouso {
                      *         an event processing request was arised.
                      *
                      *  \param[in]  bnl the sub network-ID from where the request came.
+                     *  \return     Returns whether to continue with event processing.
                      */
-                    void event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
+                    bool event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
+                        return true;
                     }
 
                     /*! \brief Is called by the higher layer to signalise that

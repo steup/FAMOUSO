@@ -221,7 +221,8 @@ namespace famouso {
                         ec_t* sec = static_cast<ec_t*>(Subscriber.select());
 
                         // inform low layer about fetching starts
-                        LL::event_process_request(bnl);
+                        if (!LL::event_process_request(bnl))
+                            return;
 
                         // traverse the list and try to find the correct subject,
                         // corresponding to the arised event.
