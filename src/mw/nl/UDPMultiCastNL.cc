@@ -148,9 +148,10 @@ namespace famouso {
             }
 
             void UDPMultiCastNL::deliver(const Packet_t& p) {
+                bool fragment = p.fragment;
                 boost::array<boost::asio::const_buffer, 3> buffers = {{
                     boost::asio::buffer(&p.snn.s, sizeof(famouso::mw::Subject)),
-                    boost::asio::buffer(&p.fragment, sizeof(bool)),
+                    boost::asio::buffer(&fragment, sizeof(bool)),
                     boost::asio::buffer(p.data, p.data_length)
                 }};
 
