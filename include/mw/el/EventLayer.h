@@ -92,6 +92,10 @@ namespace famouso {
                      */
                     typedef typename LL::SNN SNN;
 
+                    /*! \brief  Publish parameter set type
+                     */
+                    typedef typename LL::PublishParamSet PublishParamSet;
+
                     /*! \brief  self type
                      */
                     typedef EventLayer type;
@@ -125,9 +129,11 @@ namespace famouso {
                      *
                      *  \param[in]  ec the publishing event channel
                      *  \param[in]  e the event that is published
+                     *  \param[in]  pps an optional set of special publish parameters
+                     *              (needed for real time events)
                      *
                      */
-                    void publish(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e) {
+                    void publish(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e, const PublishParamSet * pps = 0) {
                         TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Info>()
                             << PROGMEMSTRING("Publish channel with addr=")
@@ -137,7 +143,7 @@ namespace famouso {
                             << ec.subject().value() << ']'
                             << ::logging::log::endl;
                         // publish on all  lower layers/subnets
-                        LL::publish(ec.snn(), e);
+                        LL::publish(ec.snn(), e, pps);
 
                         // publish locally on all subscribed event channels
                         publish_local(e);

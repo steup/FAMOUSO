@@ -46,6 +46,9 @@
 #include "mw/nl/DistinctNL.h"
 #include "mw/afp/Fragmenter.h"
 #include "mw/afp/Defragmentation.h"
+#include "config/type_traits/if_contains_select_type.h"
+#include "mw/anl/detail/EmptyPublishParamSet.h"
+#include "mw/anl/detail/EmptyEventProcessRequestPolicy.h"
 
 namespace famouso {
     namespace mw {
@@ -58,7 +61,7 @@ namespace famouso {
              *          functionality like fragmentation, or in later versions, it handles
              *          also the aspects of quality of service or attribute management.
              *
-             *  \tparam NL the network layer see prerequisites.
+             *  \tparam NL the network layer or a NetworkGuard, see prerequisites.
              *  \tparam AFP_FragConfig  the AFP fragmentation %config, see \ref afp_config
              *  \tparam AFP_DefragConfig  the AFP defragmentation %config, see \ref afp_config
              *
@@ -74,11 +77,39 @@ namespace famouso {
                      */
                     afp::DefragmentationProcessorANL<AFP_DefragConfig> defrag;
 
+
+                    IF_CONTAINS_SELECT_TYPE_(EventProcessRequestPolicy);
+
+                    /*! \brief  policy called on event process request
+                     *
+                     *  If the policy is given by the lower layer (NetworkGuard),
+                     *  it is used. Otherwise (typically if there is no
+                     *  NetworkGuard), an empty version is selected.
+                     */
+                    typedef typename if_contains_select_type_EventProcessRequestPolicy<
+                                            NL,
+                                            detail::EmptyEventProcessRequestPolicy
+                                        >::type EventProcessRequestPolicy;
+
+
+                    IF_CONTAINS_SELECT_TYPE_(PublishParamSet);
+
                 public:
 
                     /*! \brief  short network representation of the subject
                      */
                     typedef typename NL::SNN SNN;
+
+                    /*! \brief  Publish parameter set type
+                     *
+                     *  If a type is given by the lower layer (NetworkGuard),
+                     *  it is used. Otherwise (typically if there is no
+                     *  NetworkGuard), an empty version is selected.
+                     */
+                    typedef typename if_contains_select_type_PublishParamSet<
+                                            NL,
+                                            detail::EmptyPublishParamSet
+                                        >::type PublishParamSet;
 
                     /*! \brief  short network representation of the subscribe subject
                      *          that is used for announcing subscribtion network-wide
@@ -116,15 +147,25 @@ namespace famouso {
                      *
                      *  \param[in]  snn the short network name of the subject
                      *  \param[in]  e the event that has to be published
+                     *  \param[in]  pps an optional set of special publish parameters
+                     *              (needed for real time events)
                      *
                      *  \todo   Save copy operation in fragmentation case (needs
                      *          AFP interface extension returning AFP header and
                      *          payload separately and Packet/NL adaption)
                      */
-                    void publish(const SNN &snn, const Event &e) {
+                    void publish(const SNN &snn, const Event &e, const PublishParamSet * pps = 0) {
                         TRACE_FUNCTION;
+                        bool realtime = false;
+                        // prepare delivery
+                        if (pps) {
+                            // May set network guard real time event info
+                            pps->process(*this);
+                            realtime = pps->realtime();
+                        }
+                        // deliver
                         if (e.length <= NL::info::payload) {
-                            typename NL::Packet_t p(snn, &e[0], e.length);
+                            typename NL::Packet_t p(snn, &e[0], e.length, realtime);
                             NL::deliver(p);
                         } else {
                             // Fragmentation using AFP (if disabled, a warning is emitted to the log)
@@ -217,7 +258,7 @@ namespace famouso {
                      *  \return     Returns whether to continue with event processing.
                      */
                     bool event_process_request(famouso::mw::nl::DistinctNL * const bnl) {
-                        return true;
+                        return EventProcessRequestPolicy::process(*this);
                     }
 
                     /*! \brief Is called by the higher layer to signalise that

@@ -45,6 +45,8 @@
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/gwl/GatewayEventChannel.h"
 #include "mw/common/Event.h"
+#include "config/type_traits/if_select_type.h"
+#include <boost/type_traits/is_base_of.hpp>
 
 namespace famouso {
     namespace mw {
@@ -76,6 +78,23 @@ namespace famouso {
                         typename ANL_B::SNN SNN_B;
                     };
 
+                    /*! \brief  Publish parameter set type
+                     *
+                     *  Select the publish parameter type with the highest derivation
+                     *  level that supports most features.
+                     *
+                     *  Assumes that all publisher parameter sets are derived in
+                     *  a linear hierarchy.
+                     */
+                    typedef typename if_select_type<
+                                            boost::is_base_of<
+                                                typename ANL_B::PublishParamSet,
+                                                typename ANL_A::PublishParamSet
+                                            >::value,
+                                            typename ANL_A::PublishParamSet,
+                                            typename ANL_B::PublishParamSet
+                                        >::type PublishParamSet;
+
                     /*! \brief Initalizes the sub networks.
                      */
                     void init() {
@@ -92,12 +111,14 @@ namespace famouso {
                      *             of the event for both sub networks.
                      *  \param[in] e the Event that should be selctive published.
                      *  \param[in] bnl the sub network in that the event \e e will be published.
+                     *  \param[in] pps an optional set of special publish parameters
+                     *             (needed for real time events)
                      */
-                    void publish_to_network_with_id(const SNN &snn, const Event &e, const famouso::mw::nl::DistinctNL *bnl) {
+                    void publish_to_network_with_id(const SNN &snn, const Event &e, const famouso::mw::nl::DistinctNL *bnl, const PublishParamSet * pps = 0) {
                         if (_ANL_A.id() == bnl)
-                            _ANL_A.publish(snn.SNN_A , e);
+                            _ANL_A.publish(snn.SNN_A, e, pps);
                         else
-                            _ANL_B.publish(snn.SNN_B , e);
+                            _ANL_B.publish(snn.SNN_B, e, pps);
                     }
 
                     /*! \brief Allows for checking if source of event and subscription network matches.
@@ -149,10 +170,12 @@ namespace famouso {
                      *              The struct contains the short network name representation of the subject
                      *              of the event for both sub networks.
                      *  \param[in]  e the event that is published.
+                     *  \param[in]  pps an optional set of special publish parameters
+                     *              (needed for real time events)
                      */
-                    void publish(const SNN &snn, const Event &e) {
-                        _ANL_A.publish(snn.SNN_A , e);
-                        _ANL_B.publish(snn.SNN_B , e);
+                    void publish(const SNN &snn, const Event &e, const PublishParamSet * pps = 0) {
+                        _ANL_A.publish(snn.SNN_A, e, pps);
+                        _ANL_B.publish(snn.SNN_B, e, pps);
                     }
 
                     /*! \brief Subscribes a subject on all sub networks.
