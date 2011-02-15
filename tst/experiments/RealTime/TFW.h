@@ -87,6 +87,10 @@ namespace time {
                 return time / 1000000;
             }
 
+            Time operator + (const Time & t2) const {
+                return Time(time + t2.time);
+            }
+
             bool operator < (const Time & t2) const {
                 return time < t2.time;
             }

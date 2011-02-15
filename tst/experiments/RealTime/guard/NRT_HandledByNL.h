@@ -1,7 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
- *                    2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -38,40 +37,47 @@
  *
  ******************************************************************************/
 
-#ifndef __TDMAREALTIMENETGUARD_H_1D30AC585BCF58__
-#define __TDMAREALTIMENETGUARD_H_1D30AC585BCF58__
+#ifndef __NRT_HANDLEDBYNL_H_E7017179B5C03D__
+#define __NRT_HANDLEDBYNL_H_E7017179B5C03D__
 
-#include "debug.h"
-#include "mw/common/Event.h"
-#include "mw/nl/DistinctNL.h"
-#include "mw/afp/Fragmenter.h"
-#include "mw/afp/Defragmentation.h"
 
 namespace famouso {
     namespace mw {
-        namespace anl {
+        namespace guard {
 
-            // interface of an NL
-            // Policy: different for polled and priority-based best efford traffic
+            /*!
+             *  \brief  NRT policy for network guard: empty version for configurations
+             *          in which network layer handles non real time packet transmission
+             *          control.
+             *
+             *  E.g. CANNL is able to exploit CAN priorities for transmission of NRT
+             *  packets.
+             */
             template <class NL>
-            class RealTimeNetGuard : public NL {
-                    typedef typename NL::packet_t packet_t;
-                public:
-                    // Guard against some timing faults
-                    void deliver(const packet_t & p) {
-                        // TODO: check, if we can deliver now
-                        // in case of NRT (should be readable from p), this function
-                        // may block and invoke the dispatcher to run another task
-                        // TODO: return if success
-                        NL::deliver(p);
+            class NRT_HandledByNL : public NL {
+
+                protected:
+                    /// Returns when the NRT packet can be transmitted
+                    void ensure_nrt_access_right() {
                     }
 
-                    // can hold own MEDL if (entkopplung) is wanted
+                public:
+                    /// Initialization of this and lower layers
+                    void init() {
+                        NL::init();
+                    }
+
+                    /// Policy invoked by AbstactNetworkLayer on event process request
+                    struct EventProcessRequestPolicy {
+                        static bool process(NRT_HandledByNL & network_guard) {
+                            return true;    // Continue event processing
+                        }
+                    };
             };
 
-        } // namespace anl
+        } // namespace guard
     } // namespace mw
 } //namespace famouso
 
-#endif // __TDMAREALTIMENETGUARD_H_1D30AC585BCF58__
+#endif // __NRT_HANDLEDBYNL_H_E7017179B5C03D__
 

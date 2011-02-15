@@ -88,6 +88,11 @@ UID getNodeID<void>() {
 #include "mw/api/ExtendedEventChannel.h"
 #include "EventDispatcher.h"
 #include "NewEventLayer.h"
+#include "guard/NetworkGuard.h"
+#include "guard/RT_WindowCheck.h"
+#include "guard/RT_NoWindowCheck.h"
+#include "guard/NRT_HandledByNL.h"
+#include "guard/NRT_PollSlave.h"
 
 namespace famouso {
     class config {
@@ -97,7 +102,12 @@ namespace famouso {
             typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
             typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> NL;
             //typedef famouso::mw::nl::voidNL NL;
-            typedef famouso::mw::anl::AbstractNetworkLayer<NL> ANL;
+            typedef famouso::mw::guard::NetworkGuard<
+                            NL,
+                            famouso::mw::guard::RT_WindowCheck,
+                            famouso::mw::guard::NRT_HandledByNL
+                        > NG;
+            typedef famouso::mw::anl::AbstractNetworkLayer<NG> ANL;
 
             //typedef famouso::mw::el::EventLayerClientStub BaseEL;
         public:
