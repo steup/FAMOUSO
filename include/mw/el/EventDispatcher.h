@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
- *                    2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ *               2010-2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@
  *
  ******************************************************************************/
 
-#ifndef __SubEventLayer_h__
-#define __SubEventLayer_h__
+#ifndef __EVENTDISPATCHER_H_284D09B9BACF24__
+#define __EVENTDISPATCHER_H_284D09B9BACF24__
 
 #include "debug.h"
 
@@ -48,7 +48,6 @@
 #include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/EventChannel.h"
 #include "mw/nl/DistinctNL.h"
-#include "mw/el/EventLayerCallBack.h"
 
 #include "object/Queue.h"
 
@@ -56,13 +55,14 @@ namespace famouso {
     namespace mw {
         namespace el {
 
-            /*! \brief The event layer provides the main publish/subscribe functionality
+            /*! \brief The event dispatcher provides the main publish/subscribe functionality
              *
-             *          It has the ability to get different lower layer plugs and supports
-             *          local as well as remote publishing. Furthermore, it handles all
-             *          relevant data structure for the management of event channels.
+             *          It is a sublayer of the event layer. It supports local as well as remote
+             *          publishing. Furthermore, it handles all relevant data structure for the
+             *          management of event channels.
              *
              *  \tparam LL the lower layer is a configurable component see prerequisites.
+             *  \tparam EL the event layer type
              *
              *  \pre    The type of template parameters can be an famouso::mw::anl:AbstractNetworkLayer
              *          or an famouso::mw::nal::NetworkAdapter dependent on the configuration of the
@@ -98,6 +98,11 @@ namespace famouso {
                      */
                     typedef typename LL::PublishParamSet PublishParamSet;
 
+                    /*! \brief  Channel trampoline policy: no trampoline needed
+                     *
+                     *  This may be overwritten by the ManagementLayer.
+                     */
+                    typedef famouso::mw::api::detail::NoChannelTrampoline ChannelTrampolinePolicy;
 
                     /*! \brief  self type
                      */
@@ -173,10 +178,10 @@ namespace famouso {
                         Subscriber.remove(ec);
                     }
 
-                    /*! \brief  unannounc an event channel and deregister the event
+                    /*! \brief  unannounce an event channel and deregister the event
                      *          channel from the local data structure for publishers
                      *
-                     *  \param[in]  ec the unsubscribed event channel
+                     *  \param[in]  ec the unannounced event channel
                      */
                     void unannounce(EC &ec) {
                         TRACE_FUNCTION;
@@ -208,12 +213,6 @@ namespace famouso {
                      *         publishes it locally.
                      *
                      *  \param[in]  bnl the network from where an event fetching was requested.
-                     *
-                     *  \todo       The default value of zero describes that we have no fetching
-                     *              request from a lower layer. This is for further enhancements
-                     *              like fetching in a time-triggered system, where we fetch
-                     *              periodically without interrupt support from lower network
-                     *              layer.
                      */
                     void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
                         TRACE_FUNCTION;
@@ -232,6 +231,13 @@ namespace famouso {
                     }
 
                 protected:
+                    /*! \brief Tries to fetch an event of a given SNN from a specific
+                     *         sub network. In case of success it is published locally.
+                     *
+                     *  \param[in]  subj the subject of the channel
+                     *  \param[in]  snn the SNN of the channel
+                     *  \param[in]  bnl the network from where an event fetching was requested.
+                     */
                     bool try_fetch_and_process(const Subject &subj, const SNN &snn, famouso::mw::nl::DistinctNL *bnl = 0) {
                         Event e(subj);
 
@@ -261,5 +267,5 @@ namespace famouso {
     } // namespace mw
 } // namespace famouso
 
-#endif /* __EventLayer_h__ */
+#endif // __EVENTDISPATCHER_H_284D09B9BACF24__
 

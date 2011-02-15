@@ -1,6 +1,7 @@
 /*******************************************************************************
  *
  * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ *               2010-2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -44,169 +45,162 @@
 
 #include "mw/common/Subject.h"
 #include "mw/common/Event.h"
-#include "mw/api/SubscriberEventChannel.h"
 #include "mw/api/EventChannel.h"
 #include "mw/api/detail/NoChannelTrampoline.h"
 #include "mw/nl/DistinctNL.h"
+#include "mw/el/EventDispatcher.h"
 #include "mw/el/EventLayerCallBack.h"
 
-#include "object/Queue.h"
 
 namespace famouso {
     namespace mw {
         namespace el {
+
+            template <typename LL, typename EL>
+            struct NoManagementLayer {};
+
+            template <class LL,
+                      template <class, class> class ManLayPolicy = NoManagementLayer>
+            class EventLayer;
+
+            /// Configurator for the sublayers of the event layer
+            template <class LL, template <class, class> class ManLayPolicy>
+            class EventSublayerConfigurator {
+                    typedef EventLayer<LL, ManLayPolicy> EL;
+                public:
+                    typedef ManLayPolicy <
+                                famouso::mw::el::EventDispatcher<
+                                    LL,
+                                    EL
+                                >,
+                                EL
+                            > type;
+            };
+
+            /// Configurator for the sublayers of the event layer (omits management layer)
+            template <class LL>
+            class EventSublayerConfigurator<LL, NoManagementLayer> {
+                    typedef EventLayer<LL, NoManagementLayer> EL;
+                public:
+                    typedef famouso::mw::el::EventDispatcher<
+                                LL,
+                                EL
+                            > type;
+            };
 
             /*! \brief The event layer provides the main publish/subscribe functionality
              *
              *          It has the ability to get different lower layer plugs and supports
              *          local as well as remote publishing. Furthermore, it handles all
              *          relevant data structure for the management of event channels.
+             *          The event layer is structured in sublayers. The main
+             *          publish/subscribe functionality is provided by the
+             *          EventDispatcher. An optional sublayer needed for real time and
+             *          other Quality-of-Service aspects is The ManagementLayer.
              *
              *  \tparam LL the lower layer is a configurable component see prerequisites.
+             *  \tparam ManLayPolicy the management layer policy is a configurable component.
+             *          Pass the type ml::ManagementLayer to include the management layer,
+             *          otherwise it is omitted.
              *
-             *  \pre    The type of template parameters can be an famouso::mw::anl:AbstractNetworkLayer
+             *  \pre    The type of template parameter LL can be an famouso::mw::anl:AbstractNetworkLayer
              *          or an famouso::mw::nal::NetworkAdapter dependent on the configuration of the
              *          middleware stack
              */
-            template < class LL >
-            class EventLayer : public LL {
+            template <class LL, template <class, class> class ManLayPolicy>
+            class EventLayer : public EventSublayerConfigurator<LL, ManLayPolicy>::type {
 
-                protected:
+                    /// First sublayer
+                    typedef typename EventSublayerConfigurator<LL, ManLayPolicy>::type SL;
 
-                    typedef LL LowerLayer;
-
-                    // potentiell gefaerdete Datenstrukturen
-                    // wegen Nebenlaeufigkeit
-
-                    /*! \brief data structure for managing publisher event channels
-                     */
-                    Queue Publisher;
-
-                    /*! \brief data structure for managing subscriber event channels
-                     */
-                    Queue Subscriber;
+                    /// Event channel type
+                    typedef famouso::mw::api::EventChannel<EventLayer> EC;
 
                 public:
-
                     /*! \brief  short network representation of the subject
                      */
                     typedef typename LL::SNN SNN;
 
                     /*! \brief  Publish parameter set type
                      */
-                    typedef typename LL::PublishParamSet PublishParamSet;
+                    typedef typename SL::PublishParamSet PublishParamSet;
 
                     /*! \brief  self type
                      */
                     typedef EventLayer type;
 
-                    /*! \brief  Channel trampoline policy: no trampoline needed
+                    /*! \brief  Channel trampoline policy
                      */
-                    typedef famouso::mw::api::detail::NoChannelTrampoline ChannelTrampolinePolicy;
+                    typedef typename SL::ChannelTrampolinePolicy ChannelTrampolinePolicy;
+
 
                     /*! \brief  initialize the middleware core
                      */
                     void init() {
-                        // initialization code
-                        // e.g. set callbacks and initalize all lower layers too
-                        IncommingEventFromNL.bind<EventLayer<LL>, &EventLayer<LL>::fetch>(this);
-                        LL::init();
+                        IncommingEventFromNL.bind<type, &type::fetch>(this);
+                        SL::init();
                     }
 
-
-                    /*! \brief  announce an event channel on all lower layers and register
-                     *          the event channel on a local data structure for publisher
+                    /*! \brief  announce an event channel on all lower layers
                      *
                      *  \param[in]  ec the publishing event channel that is announced
                      */
-                    void announce(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    void announce(EC & ec) {
                         TRACE_FUNCTION;
-                        LL::announce(ec.subject(), ec.snn());
-                        Publisher.append(ec);
+                        SL::announce(ec);
                     }
 
-                    /*! \brief  publishing within an event channel the given event
+                    /*! \brief  unannounce an event channel
                      *
-                     *  \param[in]  ec the publishing event channel
-                     *  \param[in]  e the event that is published
-                     *  \param[in]  pps an optional set of special publish parameters
-                     *              (needed for real time events)
-                     *
+                     *  \param[in]  ec the unannounced event channel
                      */
-                    void publish(const famouso::mw::api::EventChannel<EventLayer> &ec, const Event &e, const PublishParamSet * pps = 0) {
+                    void unannounce(EC & ec) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Info>()
-                            << PROGMEMSTRING("Publish channel with addr=")
-                            << ::logging::log::hex
-                            << reinterpret_cast<const void*>(&ec)
-                            << PROGMEMSTRING(" with Subject -> [")
-                            << ec.subject().value() << ']'
-                            << ::logging::log::endl;
-                        // publish on all  lower layers/subnets
-                        LL::publish(ec.snn(), e, pps);
-
-                        // publish locally on all subscribed event channels
-                        publish_local(e);
+                        SL::unannounce(ec);
                     }
 
-                    /*! \brief  subscribe an event channel on all lower layers and register
-                     *          the event channel on a local data structure for subscribers
+                    /*! \brief  subscribe an event channel on all lower layers
                      *
                      *  \param[in]  ec the subscribing event channel that is announced
                      */
-                    void subscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    void subscribe(EC & ec) {
                         TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Info>()
-                            << PROGMEMSTRING("Subscribe channel with addr=")
-                            << ::logging::log::hex
-                            << reinterpret_cast<const void*>(&ec)
-                            << PROGMEMSTRING(" with Subject -> [")
-                            << ec.subject().value() << ']'
-                            << ::logging::log::endl;
-                        LL::subscribe(ec.subject(), ec.snn());
-                        Subscriber.append(ec);
+                        SL::subscribe(ec);
                     }
 
-                    /*! \brief  unsubscribe an event channel and deregister the event
-                     *          channel from the local data structure for subscribers
+                    /*! \brief  unsubscribe an event channel
                      *
                      *  \param[in]  ec the unsubscribed event channel
                      */
-                    void unsubscribe(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    void unsubscribe(EC & ec) {
                         TRACE_FUNCTION;
-                        Subscriber.remove(ec);
+                        SL::unsubscribe(ec);
                     }
 
-                    /*! \brief  unannounc an event channel and deregister the event
-                     *          channel from the local data structure for publishers
+                    /*! \brief  publish the given event within an event channel
                      *
-                     *  \param[in]  ec the unsubscribed event channel
+                     *  \param[in]  ec the publishing event channel
+                     *  \param[in]  e the event that is published
+                     *  \param[in]  pps publish parameter set
                      */
-                    void unannounce(famouso::mw::api::EventChannel<EventLayer> &ec) {
+                    void publish(const EC &ec, const Event &e, const PublishParamSet * pps = 0) {
                         TRACE_FUNCTION;
-                        Publisher.remove(ec);
+                        SL::publish(ec, e, pps);
                     }
 
                     /*! \brief  publishes an event from an event channel locally to other
-                     *          event channels that have subscribed to the same subject. Thus
-                     *          this method can be seen as the local event channel handler.
+                     *          event channels that have subscribed to the same subject.
+                     *          This method can be seen as the local event channel
+                     *          handler.
                      *
-                     *  \param[in]  e the event that is published
+                     *  \param[in]  e the event to publish
                      *
                      */
                     void publish_local(const Event &e) {
                         TRACE_FUNCTION;
-                        // give start of the SubsriberList
-                        typedef famouso::mw::api::SubscriberEventChannel<EventLayer> ec_t;
-                        ec_t* sec = static_cast<ec_t*>(Subscriber.select());
-                        // traverse the list and call the respective subscriber notify callback
-                        // in case subject matching
-                        while (sec) {
-                            if (sec->subject() == e.subject)
-                                sec->callback(e);
-                            sec = static_cast<ec_t*>(sec->select());
-                        }
+                        SL::publish_local(e);
                     }
+
 
                     /*! \brief Fetches an event from a specific sub network and
                      *         publishes it locally.
@@ -221,43 +215,20 @@ namespace famouso {
                      */
                     void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
                         TRACE_FUNCTION;
-
-                        // give start of the SubsriberList
-                        typedef famouso::mw::api::SubscriberEventChannel<EventLayer> ec_t;
-                        ec_t* sec = static_cast<ec_t*>(Subscriber.select());
-
-                        // inform low layer about fetching starts
+                        // Inform low layer about fetching starts. Lower layers may
+                        // cancel fetching, e.g. if the incoming packet contained
+                        // internal management information that is processed during
+                        // the event_process_request() function call
                         if (!LL::event_process_request(bnl))
                             return;
 
-                        // traverse the list and try to find the correct subject,
-                        // corresponding to the arised event.
-                        while (sec) {
-                            Event e(sec->subject());
+                        SL::fetch(bnl);
 
-                            // try to fetch an event from a specific subnet and SNN
-                            int8_t result = LL::fetch(sec->snn(), e, bnl);
-
-                            // incoming packet on this SNN?
-                            if (result >= 0) {
-                                // subject of last incoming packet matches that of the
-                                // current event channel
-
-                                // if we got a new event, publish it locally to the
-                                // respective subscribers (if the packet was a fragment
-                                // the corresponding event may not be complete)
-                                if (result > 0)
-                                    publish_local(e);
-
-                                // packet/event processed (fetch called for each packet)
-                                break;
-                            }
-                            sec = static_cast<ec_t*>(sec->select());
-                        }
                         // inform lower layer that we are done
                         LL::event_processed();
                     }
             };
+
 
         } // namespace el
     } // namespace mw

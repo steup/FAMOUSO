@@ -82,12 +82,11 @@ UID getNodeID<void>() {
 #include "mw/common/Event.h"
 #include "famouso.h"
 
-#include "ManagementLayer.h"
+#include "mw/el/ml/ManagementLayer.h"
+#include "mw/el/EventLayer.h"
 
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/api/ExtendedEventChannel.h"
-#include "EventDispatcher.h"
-#include "NewEventLayer.h"
 #include "guard/NetworkGuard.h"
 #include "guard/RT_WindowCheck.h"
 #include "guard/RT_NoWindowCheck.h"
@@ -111,7 +110,7 @@ namespace famouso {
 
             //typedef famouso::mw::el::EventLayerClientStub BaseEL;
         public:
-            typedef famouso::mw::el::NewEventLayer<ANL, famouso::mw::el::ManagementLayer> EL;
+            typedef famouso::mw::el::EventLayer<ANL, famouso::mw::el::ml::ManagementLayer> EL;
             typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
             typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
     };

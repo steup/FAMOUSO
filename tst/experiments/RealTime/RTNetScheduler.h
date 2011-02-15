@@ -48,7 +48,9 @@
 #include "mw/attributes/ReservationState.h"
 #include "mw/attributes/AttributeSet.h"
 
-#include "ManagementChannelEvents.h"
+#include "mw/el/ml/ChannelRequirementsEvent.h"
+#include "mw/el/ml/RealTimeSetResStateEvent.h"
+
 #include "NetworkSchedule.h"
 #include "detail/RTNetSchedulerBase.h"
 #include "detail/value_types.h"
@@ -270,9 +272,9 @@ namespace famouso {
                     void incoming_management_event(const Event & event) {
 
                         uint8_t event_type = el::ml::get_event_type(event.data, event.length);
-                        if (event_type == el::ml::announce_event)
+                        if (event_type == el::ml::announcements_event)
                             process_announcements(event);
-                        else if (event_type == el::ml::subscribe_event)
+                        else if (event_type == el::ml::subscriptions_event)
                             process_subscriptions(event);
 
                         return;

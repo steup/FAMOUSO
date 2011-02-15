@@ -63,6 +63,12 @@ namespace famouso {
              * \tparam ECH is a configured famouso::mw::el::EventLayer
              * \tparam Storage is the depot where the generated forwarding channels
              *         are stored/managed. The default parameter is object::Storage
+             *
+             * \todo The gateway should subscribe to the management channel provided by
+             *       the management layer instead of the "SUBSCRIBE" channel, because it
+             *       provides the information needed for runtime composability checks.
+             *       After this change the "SUBSCRIBE" channel becomes deprecated and
+             *       can be removed from the AbstractNetworkLayer.
              */
             template < class ECH, template < typename > class Storage=object::Storage >
             class Gateway  : private famouso::mw::api::SubscriberEventChannel<ECH> {
