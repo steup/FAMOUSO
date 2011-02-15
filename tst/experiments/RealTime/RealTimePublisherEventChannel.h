@@ -220,6 +220,7 @@ namespace famouso {
                                 deliver_task.start.set(increase_by_multiple_above(rd->tx_ready_time, static_cast<uint64_t>(period), TimeSource::current().get()));
                                 deliver_task.period = period;
                                 deliver_task.function.bind<type, &type::deliver>(this);
+                                deliver_task.realtime = true;
                                 Dispatcher::instance().enqueue(deliver_task);
 
                                 // TODO: rd->tx_window_time for guard

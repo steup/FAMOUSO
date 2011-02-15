@@ -61,13 +61,16 @@ void siginthandler(int) {
 
 
 struct Task : public Chain {
+    bool realtime;
     famouso::time::Time start;
     uint64_t period;                        // in usec, Zero for non-periodic
     famouso::util::Delegate<void> function; // Later we need argument binding
+
+    Task() : realtime(false) {}
 };
 
 // simple function dispatcher sketch for first testing
-// no real time scheduling!!!
+// No real time scheduling, but best effort function dispatching assuming enough CPU ressources
 class DispatcherImpl {
         Queue tasks;
 
@@ -98,6 +101,15 @@ class DispatcherImpl {
             }
         }
 
+        void dispatch(Task & task) {
+            // Run task
+            task.function();
+            // Insert periodic task into queue again
+            if (task.period != 0) {
+                task.start.add_usec(task.period);
+                insert_task(task);
+            }
+        }
 
     public:
 
@@ -130,17 +142,34 @@ class DispatcherImpl {
                     famouso::time::Time curr = TimeSource::current();
                     //::logging::log::emit<DispatcherImpl>() << "task scheduled for " << next->start << " started " << curr << "\n";
                     // Run task
-                    next->function();
-                    if (next->period != 0) {
-                        // Insert periodic task into queue again
-                        next->start.add_usec(next->period);
-                        insert_task(*next);
-                    }
+                    dispatch(*next);
                 }
             }
 
             // signalise the ios to exit
             famouso::util::impl::exit_ios();
+        }
+
+        /// Should be called by NRT tasks to when waiting for ressources (cooperative flow transfer to RT tasks)
+        void yield_for_rt() {
+            Task * next;
+            while (1) {
+                // Look for next real time task
+                do {
+                    next = static_cast<Task *>(tasks.unlink());
+                    if (!next)
+                        return;
+                } while (!next->realtime);
+
+                // Check if it should have been started
+                famouso::time::Time curr = TimeSource::current();
+                if (curr < next->start)
+                    return;
+
+                // Task start time not in future -> run task
+                ::logging::log::emit<DispatcherImpl>() << "task scheduled for " << next->start << " started " << curr << " (NRT yielded for RT)\n";
+                dispatch(*next);
+            }
         }
 };
 
