@@ -83,6 +83,10 @@ class ManagementLayer : public LL {
          */
         typedef typename LL::SNN SNN;
 
+        /*! \brief  Publish parameter set type
+         */
+        typedef typename LL::PublishParamSet PublishParamSet;
+
         /*! \brief  Channel trampoline policy: trampoline needed
          */
         typedef famouso::mw::api::detail::ChannelTrampoline ChannelTrampolinePolicy;
@@ -244,10 +248,6 @@ class ManagementLayer : public LL {
         void unsubscribe(EC & ec) {
             LL::unsubscribe(ec);
             publish_subscriptions();
-        }
-
-        void publish(const EC &ec, const Event &e) {
-            LL::publish(ec, e);
         }
 
         void publish_local(const Event &e) {

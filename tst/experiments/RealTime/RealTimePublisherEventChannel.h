@@ -82,8 +82,11 @@ namespace famouso {
                         mel = MELAttrib::value
                     };
 
-                    /// Event information struct
+                    /// Event information struct (used in temporal firewall)
                     typedef detail::EventInfoStruct<mel> EventInfo;
+
+                    /// Publish parameter set (used for passing real time flag and transmission window)
+                    typedef typename EC::eventChannelHandler::PublishParamSet PublishParamSet;
 
                     /// Temporal firewall containing event information
                     TemporalFirewall<EventInfo> tf;
@@ -169,9 +172,10 @@ namespace famouso {
                     };
 
                     // TODO: einmal für jedes Netz
+                    // je netz: (slot-length), timer-handles, (RT-State)
                     uint8_t reservation_state;
                     Task deliver_task;
-                    // je netz: (slot-length), timer-handles, (RT-State)
+                    uint32_t tx_window_duration;
 
                     // int8_t local_deliver_net; // TODO: -1: bei publish_local bei publish, >=0 bei deliver für 1. netz mit reservierung
 
@@ -223,7 +227,7 @@ namespace famouso {
                                 deliver_task.realtime = true;
                                 Dispatcher::instance().enqueue(deliver_task);
 
-                                // TODO: rd->tx_window_time for guard
+                                tx_window_duration = rd->tx_window_time;
 
                                 ::logging::log::emit<RT>()
                                     << "start deliver: chan "
@@ -265,11 +269,11 @@ namespace famouso {
 
                             /*! \todo   If the event contains a deadline attribute, also check this.
                              */
-
+                            PublishParamSet pps(deliver_task.start, tx_window_duration);
                             Event e(EC::subject());
                             e.length = ei.length;
                             e.data = const_cast<uint8_t*>(ei.data);
-                            EC::ech().publish(*this, e);
+                            EC::ech().publish(*this, e, &pps);
                         } else {
                             // expire in past
                             ::logging::log::emit<RT>()

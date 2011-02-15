@@ -73,6 +73,8 @@ class NewEventLayer : public ELStackBuilder<LL, ManLayPolicy>::type {
 
     public:
 
+        typedef typename SL::PublishParamSet PublishParamSet;
+
         typedef typename SL::ChannelTrampolinePolicy ChannelTrampolinePolicy;
 
         void init() {
@@ -96,8 +98,8 @@ class NewEventLayer : public ELStackBuilder<LL, ManLayPolicy>::type {
             SL::unsubscribe(ec);
         }
 
-        void publish(const EC &ec, const Event &e) {
-            SL::publish(ec, e);
+        void publish(const EC &ec, const Event &e, const PublishParamSet * pps = 0) {
+            SL::publish(ec, e, pps);
         }
 
         void publish_local(const Event &e) {

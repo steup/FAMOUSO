@@ -94,6 +94,11 @@ namespace famouso {
                      */
                     typedef typename LL::SNN SNN;
 
+                    /*! \brief  Publish parameter set type
+                     */
+                    typedef typename LL::PublishParamSet PublishParamSet;
+
+
                     /*! \brief  self type
                      */
                     typedef EventDispatcher type;
@@ -121,9 +126,10 @@ namespace famouso {
                      *
                      *  \param[in]  ec the publishing event channel
                      *  \param[in]  e the event that is published
+                     *  \param[in]  pps publish parameter set
                      *
                      */
-                    void publish(const EC &ec, const Event &e) {
+                    void publish(const EC &ec, const Event &e, const PublishParamSet * pps) {
                         TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Info>()
                             << PROGMEMSTRING("Publish channel with addr=")
