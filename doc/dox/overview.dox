@@ -45,12 +45,19 @@
 
 \image latex "FAMOUSO.png" "" width=0.9\textwidth
 
-%FAMOUSO is a publish/subscribe middleware that readopts the ideas and
-concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art
-dev<b>IC</b>es).  Additionally, %FAMOUSO provides means for adaption e.g. to a
-specific platform. The middleware offers an event-based communication model
-according to the publisher/subscriber concept.
-%FAMOUSO is especially designed to allow cooperation between smart
+%FAMOUSO is a communication middleware. It provides event-based communication
+over different network types, according to the publisher/subscriber paradigm.
+In contrast to an address-based communication, an anonymous content-based
+communication is used, where events are exchanged between communication
+end-points. Publishers as well as subscribers are roles that applications have
+during the communication. Related to its characteristic as publisher,
+subscriber, or both, applications specify the kind of events they produce or
+consume. On that simple scheme, %FAMOUSO provides spontaneous and dynamic
+many-to-many communication without any assumptions about synchrony of events.
+The communication is always asynchronous, avoiding control flow dependencies
+and enabling the autonomy of communication participants.
+
+%FAMOUSO is especially designed to allow seemless cooperation between smart
 sensors and actuators on different hardware platforms ranging from 8-bit
 micro-controllers up to 32-bit PC/Workstations and interaction over a broad
 variety of communication media like
@@ -58,8 +65,9 @@ variety of communication media like
 <a href="http://standards.ieee.org/getieee802/802.15.html">802.15.4</a>,
 <a href="http://awds.berlios.de/">AWDS</a>,
 <a href="http://www.ietf.org/rfc/rfc3170.txt">UDP-MultiCast</a>.
-On application level it offers an unique API that is usable from different
-programming languages (C/C++, Python, Java) as well as engineering tools (
+The core functionality is entirely written in C++, however, on application
+level %FAMOUSO offers an unique API that is usable from different programming
+languages (C/C++, Python, Java, etc.) as well as engineering tools (
 <a href="http://www.mathworks.com/">Matlab/Simulink</a>,
 <a href="http://www.ni.com/labview/">Labview</a>).
 
@@ -73,4 +81,19 @@ Key features of %FAMOUSO are:
 	- Adaptability
 	- Configurability
 	- Deployment of modern software technologies
+
+%FAMOUSO is the successor of the COSMIC (COoperating SMart
+devICes) middleware that was developed within the CORTEX project. Some basic
+ideas are borrowed from COSMIC but deeply reworked. For example one key feature
+of %FAMOUSO in contrast to COSMIC is its high adaptability in many directions.
+%FAMOUSO adapts to the platform, the network, meaning in the downwards
+direction and additionally upwards to varying application demands.
+Furthermore, %FAMOUSO supports a composability concept that allows for testing
+whether quality of service specification can be fullfilled and in case of
+violations, providing the user with different options to treat it in the right
+way. A unique feature in this context is the integration of such tests into the
+compilation phase, which enables detecting sematic inconsistencies as early as
+possible (see publications ETFA2009 "MLCCA -- Multi-Level Composability Check
+Architecture for Dependable Communication over Heterogeneous Networks").
+
 */

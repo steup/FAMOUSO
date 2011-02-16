@@ -39,14 +39,21 @@
 
 /*!	\mainpage
 	\author Michael Schulze, Uni Magdeburg, IVS/EOS
-	\date 20.05.2010
+	\date 16.02.2011
 
-%FAMOUSO is a publish/subscribe middleware that readopts the ideas and
-concepts of its predecessor COSMIC (<b>CO</b>operating <b>SM</b>art
-dev<b>IC</b>es).  Additionally, %FAMOUSO provides means for adaption e.g. to a
-specific platform. The middleware offers an event-based communication model
-according to the publisher/subscriber concept.
-%FAMOUSO is especially designed to allow cooperation between smart
+%FAMOUSO is a communication middleware. It provides event-based communication
+over different network types, according to the publisher/subscriber paradigm.
+In contrast to an address-based communication, an anonymous content-based
+communication is used, where events are exchanged between communication
+end-points. Publishers as well as subscribers are roles that applications have
+during the communication. Related to its characteristic as publisher,
+subscriber, or both, applications specify the kind of events they produce or
+consume. On that simple scheme, %FAMOUSO provides spontaneous and dynamic
+many-to-many communication without any assumptions about synchrony of events.
+The communication is always asynchronous, avoiding control flow dependencies
+and enabling the autonomy of communication participants.
+
+%FAMOUSO is especially designed to allow seemless cooperation between smart
 sensors and actuators on different hardware platforms ranging from 8-bit
 micro-controllers up to 32-bit PC/Workstations and interaction over a broad
 variety of communication media like
@@ -54,8 +61,9 @@ variety of communication media like
 <a href="http://standards.ieee.org/getieee802/802.15.html">802.15.4</a>,
 <a href="http://awds.berlios.de/">AWDS</a>,
 <a href="http://www.ietf.org/rfc/rfc3170.txt">UDP-MultiCast</a>.
-On application level it offers an unique API that is usable from different
-programming languages (C/C++, Python, Java) as well as engineering tools (
+The core functionality is entirely written in C++, however, on application
+level %FAMOUSO offers an unique API that is usable from different programming
+languages (C/C++, Python, Java, etc.) as well as engineering tools (
 <a href="http://www.mathworks.com/">Matlab/Simulink</a>,
 <a href="http://www.ni.com/labview/">Labview</a>).
 

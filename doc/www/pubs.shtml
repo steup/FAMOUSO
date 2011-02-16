@@ -1,0 +1,625 @@
+<script type="text/javascript">
+
+function toggle_x(type, entryid) {
+    var bib = document.getElementById(type+'_'+entryid);
+    if (!bib) {
+        return;
+    }
+    if (bib.className == type+'hidden') {
+        bib.className = type+'show';
+    } else {
+        bib.className = type+'hidden';
+    }
+}
+
+</script>
+
+<style type="text/css">
+div.bibhidden { display: none; }
+div.bibshow   { background-color: #3F3F3F; padding: 1ex; border-style: solid; border-width: 1px; margin: 1ex; }
+div.absshow   { background-color: #3F3F3F; padding: 1ex; border-style: solid; border-width: 1px; margin: 1ex; }
+div.abshidden { display: none; }
+div.entry     { margin: 0em 1em 1em 1em; }
+</style>
+<p>
+[<a href="#2008">2008</a>] [<a href="#2009">2009</a>] [<a href="#2010">2010</a>] [<a href="#2011">2011</a>] </p>
+<h2><a name="2011">2011</a></h2>
+
+<!-- start of entry Schulze11b year :2011: :: -->
+
+<div id="Schulze11b" class="entry">
+<b>Ressourcengewahres Framework f&uuml;r Kontextinformationen in eingebetteten verteilten System</b><br>
+  <i>Michael Schulze and Marcus F&ouml;rster</i>,
+  Electronic Communications of the EASST (ISSN: 1863-2122)
+  volume 37,
+  pp. 12,
+  2011,
+  EASST,
+  Proceedings of the Workshops der wissenschaftlichen Konferenz Kommunikation in Verteilten Systemen 2011 (WowKiVS 2011).
+<br />
+[<a href="javascript:toggle_x('abs', 'Schulze11b')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','Schulze11b')">BibTeX</a>]
+
+[<a href="publications/2011/saks11Schulze.pdf">PDF</a>]
+
+<div id="abs_Schulze11b" class="abshidden" >Kontextinformationen im Allgemeinen sind von enormer Bedeutung, um den Sinngehalt von Aussagen oder abstrakter ausgedr&uuml;ckt von Daten &uuml;berhaupt zu erfassen. F&uuml;r die Interaktion in verteilten Systemen sind sie von enormer Wichtigkeit. Jedoch gerade im eingebetteten Bereich besitzen die Ger&auml;te oft nicht die notwendigen Ressourcen, um bestehende L&ouml;sungen basierend auf XML oder OWL zu verarbeiten. Um diese L&uuml;cke zu schlie&szlig;en, wird AFFIX vorgestellt, welches ressourceneffiziente Mechanismen f&uuml;r das Applizieren und Verarbeiten von Kontextinformationen auf Basis von Attributen bereitstellt. Im Vergleich schneidet AFFIX mit bis zu 87,5% geringerem Platzbedarf f&uuml;r die Bin&auml;rrepr&auml;sentation ab, was sich insbesondere auf ressourcenlimitierten Systemen sowie bei der Kommunikationen &uuml;ber eingebettete Netzwerke bemerkbar macht.</div>
+<div id="bib_Schulze11b" class="bibhidden">
+<pre>
+@article{Schulze11b,
+  author = {Schulze, Michael and F\"orster, Marcus},
+  title = {{Ressourcengewahres Framework f\"ur Kontextinformationen in eingebetteten verteilten System}},
+  journal = {Electronic Communications of the EASST (ISSN: 1863-2122)},
+  publisher = {EASST},
+  year = {2011},
+  volume = {37},
+  pages = {12},
+  note = {Proceedings of the Workshops der wissenschaftlichen Konferenz Kommunikation in Verteilten Systemen 2011 (WowKiVS 2011)}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Schulze11b year :2011: :: -->
+<!-- start of entry Schulze11a year :2011: :: -->
+
+<div id="Schulze11a" class="entry">
+<b>AFP -- an Adaptive Fragmentation Protocol for Supporting Large Datagram Transmissions</b><br>
+  <i>Michael Schulze, Philipp Werner, Georg Lukas, and J&ouml;rg Kaiser</i>,
+  Journal of Communications,
+  February 10,
+  2011,
+  submitted.
+<br />
+[<a href="javascript:toggle_x('abs', 'Schulze11a')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','Schulze11a')">BibTeX</a>]
+
+
+
+<div id="abs_Schulze11a" class="abshidden" >Transferring large datagrams is essential for a lot of tasks. If the data does not fit into one network packet, fragmentation is needed. We propose a fragmentation protocol that adapts to different MTUs as well as to the datagram size, ensuring very efficient bandwidth utilization. The protocol is extensible to allow tailoring to network and application demands. Thus, it is suitable for deploying it in various scenarios and under different conditions, whereas other protocols do not scale well. We demonstrate the applicability on low-end embedded devices and in a tele-operated robot scenario. Additionally, we analyze the scalability of our protocol, evaluate the induced overhead for different MTUs and datagram sizes, and compare AFP to other fragmentation protocols.</div>
+<div id="bib_Schulze11a" class="bibhidden">
+<pre>
+@article{Schulze11a,
+  author = {Michael Schulze and Philipp Werner and Georg Lukas and J\"org Kaiser},
+  title = {{AFP -- an Adaptive Fragmentation Protocol for Supporting Large Datagram Transmissions}},
+  journal = {Journal of Communications},
+  year = {2011},
+  month = {February 10},
+  note = {submitted}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Schulze11a year :2011: :: -->
+<h2><a name="2010">2010</a></h2>
+
+<!-- start of entry Schulze2010 year :2010: :: -->
+
+<div id="Schulze2010" class="entry">
+<b>A Highly Configurable Logging Framework In C++</b><br>
+  <i>Michael Schulze</i>,
+  Dr. Dobb's,
+  June 18,
+  2010.
+<br />
+
+[<a href="javascript:toggle_x('bib','Schulze2010')">BibTeX</a>]
+[<a href="http://www.drdobbs.com/cpp/225700666">URL</a>]
+
+
+<div id="abs_Schulze2010" class="abshidden" ></div>
+<div id="bib_Schulze2010" class="bibhidden">
+<pre>
+@article{Schulze2010,
+  author = {Michael Schulze},
+  title = {{A Highly Configurable Logging Framework In C++}},
+  journal = {Dr. Dobb's},
+  year = {2010},
+  month = {June 18},
+  url = {http://www.drdobbs.com/cpp/225700666}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Schulze2010 year :2010: :: -->
+<!-- start of entry DEBS2010 year :2010: :: -->
+
+<div id="DEBS2010" class="entry">
+<b>Reliable Fault-Tolerant Sensors for Distributed Systems</b><br>
+  <i>Sebastian Zug, Michael Schulze, Andr&eacute; Dietrich, and J&ouml;rg Kaiser</i>,
+  Proceedings of the Fourth ACM International Conference on Distributed Event-Based Systems (DEBS '10),
+  pp. 105-106,
+  Cambridge, United Kingdom,
+  July 12-15,
+  2010,
+  ACM Press New York, NY, USA.
+<br />
+[<a href="javascript:toggle_x('abs', 'DEBS2010')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','DEBS2010')">BibTeX</a>]
+
+[<a href="publications/2010/DEBS2010_CameraReady.pdf">PDF</a>]
+
+<div id="abs_DEBS2010" class="abshidden" >Providing reliable fault-tolerant sensors is a challenge for dis- tributed systems. The demonstration setup combines three sensors and allows to inject different faults that are reliably detected by our system.</div>
+<div id="bib_DEBS2010" class="bibhidden">
+<pre>
+@inproceedings{DEBS2010,
+  author = {Sebastian Zug and Michael Schulze and Andr\'e Dietrich and J\"org Kaiser},
+  title = {{Reliable Fault-Tolerant Sensors for Distributed Systems}},
+  booktitle = {Proceedings of the Fourth {ACM} International Conference on Distributed {Event-Based} Systems (DEBS '10)},
+  publisher = {{ACM} Press New York, {NY,} {USA}},
+  address = {Cambridge, United Kingdom},
+  year = {2010},
+  month = {July 12-15},
+  pages = {105--106}
+}
+</pre>
+</div></div>
+
+<!-- end of entry DEBS2010 year :2010: :: -->
+<!-- start of entry brade_model-driven_2010 year :2010: :: -->
+
+<div id="brade_model-driven_2010" class="entry">
+<b>Model-Driven Development of Embedded Systems</b><br>
+  <i>Tino Brade, Michael Schulze, Sebastian Zug, and J&ouml;rg Kaiser</i>,
+  12th Brazilian Workshop on Real-Time and Embedded Systems (WTR),
+  Gramado, Brazil,
+  May 24,
+  2010,
+  Brazilian Computer Society.
+<br />
+[<a href="javascript:toggle_x('abs', 'brade_model-driven_2010')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','brade_model-driven_2010')">BibTeX</a>]
+
+[<a href="publications/2010/WTR10BradeSchulzeZugKaiser.pdf">PDF</a>]
+
+<div id="abs_brade_model-driven_2010" class="abshidden" >Distributed mechatronic applications integrate sensors, processing units, communication, and actuators. In order to achieve a rapid development process and an improved maintainability it is necessary to combine and replace such modular components flexibly. For seamless composability we developed a communication middleware and a common programming abstraction for distributed nodes. In this paper we combine the abstractions with an electronic description of sensors and platforms and present a comprehensive development toolchain for smart embedded devices based on the common Matlab/Simulink package. Following this approach, the user defines the capabilities of a device within an electronic data sheet, integrates the functionality using a domain-specific tool box, and generates the code for an embedded system.</div>
+<div id="bib_brade_model-driven_2010" class="bibhidden">
+<pre>
+@inproceedings{brade_model-driven_2010,
+  author = {Tino Brade and Michael Schulze and Sebastian Zug and J\"org Kaiser},
+  title = {{Model-Driven Development of Embedded Systems}},
+  booktitle = {12th Brazilian Workshop on {Real-Time} and Embedded Systems {(WTR)}},
+  publisher = {Brazilian Computer Society},
+  address = {Gramado, Brazil},
+  year = {2010},
+  month = {May 24}
+}
+</pre>
+</div></div>
+
+<!-- end of entry brade_model-driven_2010 year :2010: :: -->
+<!-- start of entry Kiebel2010 year :2010: :: -->
+
+<div id="Kiebel2010" class="entry">
+<b>Identifying patients and visualize their vitality data through Augmented Reality</b><br>
+  <i>Thomas Kiebel, Andr&eacute; Dietrich, Michael Schulze, Sebastian Zug, and J&ouml;rg Kaiser</i>,
+  The 7th IEEE International Conference on Mobile Ad-hoc and Sensor Systems (MASS '10),
+  San Francisco, CA, USA,
+  8-12 November,
+  2010.
+<br />
+[<a href="javascript:toggle_x('abs', 'Kiebel2010')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','Kiebel2010')">BibTeX</a>]
+
+[<a href="publications/2010/MASS10-final.pdf">PDF</a>]
+
+<div id="abs_Kiebel2010" class="abshidden" >Hospitals aim at an extensive continuous monitoring of patients. This enables the personal to check the conditions of a patient anywhere at any given time and allows them to immediately react to anomalies and emergencies. The same technology can be used to instantaneously visualize available patient data using augmented reality techniques.</div>
+<div id="bib_Kiebel2010" class="bibhidden">
+<pre>
+@inproceedings{Kiebel2010,
+  author = {Thomas Kiebel and Andr\'e Dietrich and Michael Schulze and Sebastian Zug and J\"org Kaiser},
+  title = {{Identifying patients and visualize their vitality data through Augmented Reality}},
+  booktitle = {The 7th IEEE International Conference on Mobile Ad-hoc and Sensor Systems (MASS '10)},
+  address = {San Francisco, CA, USA},
+  year = {2010},
+  month = {8-12 November}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Kiebel2010 year :2010: :: -->
+<!-- start of entry steup_exploiting_2010 year :2010: :: -->
+
+<div id="steup_exploiting_2010" class="entry">
+<b>Exploiting Template-Metaprogramming for Highly Adaptable Device Drivers a Case Study on CANARY an AVR CAN-Driver</b><br>
+  <i>Christoph Steup, Michael Schulze, and J&ouml;rg Kaiser</i>,
+  12th Brazilian Workshop on Real-Time and Embedded Systems (WTR),
+  Gramado, Brazil,
+  May 24,
+  2010,
+  Brazilian Computer Society.
+<br />
+[<a href="javascript:toggle_x('abs', 'steup_exploiting_2010')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','steup_exploiting_2010')">BibTeX</a>]
+
+[<a href="publications/2010/WTR10SteupSchulzeKaiser.pdf">PDF</a>]
+
+<div id="abs_steup_exploiting_2010" class="abshidden" >Providing applications with a perfectly tailored device driver is es- sential to avoid the waste of resources. This is even necessary for the broad field of embedded systems development. However, the development of device drivers is in general a difficult task, and supporting a portable, configurable as well as adaptable device driver is even harder. We exploit declarative configuration specifications, template-metaprogramming and the concept of RegisterMaps to achieve such a device driver architecture. We evaluate the device driver architecture, showing that the device drivers resource usage scales with different configurations. We compare our device driver architecture against a device driver implementation of a hardware vendor, proving the competitiveness of our solution.</div>
+<div id="bib_steup_exploiting_2010" class="bibhidden">
+<pre>
+@inproceedings{steup_exploiting_2010,
+  author = {Christoph Steup and Michael Schulze and J\"org Kaiser},
+  title = {{Exploiting {Template-Metaprogramming} for Highly Adaptable Device Drivers a Case Study on {CANARY} an {AVR} {CAN-Driver}}},
+  booktitle = {12th Brazilian Workshop on {Real-Time} and Embedded Systems {(WTR)}},
+  publisher = {Brazilian Computer Society},
+  address = {Gramado, Brazil},
+  year = {2010},
+  month = {May 24}
+}
+</pre>
+</div></div>
+
+<!-- end of entry steup_exploiting_2010 year :2010: :: -->
+<!-- start of entry Dietrich_IWDE_2010 year :2010: :: -->
+
+<div id="Dietrich_IWDE_2010" class="entry">
+<b>Visualization of Robot's Awareness and Perception</b><br>
+  <i>Andr&eacute; Dietrich, Michael Schulze, Sebastian Zug, and J&ouml;rg Kaiser</i>,
+  First International Workshop on Digital Engineering (IWDE),
+  Magdeburg, Germany,
+  June 14,
+  2010,
+  ACM Press New York, NY, USA.
+<br />
+[<a href="javascript:toggle_x('abs', 'Dietrich_IWDE_2010')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','Dietrich_IWDE_2010')">BibTeX</a>]
+
+[<a href="publications/2010/IWDE10DietrichSchulzeZugKaiser.pdf">PDF</a>]
+
+<div id="abs_Dietrich_IWDE_2010" class="abshidden" >Today, direct interaction between humans and robots is limited, although the combination of human flexibility and robots power enables a growing productivity. The problem for humans lies in the nearly unpredictable behavior and motion of the robot itself. However, we can enhance human's view with more information to get knowledge about robot's perception and awareness. We use Augmented Reality methods for providing the information in an adaptable visualization for different user types. We show that our approach leads to shorter development cycles as well as to safer human-robot interaction.</div>
+<div id="bib_Dietrich_IWDE_2010" class="bibhidden">
+<pre>
+@inproceedings{Dietrich_IWDE_2010,
+  author = {Dietrich, Andr\'e and Schulze, Michael and Zug, Sebastian and Kaiser, J\"org},
+  title = {{Visualization of Robot's Awareness and Perception}},
+  booktitle = {First International Workshop on Digital Engineering (IWDE)},
+  publisher = {{ACM} Press New York, {NY,} {USA}},
+  address = {Magdeburg, Germany},
+  year = {2010},
+  month = {June 14}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Dietrich_IWDE_2010 year :2010: :: -->
+<!-- start of entry ETFA2010 year :2010: :: -->
+
+<div id="ETFA2010" class="entry">
+<b>Programming abstractions and middleware for building control systems as networks of smart sensors and actuators</b><br>
+  <i>Sebastian Zug, Michael Schulze, Andr&eacute; Dietrich, and J&ouml;rg Kaiser</i>,
+  Proceedings of Emerging Technologies in Factory Automation (ETFA '10),
+  Bilbao, Spain,
+  September 13-16,
+  2010.
+<br />
+[<a href="javascript:toggle_x('abs', 'ETFA2010')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','ETFA2010')">BibTeX</a>]
+
+[<a href="publications/2010/ETFA_2010_CameraReady.pdf">PDF</a>]
+
+<div id="abs_ETFA2010" class="abshidden" >Developing complex sensor/actuator systems, like robot applications, is challenged by a multitude of different hardware platforms, networks, programming languages, data formats, etc. In this paper, we present our architecture that copes with this heterogeneity and allows for a flexible composition of smart sensors and actuators. The main focus lies on a two layered approach combining the communication middleware FAMOUSO and the programming abstraction MOSAIC. FAMOUSO enables the information exchange between networked systems, hides the high degree of heterogeneity on hardware and network level, and is usable from different programming environments. MOSAIC uses FAMOUSO and provides a generic access to the exchanged information. Furthermore, it offers a way to abstract from different sensor and actuator hardware and provides a framework for application development with predefined components, enabling comprehensive fault detection. The paper concludes with a case study that shows how the middleware and programming abstractions are used to build a distributed modular system for a robot manipulator.</div>
+<div id="bib_ETFA2010" class="bibhidden">
+<pre>
+@inproceedings{ETFA2010,
+  author = {Sebastian Zug and Michael Schulze and Andr\'e Dietrich and J\"org Kaiser},
+  title = {{Programming abstractions and middleware for building control systems as networks of smart sensors and actuators}},
+  booktitle = {Proceedings of Emerging Technologies in Factory Automation (ETFA '10)},
+  address = {Bilbao, Spain},
+  year = {2010},
+  month = {September 13-16}
+}
+</pre>
+</div></div>
+
+<!-- end of entry ETFA2010 year :2010: :: -->
+<h2><a name="2009">2009</a></h2>
+
+<!-- start of entry Schulze2009 year :2009: :: -->
+
+<div id="Schulze2009" class="entry">
+<b>FAMOUSO -- Eine adaptierbare Publish/ Subscribe Middleware f&uuml;r ressourcenbeschr&auml;nkte Systeme</b><br>
+  <i>Michael Schulze</i>,
+  Electronic Communications of the EASST (ISSN: 1863-2122)
+  volume 17,
+  pp. 12,
+  2009,
+  EASST,
+  Workshops der Wissenschaftlichen Konferenz Kommunikation in Verteilten Systemen 2009 (WowKiVS 2009).
+<br />
+[<a href="javascript:toggle_x('abs', 'Schulze2009')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','Schulze2009')">BibTeX</a>]
+[<a href="http://eceasst.cs.tu-berlin.de/index.php/eceasst/article/view/195/213">URL</a>]
+[<a href="publications/2009/WowKiVS09Schulze-final.pdf">PDF</a>]
+
+<div id="abs_Schulze2009" class="abshidden" >Eingebettete Systeme erbringen in unserem t&auml;glichen Leben eine Vielzahl von Aufgaben und der Anwendungsbereich umfasst ein weites Feld von der Haushaltselektronik &uuml;ber die Telekommunikation bis hin zu automotiven Anwendungen und Industrieautomation. Allgemein geht der Trend zu vernetzten Systemen, die zusammen eine Aufgabe erbringen. Software f&uuml;r solche Systeme grunds&auml;tzlich neu zu entwickeln, ist einerseits kostenintensiv und andererseits ist die Interoperabilit&auml;t erschwert. Konfiguration und Adaption der Software an die jeweilige Situation ist w&uuml;nschenswert. Als Antwort auf diese Herausforderungen wird in dieser Arbeit die adaptive publish/subscribe-Kommunikationsmiddleware FAMOUSO pr&auml;sentiert. Weiterhin wird der Einsprachenansatz f&uuml;r die Adaption vorgestellt und gezeigt, welche Formen der Adaption unterst&uuml;tzt werden.</div>
+<div id="bib_Schulze2009" class="bibhidden">
+<pre>
+@article{Schulze2009,
+  author = {Michael Schulze},
+  title = {{FAMOUSO -- Eine adaptierbare Publish/ Subscribe Middleware f{\"u}r ressourcenbeschr{\"a}nkte Systeme}},
+  journal = {Electronic Communications of the EASST (ISSN: 1863-2122)},
+  publisher = {EASST},
+  year = {2009},
+  volume = {17},
+  pages = {12},
+  note = {Workshops der Wissenschaftlichen Konferenz Kommunikation in Verteilten Systemen 2009 (WowKiVS 2009)},
+  url = {http://eceasst.cs.tu-berlin.de/index.php/eceasst/article/view/195/213}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Schulze2009 year :2009: :: -->
+<!-- start of entry SchulzeLukas09 year :2009: :: -->
+
+<div id="SchulzeLukas09" class="entry">
+<b>MLCCA -- Multi-Level Composability Check Architecture for Dependable Communication over Heterogeneous Networks</b><br>
+  <i>Michael Schulze and Georg Lukas</i>,
+  Procedings of 14th International Conference on Emerging Technologies and Factory Automation,
+  pp. 859-866,
+  Palma de Mallorca, Spain,
+  September 22-26,
+  2009,
+  IEEE Press, Piscataway, NJ, USA.
+<br />
+[<a href="javascript:toggle_x('abs', 'SchulzeLukas09')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','SchulzeLukas09')">BibTeX</a>]
+[<a href="http://portal.acm.org/citation.cfm?id=1740954.1741075">URL</a>]
+[<a href="publications/2009/ETFA09SchulzeLukas.pdf">PDF</a>]
+
+<div id="abs_SchulzeLukas09" class="abshidden" >During the design of complex networked systems, it is cruical to ensure the composability of the deployed applications and network protocols. Special care has to be taken to provide non-functional requirements like bandwidth and latency. Existing solutions only tackle this problem during the design phase; later refactoring or added components are not covered, potentially causing QoS violations. We propose MLCCA, a multi-level architecture which complements the design-time composability checks with additional automatic checks performed at compile-time and at run-time. The required infrastructure is embedded into our communication middleware FAMOUSO, making it transparent to application developers. The architecture has been evaluated in a tele-operated mobile robot case study. If the QoS attributes could not be fulfilled due to refactoring or changed conditions, no communication was allowed by the middleware, ensuring that the application could enter a fail-safe state. No data was sent over insufficient channels. Thus, our combination of FAMOUSO and MLCCA enables the sustainable deployment of complex networked systems.</div>
+<div id="bib_SchulzeLukas09" class="bibhidden">
+<pre>
+@inproceedings{SchulzeLukas09,
+  author = {Michael Schulze and Georg Lukas},
+  title = {{MLCCA -- Multi-Level Composability Check Architecture for Dependable Communication over Heterogeneous Networks}},
+  booktitle = {Procedings of 14th International Conference on Emerging Technologies and Factory Automation},
+  publisher = {IEEE Press, Piscataway, NJ, USA},
+  address = {Palma de Mallorca, Spain},
+  year = {2009},
+  month = {September 22-26},
+  pages = {859--866},
+  url = {http://portal.acm.org/citation.cfm?id=1740954.1741075},
+  doi = {10.1109/ETFA.2009.5347096}
+}
+</pre>
+</div></div>
+
+<!-- end of entry SchulzeLukas09 year :2009: :: -->
+<!-- start of entry Kaiser2009a year :2009: :: -->
+
+<div id="Kaiser2009a" class="entry">
+<b>Supporting independent development, deployment and co-operation of autonomous objects in distributed control systems</b><br>
+  <i>J&ouml;rg Kaiser, Leandro B. Becker, Sebastian Zug, and Michael Schulze</i>,
+  9th International Symposium on Autonomous Decentralized Systems (ISADS' 09),
+  pp. 195-200,
+  Athens, Greece,
+  March 23-25,
+  2009,
+  IEEE Computer Society Washington, DC, USA.
+<br />
+[<a href="javascript:toggle_x('abs', 'Kaiser2009a')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','Kaiser2009a')">BibTeX</a>]
+[<a href="http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=5207361">URL</a>]
+[<a href="publications/2009/ISADS-2009.pdf">PDF</a>]
+
+<div id="abs_Kaiser2009a" class="abshidden" >Autonomous, active components like smart sensors and actuators offer the capabilities of spontaneous behaviour, concurrent computations and well-defined communication interfaces. The perspective of building a system from such active blocks however has an impact on modelling and deployment of the components and supporting their interaction at run-time. The paper presents a modelling approach for dynamically interacting autonomous objects addressing the problems of independent development, deployment and incremental extension. Compared to related approaches our concept further complements the modelling by an adequate middleware that supports the abstractions of the model during run-time and performs the respective dynamic binding and co-operation between objects. This opens a wide range of possibilities for dynamically integrating hardware and software components and support virtual sensors and actuators.</div>
+<div id="bib_Kaiser2009a" class="bibhidden">
+<pre>
+@inproceedings{Kaiser2009a,
+  author = {Kaiser, J\"org and Becker, Leandro B. and Zug, Sebastian and Schulze, Michael},
+  title = {{Supporting independent development, deployment and co-operation of autonomous objects in distributed control systems}},
+  booktitle = {9th International Symposium on Autonomous Decentralized Systems (ISADS' 09)},
+  publisher = {{IEEE} Computer Society Washington, {DC,} {USA}},
+  address = {Athens, Greece},
+  year = {2009},
+  month = {March 23-25},
+  pages = {195--200},
+  url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=5207361},
+  doi = {10.1109/ISADS.2009.5207361}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Kaiser2009a year :2009: :: -->
+<h2><a name="2008">2008</a></h2>
+
+<!-- start of entry SchulzeZugEuroSCC08 year :2008: :: -->
+
+<div id="SchulzeZugEuroSCC08" class="entry">
+<b>A Middleware based Framework for Multi-Robot Development</b><br>
+  <i>Michael Schulze and Sebastian Zug</i>,
+  Proceedings of the 3rd IEEE European Conference on Smart Sensing and Context (EuroSSC),
+  pp. 29-31,
+  Zurich, Switzerland,
+  October 29-31,
+  2008.
+<br />
+[<a href="javascript:toggle_x('abs', 'SchulzeZugEuroSCC08')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','SchulzeZugEuroSCC08')">BibTeX</a>]
+
+[<a href="publications/2008/euroSSC08-final.pdf">PDF</a>]
+
+<div id="abs_SchulzeZugEuroSCC08" class="abshidden" >The development of multi-robot applications represents an iterative process where hardware and software have to be adjusted among each other and in relation to the environment. For large scale swarms with numerous mobile systems changes on the hardware and the deployment of software is extensive and laborious process. The combination of virtual and real robots in our framework allows a comfortable examination of software and hardware components in a predened and reproducible test bed at each project stage. The demonstration scenario illustrates the integration of our middleware and emphasises the possibilities of the framework in the development process and during the life cycle.</div>
+<div id="bib_SchulzeZugEuroSCC08" class="bibhidden">
+<pre>
+@inproceedings{SchulzeZugEuroSCC08,
+  author = {Michael Schulze and Sebastian Zug},
+  title = {{A Middleware based Framework for Multi-Robot Development}},
+  booktitle = {Proceedings of the 3rd IEEE European Conference on Smart Sensing and Context (EuroSSC)},
+  address = {Zurich, Switzerland},
+  year = {2008},
+  month = {October 29-31},
+  pages = {29--31}
+}
+</pre>
+</div></div>
+
+<!-- end of entry SchulzeZugEuroSCC08 year :2008: :: -->
+<!-- start of entry SchulzeZugMiddleware08 year :2008: :: -->
+
+<div id="SchulzeZugMiddleware08" class="entry">
+<b>Exploiting the FAMOUSO Middleware in Multi-Robot Application Development with Matlab/Simulink</b><br>
+  <i>Michael Schulze and Sebastian Zug</i>,
+  Proceedings of the ACM/IFIP/USENIX Middleware '08 Conference Companion,
+  pp. 74-77,
+  Leuven, Belgium,
+  December 1-5,
+  2008,
+  ACM New York, NY, USA.
+<br />
+[<a href="javascript:toggle_x('abs', 'SchulzeZugMiddleware08')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','SchulzeZugMiddleware08')">BibTeX</a>]
+[<a href="http://doi.acm.org/10.1145/1462735.1462753">URL</a>]
+[<a href="publications/2008/Middleware08-SchulzeZug-final.pdf">PDF</a>]
+
+<div id="abs_SchulzeZugMiddleware08" class="abshidden" >We describe a framework for the development of distributed systems combining real and virtual components, sensors and actuators. We show the benefits of our approach for the development and validation of multi robot applications. Based on our middleware, which provides a flexible communication for distributed systems, virtual and real components are seamlessly exchangeable during different development steps. This modularity and compatibility allows appropriate adjustments for design, rapid prototyping and examination as soon as an opportunity to reduce the hardware effort for large scenarios.</div>
+<div id="bib_SchulzeZugMiddleware08" class="bibhidden">
+<pre>
+@inproceedings{SchulzeZugMiddleware08,
+  author = {Michael Schulze and Sebastian Zug},
+  title = {{Exploiting the FAMOUSO Middleware in Multi-Robot Application Development with Matlab/Simulink}},
+  booktitle = {Proceedings of the {ACM/IFIP/USENIX} Middleware '08 Conference Companion},
+  publisher = {ACM New York, NY, USA},
+  address = {Leuven, Belgium},
+  year = {2008},
+  month = {December 1-5},
+  pages = {74--77},
+  url = {http://doi.acm.org/10.1145/1462735.1462753},
+  doi = {http://doi.acm.org/10.1145/1462735.1462753}
+}
+</pre>
+</div></div>
+
+<!-- end of entry SchulzeZugMiddleware08 year :2008: :: -->
+<!-- start of entry cite:Herms2008c year :2008: :: -->
+
+<div id="cite:Herms2008c" class="entry">
+<b>Exploiting Publish/Subscribe Communication in Wireless Mesh Networks for Industrial Scenarios</b><br>
+  <i>Andr&eacute; Herms, Michael Schulze, J&ouml;rg Kaiser, and Edgar Nett</i>,
+  Proceedings of Emerging Technologies in Factory Automation (ETFA '08),
+  pp. 648-655,
+  Hamburg, Germany,
+  September 15-18,
+  2008.
+<br />
+[<a href="javascript:toggle_x('abs', 'cite:Herms2008c')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','cite:Herms2008c')">BibTeX</a>]
+[<a href="http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=4638465">URL</a>]
+[<a href="publications/2008/etfa08HermsSchulzeKaiserNett-final.pdf">PDF</a>]
+
+<div id="abs_cite:Herms2008c" class="abshidden" >This paper addresses questions of using wireless mesh networks (WMNs) in heterogeneous industrial infrastructures. This implies several problems like global addressing, handling of QoS requirements, interconnection with embedded networks. Our proposed solution is a publish/subscribe middleware. We discuss how it solves the mentioned problems. Real-world measurements and simulation results give an idea of QoS properties. A case study of controlling a mobile robot is presented. The results show that the middleware is well suited for non-critical control and monitoring tasks.</div>
+<div id="bib_cite:Herms2008c" class="bibhidden">
+<pre>
+@inproceedings{cite:Herms2008c,
+  author = {Andr{\'e} Herms and Michael Schulze and J{\"o}rg Kaiser and Edgar Nett},
+  title = {{Exploiting Publish/Subscribe Communication in Wireless Mesh Networks for Industrial Scenarios}},
+  booktitle = {Proceedings of Emerging Technologies in Factory Automation (ETFA '08)},
+  address = {Hamburg, Germany},
+  year = {2008},
+  month = {September 15-18},
+  pages = {648--655},
+  url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=4638465},
+  doi = {10.1109/ETFA.2008.4638465}
+}
+</pre>
+</div></div>
+
+<!-- end of entry cite:Herms2008c year :2008: :: -->
+<!-- start of entry Zug2008 year :2008: :: -->
+
+<div id="Zug2008" class="entry">
+<b>Latency Analysis for the Cooperation of Event and Time-Triggered Networks</b><br>
+  <i>Sebastian Zug, Michael Schulze, and J&ouml;rg Kaiser</i>,
+  7th IEEE International Workshop on Factory Communcation Systems,
+  pp. 3-9,
+  Dresden, Germany,
+  May 20-23,
+  2008.
+<br />
+[<a href="javascript:toggle_x('abs', 'Zug2008')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','Zug2008')">BibTeX</a>]
+[<a href="http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=4638705">URL</a>]
+[<a href="publications/2008/wfcs08ZugSchulzeKaiser-final.pdf">PDF</a>]
+
+<div id="abs_Zug2008" class="abshidden" >The paper describes the analysis of cross network latencies occurring when federating an asynchronous, event-triggered CAN-Bus and a synchronous time- triggered TTP/C network. The connection of net- works is motivated by both cost-efficiency trade-offs in various network types and reasons of isolating highly critical from less critical communication. The intrin- sic latencies incurred when crossing network bound- aries are evaluated under various conditions - either in some form of synchronisation with a global time or in completely unsynchronised networks. The re- sults from the formal analysis are compared to exper- imental results obtained in a mobile robot where the critical reactive control components are connected by a TTP/C network while additional sensor informa- tion improving the quality of control is obtained via a CAN-Bus.</div>
+<div id="bib_Zug2008" class="bibhidden">
+<pre>
+@inproceedings{Zug2008,
+  author = {Sebastian Zug and Michael Schulze and J{\"o}rg Kaiser},
+  title = {{Latency Analysis for the Cooperation of Event and Time-Triggered Networks}},
+  booktitle = {7th IEEE International Workshop on Factory Communcation Systems},
+  address = {Dresden, Germany},
+  year = {2008},
+  month = {May 20-23},
+  pages = {3--9},
+  url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=4638705},
+  doi = {10.1109/WFCS.2008.4638705}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Zug2008 year :2008: :: -->
+<!-- start of entry Kaiser:DNCMS year :2008: :: -->
+
+<div id="Kaiser:DNCMS" class="entry">
+<b>Exploiting self-descriptions for checking interoperations between embedded components</b><br>
+  <i>J&ouml;rg Kaiser, Sebastian Zug, Michael Schulze, and Hubert Piontek</i>,
+  International Workshop on Dependable Network Computing and Mobile Systems (DNCMS 08),
+  pp. 41-45,
+  Napoli, Italy,
+  October 5,
+  2008.
+<br />
+
+[<a href="javascript:toggle_x('bib','Kaiser:DNCMS')">BibTeX</a>]
+
+[<a href="publications/2008/Self-describing-components-final.pdf">PDF</a>]
+
+<div id="abs_Kaiser:DNCMS" class="abshidden" ></div>
+<div id="bib_Kaiser:DNCMS" class="bibhidden">
+<pre>
+@inproceedings{Kaiser:DNCMS,
+  author = {J\"org Kaiser and Sebastian Zug and Michael Schulze and Hubert Piontek},
+  title = {Exploiting self-descriptions for checking interoperations between embedded components},
+  booktitle = {International Workshop on Dependable Network Computing and Mobile Systems (DNCMS 08)},
+  address = {Napoli, Italy},
+  year = {2008},
+  month = {October 5},
+  pages = {41--45}
+}
+</pre>
+</div></div>
+
+<!-- end of entry Kaiser:DNCMS year :2008: :: -->
+<!-- start of entry IFAC08 year :2008: :: -->
+
+<div id="IFAC08" class="entry">
+<b>Sentient Objects for Designing and Controlling Service Robots</b><br>
+  <i>J&ouml;rg Kaiser, Michael Schulze, Sebastian Zug, Carlos Cardeira, and Fernando Carreira</i>,
+  Proccedings of IFAC'08
+  volume 17th International Federation of Automatic Control World Congress,
+  pp. 8315-8320,
+  Seoul, Korea,
+  July 6-11,
+  2008.
+<br />
+[<a href="javascript:toggle_x('abs', 'IFAC08')" >Abstract</a>]
+[<a href="javascript:toggle_x('bib','IFAC08')">BibTeX</a>]
+
+[<a href="publications/2008/ifac08-final.pdf">PDF</a>]
+
+<div id="abs_IFAC08" class="abshidden" >Services related to healthcare and the support for elderly people become more and more important. Autonomous or semi-autonomous robots may play an important role in this area. From a control system point of view these robots are networks of distributed smart components to perceive their environment and react on it in real time. The problem of developing or extending such a robot often is that the designer has to start from scratch struggling with low level issues, where reusability of already designed components would be highly desirable. The paper describes a robot application in the area of a meals distribution service that combines two design worlds. One is the conventional world of modelling the functional properties without any structural considerations, the other is the world of cooperating sentient objects. We explain how the notion of sentient objects will assist the design, simulation and also later extensions and adaptations of the robot.</div>
+<div id="bib_IFAC08" class="bibhidden">
+<pre>
+@inproceedings{IFAC08,
+  author = {J\"org Kaiser and Michael Schulze and Sebastian Zug and Carlos Cardeira and Fernando Carreira},
+  title = {Sentient Objects for Designing and Controlling Service Robots},
+  booktitle = {Proccedings of IFAC'08},
+  address = {Seoul, Korea},
+  year = {2008},
+  month = {July 6-11},
+  volume = {17th International Federation of Automatic Control World Congress},
+  pages = {8315--8320}
+}
+</pre>
+</div></div>
+
+<!-- end of entry IFAC08 year :2008: :: -->

@@ -13,10 +13,10 @@
     <ul>
     <li>General architecture of the middleware</li>
     <li>MLCCA -- Multi Level Composability Check Architecture</li>
+    <li>Generic Attribute Framework (AFFIX -- Attribute Framework For provIding conteXt)</li>
     <li>Declarative configuration descriptions</li>
     <li>Type-based Configuration Decision</li>
     <li>Register Maps for protable, adaptive, and configurable hardware access</li>
-    <li>Generic Attribute Framework</li>
     <li>Adaptive Fragmentation Protocol</li>
     <li>Generic gateway architecture</li>
     </ul>
@@ -45,12 +45,13 @@
     <br>
     <li><strong>Developer: Marcus F&ouml;rster</strong></li>
     <ul>
-    <li>Generic Attribute Framework</li>
+    <li>Generic Attribute Framework realisation</li>
     </ul>
     <br>
     <li><strong>Developer: Philipp Werner</strong></li>
     <ul>
     <li>Adaptive Fragmentation Protocol</li>
+    <li>Real-Time communication via CAN and Ethernet</li>
     </ul>
     <br>
     <li><strong>Developer: Michael Kriese</strong></li>
