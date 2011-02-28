@@ -129,6 +129,25 @@ If you use it in that way, it is needed that you always specify the platform
 while compiling examples or ECHs.
 
 
+\section compile64bit Compiling on 64-bit systems
+
+You have to enable the -fPIC compiler option to compile %FAMOUSO on 64-bit
+systems. For this, you have to add "-fPIC" to the externals compilation rules
+externals/user-config.jam.linux:
+
+\code
+-using gcc ;
++using gcc  : : : <cxxflags>-fPIC <cxxflags> ;
+\endcode
+
+Also, you need to add the option to make/global.mk:
+
+\code
+-ADDITIONAL_CFLAGS   += -fno-strict-aliasing
++ADDITIONAL_CFLAGS   += -fno-strict-aliasing -fPIC
+\endcode
+
+
 \section avr-robot-win Building on Windows for the AVR
 
 As an example the build of the AVR-Robot part of the multi-robot demo is shown.
