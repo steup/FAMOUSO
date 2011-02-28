@@ -48,7 +48,7 @@ all: libfamouso.so
 
 libfamouso.so: famouso.o
 	@$(RULEECHO) ; \
-	$(CXX) -shared -Wl,-soname,libfamouso.so.0 -o libfamouso.so.0.1 famouso.o $(LIBFAMOUSO)
+	$(CXX)  -shared -Wl,-soname,libfamouso.so.0 -o libfamouso.so.0.1 famouso.o $(LDFLAGS)
 	@ln -sf libfamouso.so.0.1 libfamouso.so
 
 clean:
