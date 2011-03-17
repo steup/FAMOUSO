@@ -294,12 +294,11 @@ namespace famouso {
                         void fetch(famouso::mw::nl::DistinctNL *bnl = 0) {
                             if (config::subscribe_man_chan) {
                                 // Only call lower layer fetch if it is no management event
-                                if (!LL::try_fetch_and_process(man_chan_subject, man_chan_snn, bnl))
-                                    LL::fetch(bnl);
-                            } else {
-                                // Lower layer handles events for normal channels
-                                LL::fetch(bnl);
+                                if (LL::try_fetch_and_process(man_chan_subject, man_chan_snn, bnl))
+                                    return;
                             }
+                            // Lower layer handles events for normal channels
+                            LL::fetch(bnl);
                         }
                 };
 
