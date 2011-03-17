@@ -111,11 +111,6 @@ namespace famouso {
                                             detail::EmptyPublishParamSet
                                         >::type PublishParamSet;
 
-                    /*! \brief  short network representation of the subscribe subject
-                     *          that is used for announcing subscribtion network-wide
-                     */
-                    SNN   subscribe_SNN;
-
                     /*! \brief  constructor
                      */
                     AbstractNetworkLayer() :
@@ -127,34 +122,20 @@ namespace famouso {
                      */
                     void init() {
                         NL::init();
-                        Subject s("SUBSCRIBE");
-                        NL::bind(s, subscribe_SNN);
                     }
 
-                    /*! \brief  announce a subject and get its short network representation
-                     *
-                     *  \param[in]   s the subject that is announced
-                     *  \param[out]  snn the short network name of the subject
-                     */
-                    void announce(const Subject &s, SNN &snn) {
-                        TRACE_FUNCTION;
-                        NL::bind(s, snn);
-                        // nach dem Bind noch bekannt geben,
-                        // das dieser Kanal publiziert wird
-                    }
-
-                    /*! \brief   publish an event on the pluged lower network
+                    /*! \brief   write a message on the pluged lower network
                      *
                      *  \param[in]  snn the short network name of the subject
-                     *  \param[in]  e the event that has to be published
-                     *  \param[in]  pps an optional set of special publish parameters
+                     *  \param[in]  m is the message that has to be written
+                     *  \param[in]  pps an optional set of special parameters
                      *              (needed for real time events)
                      *
                      *  \todo   Save copy operation in fragmentation case (needs
                      *          AFP interface extension returning AFP header and
                      *          payload separately and Packet/NL adaption)
                      */
-                    void publish(const SNN &snn, const Message &m, const PublishParamSet * pps = 0) {
+                    void write(const SNN &snn, const Message &m, const PublishParamSet * pps = 0) {
                         TRACE_FUNCTION;
                         bool realtime = false;
                         // prepare delivery
@@ -192,44 +173,24 @@ namespace famouso {
                         }
                     }
 
-                    /*! \brief  subscribe a subject and get its short network representation
-                     *
-                     *          The subscribtion contains out of two parts. First it binds
-                     *          the subject to its short network name, and second it announces
-                     *          the subscription to allow gateways the establishing of forwarding
-                     *          channels.
-                     *
-                     *  \param[in]   s the subject that is announced
-                     *  \param[out]  snn the short network name of the subject
-                     */
-                    void subscribe(const Subject &s, SNN &snn) {
-                        TRACE_FUNCTION;
-                        NL::bind(s, snn);
-                        // nach dem Bind auch noch bekannt geben,
-                        // dass dieser Kanal subscribiert wird
-                        typename NL::Packet_t p(subscribe_SNN, const_cast<uint8_t*>(s.tab()), 8);
-                        NL::deliver(p);
-                    }
-
-
-                    /*! \brief  fetches an event from the network layer if the short network
+                    /*! \brief  read a message from the network layer if the short network
                      *          name is equal to the short network name of the arosen packet.
                      *
                      *  \param[in]  snn the short network name of the subject
-                     *  \param[out] e   The event that has to be published. If there is no event to
-                     *                  fetch (the arosen packet was a fragment not completing an
-                     *                  event), e.data is set to NULL.
+                     *  \param[out] m   The message that has to be received. If there is no message
+                     *                  to read (the arosen packet was a fragment not completing a
+                     *                  message), m.data is set to NULL.
                      *  \param[in]  bnl the sub network in that the event \e e will be published.
                      *
                      *  \return \li \b -1 if \e snn and the snn of the last arosen packet are different
-                     *          \li \b 0 if they are equal but there is no complete event to fetch
-                     *          \li \b 1 if they are equal and \e e contains a complete event
+                     *          \li \b 0 if they are equal but there is no complete message yet
+                     *          \li \b 1 if they are equal and \e m contains a complete message
                      */
-                    int8_t fetch(const SNN &snn, Message &m, const famouso::mw::nl::DistinctNL *bnl) {
+                    int8_t read(const SNN &snn, Message &m, const famouso::mw::nl::DistinctNL *bnl) {
                         TRACE_FUNCTION;
                         if (snn == NL::lastPacketSNN()) {
                             typename NL::Packet_t p;
-                            NL::fetch(p);
+                            NL::take(p);
                             if (!p.fragment) {
                                 m.length = p.data_length;
                                 m.data = p.data;

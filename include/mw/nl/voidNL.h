@@ -92,7 +92,7 @@ namespace famouso {
                         TRACE_FUNCTION;
                     }
 
-                    void fetch(Packet_t& p) {
+                    void take(Packet_t& p) {
                         TRACE_FUNCTION;
                     }
 

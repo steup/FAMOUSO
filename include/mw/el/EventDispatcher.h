@@ -108,11 +108,23 @@ namespace famouso {
                      */
                     typedef EventDispatcher type;
 
-                    /*! \brief  initialize the middleware core
+                    /*! \brief  short network representation of the subscribe subject
+                     *          that is used for announcing subscribtion network-wide
+                     *
+                     *  \todo   this functionality has to be provided by a policy of
+                     *          the management layer
                      */
+                    SNN   subscribe_SNN;
+
+                    /*! \brief  initialize the middleware core */
                     void init() {
                         // initialization code
                         LL::init();
+                        /*  \todo   this functionality has to be provided by a policy of
+                         *          the management layer
+                         */
+                        Subject s("SUBSCRIBE");
+                        LL::bind(s, subscribe_SNN);
                     }
 
 
@@ -123,7 +135,7 @@ namespace famouso {
                      */
                     void announce(EC &ec) {
                         TRACE_FUNCTION;
-                        LL::announce(ec.subject(), ec.snn());
+                        LL::bind(ec.subject(), ec.snn());
                         Publisher.append(ec);
                     }
 
@@ -144,7 +156,7 @@ namespace famouso {
                             << ec.subject().value() << ']'
                             << ::logging::log::endl;
                         // publish on all  lower layers/subnets
-                        LL::publish(ec.snn(), e);
+                        LL::write(ec.snn(), e);
 
                         // publish locally on all subscribed event channels
                         static_cast<EL*>(this)->publish_local(e);
@@ -164,8 +176,16 @@ namespace famouso {
                             << PROGMEMSTRING(" with Subject -> [")
                             << ec.subject().value() << ']'
                             << ::logging::log::endl;
-                        LL::subscribe(ec.subject(), ec.snn());
-                        Subscriber.append(ec);
+                        LL::bind(ec.subject(), ec.snn());
+                        // nach dem Bind auch noch bekannt geben,
+                        // dass dieser Kanal subscribiert wird
+                        /*  \todo   this functionality has to be provided by a policy of
+                         *          the management layer
+                         */
+                        Event e(ec.subject());
+                        e.data=const_cast<uint8_t*>(ec.subject().tab());
+                        e.length=8;
+                        LL::write(subscribe_SNN,e);
                     }
 
                     /*! \brief  unsubscribe an event channel and deregister the event
@@ -242,7 +262,7 @@ namespace famouso {
                         Event e(subj);
 
                         // try to fetch an event from a specific subnet and SNN
-                        int8_t result = LL::fetch(snn, e, bnl);
+                        int8_t result = LL::read(snn, e, bnl);
 
                         // incoming packet on this SNN?
                         if (result >= 0) {

@@ -117,9 +117,9 @@ namespace famouso {
                     /**
                      * @brief processes incoming packets
                      *
-                     * @param p fetched packet is saved here
+                     * @param[out] p   packet that is filled with the received data
                      */
-                    void fetch(Packet_t& p);
+                    void take(Packet_t& p);
 
                     /**
                      * @brief get last SSN

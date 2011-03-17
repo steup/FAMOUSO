@@ -140,11 +140,12 @@ namespace famouso {
                         driver.transmit(m);
                     }
 
-                    /*! \brief  fetches the last received message into a packet
+                    /*! \brief  takes the last received network packet message
+                     *          and save it into a packet
                      *
                      *  \param[out] p   packet that is filled with the received data
                      */
-                    void fetch(Packet_t& p) {
+                    void take(Packet_t& p) {
                         // ist das Auslesen eines einzelnen Paketes
                         TRACE_FUNCTION;
                         p.data = mob.data();

@@ -136,7 +136,7 @@ namespace famouso {
                      *  \param[out] p   packet for the message data
                      *  \todo get value of p.fragment from message
                      */
-                    void fetch(Packet_t& p) {
+                    void take(Packet_t& p) {
                         TRACE_FUNCTION;
 
                         p.snn         = *reinterpret_cast<SNN*>( rmob.payload );

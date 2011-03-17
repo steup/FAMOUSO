@@ -143,7 +143,7 @@ namespace famouso {
 
             }
 
-            void UDPMultiCastNL::fetch(Packet_t& p) {
+            void UDPMultiCastNL::take(Packet_t& p) {
                 p = m_incoming_packet;
             }
 

@@ -116,9 +116,9 @@ namespace famouso {
                      */
                     void publish_to_network_with_id(const SNN &snn, const Event &e, const famouso::mw::nl::DistinctNL *bnl, const PublishParamSet * pps = 0) {
                         if (_ANL_A.id() == bnl)
-                            _ANL_A.publish(snn.SNN_A, e, pps);
+                            _ANL_A.write(snn.SNN_A, e, pps);
                         else
-                            _ANL_B.publish(snn.SNN_B, e, pps);
+                            _ANL_B.write(snn.SNN_B, e, pps);
                     }
 
                     /*! \brief Allows for checking if source of event and subscription network matches.
@@ -152,16 +152,16 @@ namespace famouso {
 
                 protected:
 
-                    /*! \brief Announces a subject on all sub networks.
+                    /*! \brief bind a subject on all sub networks.
                      *
                      *  \param[in]  s the subject that is announced.
                      *  \param[out] snn is the specific short network name that is in this case the struct SNN.
                      *              After the call the struct contains the short network names of the announced
                      *              subject.
                      */
-                    void announce(const Subject &s, SNN &snn) {
-                        _ANL_A.announce(s, snn.SNN_A);
-                        _ANL_B.announce(s, snn.SNN_B);
+                    void bind(const Subject &s, SNN &snn) {
+                        _ANL_A.bind(s, snn.SNN_A);
+                        _ANL_B.bind(s, snn.SNN_B);
                     }
 
                     /*! \brief Publishes an event on all sub networks.
@@ -173,21 +173,9 @@ namespace famouso {
                      *  \param[in]  pps an optional set of special publish parameters
                      *              (needed for real time events)
                      */
-                    void publish(const SNN &snn, const Event &e, const PublishParamSet * pps = 0) {
-                        _ANL_A.publish(snn.SNN_A, e, pps);
-                        _ANL_B.publish(snn.SNN_B, e, pps);
-                    }
-
-                    /*! \brief Subscribes a subject on all sub networks.
-                     *
-                     *  \param[in]  s the subject that is subscribed.
-                     *  \param[out] snn is the specific short network name that is in this case the struct SNN.
-                     *              After the call the struct contains the short network names of the subsrcibed
-                     *              subject.
-                     */
-                    void subscribe(const Subject &s, SNN &snn) {
-                        _ANL_A.subscribe(s, snn.SNN_A);
-                        _ANL_B.subscribe(s, snn.SNN_B);
+                    void write(const SNN &snn, const Event &e, const PublishParamSet * pps = 0) {
+                        _ANL_A.write(snn.SNN_A, e, pps);
+                        _ANL_B.write(snn.SNN_B, e, pps);
                     }
 
                     /*! \brief Traverses a specific sub network for a short
@@ -203,13 +191,13 @@ namespace famouso {
                      *          \li \b 0 if they are equal but there is no complete event to fetch
                      *          \li \b 1 if they are equal and \e e contains a complete event
                      */
-                    int8_t fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
+                    int8_t read(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
                         /*! \todo fetching of stacked gateway are not implemented at this stage and
                          *        time triggered fetching is also not supported. */
                         if (_ANL_A.id() == bnl)
-                            return _ANL_A.fetch(snn.SNN_A, e, bnl);
+                            return _ANL_A.read(snn.SNN_A, e, bnl);
                         else
-                            return _ANL_B.fetch(snn.SNN_B, e, bnl);
+                            return _ANL_B.read(snn.SNN_B, e, bnl);
                     }
 
                     /*! \brief Is called by the higher layer to signalise that

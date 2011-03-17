@@ -290,7 +290,7 @@ namespace famouso {
                 }
             }
 
-            void AWDSNL::fetch(Packet_t& p) {
+            void AWDSNL::take(Packet_t& p) {
                 p.snn = famouso::mw::Subject(awds_packet.data);
                 p.data = &awds_packet.data[8];
                 p.data_length = ntohs(awds_packet.header.size) - sizeof(famouso::mw::Subject);

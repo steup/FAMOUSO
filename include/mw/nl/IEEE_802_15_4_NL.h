@@ -149,7 +149,7 @@ namespace famouso {
                      *  \param[out] p   packet that is going to contain the received data
                      *  \todo   transmit p.fragment
                      */
-                    void fetch(Packet_t& p) {
+                    void take(Packet_t& p) {
                         TRACE_FUNCTION;
 
                         p.snn         = *reinterpret_cast<SNN*>( mbuffer.data );

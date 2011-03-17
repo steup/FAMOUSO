@@ -125,9 +125,9 @@ namespace famouso {
                     /**
                      * \brief processes incoming packets
                      *
-                     * \param p fetched packet is saved here
+                     * \param p taken packet is saved here
                      */
-                    void fetch(Packet_t& p);
+                    void take(Packet_t& p);
 
                     /**
                      * \brief get last SSN
