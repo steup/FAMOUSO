@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2008-2011 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -40,16 +40,11 @@
 #ifndef __UDPBroadCastNL_h__
 #define __UDPBroadCastNL_h__
 
-#include "util/ios.h"
 #include "mw/nl/DistinctNL.h"
 #include "mw/nl/Packet.h"
 #include "mw/afp/Config.h"
-#include "mw/common/NodeID.h"
 #include "mw/common/Subject.h"
-#include "mw/api/EventChannel.h"
-#include "mw/el/EventLayerCallBack.h"
-#include "debug.h"
-#include <stdio.h>
+#include <boost/asio/ip/udp.hpp>
 
 namespace famouso {
     namespace mw {
@@ -69,43 +64,73 @@ namespace famouso {
                     typedef Packet<SNN> Packet_t;
 
                     /// Default AFP %configuration of this network layer (see \ref afp_config_nl)
-                    typedef afp::Disable AFP_Config;
+                    typedef afp::MultiSubjectESeqReorderDuplicateConfig<SNN> AFP_Config;
 
-                    UDPBroadCastNL() { }
-                    ~UDPBroadCastNL() {}
+                    /**
+                     * @brief default constructor
+                     *
+                     * Sets local variables and calls init.
+                     */
+                    UDPBroadCastNL();
 
-                    void init(const NodeID &i) {
-                        TRACE_FUNCTION;
-                        ::logging::log::emit< ::logging::Info>()
-                            << PROGMEMSTRING(" Configuration 64Bit NodeID=")
-                            << i.value()
-                            << ::logging::log::endl;
-                    }
+                    /**
+                     * @brief destructor
+                     *
+                     *  Closes the socket.
+                     */
+                    ~UDPBroadCastNL();
 
-                    // bind Subject to specific networks name
-                    void bind(const Subject &s, SNN &snn) {
-                        TRACE_FUNCTION;
-                    }
+                    /**
+                     * Sets the options for the socket and starts receiving.
+                     */
+                    void init();
 
-                    void deliver(const Packet_t& p) {
-                        TRACE_FUNCTION;
-                    }
+                    /**
+                     * @brief subscribe a subject
+                     *
+                     * Start listening on the multicast-address that belongs to the subject.
+                     *
+                     * @param s subject
+                     * @param snn bound address
+                     */
+                    void bind(const famouso::mw::Subject &s, SNN &snn);
 
-                    void take(Packet_t& p) {
-                        TRACE_FUNCTION;
-                    }
+                    /**
+                     * @brief Sends the given packet.
+                     *
+                     * @param p packet
+                     */
+                    void deliver(const Packet_t& p);
 
-                    void interrupt() {
-                        TRACE_FUNCTION;
-                    }
+                    /**
+                     * @brief processes incoming packets
+                     *
+                     * @param[out] p   packet that is filled with the received data
+                     */
+                    void take(Packet_t& p);
 
-                    void init() {
-                        TRACE_FUNCTION;
-                        famouso::util::impl::start_ios();
-                    }
-                    SNN lastPacketSNN() {
-                        return 0;
-                    }
+                    /**
+                     * @brief get last SSN
+                     *
+                     * Returns the short network name for the last packet.
+                     */
+                    SNN lastPacketSNN();
+
+
+                    /**
+                     * @brief handle called on receive
+                     *
+                     * Will be called, whenever a packet was received.
+                     *
+                     */
+                    void interrupt(const boost::system::error_code& error, size_t bytes_recvd);
+
+                private:
+                    boost::asio::ip::udp::socket m_socket;
+                    boost::asio::ip::udp::endpoint m_endpoint_broadcast;
+                    boost::asio::ip::udp::endpoint m_endpoint_from;
+                    uint8_t m_buffer[info::mtu];   // Subject and Payload have to be sent
+                    Packet_t m_incoming_packet;
             };
         }
     }

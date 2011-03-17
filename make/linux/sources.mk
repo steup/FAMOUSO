@@ -1,6 +1,6 @@
 ################################################################################
 ##
-## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+## Copyright (c) 2008-2011 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@
 
 SOURCES  += \
 src/mw/nl/UDPMultiCastNL.cc \
+src/mw/nl/UDPBroadCastNL.cc \
 src/mw/nl/awds/NodeRepository.cc \
 src/mw/nl/AWDSNL.cc \
 src/util/ios.cc \
