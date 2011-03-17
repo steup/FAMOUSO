@@ -42,7 +42,7 @@
 #define __AbstractNetworkLayer_h__
 
 #include "debug.h"
-#include "mw/common/Event.h"
+#include "mw/anl/Message.h"
 #include "mw/nl/DistinctNL.h"
 #include "mw/afp/Fragmenter.h"
 #include "mw/afp/Defragmentation.h"
@@ -154,7 +154,7 @@ namespace famouso {
                      *          AFP interface extension returning AFP header and
                      *          payload separately and Packet/NL adaption)
                      */
-                    void publish(const SNN &snn, const Event &e, const PublishParamSet * pps = 0) {
+                    void publish(const SNN &snn, const Message &m, const PublishParamSet * pps = 0) {
                         TRACE_FUNCTION;
                         bool realtime = false;
                         // prepare delivery
@@ -164,21 +164,21 @@ namespace famouso {
                             realtime = pps->realtime();
                         }
                         // deliver
-                        if (e.length <= NL::info::payload) {
-                            typename NL::Packet_t p(snn, &e[0], e.length, realtime);
+                        if (m.length <= NL::info::payload) {
+                            typename NL::Packet_t p(snn, m.data, m.length, realtime);
                             NL::deliver(p);
                         } else {
                             // Fragmentation using AFP (if disabled, a warning is emitted to the log)
                             typedef afp::Fragmenter<AFP_FragConfig, NL::info::payload> Frag;
 
-                            if (e.length != (typename Frag::elen_t) e.length) {
+                            if (m.length != (typename Frag::elen_t) m.length) {
                                 ::logging::log::emit< ::logging::Warning>()
                                     << PROGMEMSTRING("AFP: Cannot publish event... too large.")
                                     << ::logging::log::endl;
                                 return;
                             }
 
-                            Frag frag(e.data, e.length);
+                            Frag frag(m.data, m.length);
 
                             if (frag.error())
                                 return;
@@ -225,22 +225,22 @@ namespace famouso {
                      *          \li \b 0 if they are equal but there is no complete event to fetch
                      *          \li \b 1 if they are equal and \e e contains a complete event
                      */
-                    int8_t fetch(const SNN &snn, Event &e, const famouso::mw::nl::DistinctNL *bnl) {
+                    int8_t fetch(const SNN &snn, Message &m, const famouso::mw::nl::DistinctNL *bnl) {
                         TRACE_FUNCTION;
                         if (snn == NL::lastPacketSNN()) {
                             typename NL::Packet_t p;
                             NL::fetch(p);
                             if (!p.fragment) {
-                                e.length = p.data_length;
-                                e.data = p.data;
+                                m.length = p.data_length;
+                                m.data = p.data;
                                 return 1;
                             } else {
                                 // Apply AFP
                                 afp::DefragmentationStep<AFP_DefragConfig> ds(p.data, p.data_length, snn);
                                 defrag.process_fragment(ds);
                                 if (ds.event_complete()) {
-                                    e.data = ds.get_event_data();
-                                    e.length = ds.get_event_length();
+                                    m.data = ds.get_event_data();
+                                    m.length = ds.get_event_length();
                                     return 1;
                                 } else {
                                     return 0;
