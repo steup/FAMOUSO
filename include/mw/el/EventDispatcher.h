@@ -177,6 +177,7 @@ namespace famouso {
                             << ec.subject().value() << ']'
                             << ::logging::log::endl;
                         LL::bind(ec.subject(), ec.snn());
+                        Subscriber.append(ec);
                         // nach dem Bind auch noch bekannt geben,
                         // dass dieser Kanal subscribiert wird
                         /*  \todo   this functionality has to be provided by a policy of
