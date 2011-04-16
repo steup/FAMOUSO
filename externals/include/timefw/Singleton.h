@@ -42,33 +42,41 @@
 #define __SINGLETON_H_F02D2BC1060B97__
 
 #include <stdint.h>
-#include "object/PlacementNew.h"
 
+namespace timefw {
 
-/*!
- *  \brief  Memory saving singleton class
- */
-template <typename T>
-class Singleton {
+    /*!
+     *  \brief  Memory saving singleton class
+     */
+    template <typename T>
+    class Singleton {
 
-        Singleton() {}
-        Singleton(const Singleton & s) {}
+            Singleton() {}
+            Singleton(const Singleton & s) {}
 
-    public:
-
-        typedef T type;
-
-        static T & instance() {
-            static uint8_t buffer[sizeof(T)];
-            static bool init = false;
-            if (!init) {
-                new (buffer) T;
-                init = true;
+            /*! \brief placement new operator to allow a constructor call
+             *         on pre-allocated memory
+             */
+            void* operator new(size_t, void* __p) {
+                return __p;
             }
-            return *reinterpret_cast<T*>(buffer);
-        }
-};
 
+        public:
+
+            typedef T type;
+
+            static T & instance() {
+                static uint8_t buffer[sizeof(T)];
+                static bool init = false;
+                if (!init) {
+                    new (buffer) T;
+                    init = true;
+                }
+                return *reinterpret_cast<T*>(buffer);
+            }
+    };
+
+} // namespace timefw
 
 #endif // __SINGLETON_H_F02D2BC1060B97__
 
