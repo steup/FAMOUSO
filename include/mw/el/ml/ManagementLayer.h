@@ -212,7 +212,7 @@ namespace famouso {
                             Event e(man_chan_subject);
                             e.data = data_buffer;
                             e.length = length;
-                            BelowEL::publish(man_chan_snn, e);
+                            BelowEL::write(man_chan_snn, e);
                             static_cast<EL*>(this)->publish_local(e);
                         }
 
@@ -224,10 +224,8 @@ namespace famouso {
                             LL::init();
 
                             // get the management event channel ready for use
-                            if (config::announce_man_chan)
-                                BelowEL::announce(man_chan_subject, man_chan_snn);
-                            if (config::subscribe_man_chan)
-                                BelowEL::subscribe(man_chan_subject, man_chan_snn);
+                            if (config::announce_man_chan || config::subscribe_man_chan)
+                                BelowEL::bind(man_chan_subject, man_chan_snn);
 
                             /// \todo Set up timer for periodic announcements/subscriptions publishing.
                         }

@@ -146,7 +146,7 @@ namespace famouso {
                         }
                         // deliver
                         if (m.length <= NL::info::payload) {
-                            typename NL::Packet_t p(snn, m.data, m.length, realtime);
+                            typename NL::Packet_t p(snn, m.data, m.length, false, realtime);
                             NL::deliver(p);
                         } else {
                             // Fragmentation using AFP (if disabled, a warning is emitted to the log)
@@ -167,7 +167,7 @@ namespace famouso {
                             uint8_t buffer [NL::info::payload];
                             typename Frag::flen_t length;
                             while ( (length = frag.get_fragment(buffer)) ) {
-                                typename NL::Packet_t p(snn, buffer, length, true);
+                                typename NL::Packet_t p(snn, buffer, length, true, realtime);
                                 NL::deliver(p);
                             }
                         }

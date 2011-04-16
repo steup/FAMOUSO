@@ -156,7 +156,7 @@ namespace famouso {
                             << ec.subject().value() << ']'
                             << ::logging::log::endl;
                         // publish on all  lower layers/subnets
-                        LL::write(ec.snn(), e);
+                        LL::write(ec.snn(), e, pps);
 
                         // publish locally on all subscribed event channels
                         static_cast<EL*>(this)->publish_local(e);
