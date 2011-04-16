@@ -128,7 +128,10 @@ namespace famouso {
                         typename CAN_Driver::MOB m;
 
                         m.extended();
-                        m.id().prio(0xfd);
+                        if (p.realtime)
+                            m.id().prio(0x0);
+                        else
+                            m.id().prio(0xfd);
                         m.id().fragment(p.fragment);
                         m.id().tx_node(tx_node);
                         m.id().etag(p.snn);
