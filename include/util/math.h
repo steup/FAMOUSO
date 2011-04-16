@@ -41,7 +41,7 @@
 #ifndef __MATH_H_B17EDA6C8EF650__
 #define __MATH_H_B17EDA6C8EF650__
 
-// TODO: div_round_up -> div_ceil
+// TODO: rename div_round_up to div_ceil
 #include "mw/afp/shared/div_round_up.h"
 using famouso::mw::afp::shared::div_round_up;
 
@@ -90,11 +90,14 @@ template <typename T>
 static inline T increase_by_multiple_above(T a, T b, T c) {
     // while (a < c) a += b;
     if (a < c) {
-        a += (((c - a) / b) + 1) * b;
+        a += (((c - a) / b) + (T)1) * b;
     }
     return a;
 }
 
+/*!
+ *  \brief  Return \p a increased to a multpile of \p b
+ */
 template <typename T>
 static inline T increase_to_multiple(T a, T b) {
     return div_round_up(a, b) * b;
