@@ -69,8 +69,7 @@ namespace famouso {
                                             3,
                                             detail::HighDensityIDs::reservationStateId,
                                             detail::TagSet<
-                                                    detail::IsHighDensity,
-                                                    detail::HasLessThanRelation // If this attribute is used for filtering at all, an equal_to filter should be used!!
+                                                    detail::IsHighDensity
                                                    >
                                         > {
                 public:

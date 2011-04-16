@@ -71,8 +71,7 @@ namespace famouso {
                                             size,
                                             detail::HighDensityIDs::maxEventLengthId,
                                             detail::TagSet<
-                                                    detail::IsHighDensity,
-                                                    detail::HasLessThanRelation /// \todo Here we need a less than or equal to realtion for checking requirement against provision attributes.
+                                                    detail::IsHighDensity
                                                    >
                                         > {
                 public:
