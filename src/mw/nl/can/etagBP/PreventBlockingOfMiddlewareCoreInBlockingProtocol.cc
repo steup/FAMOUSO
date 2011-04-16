@@ -44,22 +44,40 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/pool/detail/singleton.hpp>
 #include <boost/thread/xtime.hpp>
+#ifdef __XENOMAI__
+#include <time.h>
+#endif
 
+#include <stdio.h>
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace CAN {
                 namespace etagBP {
 
+                    static void sleep() {
+#ifdef __XENOMAI__
+                        // boost::thread::sleep() does not behave correctly in XENOMAI
+                        timespec time;
+                        time.tv_sec = 0;
+                        time.tv_nsec = 100000000LLU;
+                        clock_nanosleep(CLOCK_REALTIME, 0, &time, 0);
+#else
+                        boost::xtime time;
+                        boost::xtime_get(&time, boost::TIME_UTC);
+                        time.nsec += 10000000;
+                        boost::thread::sleep(time);
+#endif
+                    }
+
+
+
                     typedef boost::details::pool::singleton_default<boost::mutex> _mutex;
 
                     void PreventBlockingOfMiddlewareCoreInBlockingProtocol::runMiddlewareCore() {
                         while (!passed) {
                             famouso::util::ios::instance().poll();
-	                    boost::xtime time;
-	                    boost::xtime_get(&time, boost::TIME_UTC);
-	                    time.nsec += 10000000;
-	                    boost::thread::sleep(time);
+                            sleep();
                         }
                     }
 
@@ -80,10 +98,7 @@ namespace famouso {
                     void PreventBlockingOfMiddlewareCoreInBlockingProtocol::process() {
                         // nothing to do here except sleeping, because the middleware
                         // core is executed in another thread
-                        boost::xtime time;
-                        boost::xtime_get(&time, boost::TIME_UTC);
-                        time.nsec += 100000000;
-                        boost::thread::sleep(time);
+                        sleep();
                     }
 
                 }
