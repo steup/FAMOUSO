@@ -40,23 +40,57 @@
 #ifndef __RTNODEGENERIC_H_C03CF16E5BBBB4__
 #define __RTNODEGENERIC_H_C03CF16E5BBBB4__
 
-#if 1
+//-----------------------------------------------------------------------------
+// Configuration
+//-----------------------------------------------------------------------------
+
+#define RT_LOGGING
+//#define RT_LOGGING_TO_FILE
+
+//#define CLOCK_ACCURACY_OUTPUT
+//#define DISPATCHER_OUTPUT
+
+//#define CLOCK_ACCURACY_TEST
+//#define RT_TEST_DATA_CHECK
+#define RT_TEST_E2E_LAT
+//#define RT_TEST_COM_LAT
+
+//-----------------------------------------------------------------------------
+
+
+#ifdef RT_LOGGING
 // Real time logging
 #define LOGGING_OUTPUT_FILE "log_" FAMOUSO_NODE_ID ".txt"
 #define LOGGING_DEFINE_EXTENDED_OUTPUT_TYPE
 #define LOGGING_DEFINE_OWN_OUTPUT_TYPE
 #include "RealTimeLogger.h"
 #include "logging/logging.h"
-LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputStream< ::logging::RTFileOutput > > )
+
+#ifdef RT_LOGGING_TO_FILE
+LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputStream< ::logging::RealTimeLogger<false> > > )
+#else
+LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputStream< ::logging::RealTimeLogger<true> > > )
+#endif
+
 #else
 // Default logging
 #include "logging/logging.h"
 #endif
 
-#include "TFW.h"
-typedef famouso::time::GlobalClock<famouso::time::ClockDriverGPOS> Clock;
+// Global clock definition
+#include "timefw/TimeSourceProvider.h"
+#include "timefw/ClockDriverPosix.h"
+#ifdef __XENOMAI__
+#include "XenomaiClock.h"
+typedef GlobalXenomaiClock<timefw::ClockDriverPosix, 50 /* 50ms = max sync accurancy */> Clock;
+#else
+#include "NonXenomaiGlobalClock.h"
+typedef GlobalClock<timefw::ClockDriverPosix> Clock;
+#endif
 FAMOUSO_TIME_SOURCE(Clock)
 
+
+// Node ID definition
 #include "mw/common/NodeID.h"
 template <>
 UID getNodeID<void>() {
@@ -68,14 +102,15 @@ UID getNodeID<void>() {
 #include "mw/api/PublisherEventChannel.h"
 #include "mw/api/SubscriberEventChannel.h"
 
+#ifdef __XENOMAI__
+#include "TimestampingXenomaiRTCAN.h"
+#else
 #include "devices/nic/can/SocketCAN/SocketCAN.h"
-//#include "devices/nic/can/peak/PeakCAN.h"
+#endif
 #include "mw/nl/can/etagBP/Client.h"
 #include "mw/nl/can/ccp/Client.h"
 #include "mw/nl/CANNL.h"
 
-//#include "mw/el/EventLayerClientStub.h"
-#include "mw/nl/voidNL.h"
 #include "mw/anl/AbstractNetworkLayer.h"
 #include "mw/el/EventLayer.h"
 
@@ -86,6 +121,8 @@ UID getNodeID<void>() {
 #include "mw/el/EventLayer.h"
 
 #include "mw/attributes/detail/AttributeSetProvider.h"
+#include "mw/attributes/Period.h"
+#include "mw/attributes/MaxEventLength.h"
 #include "mw/api/ExtendedEventChannel.h"
 #include "guard/NetworkGuard.h"
 #include "guard/RT_WindowCheck.h"
@@ -95,8 +132,11 @@ UID getNodeID<void>() {
 
 namespace famouso {
     class config {
+#ifdef __XENOMAI__
+            typedef device::nic::CAN::RecvTimestampingXenomaiRTCAN can;
+#else
             typedef device::nic::CAN::SocketCAN can;
-            //typedef device::nic::CAN::PeakCAN can;
+#endif
             typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
             typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
             typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> NL;
@@ -116,8 +156,17 @@ namespace famouso {
     };
 }
 
-#include "Dispatcher.h"
-#include "RealTimePublisherEventChannel.h"
+#include "timefw/Dispatcher.h"
+
+#define CLOCK_SYNC_INIT \
+    famouso::config::SEC time_chan("TimeSync"); \
+    typedef timefw::TimeSource::clock_type Clock; \
+    time_chan.callback.bind<Clock, &Clock::sync_event>(&timefw::TimeSource::instance()); \
+    time_chan.subscribe(); \
+    while (timefw::TimeSource::out_of_sync()) { \
+        usleep(1000);   \
+    }   \
+    printf("Clock in sync\n");
 
 
 

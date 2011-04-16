@@ -128,9 +128,8 @@ namespace famouso {
                             if (config::support_real_time) {
                                 // Is this event a real time reservation protocol event?
                                 uint8_t event_type = ml::get_event_type(event.data, event.length);
-                                if (event_type != ml::rt_reservation_event &&
-                                    event_type != ml::rt_no_reservation_event &&
-                                    event_type != ml::rt_no_subscriber_event)
+                                if (event_type < ml::rt_res_event ||
+                                    event_type > ml::rt_no_deliv_event)
                                     return;
 
                                 ml::RealTimeSetResStateEvent reserv(event.data, event.length);
@@ -139,12 +138,12 @@ namespace famouso {
 
                                 reserv.read_head(node_id);
 
-                                // This event is intended for another node...
+                                // This event is intended for another node...?
                                 if (!(node_id == getNodeID<void>()))
                                     return;
 
                                 // Read rest of the event
-                                if (event_type == ml::rt_reservation_event) {
+                                if (event_type <= ml::rt_res_deliv_event) {
                                     reserv.read_reserv_tail(crd);
                                 } else {
                                     reserv.read_no_reserv_tail(crd);

@@ -65,17 +65,24 @@ namespace famouso {
                     /// Subscriptions event (channel requirements)
                     subscriptions_event = 1,
 
-                    /// Real time reservation event (set RT producer state)
-                    rt_reservation_event = 2,
+                    /*! \brief  Real time reservation event (set RT producer state)
+                     *  \note   Value assumed to be lowest number of rt_*_event constants.
+                     */
+                    rt_res_event = 2,
 
-                    /// Real time no reservation event (set RT producer state)
-                    rt_no_reservation_event = 3,
+                    /// Real time reservation and start deliver event (set RT producer state)
+                    rt_res_deliv_event = 3,
 
-                    /// Real time no subscriber event (set RT producer state)
-                    rt_no_subscriber_event = 4,
+                    /// Real time deliver event (set RT producer state)
+                    rt_deliv_event = 4,
+
+                    /*! \brief  Real time no delivery event (set RT producer state)
+                     *  \note   Value assumed to be highest number of rt_*_event constants.
+                     */
+                    rt_no_deliv_event = 5,
 
                     /// Highest event type value (needed for get_event_type() implementation)
-                    last_supported_event = 4,
+                    last_supported_event = 5,
 
                     /// Unsupported event
                     unsupported_event = 255

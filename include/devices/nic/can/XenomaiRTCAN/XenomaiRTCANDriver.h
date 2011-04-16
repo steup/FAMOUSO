@@ -184,7 +184,7 @@ namespace device {
                         }
                     }
 
-                private:
+                protected:
                     /*! \brief The data structure of the underlying CAN-Driver
                      *         and in this case it is a socket aka an int.
                      */

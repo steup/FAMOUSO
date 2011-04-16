@@ -41,6 +41,7 @@
 #define __NETWORKSCHEDULE_H_B01D3EA12111F1__
 
 #include <stdint.h>
+#include "timefw/Time.h"
 
 #include "mw/el/ml/NetworkID.h"
 #include "detail/RealTimeTxChannel.h"
@@ -79,7 +80,7 @@ namespace famouso {
                     uint64_t cycle_start_us;
 
                     uint64_t get_next_cycle_start() {
-                        uint64_t curr = TimeSource::current().get();
+                        uint64_t curr = timefw::TimeSource::current().get();
                         return increase_by_multiple_above(cycle_start_us, cycle_duration_us, curr);
                     }
 
@@ -105,22 +106,36 @@ namespace famouso {
                             // TODO: if neccessary, send free_slots to BE-Poller and wait for ACK before sending reservation (only once per announcements msg?)
                             // wait for subscribers?
 
-                            rt_pub.status = RealTimeTxChannel::reserved;
+                            bool deliver = check_subscriber(rt_pub.subject, rt_pub.network_id);
+                            if (deliver)
+                                rt_pub.status = RealTimeTxChannel::delivering;
+                            else
+                                rt_pub.status = RealTimeTxChannel::waiting_for_subscriber;
 
                             // Send reservation for this channel
                             scheduler.publish_reservation(rt_pub.node_id, rt_pub.lc_id, rt_pub.network_id,
                                                           get_next_cycle_start() + rt_pub.slot_usec.shift,
-                                                          rt_pub.slot_usec.tx_window);
+                                                          rt_pub.slot_usec.tx_window,
+                                                          deliver);
                         } else {
                             ::logging::log::emit() << "failure!" << ::logging::log::endl;
-                            rt_pub.status = RealTimeTxChannel::waiting_for_ressources;
-
-                            // Send reservation reject for this channel
-                            scheduler.publish_no_reservation(rt_pub.node_id, rt_pub.lc_id, rt_pub.network_id);
                         }
                         slot_scheduler.log_free_list();
                         ::logging::log::emit() << "Real time announcements\n";
                         rt_announcements.log();
+                    }
+
+                    /// Return whether there is a subscriber of subject in network
+                    bool check_subscriber(const Subject & subject, const el::ml::NetworkID & network_id) {
+                        Subscriptions::iterator it = subscriptions.begin();
+                        while (it != subscriptions.end()) {
+                            Subscriber & s = subscriptions.get(it);
+                            if (s.subject == subject && s.network_id == network_id) {
+                                return true;
+                            }
+                            ++it;
+                        }
+                        return false;
                     }
 
                     bool unannounce(const RealTimeTxChannel & pub) {
@@ -128,7 +143,7 @@ namespace famouso {
                                                << ::logging::log::endl;
                         slot_scheduler.free(pub.slot_aslot.period, pub.slot_aslot.length, pub.slot_aslot.shift);
                         slot_scheduler.log_free_list();
-                        // TODO: check if a wait_for_ressources channel can be scheduled now (deferred)
+                        // TODO: check if a wait_for_resservation channel can be scheduled now (deferred)
                         return true;
                     }
 
@@ -168,19 +183,9 @@ namespace famouso {
                         if (!newly_announced) {
                             // TODO: match states and init retransmission if necessary
                         } else {
-                            // Newly announced publisher: wait for subscribers
+                            // Newly announced publisher: reserve tx channel
                             rt_pub.init(node_id, lc_id, network_id, subject, period, max_event_length, repetition, network_timing);
-
-                            // Try to reserv if there is a subscriber
-                            Subscriptions::iterator it = subscriptions.begin();
-                            while (it != subscriptions.end()) {
-                                Subscriber & s = subscriptions.get(it);
-                                if (s.subject == subject && s.network_id == network_id) {
-                                    reserv(rt_pub);
-                                    break;
-                                }
-                                ++it;
-                            }
+                            reserv(rt_pub);
                         }
                     }
 
@@ -202,12 +207,13 @@ namespace famouso {
                             // New subscriber
                             s.init(node_id, lc_id, network_id, subject);
 
-                            // Try to reserv producer channels for this suscriber
+                            // Try to find producer channels for this suscriber
                             RealTimeAnnouncements::iterator it = rt_announcements.begin();
                             while (it != rt_announcements.end()) {
                                 RealTimeTxChannel & s = rt_announcements.get(it);
                                 if (s.subject == subject && s.network_id == network_id && s.status == RealTimeTxChannel::waiting_for_subscriber) {
-                                    reserv(s);
+                                    // Start delivery of events
+                                    scheduler.publish_deliv(s.node_id, s.lc_id, s.network_id);
                                 }
                                 ++it;
                             }

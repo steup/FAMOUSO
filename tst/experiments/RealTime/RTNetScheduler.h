@@ -105,16 +105,18 @@ namespace famouso {
                     friend class NetworkSchedule;
 
                     void publish_reservation(const NodeID & node_id, const el::ml::LocalChanID & lc_id, const el::ml::NetworkID & network_id,
-                                             uint64_t tx_ready_time, uint64_t tx_window_time) {
+                                             uint64_t tx_ready_time, uint64_t tx_window_time,
+                                             bool deliver) {
                         ::logging::log::emit()
-                            << "Publishing Res to node " << node_id << ", lc_id " << lc_id
+                            << "Publishing " << (deliver ? "ResDeliv" : "Res")
+                            << " to node " << node_id << ", lc_id " << lc_id
                             << ", network_id " << network_id
-                            << " with tx_ready " << ::logging::log::dec << tx_ready_time
-                            << ", tx_window " << tx_window_time << ::logging::log::endl;
+                            << " with tx_ready " << timefw::Time(tx_ready_time)
+                            << ", tx_window " << timefw::Time(tx_window_time) << '\n';
                         uint16_t len = el::ml::RealTimeSetResStateEvent::size(true);
                         uint8_t buffer[len];
                         el::ml::RealTimeSetResStateEvent rw(buffer, len);
-                        rw.write_head(el::ml::rt_reservation_event, node_id);
+                        rw.write_head(deliver ? el::ml::rt_res_deliv_event : el::ml::rt_res_event, node_id);
                         rw.write_reserv_tail(lc_id, network_id, tx_ready_time, tx_window_time);
 
                         Event e(man_chan_pub.subject());
@@ -123,14 +125,14 @@ namespace famouso {
                         man_chan_pub.publish(e);
                     }
 
-                    void publish_no_reservation(const NodeID & node_id, const el::ml::LocalChanID & lc_id, const el::ml::NetworkID & network_id) {
+                    void publish_deliv(const NodeID & node_id, const el::ml::LocalChanID & lc_id, const el::ml::NetworkID & network_id) {
                         ::logging::log::emit()
-                            << "Publishing NoRes to node " << node_id << ", lc_id " << lc_id
+                            << "Publishing Deliv to node " << node_id << ", lc_id " << lc_id
                             << ", network_id " << network_id << ::logging::log::endl;
                         uint16_t len = el::ml::RealTimeSetResStateEvent::size(false);
                         uint8_t buffer[len];
                         el::ml::RealTimeSetResStateEvent rw(buffer, len);
-                        rw.write_head(el::ml::rt_no_reservation_event, node_id);
+                        rw.write_head(el::ml::rt_deliv_event, node_id);
                         rw.write_no_reserv_tail(lc_id, network_id);
 
                         Event e(man_chan_pub.subject());
@@ -139,14 +141,14 @@ namespace famouso {
                         man_chan_pub.publish(e);
                     }
 
-                    void publish_no_subscriber(const NodeID & node_id, const el::ml::LocalChanID & lc_id, const el::ml::NetworkID & network_id) {
+                    void publish_no_deliv(const NodeID & node_id, const el::ml::LocalChanID & lc_id, const el::ml::NetworkID & network_id) {
                         ::logging::log::emit()
-                            << "Publishing NoSub to node " << node_id << ", lc_id " << lc_id
+                            << "Publishing NoDeliv to node " << node_id << ", lc_id " << lc_id
                             << ", network_id " << network_id << ::logging::log::endl;
                         uint16_t len = el::ml::RealTimeSetResStateEvent::size(false);
                         uint8_t buffer[len];
                         el::ml::RealTimeSetResStateEvent rw(buffer, len);
-                        rw.write_head(el::ml::rt_no_reservation_event, node_id);
+                        rw.write_head(el::ml::rt_no_deliv_event, node_id);
                         rw.write_no_reserv_tail(lc_id, network_id);
 
                         Event e(man_chan_pub.subject());

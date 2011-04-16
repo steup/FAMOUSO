@@ -63,8 +63,8 @@ namespace famouso {
              *                      conformance of non real time packet delivery
              *                      to the protocol. Thus, delivery of NRT packets
              *                      is delayed until network access is granted.
-             *                      Currently the implementations NRT_HandlesByNL,
-             *                      NRT_PollSlave and NRT_PollMaster are supported.
+             *                      Currently the implementations NRT_HandledByNL
+             *                      and NRT_PollSlave are supported.
              */
             template <class NL,
                       template <class> class RTPolicy,

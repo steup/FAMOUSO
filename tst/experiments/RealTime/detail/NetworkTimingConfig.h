@@ -43,7 +43,7 @@
 #include <stdint.h>
 
 #include "value_types.h"
-#include "../math.h"
+#include "util/math.h"
 
 
 namespace famouso {
@@ -52,25 +52,25 @@ namespace famouso {
 
             struct NetworkTimingConfig {
 
-                unsigned long clock_granul_ns;
+                uint64_t clock_granul_ns;
 
                 /// nanosec per atomic slot
-                unsigned long plan_granul_ns;
+                uint64_t plan_granul_ns;
 
                 /// microsec per atomic slot
-                unsigned long plan_granul_us;
+                uint64_t plan_granul_us;
 
                 uint16_t mtu;
 
                 bool need_free_slots;
 
                 // Parameters in nano seconds (to support short times)
-                unsigned long trigger_to_usf_ns;
-                unsigned long usf_to_txready_ns;
-                unsigned long med_contention_ns;
-                unsigned long tx_overhead_ns;
-                unsigned long tx_per_byte_ns;
-                unsigned long tx_min_ns;
+                uint64_t trigger_to_usf_ns;
+                uint64_t usf_to_txready_ns;
+                uint64_t med_contention_ns;
+                uint64_t tx_overhead_ns;
+                uint64_t tx_per_byte_ns;
+                uint64_t tx_min_ns;
                 // Bei berechnung aufrunden
 
 
@@ -79,7 +79,7 @@ namespace famouso {
                                          repetition_t repetition,
                                          uint64_t & slot_length_us,
                                          uint64_t & slot_tx_window_us) const {
-                    unsigned long non_msg_bytes_ns = trigger_to_usf_ns + usf_to_txready_ns + med_contention_ns + tx_overhead_ns;
+                    uint64_t non_msg_bytes_ns = trigger_to_usf_ns + usf_to_txready_ns + med_contention_ns + tx_overhead_ns;
                     unsigned int fragments;
                     unsigned int last_fragment_length;
                     if (event_length == 0) {
@@ -90,22 +90,22 @@ namespace famouso {
                         last_fragment_length = event_length - (fragments - 1) * (mtu - 1) + 1;
                     }
 
-                    unsigned long max_msg_ns = non_msg_bytes_ns + mtu * tx_per_byte_ns;
+                    uint64_t max_msg_ns = non_msg_bytes_ns + mtu * tx_per_byte_ns;
                     if (max_msg_ns < tx_min_ns) {
                         max_msg_ns = tx_min_ns;
                     }
 
-                    unsigned long last_msg_ns = non_msg_bytes_ns + last_fragment_length * tx_per_byte_ns;
+                    uint64_t last_msg_ns = non_msg_bytes_ns + last_fragment_length * tx_per_byte_ns;
                     if (last_msg_ns < tx_min_ns) {
                         last_msg_ns = tx_min_ns;
                     }
 
                     // Pro frame aufrundung auf Uhrengranul weggelassen -> mit Micha diskutieren, wie in DA Text zu schreiben
-                    unsigned long tx_window_ns = increase_to_multiple((repetition + 1) * (fragments - 1) * max_msg_ns +
+                    uint64_t tx_window_ns = increase_to_multiple((repetition + 1) * (fragments - 1) * max_msg_ns +
                                                                             repetition * last_msg_ns +
                                                                             trigger_to_usf_ns,
                                                                       clock_granul_ns);
-                    unsigned long slot_len_ns = tx_window_ns + usf_to_txready_ns + med_contention_ns + tx_overhead_ns + last_fragment_length * tx_per_byte_ns +
+                    uint64_t slot_len_ns = tx_window_ns + usf_to_txready_ns + med_contention_ns + tx_overhead_ns + last_fragment_length * tx_per_byte_ns +
                                                     clock_granul_ns /* acuuracy reserve */;
 
                     slot_length_us = div_round_up(slot_len_ns, 1000);
@@ -114,11 +114,11 @@ namespace famouso {
             };
 
             static inline NetworkTimingConfig CanNetworkTimingConfig(
-                        unsigned long bits_per_second,
-                        unsigned long clock_granul_microsec,
-                        unsigned long plan_granul_microsec,
-                        unsigned long max_trigger_to_usf_time_nanosec,
-                        unsigned long max_usf_to_txready_time_nanosec) {
+                        uint64_t bits_per_second,
+                        uint64_t clock_granul_microsec,
+                        uint64_t plan_granul_microsec,
+                        uint64_t max_trigger_to_usf_time_nanosec,
+                        uint64_t max_usf_to_txready_time_nanosec) {
                 NetworkTimingConfig ntc;
                 ntc.clock_granul_ns = clock_granul_microsec * 1000;
                 ntc.plan_granul_us = plan_granul_microsec;
@@ -128,7 +128,7 @@ namespace famouso {
 
                 ntc.trigger_to_usf_ns = max_trigger_to_usf_time_nanosec;
                 ntc.usf_to_txready_ns = max_usf_to_txready_time_nanosec;
-                unsigned long ns_per_bit = div_round_up(1000000000lu, bits_per_second);
+                uint64_t ns_per_bit = div_round_up(1000000000lu, bits_per_second);
                 ntc.tx_overhead_ns = 111 * ns_per_bit;
                 ntc.tx_per_byte_ns = 10 * ns_per_bit;
                 ntc.tx_min_ns = 0;
@@ -138,11 +138,11 @@ namespace famouso {
             }
 
             static inline NetworkTimingConfig EthernetNetworkTimingConfig(
-                        unsigned long bits_per_second,
-                        unsigned long clock_granul_microsec,
-                        unsigned long plan_granul_microsec,
-                        unsigned long max_trigger_to_usf_time_nanosec,
-                        unsigned long max_usf_to_txready_time_nanosec) {
+                        uint64_t bits_per_second,
+                        uint64_t clock_granul_microsec,
+                        uint64_t plan_granul_microsec,
+                        uint64_t max_trigger_to_usf_time_nanosec,
+                        uint64_t max_usf_to_txready_time_nanosec) {
                 NetworkTimingConfig ntc;
                 ntc.clock_granul_ns = clock_granul_microsec * 1000;
                 ntc.plan_granul_us = plan_granul_microsec;
@@ -152,7 +152,7 @@ namespace famouso {
 
                 ntc.trigger_to_usf_ns = max_trigger_to_usf_time_nanosec;
                 ntc.usf_to_txready_ns = max_usf_to_txready_time_nanosec;
-                unsigned long ns_per_bit = div_round_up(1000000000lu, bits_per_second);
+                uint64_t ns_per_bit = div_round_up(1000000000lu, bits_per_second);
                 ntc.tx_overhead_ns = 26 * 8 * ns_per_bit;
                 ntc.tx_per_byte_ns = 8 * ns_per_bit;
                 if (bits_per_second == 1000000000)

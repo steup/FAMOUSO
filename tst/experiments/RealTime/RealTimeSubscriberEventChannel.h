@@ -41,7 +41,6 @@
 #define __REALTIMESUBSCRIBEREVENTCHANNEL_H_1FC86AAEB977E9__
 
 #include "debug.h"
-#include "Dispatcher.h"
 
 #include "mw/common/Event.h"
 #include "mw/api/CallBack.h"
@@ -59,9 +58,9 @@ namespace famouso {
     namespace mw {
         namespace api {
 
-            template <typename EC, typename Requirement,
+            template <typename SEC, typename Requirement,
                       template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
-            class RealTimeSubscriberEventChannel : public EC {
+            class RealTimeSubscriberEventChannel : public SEC {
                     typedef RealTimeSubscriberEventChannel type;
 
                 protected:
@@ -96,14 +95,14 @@ namespace famouso {
                     };
 
                 public:
-                    RealTimeSubscriberEventChannel(const Subject& subject) : EC(subject) {
-                        EC::trampoline.template bind<type, &type::trampoline_impl>(this);
-                        EC::callback.template bind<type, &type::callback_periodic_notify_impl>(this);
+                    RealTimeSubscriberEventChannel(const Subject& subject) : SEC(subject) {
+                        SEC::trampoline.template bind<type, &type::trampoline_impl>(this);
+                        SEC::callback.template bind<type, &type::callback_periodic_notify_impl>(this);
                     }
 
                 private:
 
-                    typedef typename EC::Action Action;
+                    typedef typename SEC::Action Action;
 
                     uint16_t trampoline_impl(Action & action) {
                         if (action.action == Action::get_requirements) {
@@ -113,42 +112,57 @@ namespace famouso {
                             }
                             return Requirement::overallSize;
                         }
-                    }
-
-                    void callback_periodic_notify_impl(const Event & event) {
-                        // TODO: Deadline prüfen, Filter anwenden, Strength prüfen (z.B. previous_strength als member-var zwischenspeichern)...
-                        FAMOUSO_ASSERT(event.length <= 1000 /* TODO: MEL */);
-                        EventInfo * ei = tf.write_lock();
-                        // TODO: length und subject kopieren!!!
-                        memcpy(ei->data, event.data, event.length);
-                        ei->length = event.length;
-                        ei->expire = TimeSource::current().add_usec(period); // oder deadline
-                        tf.write_unlock();
                         return 0;
                     }
 
+                    // Middleware notify callback writing temporal firewall
+                    void callback_periodic_notify_impl(const Event & event) {
+                        // TODO: Deadline prüfen, Filter anwenden, Strength prüfen (z.B. previous_strength als member-var zwischenspeichern)...
+                        if (event.length > mel)
+                            return;
+                        EventInfo & ei = tf.write_lock();
+                        memcpy(ei.data, event.data, event.length);
+                        ei.length = event.length;
+                        ei.expire = timefw::TimeSource::current().add_usec(period); // oder deadline, TODO: omission beachten
+                        tf.write_unlock();
+                    }
+
+                public:
                     // may run in another thread
-                    void notify_task() const {
-                        // TODO:Omission beachten
-                        EventInfo & ei = tf.read_lock();
-                        if (TimeSource::current() < ei.expire) {
+                    void notify_task() {
+                        const EventInfo & ei = tf.read_lock();
+                        if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
                             ::logging::log::emit<RT>()
                                 << "update notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                                << " at " << TimeSource::current() << " expiring at " << ei.expire << "\n";
-                            //post(true, callback);
+                                << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
+                            if (notify_callback) {
+                                Event e(SEC::subject());
+                                e.data = const_cast<uint8_t*>(ei.data);
+                                e.length = ei.length;
+                                notify_callback(e);
+                            }
                         } else {
                             // expire in past
                             ::logging::log::emit<RT>()
                                 << "exception notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                                << " at " << TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
-                            //post(true, exception);
+                                << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
+                            if (exception_callback) {
+                                exception_callback();
+                            }
                         }
                         tf.read_unlock();
                     }
 
+
+                    /*!
+                     *  \brief  
+                     *  bei Subscriber anstelle des notify aufgerufen, wenn kein Event gemäß Spezifikation (Subject, Filter, QoS-Anforderungen) erhalten
+                     */
+                    famouso::mw::api::ExceptionCallBack exception_callback;
+                    famouso::mw::api::SECCallBack notify_callback;
             };
 
         } // namespace api

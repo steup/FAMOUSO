@@ -40,8 +40,8 @@
 #ifndef __NRT_POLLSLAVE_H_69BEA0DB97942E__
 #define __NRT_POLLSLAVE_H_69BEA0DB97942E__
 
-#include "../TFW.h"
-#include "../Dispatcher.h"
+#include "timefw/Time.h"
+#include "timefw/Dispatcher.h"
 
 namespace famouso {
     namespace mw {
@@ -57,11 +57,11 @@ namespace famouso {
             class NRT_PollSlave : public NL {
 
                     volatile bool nrt_ar_expired;
-                    volatile time::Time nrt_ar_expire_time;
+                    volatile timefw::Time nrt_ar_expire_time;
 
                     /// Grants NRT access for a given duration
-                    void grant_nrt_access_right(time::Time & duration) {
-                        nrt_ar_expire_time = TimeSource::current() + duration;
+                    void grant_nrt_access_right(timefw::Time & duration) {
+                        nrt_ar_expire_time = timefw::TimeSource::current() + duration;
                         nrt_ar_expired = false;
                     }
 
@@ -71,14 +71,14 @@ namespace famouso {
                         while (1) {
                             if (!nrt_ar_expired) {
                                 // We may have access
-                                if (nrt_ar_expire_time < TimeSource::current()) {
+                                if (nrt_ar_expire_time < timefw::TimeSource::current()) {
                                     // Access granted
                                     return;
                                 } else {
                                     nrt_ar_expired = true;
                                 }
                             }
-                            Dispatcher::instance().yield_for_rt();
+                            timefw::Dispatcher::instance().yield_for_rt();
                         }
                     }
 

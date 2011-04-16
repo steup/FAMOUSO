@@ -1,7 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008, 2009 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
- *                     2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -34,14 +33,20 @@
  *    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *
- * $Id: FileOutput.h 1 2010-01-11 14:24:28Z perch $
+ * $Id: $
  *
  ******************************************************************************/
 
-#ifndef __RTFileOutput_h__
-#define __RTFileOutput_h__
+#ifndef __REALTIMELOGGER_H_EBF7F9476CC618__
+#define __REALTIMELOGGER_H_EBF7F9476CC618__
 
 #include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 
 #ifndef LOGGING_OUTPUT_FILE
 #define LOGGING_OUTPUT_FILE "rt.log"
@@ -49,50 +54,113 @@
 
 namespace logging {
 
-    /*! \brief Provides an interface to the standard
-     *         file output facilities of e.g. Linux
-     *         or Windows.
-     */
-    class RTFileOutput {
+    template <bool use_stdout = false>
+    class RealTimeLogger {
             enum { length = 1024 * 1024 };
             char * buffer;
-            char * curr;
             char * end;
-        public:
-            /*! \brief The constructor opens the file, that should
-             *         contain the output for writing.
-             *
-             *  \todo The name of the file should be configurable
-             *        via a command line parameter.
-             */
-            RTFileOutput() {
-                buffer = new char [length];
-                curr = buffer;
-                end = buffer + length;
+
+            /// only written by write_char()
+            char * curr_write;
+            /// only written by flush()
+            char * curr_flush;
+
+            /// File descriptor
+            int fd;
+
+            /// Thread cancelation flag
+            volatile bool done;
+
+            void flush() {
+                // Get sate of current write marker (may be incremented during this function)
+                // -> pointer behind last byte to flush (set flush_end to curr_write)
+                char * flush_end;
+                (void)__sync_bool_compare_and_swap(&flush_end, flush_end, curr_write);
+
+                if (flush_end == curr_flush) {
+                    // Nothing to flush
+                } else if (flush_end < curr_flush) {
+                    // Block to write wraps around ring buffer end
+                    // -> Write first part (curr_flush till end)
+                    write(fd, curr_flush, end - curr_flush);
+                    // -> Write second part (buffer till flush_end)
+                    write(fd, buffer, flush_end - buffer);
+                    // Atomic: set curr_flush to flush_end
+                    (void)__sync_bool_compare_and_swap(&curr_flush, curr_flush, flush_end);
+                } else if (flush_end > curr_flush) {
+                    // Continuous block inside the buffer
+                    write(fd, curr_flush, flush_end - curr_flush);
+                    // Atomic: set curr_flush to flush_end
+                    (void)__sync_bool_compare_and_swap(&curr_flush, curr_flush, flush_end);
+                }
             }
 
-            /*! \brief The destructor closes the file and therewith
-             *         it should be persitent.
-             */
-            ~RTFileOutput() {
-                printf("shutting down logging ... writing %s\n", LOGGING_OUTPUT_FILE);
-                size_t used = (size_t)(curr - buffer);
-                FILE * f = fopen(LOGGING_OUTPUT_FILE, "w");
-                fwrite(buffer, used, 1, f);
-                fclose(f);
+            void write_char(const char c) {
+                *curr_write = c;
+                // Atomic increment
+                (void)__sync_fetch_and_add(&curr_write, 1);
+                // Atomic: if (curr_write == end) curr_write = buffer;
+                (void)__sync_bool_compare_and_swap(&curr_write, end, buffer);
+            }
+
+
+            static void * flush_thread_func(void * arg) {
+                RealTimeLogger * rto = reinterpret_cast<RealTimeLogger *>(arg);
+                while (!rto->done) {
+                    sleep(1);
+                    rto->flush();
+                }
+                return 0;
+            }
+
+            pthread_t flush_thread;
+
+        public:
+            /// Opens file and starts buffer flushing thread
+            RealTimeLogger() {
+                mlockall (MCL_CURRENT | MCL_FUTURE);
+                buffer = new char [length];
+                curr_write = buffer;
+                curr_flush = buffer;
+                end = buffer + length;
+                done = false;
+                if (use_stdout) {
+                    fd = 1;
+                } else {
+                    fd = open(LOGGING_OUTPUT_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                }
+                pthread_attr_t thread_attr;
+                pthread_attr_init(&thread_attr);
+                pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_JOINABLE);
+                pthread_attr_setschedpolicy(&thread_attr, SCHED_OTHER);
+                pthread_create(&flush_thread, 0, &flush_thread_func, this);
+#ifdef __XENOMAI__
+                pthread_set_name_np(flush_thread, "RT logging buffer flush thread");
+#endif
+                pthread_attr_destroy(&thread_attr);
+            }
+
+            /// Joins buffer flushing thread and closes file
+            ~RealTimeLogger() {
+                done = true;
+                pthread_join(flush_thread, 0);
+                if (!use_stdout) {
+                    close(fd);
+                }
                 delete [] buffer;
             }
 
-            /*! \brief operator that can output a simple character.
-             *
-             * \param c the character that needs to be outputed
-             * \return a reference to itself allowing chaning of
-             *         opertor<< calls.
-             */
-            RTFileOutput & operator<<(const char c) {
-                if (curr < end) {
-                    *curr = c;
-                    ++curr;
+            /// operator to output a character
+            RealTimeLogger & operator<<(const char c) {
+                // Write char to buffer
+                write_char(c);
+                // If buffer is full (curr_write (just incremented by write_char()) equals curr_flush)...
+                if (__sync_bool_compare_and_swap(&curr_write, curr_flush, curr_write)) {
+                    // ... write warning
+                    const char * warning = "### LOGGING BUFFER OVERFLOW! INCREASE BUFFER SIZE ###";
+                    while (*warning) {
+                        write_char(*(warning++));
+                    }
                 }
                 return *this;
             }
@@ -100,4 +168,6 @@ namespace logging {
 
 } /* logging */
 
-#endif
+#endif // __REALTIMELOGGER_H_EBF7F9476CC618__
+
+

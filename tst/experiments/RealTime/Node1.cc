@@ -39,74 +39,58 @@
 
 #define FAMOUSO_NODE_ID "RT_Node1"
 #include "RTNodeCommon.h"
-
-
-typedef famouso::mw::attributes::detail::SetProvider<
-         famouso::mw::attributes::Period<200000>,       // 200 ms
-         famouso::mw::attributes::MaxEventLength<16>    // 16 Byte -> bei CAN 3 Fragmente
-        >::attrSet rt_req;
-
-class PEC3 : public famouso::mw::api::RealTimePublisherEventChannel<famouso::config::PEC, rt_req> {
-        Task pub_task;
-        famouso::mw::Event event;
-    public:
-        typedef famouso::mw::api::RealTimePublisherEventChannel<famouso::config::PEC, rt_req> Base;
-
-        PEC3(const famouso::mw::Subject & subj) :
-            Base(subj),
-            event(subj)
-        {
-            pub_task.start = TimeSource::current().add_usec(500000);
-            pub_task.period = period;
-            pub_task.function.bind<PEC3, &PEC3::publish_task>(this);
-            Dispatcher::instance().enqueue(pub_task);
-        }
-
-        void publish_task() {
-            event.data = (uint8_t *)"data_from_node_1";
-            event.length = 16;
-            publish(event);
-        }
-};
+#include "evaluation.h"
 
 
 void subscriber_callback(const famouso::mw::api::SECCallBackData& event) {
     ::logging::log::emit() << "callback: subject " << event.subject
                            << ", length " << ::logging::log::dec << event.length
                            << ", data " << event.data
-                           << ", time " << famouso::TimeSource::current()
+                           << ", time " << timefw::TimeSource::current()
                            << logging::log::endl;
 }
 
 int main(int argc, char ** argv) {
     famouso::init<famouso::config>();
-
-    // can be integrated into famouso init
-    famouso::config::SEC time_chan("TimeSync");
-    typedef famouso::TimeSource::clock_type Clock;
-    time_chan.callback.bind<Clock, &Clock::tick>(&famouso::TimeSource::instance());
-    time_chan.subscribe();
-
-    while (famouso::TimeSource::out_of_sync()) {
-        usleep(1000);
-    }
-    printf("Clock in sync\n");
+    CLOCK_SYNC_INIT;
 
 
+    /*
     famouso::config::SEC sec1("rt_____0");
     sec1.callback.bind<&subscriber_callback>();
     sec1.subscribe();
 
     famouso::config::PEC pec1("nrt____0");
     pec1.announce();
+    */
 
 //    {
-    PEC3 pec2("rt_____1");
+    // PEC QoS
+    const uint64_t period = 200000;        // 200 ms
+    const uint64_t mel = 70; //17;               // 17 Byte -> bei CAN 3 Fragmente
+
+    // Local CPU schedule
+    /*
+    const uint64_t deliver_start_boundary_time = 0;
+    const uint64_t deliver_end_boundary_time = period/2;
+    */
+    const uint64_t publish_start_time = period / 2;
+
+    typedef famouso::mw::attributes::detail::SetProvider<
+             famouso::mw::attributes::Period<period>,
+             famouso::mw::attributes::MaxEventLength<mel>
+             /*,
+             famouso::mw::attributes::RealTimeSlotStartBoundary<deliver_start_boundary_time>,
+             famouso::mw::attributes::RealTimeSlotEndBoundary<deliver_end_boundary_time>
+             */
+            >::attrSet Req;
+
+    TestRTPEC<famouso::config::PEC, Req> pec2("rt1_(n1)", publish_start_time);
     pec2.announce();
 //    }
 
     printf("Start dispatcher\n");
-    Dispatcher::instance().run();
+    timefw::Dispatcher::instance().run();
 
     return 0;
 }

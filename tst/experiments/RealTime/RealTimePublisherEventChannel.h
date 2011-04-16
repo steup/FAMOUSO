@@ -42,7 +42,7 @@
 #define __REALTTIMEPUBLISHEREVENTCHANNEL_H_F5AE863048FD9B__
 
 #include "debug.h"
-#include "Dispatcher.h"
+#include "timefw/Dispatcher.h"
 
 #include "mw/common/Event.h"
 #include "mw/api/CallBack.h"
@@ -111,7 +111,7 @@ namespace famouso {
                      */
                     RealTimePublisherEventChannel(const Subject& subject) : EC(subject) {
                         EC::trampoline.template bind<type, &type::trampoline_impl>(this);
-                        reservation_state = NoSubscriber;
+                        reservation_state = NoReservation;
                     }
 
                     /*!
@@ -121,25 +121,25 @@ namespace famouso {
                      *          exception callback (NoEvent).
                      */
                     void publish(const Event & event) {
+                        // TODO: check size
                         // Copy event into temporal firewall buffer
                         EventInfo & ei = tf.write_lock();
                         memcpy(ei.data, event.data, event.length);
                         ei.length = event.length;
-                        time::Time exp = ei.expire = TimeSource::current().add_usec(period);
+                        timefw::Time exp = ei.expire = timefw::TimeSource::current().add_usec(period);
                         tf.write_unlock();
 
                         ::logging::log::emit<RT>()
                             << "publish: chan " << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                            << " at " << TimeSource::current() << " expiring at " << exp << "\n";
+                            << " at " << timefw::TimeSource::current() << " expiring at " << exp << "\n";
 
                         // Für alle Netze
                         if (reservation_state == NoReservation) {
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                                << " at " << TimeSource::current() << " NO RESERVATION\n";
-                            signal_exception(ExceptionInfo::RealTimeReservationFailed,
-                                             /* NetworkID */ UID((uint64_t)0llu));
+                                << " at " << timefw::TimeSource::current() << " NO RESERVATION\n";
+                            signal_exception();
                         }
                     }
 
@@ -160,21 +160,21 @@ namespace famouso {
 
                     void unannounce() {
                         // TODO: für alle Netze
-                        Dispatcher::instance().dequeue(deliver_task);
+                        timefw::Dispatcher::instance().dequeue(deliver_task);
                     }
 
                 private:
 
                     enum ReservationState {
-                        NoSubscriber = 2,
-                        NoReservation = 1,
+                        NoReservation = 2,
+                        Unused = 1,
                         Delivering = 0
                     };
 
                     // TODO: einmal für jedes Netz
                     // je netz: (slot-length), timer-handles, (RT-State)
                     uint8_t reservation_state;
-                    Task deliver_task;
+                    timefw::Task deliver_task;
                     uint32_t tx_window_duration;
 
                     // int8_t local_deliver_net; // TODO: -1: bei publish_local bei publish, >=0 bei deliver für 1. netz mit reservierung
@@ -210,44 +210,56 @@ namespace famouso {
                         if (action.action == Action::set_real_time_reserv_state) {
                             const el::ml::ChannelReservationData * rd = reinterpret_cast<const el::ml::ChannelReservationData *>(action.buffer);
 
-                            if (rd->event_type == el::ml::rt_reservation_event) {
+                            //if (rd->event_type == el::ml::rt_res_event || rd->event_type == el::ml::rt_res_deliv_event) {
+                            if (rd->event_type <= el::ml::rt_res_deliv_event) {
+                                // TX channel successfully reserved
+
+                                if (reservation_state == NoReservation) {
+                                    // Set RT status
+                                    reservation_state = Unused;
+
+                                    // Save tx channel params
+                                    deliver_task.start.set(rd->tx_ready_time);
+                                    tx_window_duration = rd->tx_window_time;
+
+                                    ::logging::log::emit<RT>()
+                                        << "successfully reserved: chan "
+                                        << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                        << " at " << timefw::TimeSource::current() << '\n';
+                                }
+                            }
+                            if (rd->event_type == el::ml::rt_deliv_event || rd->event_type == el::ml::rt_res_deliv_event) {
                                 // Start periodic delivery of published data
 
-                                // Handle duplicate status setting
-                                if (reservation_state == Delivering)
-                                    return 1;
+                                if (reservation_state == Unused) {
+                                    // Set RT status
+                                    reservation_state = Delivering;
 
-                                // Set RT status
-                                reservation_state = Delivering;
+                                    // Schedule periodic deliver task
+                                    deliver_task.start.set(increase_by_multiple_above(deliver_task.start.get(), static_cast<uint64_t>(period), timefw::TimeSource::current().get()));
+                                    deliver_task.period = period;
+                                    deliver_task.function.bind<type, &type::deliver>(this);
+                                    deliver_task.realtime = true;
+                                    timefw::Dispatcher::instance().enqueue(deliver_task);
 
-                                // Schedule periodic deliver task
-                                deliver_task.start.set(increase_by_multiple_above(rd->tx_ready_time, static_cast<uint64_t>(period), TimeSource::current().get()));
-                                deliver_task.period = period;
-                                deliver_task.function.bind<type, &type::deliver>(this);
-                                deliver_task.realtime = true;
-                                Dispatcher::instance().enqueue(deliver_task);
+                                    ::logging::log::emit<RT>()
+                                        << "start deliver: chan "
+                                        << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                        << " at " << timefw::TimeSource::current() << ": first deliver at "
+                                        << ::logging::log::dec << deliver_task.start << "\n";
+                                }
+                            } else if (rd->event_type == el::ml::rt_no_deliv_event) {
+                                // Stop delivery
 
-                                tx_window_duration = rd->tx_window_time;
-
-                                ::logging::log::emit<RT>()
-                                    << "start deliver: chan "
-                                    << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                                    << " at " << TimeSource::current() << ": first deliver at "
-                                    << ::logging::log::dec << deliver_task.start << "\n";
-                            } else if (rd->event_type == el::ml::rt_no_subscriber_event) {
                                 if (reservation_state == Delivering) {
-                                    // Stop delivery
-                                    Dispatcher::instance().dequeue(deliver_task);
+                                    timefw::Dispatcher::instance().dequeue(deliver_task);
+                                    reservation_state = Unused;
 
                                     ::logging::log::emit<RT>()
                                         << "stop deliver: chan "
                                         << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                                        << " at " << TimeSource::current() << "\n";
+                                        << " at " << timefw::TimeSource::current() << "\n";
                                 }
-                                reservation_state = NoSubscriber;
-                            } else if (rd->event_type == el::ml::rt_no_reservation_event) {
-                                FAMOUSO_ASSERT(reservation_state != Delivering);
-                                reservation_state = NoReservation;
                             }
                             return 1;
                         }
@@ -258,14 +270,27 @@ namespace famouso {
                         // publish_local bei voidNL?
                         // bei "erstem" netz publish_local
 
+#if defined(RT_TEST_COM_LAT)
+                        // Communication latency test: payload is timestamp
+                        FAMOUSO_ASSERT(mel >= 8);
+                        PublishParamSet pps(deliver_task.start, tx_window_duration);
+
+                        Event e(EC::subject());
+                        uint8_t buffer[mel];
+                        memset(buffer, 0, mel);
+                        *reinterpret_cast<uint64_t*>(buffer) = htonll(timefw::TimeSource::current().get());
+                        e.length = mel;
+                        e.data = buffer;
+                        EC::ech().publish(*this, e, &pps);
+#else
                         const EventInfo & ei = tf.read_lock();
                         // TODO: Wenn Ü-Kanal noch nicht reserviert -> Exception
-                        if (TimeSource::current() < ei.expire) {
+                        if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                                << " at " << TimeSource::current() << " expiring at " << ei.expire << "\n";
+                                << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
 
                             /*! \todo   If the event contains a deadline attribute, also check this.
                              */
@@ -279,18 +304,18 @@ namespace famouso {
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                                << " at " << TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
-                            signal_exception(ExceptionInfo::NoEvent, /* NetworkID */ UID((uint64_t)0llu));
+                                << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
+                            signal_exception();
                         }
                         tf.read_unlock();
+#endif
                     }
 
 
-                    void signal_exception(ExceptionInfo::Type type, const famouso::mw::el::ml::NetworkID & net_id) {
+                    void signal_exception() {
                         // Bei Verwendung von Temporal Firewall (komplette Flussentkopplung) in Wait-Condition, auf die von extra thread wartet
                         //exception-Handler aufrufen!
-                        ExceptionInfo e(type, net_id);
-                        exception_callback(e);
+                        exception_callback();
                     }
             };
 

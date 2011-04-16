@@ -49,7 +49,7 @@
 
 #include "NetworkTimingConfig.h"
 #include "value_types.h"
-#include "../math.h"
+#include "util/math.h"
 
 
 namespace famouso {
@@ -58,9 +58,9 @@ namespace famouso {
 
             struct RealTimeTxChannel {
                 enum Status {
+                    waiting_for_reservation,
                     waiting_for_subscriber,
-                    reserved,
-                    waiting_for_ressources,
+                    delivering,
                     waiting_for_poll_master_ack,
                     waiting_for_producer_ack
                 };
@@ -114,13 +114,12 @@ namespace famouso {
                     this->slot_usec.shift = 0;
                     this->slot_aslot.shift = 0;
 
-                    this->status = waiting_for_subscriber;
+                    this->status = waiting_for_reservation;
                 }
 
                 void init_reserv(unsigned int shift_aslots,
                                  const NetworkTimingConfig & net_param) {
-                    FAMOUSO_ASSERT(status == waiting_for_subscriber ||
-                                   status == waiting_for_ressources);
+                    FAMOUSO_ASSERT(status == waiting_for_reservation);
 
                     this->slot_aslot.shift = shift_aslots;
                     this->slot_usec.shift = shift_aslots * net_param.plan_granul_us;

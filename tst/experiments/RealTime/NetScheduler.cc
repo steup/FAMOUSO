@@ -37,98 +37,29 @@
  *
  ******************************************************************************/
 
-
-// Default logging
-#include "logging/logging.h"
-
-#include "TFW.h"
-typedef famouso::time::GlobalClock<famouso::time::ClockDriverGPOS> Clock;
-FAMOUSO_TIME_SOURCE(Clock)
-
-#include "mw/common/NodeID.h"
-template <>
-UID getNodeID<void>() {
-    return UID("RTSchedN");
-}
-
-
+#define FAMOUSO_NODE_ID "RTSchedN"
+#include "RTNodeCommon.h"
 #include "RTNetScheduler.h"
-
-#include "mw/api/PublisherEventChannel.h"
-#include "mw/api/SubscriberEventChannel.h"
-
-#include "devices/nic/can/SocketCAN/SocketCAN.h"
-//#include "devices/nic/can/peak/PeakCAN.h"
-#include "mw/nl/can/etagBP/Client.h"
-#include "mw/nl/can/ccp/Client.h"
-#include "mw/nl/CANNL.h"
-
-//#include "mw/el/EventLayerClientStub.h"
-#include "mw/nl/voidNL.h"
-#include "mw/anl/AbstractNetworkLayer.h"
-#include "mw/el/EventLayer.h"
-
-#include "mw/common/Event.h"
-#include "famouso.h"
-
-
-
-namespace famouso {
-    class config {
-            typedef device::nic::CAN::SocketCAN can;
-            //typedef device::nic::CAN::PeakCAN can;
-            typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
-            typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
-            typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> NL;
-            //typedef famouso::mw::nl::voidNL NL;
-            typedef famouso::mw::anl::AbstractNetworkLayer<NL> ANL;
-
-            //typedef famouso::mw::el::EventLayerClientStub BaseEL;
-        public:
-            typedef famouso::mw::el::EventLayer<ANL> EL;
-            typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
-            typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
-    };
-}
-
-#include "Dispatcher.h"
-
-// TODO: rename to something with scheduler
-
-
-
-
 
 int main(int argc, char ** argv) {
     famouso::init<famouso::config>();
-
-    // can be integrated into famouso init
-    famouso::config::SEC time_chan("TimeSync");
-    typedef famouso::TimeSource::clock_type Clock;
-    time_chan.callback.bind<Clock, &Clock::tick>(&famouso::TimeSource::instance());
-    time_chan.subscribe();
-
-    while (famouso::TimeSource::out_of_sync()) {
-        usleep(1000);
-    }
-    ::logging::log::emit() << "Clock in sync\n";
-
+    CLOCK_SYNC_INIT;
 
     using namespace famouso::mw::rt_net_sched;
     RTNetScheduler<famouso::config::PEC, famouso::config::SEC> sched;
     NetworkSchedule can(famouso::mw::el::ml::NetworkID(/*"CAN0@1Mb"*/(uint64_t)0),
                         CanNetworkTimingConfig(
-                            1000000,    // Bits per second
+                            250000,     // Bits per second
                             1000,       // Uhrengranularität in us
                             1000,       // Planungsgranularität in us
                             1000,       // Trigger bis USF in nano sec
-                            1000        // Trigger bis USF in nano sec
+                            1000        // USF bis auf Medium in nano sec
                         ),
                         sched);
 
     // Idler would be sufficient at the moment
     ::logging::log::emit() << "Start dispatcher\n";
-    Dispatcher::instance().run();
+    timefw::Dispatcher::instance().run();
     ::logging::log::emit() << "Stop dispatcher\n";
 
     return 0;

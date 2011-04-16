@@ -41,7 +41,7 @@
 #define __RT_NOWINDOWCHECK_H_6CBC546E178875__
 
 #include "mw/anl/detail/EmptyPublishParamSet.h"
-#include "../TFW.h"
+#include "timefw/Time.h"
 
 namespace famouso {
     namespace mw {
@@ -62,8 +62,8 @@ namespace famouso {
                     }
 
                     /// Constructor for real time event
-                    NoWindowCheckPublishParamSet(const time::Time & ready_time,
-                                                 const time::Time & window_duration) :
+                    NoWindowCheckPublishParamSet(const timefw::Time & ready_time,
+                                                 const timefw::Time & window_duration) :
                                 rt(true) {
                     }
 
@@ -102,8 +102,8 @@ namespace famouso {
                         return true;
                     }
 
-                    void grant_rt_access(time::Time ready_time,
-                                         time::Time window_duration) {
+                    void grant_rt_access(timefw::Time ready_time,
+                                         timefw::Time window_duration) {
                     }
             };
 

@@ -41,7 +41,7 @@
 #define __SLOTSCHEDULER_H_A4ECF9C5163E41__
 
 #include <algorithm>
-#include "../math.h"
+#include "util/math.h"
 
 #include "mw/afp/defrag/detail/BitArray.h"
 

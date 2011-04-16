@@ -37,6 +37,10 @@
 ##
 ################################################################################
 
+CONFIG=linux/xenomai
+#CONFIG=avr
+#ADD_FLAGS=-O3
+
 include ../../../make/Makefile
 ADDITIONAL_CFLAGS+= -I../../../Bindings/include
 

@@ -41,7 +41,7 @@
 #define __RT_WINDOWCHECK_H_D183F88F73D157__
 
 #include "RT_NoWindowCheck.h"
-#include "../TFW.h"
+#include "timefw/Time.h"
 
 namespace famouso {
     namespace mw {
@@ -55,8 +55,8 @@ namespace famouso {
                     typedef NoWindowCheckPublishParamSet Base;
 
                 protected:
-                    const time::Time * ready;
-                    const time::Time * window;
+                    const timefw::Time * ready;
+                    const timefw::Time * window;
 
                 public:
                     /// Constructor for non real time event
@@ -64,8 +64,8 @@ namespace famouso {
                     }
 
                     /// Constructor for real time event
-                    WindowCheckPublishParamSet(const time::Time & ready_time,
-                                               const time::Time & window_duration) :
+                    WindowCheckPublishParamSet(const timefw::Time & ready_time,
+                                               const timefw::Time & window_duration) :
                                 Base(ready_time, window_duration),
                                 ready(&ready_time), window(&window_duration) {
                     }
@@ -92,10 +92,10 @@ namespace famouso {
             class RT_WindowCheck : public NRTPolicy {
 
                     /// Earliest time when transmission is allowed
-                    time::Time ready;
+                    timefw::Time ready;
 
                     /// Latest time when transmission is allowed
-                    time::Time deadline;
+                    timefw::Time deadline;
 
                 public:
                     /// Publish parameter set used as optional parameter for internal publish functions
@@ -108,9 +108,9 @@ namespace famouso {
 
                     /// Returns whether a real time packet can be transmitted now
                     bool rt_access_right() {
-                        if (TimeSource::out_of_sync())
+                        if (timefw::TimeSource::out_of_sync())
                             return false;
-                        time::Time curr = TimeSource::current();
+                        timefw::Time curr = timefw::TimeSource::current();
                         if (curr < ready || deadline < curr)
                             return false;
                         else
@@ -125,8 +125,8 @@ namespace famouso {
                      *
                      *  \note   Called by WindowCheckPublishParamSet::process().
                      */
-                    void grant_rt_access(time::Time ready_time,
-                                         time::Time window_duration) {
+                    void grant_rt_access(timefw::Time ready_time,
+                                         timefw::Time window_duration) {
                         ready = ready_time;
                         deadline = ready_time + window_duration;
                     }

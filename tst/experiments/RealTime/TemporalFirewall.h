@@ -41,7 +41,7 @@
 #define __TEMPORALFIREWALL_H_0154DA24DD73BA__
 
 #include "mw/common/Event.h"
-#include "TFW.h"
+#include "timefw/Time.h"
 
 namespace famouso {
 namespace mw {
@@ -59,7 +59,7 @@ namespace detail {
             // Subject not needed
 
             /// Expire time of the event
-            time::Time expire;
+            timefw::Time expire;
 
             /*!
              *  \brief  Constructor

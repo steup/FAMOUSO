@@ -55,13 +55,14 @@ namespace famouso {
                                                      const el::ml::LocalChanID & lc_id,
                                                      const el::ml::NetworkID & net_id,
                                                      uint64_t tx_ready_time,
-                                                     uint64_t tx_window_time) = 0;
-                    virtual void publish_no_reservation(const NodeID & node_id,
-                                                        const el::ml::LocalChanID & lc_id,
-                                                        const el::ml::NetworkID & net_id) = 0;
-                    virtual void publish_no_subscriber(const NodeID & node_id,
-                                                       const el::ml::LocalChanID & lc_id,
-                                                       const el::ml::NetworkID & net_id) = 0;
+                                                     uint64_t tx_window_time,
+                                                     bool deliver) = 0;
+                    virtual void publish_deliv(const NodeID & node_id,
+                                               const el::ml::LocalChanID & lc_id,
+                                               const el::ml::NetworkID & net_id) = 0;
+                    virtual void publish_no_deliv(const NodeID & node_id,
+                                                  const el::ml::LocalChanID & lc_id,
+                                                  const el::ml::NetworkID & net_id) = 0;
             };
 
         } // namespace rt_net_sched

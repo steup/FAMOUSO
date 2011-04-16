@@ -95,7 +95,7 @@ namespace famouso {
                             uint8_t type;
                             read_u8(type);
                             read_uid(nodeID);
-                            if (type == rt_reservation_event || type == rt_no_reservation_event || type == rt_no_subscriber_event)
+                            if (type >= rt_res_event && type <= rt_no_deliv_event)
                                 return type;
                             else
                                 return unsupported_event;
