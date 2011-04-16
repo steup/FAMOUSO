@@ -37,5 +37,5 @@
 ##
 ################################################################################
 
-ADDITIONAL_CFLAGS   += `xeno-config --skin posix --cflags`
+ADDITIONAL_CFLAGS   += `xeno-config --skin posix --cflags` -D__XENOMAI__
 ADDITIONAL_LIBS     += -Wl,-rpath `xeno-config --prefix`/lib `xeno-config --skin posix --ldflags` -lrtdm
