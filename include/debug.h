@@ -63,7 +63,7 @@ LOGGING_DISABLE_LEVEL(::logging::Info);
 
 #include "logging/UID.h"
 
-#if !defined(ASSERT_FAILED_HANDLER)
+#if !defined(FAMOUSO_ASSERT_FAILED_HANDLER)
 
 #include <stdlib.h>
 
