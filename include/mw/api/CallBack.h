@@ -68,28 +68,9 @@ namespace famouso {
             void cb(SECCallBackData& cbd);
 
 
-            /*! \brief Definition of the data that the EventChannel exception callbacks will get as parameter
-             */
-            struct ExceptionInfo {
-                enum Type {
-                    NoEvent,
-                    TransmissionFailed,
-                    RealTimeReservationFailed,
-                };
-
-                Type type;
-
-                /// For publisher exceptions: ID of the network; unused otherwise
-                famouso::mw::el::ml::NetworkID network_id;
-
-                ExceptionInfo(Type t, famouso::mw::el::ml::NetworkID net_id) :
-                    type(t), network_id(net_id) {
-                }
-            };
-
             /*! \brief Definition of exception callback delegate type
              */
-            typedef famouso::util::Delegate<const ExceptionInfo&> ExceptionCallBack;
+            typedef famouso::util::Delegate<void> ExceptionCallBack;
 
             /*! \brief ecb is the default exception callback
               *
@@ -97,7 +78,7 @@ namespace famouso {
               * itself. However for testing is nice to have. Future versions will remove
               * that function.
               */
-            void ecb(const ExceptionInfo &);
+            void ecb();
 
 
         }

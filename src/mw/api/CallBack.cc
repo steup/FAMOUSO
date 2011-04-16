@@ -57,7 +57,7 @@ namespace famouso {
               * itself. However for testing is nice to have. Future versions will remove
               * that function.
               */
-            void ecb(const ExceptionInfo &) {}
+            void ecb() {}
 
         }
     }
