@@ -59,7 +59,7 @@ namespace sensor1 {
 #ifndef __ETHERNET__
     const uint64_t mel = 32;
 #else
-    const uint64_t mel = 65000;
+    const uint64_t mel = 32000;
 #endif
 
     // Node 1
@@ -68,7 +68,7 @@ namespace sensor1 {
     const uint64_t dt_end = dt_start + 20 * 1000;
 
     // Node 2
-    const uint64_t st_start = 0;
+    const uint64_t st_start = 40 * 1000;
 }
 
 namespace motor2 {

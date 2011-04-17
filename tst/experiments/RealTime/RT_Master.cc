@@ -37,7 +37,7 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "RTSchedN"
+#define FAMOUSO_NODE_ID "MasterNo"
 #define USE_LOCAL_CLOCK
 #define BE_CAN_BROKER
 #include "RTNodeCommon.h"

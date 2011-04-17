@@ -37,7 +37,7 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeOth1"
+#define FAMOUSO_NODE_ID "Oth1Node"
 #include "RTNodeCommon.h"
 #include "eval_RTPEC.h"
 #include "eval_RTSEC.h"
@@ -79,7 +79,7 @@ int main(int argc, char ** argv) {
              mw::attributes::RealTimeSlotEndBoundary<sensor2::dt_end>
              */
         >::attrSet
-    > sensor2_pec("sensor_2", 0 /*sensor2::pt_start*/);
+    > sensor2_pec("Sensor_2", 0 /*sensor2::pt_start*/);
     sensor2_pec.announce();
 
     EvalRTSEC<
@@ -88,7 +88,7 @@ int main(int argc, char ** argv) {
              mw::attributes::Period<motor2::period>,
              mw::attributes::MaxEventLength<motor2::mel>
         >::attrSet
-    > motor2_sec("motor__2", 1000/*motor2::st_start*/);
+    > motor2_sec("Motor__2", 1000/*motor2::st_start*/);
     motor2_sec.subscribe();
 
     EvalRTPEC<
@@ -100,7 +100,7 @@ int main(int argc, char ** argv) {
              mw::attributes::RealTimeSlotEndBoundary<emrgstop::dt_end>
              */
         >::attrSet
-    > es_pec("emrgstop", 2000/*emrgstop::pt_start*/);
+    > es_pec("Not-Aus_", 2000/*emrgstop::pt_start*/);
     es_pec.announce();
 #endif
 

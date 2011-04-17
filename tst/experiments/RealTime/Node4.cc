@@ -37,7 +37,7 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeOth2"
+#define FAMOUSO_NODE_ID "Oth2Node"
 #include "RTNodeCommon.h"
 #include "eval_RTPEC.h"
 #include "eval_RTSEC.h"
@@ -71,7 +71,7 @@ int main(int argc, char ** argv) {
     // Currently we have no driver supporting parallel NRT/RT tx from one node
     // -> do only one of both
 #ifdef HIGH_NRT_LOAD
-    timefw::Task nrt_task(0, 5 * 1000, false);
+    timefw::Task nrt_task(0, 1, false);
     nrt_task.bind<&nrt_publish_func>();
     timefw::Dispatcher::instance().enqueue(nrt_task);
     nrt_pec.announce();
@@ -86,7 +86,7 @@ int main(int argc, char ** argv) {
              mw::attributes::RealTimeSlotEndBoundary<motor2::dt_end>
              */
         >::attrSet
-    > motor2_pec("motor__2", 0/*motor2::pt_start*/);
+    > motor2_pec("Motor__2", 0/*motor2::pt_start*/);
     motor2_pec.announce();
 
     EvalRTSEC<
@@ -95,7 +95,7 @@ int main(int argc, char ** argv) {
              mw::attributes::Period<sensor2::period>,
              mw::attributes::MaxEventLength<sensor2::mel>
         >::attrSet
-    > sensor2_sec("sensor_2", 1000/*sensor2::st_start*/);
+    > sensor2_sec("Sensor_2", 1000/*sensor2::st_start*/);
     sensor2_sec.subscribe();
 
     EvalRTSEC<
@@ -104,8 +104,21 @@ int main(int argc, char ** argv) {
              mw::attributes::Period<emrgstop::period>,
              mw::attributes::MaxEventLength<emrgstop::mel>
         >::attrSet
-    > es_sec("emrgstop", 200/*emrgstop::st_start*/);
+    > es_sec("Not-Aus_", 200/*emrgstop::st_start*/);
     es_sec.subscribe();
+
+    EvalRTPEC<
+        config::PEC,
+        mw::attributes::detail::SetProvider<
+             mw::attributes::Period<5*1000>,
+#ifdef __ETHERNET__
+             mw::attributes::MaxEventLength<500>
+#else
+             mw::attributes::MaxEventLength<20>
+#endif
+        >::attrSet
+    > sensor3_pec("Sensor_3", 0);
+    sensor3_pec.announce();
 #endif
 
     printf("Start dispatcher\n");
