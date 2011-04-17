@@ -40,6 +40,7 @@
 #ifndef __REALTIMELOGGER_H_EBF7F9476CC618__
 #define __REALTIMELOGGER_H_EBF7F9476CC618__
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -120,6 +121,10 @@ namespace logging {
             RealTimeLogger() {
                 mlockall (MCL_CURRENT | MCL_FUTURE);
                 buffer = new char [length];
+                if (!buffer) {
+                    fprintf(stderr, "Error allocating buffer for RT-Logging\n");
+                    exit(1);
+                }
                 curr_write = buffer;
                 curr_flush = buffer;
                 end = buffer + length;
@@ -138,6 +143,10 @@ namespace logging {
                 pthread_set_name_np(flush_thread, "RT logging buffer flush thread");
 #endif
                 pthread_attr_destroy(&thread_attr);
+                // Obviously there is a bug in "g++ (GCC) 4.5.1 20100924 (Red Hat 4.5.1-4)"
+                // because the constructor is not called in some binaries when compiling with
+                // -O3
+                printf("RTLogging initialized\n");
             }
 
             /// Joins buffer flushing thread and closes file
