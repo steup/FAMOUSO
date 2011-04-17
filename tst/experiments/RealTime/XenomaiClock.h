@@ -46,10 +46,11 @@
 
 //Gergeleit/Streich sync
     // Accurancy needed for sync
+    // Consecutive sync ticks with acc < wanted_acc for sync
     // interface: nanosec
     // internal: nanosec
     // Only works with TimestampingXenomaiRTCANDriver
-    template <class ClockDriver, uint64_t accuracy_us>
+    template <class ClockDriver, uint64_t accuracy_us, unsigned int stability_count = 3>
     class GlobalXenomaiClock : public ClockDriver {
             class GergeleitStrechPIDriftCorrector {
                     enum { NUM_OF_TIMESTAMPS = 4 };
@@ -82,17 +83,33 @@
                     double integral;
                     double accuracy;
 
+                    uint64_t wanted_abs_acc;
+                    unsigned int wanted_stability_count;
+                    unsigned int curr_stability_count;
+
+                    void update_sync_status() {
+                        uint64_t abs_acc = accuracy < 0 ? -accuracy : accuracy;
+                        if (abs_acc < wanted_abs_acc) {
+                            curr_stability_count++;
+                        } else {
+                            curr_stability_count = 0;
+                        }
+                    }
+
                 public:
-                    GergeleitStrechPIDriftCorrector() :
+                    GergeleitStrechPIDriftCorrector(uint64_t wanted_acc, unsigned int wanted_stab_count) :
                             glob_last_sync_time(0),
                             local_last_sync_time(0),
                             glob_i(0),
                             integral(0),
-                            accuracy(1e30) {
+                            accuracy(1e30),
+                            wanted_abs_acc(wanted_acc),
+                            wanted_stability_count(wanted_stab_count),
+                            curr_stability_count(0) {
                     }
 
-                    double get_accuracy() {
-                        return accuracy;
+                    bool out_of_sync() {
+                        return curr_stability_count < wanted_stability_count;
                     }
 
                     double local_to_global(double local_time) {
@@ -176,6 +193,7 @@
                                 << static_cast<int64_t>(drift(glob_i) * 1000000000.0) << "e-9\n";
                                 */
 
+                            update_sync_status();
 #ifdef CLOCK_ACCURACY_OUTPUT
 #ifdef RT_TEST_STATISTICS
                             /*
@@ -221,6 +239,10 @@
             }
 
         public:
+            GlobalXenomaiClock() :
+                impl(accuracy_us*1000, stability_count) {
+            }
+
             void sync_event(const famouso::mw::Event & e) {
                 FAMOUSO_ASSERT(e.length == 8);
                 uint64_t server_ts = ntohll(*reinterpret_cast<uint64_t*>(e.data));
@@ -231,9 +253,7 @@
             bool out_of_sync() {
                 // TODO: mutex
                 // TODO: get out of sync if there are no sync events anymore
-                double acc = impl.get_accuracy();
-                double abs_acc = acc < 0 ? -acc : acc;
-                return abs_acc > accuracy_us * 1000;
+                return impl.out_of_sync();
             }
 
             // Timestamp in us
