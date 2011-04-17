@@ -31,7 +31,7 @@ int main() {
     t.period = 10;
     t.start = timefw::TimeSource::current().add_sec(1);
     ::logging::log::emit() << "Task start " << t.start << '\n';
-    t.function.bind<&task>();
+    t.bind<&task>();
 
     timefw::Dispatcher::instance().enqueue(t);
     timefw::Dispatcher::instance().run();

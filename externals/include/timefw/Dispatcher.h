@@ -62,13 +62,13 @@ namespace timefw {
 
 
 
-    struct Task : public Chain {
+    // Later we need argument binding (multiple Deliver-Tasks on one RT-PEC)
+    struct Task : public famouso::util::Delegate<void>, public Chain {
         bool realtime;
         Time start;
         uint64_t period;                        // in usec, Zero for non-periodic
-        famouso::util::Delegate<void> function; // Later we need argument binding
-
         Task() : realtime(false) {}
+        Task(const Time & s, uint64_t p = 0, bool rt = false) : realtime(rt), start(s), period(p) {}
     };
 
     // simple function dispatcher sketch for first testing
@@ -105,7 +105,7 @@ namespace timefw {
 
             void dispatch(Task & task, const Time & curr) {
                 // Run task
-                task.function();
+                task();
                 // Insert periodic task into queue again
                 if (task.period != 0) {
                     // Ensure to increase starting time by one period

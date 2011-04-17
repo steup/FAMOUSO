@@ -59,7 +59,7 @@ class TestRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Re
         {
             pub_task.start = increase_by_multiple_above(pub_task_start.get(), (uint64_t)Base::period, timefw::TimeSource::current().get());
             pub_task.period = Base::period;
-            pub_task.function.bind<TestRTPEC, &TestRTPEC::publish_task_func>(this);
+            pub_task.bind<TestRTPEC, &TestRTPEC::publish_task_func>(this);
             timefw::Dispatcher::instance().enqueue(pub_task);
         }
 
@@ -111,7 +111,7 @@ class TestRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannel<SEC, R
 
             sub_task.start = increase_by_multiple_above(sub_task_start.get(), (uint64_t)Base::period, timefw::TimeSource::current().get());
             sub_task.period = Base::period;
-            sub_task.function.template bind<Base, &Base::notify_task>(this);
+            sub_task.template bind<Base, &Base::notify_task>(this);
             timefw::Dispatcher::instance().enqueue(sub_task);
 #endif
         }

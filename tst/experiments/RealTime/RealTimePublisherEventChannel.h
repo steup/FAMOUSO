@@ -238,7 +238,7 @@ namespace famouso {
                                     // Schedule periodic deliver task
                                     deliver_task.start.set(increase_by_multiple_above(deliver_task.start.get(), static_cast<uint64_t>(period), timefw::TimeSource::current().get()));
                                     deliver_task.period = period;
-                                    deliver_task.function.bind<type, &type::deliver>(this);
+                                    deliver_task.bind<type, &type::deliver>(this);
                                     deliver_task.realtime = true;
                                     timefw::Dispatcher::instance().enqueue(deliver_task);
 
