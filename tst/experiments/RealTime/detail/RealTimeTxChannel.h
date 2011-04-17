@@ -154,18 +154,32 @@ namespace famouso {
                 void log() {
                     using namespace ::logging;
                     log::emit()
-                        << "- RT Publisher " << log::hex << lc_id << ": subject " << subject
-                        << ", node_id " << node_id
-                        << ";\tSlot period " << log::dec << slot_aslot.period << " (" << slot_usec.period << " us), "
-                        << "length " << slot_aslot.length << " (" << slot_usec.length << " us), "
-                        << "shift " << slot_aslot.shift << " (" << slot_usec.shift << " us)";
+                        << "- RTCC: "
+                        << "Subject " << subject
+                        << ", LocalChanID " << log::hex << lc_id << ", NodeID " << node_id << "\n"
+                        << "\tSlot Period: " << log::dec << slot_usec.period << " us -> "  << slot_aslot.period << " aSlots\n"
+                        << "\tSlot Length: " << slot_usec.length << " us -> "  << slot_aslot.length << " aSlots\n";
                     if (slot_bounds_given) {
                         log::emit()
-                            << " selected from [" << slot_aslot.shift_min << ", "
-                            << slot_aslot.shift_min + slot_aslot.shift_width - 1 << "] (["
-                            << slot_usec.shift_min << " us, " << slot_usec.shift_max << " us]";
+                            << "\tSlot phase selection range: [" << slot_usec.shift_min << " us, " << slot_usec.shift_max << " us] -> ["
+                            << slot_aslot.shift_min << " aSlots, " << slot_aslot.shift_min + slot_aslot.shift_width - 1 << " aSlots]\n";
                     }
-                    log::emit() << log::endl;
+                    if (status == waiting_for_reservation) {
+                        log::emit() << "\t==> Reservation failed!!!\n";
+                    } else {
+                        log::emit()
+                            << "\tSlot Phasing: " << slot_aslot.shift << " aSlots ->  " << slot_usec.shift << " us\n"
+                            << "\tSlot TX Start Window: " << slot_usec.tx_window << " us\n";
+                        if (status == waiting_for_subscriber) {
+                            log::emit() << "\t==> Reserved\n";
+                        } else if (status == delivering) {
+                            log::emit() << "\t==> Reserved and in use\n";
+                        } else if (status == waiting_for_poll_master_ack) {
+                            log::emit() << "\t==> Reserved, starting delivery\n";
+                        } else if (status == waiting_for_producer_ack) {
+                            log::emit() << "\t==> Reserved, stopping delivery\n";
+                        }
+                    }
                 }
             };
 

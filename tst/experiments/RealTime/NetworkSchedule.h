@@ -128,7 +128,7 @@ namespace famouso {
                             ::logging::log::emit() << "failure!" << ::logging::log::endl;
                         }
                         slot_scheduler.log_free_list();
-                        ::logging::log::emit() << "Real time announcements\n";
+                        ::logging::log::emit() << "Real time communication channels on NetworkID " << network_id << '\n';
                         rt_announcements.log();
                     }
 
