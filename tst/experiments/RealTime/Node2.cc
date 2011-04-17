@@ -47,6 +47,10 @@
 int main(int argc, char ** argv) {
     famouso::init<famouso::config>(argc, argv);
     CLOCK_SYNC_INIT;
+    struct sched_param param;
+    memset(&param, 0, sizeof(param));
+    param.sched_priority = 1;
+    pthread_setschedparam(pthread_self(), SCHED_FIFO, &param);
 
     using namespace famouso;
 
