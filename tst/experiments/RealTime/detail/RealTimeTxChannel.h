@@ -192,7 +192,8 @@ namespace famouso {
                     if (status == waiting_for_reservation) {
                         log::emit() << "\t==> Reservation failed!!!\n";
                     } else {
-                        log::emit() << "\t==> Reserved\n";
+                        log::emit() << "\t==> Reserved\t\t"
+                            << "Phasing = " << slot_aslot.shift << " aSlots\n";
                     }
                 }
 #endif
