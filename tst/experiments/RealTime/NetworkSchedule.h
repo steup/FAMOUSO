@@ -94,11 +94,18 @@ namespace famouso {
                     RTNetSchedulerBase & scheduler;
 
                     void reserv(RealTimeTxChannel & rt_pub) {
-                        // Try to reserve slots
+                        // Try to reserve communication channel
                         unsigned int aslot_shift = 0;
+                        int aslot_min = -1, aslot_width = -1;
+
+                        if (rt_pub.slot_bounds_given) {
+                            aslot_min = rt_pub.slot_aslot.shift_min;
+                            aslot_width = rt_pub.slot_aslot.shift_width;
+                        }
+
                         ::logging::log::emit() << "Trying to reserve real time network resources... ";
-                        // TODO: Phase window
-                        if (slot_scheduler.reserve(rt_pub.slot_aslot.period, rt_pub.slot_aslot.length, -1, -1, aslot_shift)) {
+
+                        if (slot_scheduler.reserve(rt_pub.slot_aslot.period, rt_pub.slot_aslot.length, aslot_min, aslot_width, aslot_shift)) {
                             ::logging::log::emit() << "success!" << ::logging::log::endl;
                             set_cycle_duration(slot_scheduler.cycle_length() * network_timing.plan_granul_us);
                             rt_pub.init_reserv(aslot_shift, network_timing);
@@ -158,7 +165,7 @@ namespace famouso {
                     template <class RTNetScheduler>
                     NetworkSchedule(const el::ml::NetworkID & network_id, const NetworkTimingConfig & ntc, RTNetScheduler & sched) :
                             network_id(network_id), network_timing(ntc),
-                            cycle_duration_us(1), cycle_start_us(0),
+                            cycle_duration_us(ntc.plan_granul_us), cycle_start_us(0),
                             scheduler(sched) {
                         sched.register_network(this);
                     }
@@ -173,8 +180,11 @@ namespace famouso {
                         rt_announcements.begin_update(node_id);
                     }
 
-                    void process_announcement(const NodeID & node_id, const el::ml::LocalChanID & lc_id, const el::ml::NetworkID & network_id, const Subject & subject,
-                                              res_state_t reserv_state, period_t period, mel_t max_event_length, repetition_t repetition) {
+                    void process_announcement(const NodeID & node_id, const el::ml::LocalChanID & lc_id,
+                                              const el::ml::NetworkID & network_id, const Subject & subject,
+                                              res_state_t reserv_state, period_t period, mel_t max_event_length,
+                                              repetition_t repetition,
+                                              uint64_t * slot_bound_start, uint64_t * slot_bound_end) {
 
                         // Assumes no changes in known announcements... returns only new publisher (uninitialized)
                         bool newly_announced;
@@ -184,7 +194,11 @@ namespace famouso {
                             // TODO: match states and init retransmission if necessary
                         } else {
                             // Newly announced publisher: reserve tx channel
-                            rt_pub.init(node_id, lc_id, network_id, subject, period, max_event_length, repetition, network_timing);
+                            rt_pub.init(node_id, lc_id, network_id, subject, period,
+                                        max_event_length, repetition,
+                                        slot_bound_start, slot_bound_end,
+                                        get_next_cycle_start(),
+                                        network_timing);
                             reserv(rt_pub);
                         }
                     }

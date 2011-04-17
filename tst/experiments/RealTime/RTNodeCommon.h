@@ -123,6 +123,8 @@ UID getNodeID<void>() {
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/Period.h"
 #include "mw/attributes/MaxEventLength.h"
+#include "mw/attributes/RealTimeSlotStartBoundary.h"
+#include "mw/attributes/RealTimeSlotEndBoundary.h"
 #include "mw/api/ExtendedEventChannel.h"
 #include "guard/NetworkGuard.h"
 #include "guard/RT_WindowCheck.h"

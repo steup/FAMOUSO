@@ -97,11 +97,22 @@ static inline T increase_by_multiple_above(T a, T b, T c) {
 
 /*!
  *  \brief  Return \p a increased to a multpile of \p b
+ *  \note   Only for integral types
  */
 template <typename T>
 static inline T increase_to_multiple(T a, T b) {
     return div_round_up(a, b) * b;
 }
+
+/*!
+ *  \brief  Return \p a reduced to a multpile of \p b
+ *  \note   Only for integral types
+ */
+template <typename T>
+static inline T reduce_to_multiple(T a, T b) {
+    return (a / b) * b;
+}
+
 
 #endif // __MATH_H_B17EDA6C8EF650__
 

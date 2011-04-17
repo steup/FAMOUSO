@@ -66,6 +66,8 @@ namespace famouso {
 
                                 maxEventLengthId = 11,
                                 reservationStateId = 12,
+                                rtSlotStartBoundId = 13,
+                                rtSlotEndBoundId = 14,
 
                                 // position / coordinates ???
 

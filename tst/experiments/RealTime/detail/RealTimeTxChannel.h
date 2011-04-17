@@ -77,17 +77,24 @@ namespace famouso {
                 /// Subject, only needed for verbose logging
                 Subject subject;
 
+                // Whetehr slot_usec.shift_* and slot_aslot.shift_* are valid
+                bool slot_bounds_given;
+
                 struct SlotInfoUSec {
                     uint64_t period;
                     uint64_t length;
                     uint64_t tx_window;       // relative to shift
                     uint64_t shift;
+                    uint64_t shift_min;
+                    uint64_t shift_max;
                 } slot_usec;
 
                 struct SlotInfoASlot {
                     unsigned int period;
                     unsigned int length;
                     unsigned int shift;
+                    unsigned int shift_min;
+                    unsigned int shift_width;
                 } slot_aslot;
 
                 void init(const NodeID & node_id,
@@ -97,6 +104,9 @@ namespace famouso {
                           period_t period_us,
                           mel_t max_event_length_bytes,
                           repetition_t repetition,
+                          uint64_t * slot_bound_start_us,
+                          uint64_t * slot_bound_end_us,
+                          uint64_t cycle_start_time_us,
                           const NetworkTimingConfig & net) {
                     this->node_id = node_id;
                     this->lc_id = lc_id;
@@ -109,6 +119,22 @@ namespace famouso {
 
                     net.calc_slot_durations(max_event_length_bytes, repetition, this->slot_usec.length, this->slot_usec.tx_window);
                     this->slot_aslot.length = div_round_up(this->slot_usec.length, net.plan_granul_us);
+
+                    if (slot_bound_start_us && slot_bound_end_us) {
+                        slot_bounds_given = true;
+                        uint64_t length_us = increase_to_multiple(slot_usec.length, net.plan_granul_us);
+                        this->slot_usec.shift_min = increase_to_multiple(*slot_bound_start_us, net.plan_granul_us);
+                        this->slot_usec.shift_max = reduce_to_multiple(*slot_bound_end_us, net.plan_granul_us);
+                        FAMOUSO_ASSERT(slot_usec.shift_min + length_us <= slot_usec.shift_max);
+
+                        this->slot_aslot.shift_min   = div_round_up(increase_by_multiple_above(slot_usec.shift_min, (uint64_t)period_us, cycle_start_time_us) - cycle_start_time_us,
+                                                                    net.plan_granul_us);
+                        this->slot_aslot.shift_width = div_round_up(slot_usec.shift_max - length_us - slot_usec.shift_min,
+                                                                    net.plan_granul_us);
+                        FAMOUSO_ASSERT(0 <= slot_aslot.shift_min && slot_aslot.shift_min < slot_aslot.period);
+                    } else {
+                        slot_bounds_given = false;
+                    }
 
                     // Calculated during reservation
                     this->slot_usec.shift = 0;
@@ -132,8 +158,14 @@ namespace famouso {
                         << ", node_id " << node_id
                         << ";\tSlot period " << log::dec << slot_aslot.period << " (" << slot_usec.period << " us), "
                         << "length " << slot_aslot.length << " (" << slot_usec.length << " us), "
-                        << "shift " << slot_aslot.shift << " (" << slot_usec.shift << " us)"
-                        << ::logging::log::endl;
+                        << "shift " << slot_aslot.shift << " (" << slot_usec.shift << " us)";
+                    if (slot_bounds_given) {
+                        log::emit()
+                            << " selected from [" << slot_aslot.shift_min << ", "
+                            << slot_aslot.shift_min + slot_aslot.shift_width - 1 << "] (["
+                            << slot_usec.shift_min << " us, " << slot_usec.shift_max << " us]";
+                    }
+                    log::emit() << log::endl;
                 }
             };
 

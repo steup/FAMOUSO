@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,57 +37,50 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "RT_Node1"
-#include "RTNodeCommon.h"
-#include "evaluation.h"
+#ifndef __REALTIMESLOTENDBOUNDARY_H_3D39C5C2E1E02D__
+#define __REALTIMESLOTENDBOUNDARY_H_3D39C5C2E1E02D__
 
+#include "mw/common/Event.h"
 
-void subscriber_callback(const famouso::mw::api::SECCallBackData& event) {
-    ::logging::log::emit() << "callback: subject " << event.subject
-                           << ", length " << ::logging::log::dec << event.length
-                           << ", data " << event.data
-                           << ", time " << timefw::TimeSource::current()
-                           << logging::log::endl;
-}
+#include "mw/attributes/tags/IntegralConstTag.h"
+#include "mw/attributes/Attribute.h"
 
-int main(int argc, char ** argv) {
-    famouso::init<famouso::config>();
-    CLOCK_SYNC_INIT;
+#include "mw/attributes/detail/HighDensityIDs.h"
 
+#include "mw/attributes/detail/tags/TagSet.h"
+#include "mw/attributes/detail/tags/IsHighDensity.h"
 
-    /*
-    famouso::config::SEC sec1("rt_____0");
-    sec1.callback.bind<&subscriber_callback>();
-    sec1.subscribe();
+namespace famouso {
+    namespace mw {
+        namespace attributes {
 
-    famouso::config::PEC pec1("nrt____0");
-    pec1.announce();
-    */
+            /*!
+             * \brief Defines a configurable attribute for describing
+             *        the end boundary time of a real time
+             *        communication channel slot.
+             *
+             * The unit of the attribute value is micro seconds.
+             *
+             * \tparam time Initial value to be set
+             */
+            template <uint64_t time>
+            class RealTimeSlotEndBoundary : public Attribute<
+                                            RealTimeSlotEndBoundary<0>,
+                                            tags::integral_const_tag,
+                                            uint64_t,
+                                            time,
+                                            detail::HighDensityIDs::rtSlotEndBoundId,
+                                            detail::TagSet<
+                                                    detail::IsHighDensity
+                                                   >
+                                        > {
+                public:
+                    typedef RealTimeSlotEndBoundary type;
+            };
 
-//    {
-    // PEC QoS
-    const uint64_t period = 200000;        // 200 ms
-    const uint64_t mel = 70; //17;               // 17 Byte -> bei CAN 3 Fragmente
+        } /* attributes */
+    } /* mw */
+} /* famouso */
 
-    // Local CPU schedule
-    const uint64_t deliver_start_boundary_time = 0;
-    const uint64_t deliver_end_boundary_time = period/2;
-    const uint64_t publish_start_time = period / 2;
-
-    typedef famouso::mw::attributes::detail::SetProvider<
-             famouso::mw::attributes::Period<period>,
-             famouso::mw::attributes::MaxEventLength<mel>,
-             famouso::mw::attributes::RealTimeSlotStartBoundary<deliver_start_boundary_time>,
-             famouso::mw::attributes::RealTimeSlotEndBoundary<deliver_end_boundary_time>
-            >::attrSet Req;
-
-    TestRTPEC<famouso::config::PEC, Req> pec2("rt1_(n1)", publish_start_time);
-    pec2.announce();
-//    }
-
-    printf("Start dispatcher\n");
-    timefw::Dispatcher::instance().run();
-
-    return 0;
-}
+#endif // __REALTIMESLOTENDBOUNDARY_H_3D39C5C2E1E02D__
 

@@ -79,6 +79,8 @@ namespace famouso {
 
                     typedef attributes::Period<0> PeriodType;
                     typedef attributes::MaxEventLength<0> MaxEventLengthType;
+                    typedef attributes::RealTimeSlotStartBoundary<0> RealTimeSlotStartBoundaryType;
+                    typedef attributes::RealTimeSlotEndBoundary<0> RealTimeSlotEndBoundaryType;
                     typedef attributes::ReservationState ReservationStateType;
                     typedef attributes::AttributeSet<> AttrSet;
 
@@ -220,15 +222,33 @@ namespace famouso {
                                 // Real Time announcement
                                 const PeriodType * period_p = req_attr->template find_rt<PeriodType>();
                                 const MaxEventLengthType * mes_p = req_attr->template find_rt<MaxEventLengthType>();
+                                const RealTimeSlotStartBoundaryType * slot_bound_start_p = req_attr->template find_rt<RealTimeSlotStartBoundaryType>();;
+                                const RealTimeSlotEndBoundaryType * slot_bound_end_p = req_attr->template find_rt<RealTimeSlotEndBoundaryType>();;
 
                                 if (period_p && mes_p) {
                                     // New real time announcement
                                     period_t period_us = period_p->getValue();
                                     mel_t max_event_length_bytes = mes_p->getValue();
 
-                                    net->process_announcement(node_id, lc_id, network_id, subject,
-                                                              rt_p->getValue(), period_us, max_event_length_bytes, 0);
-
+                                    if (slot_bound_start_p && slot_bound_end_p) {
+                                        // Slot boundaries given
+                                        uint64_t sbs = slot_bound_start_p->getValue();
+                                        uint64_t sbe = slot_bound_end_p->getValue();
+                                        net->process_announcement(node_id, lc_id, network_id, subject,
+                                                                  rt_p->getValue(), period_us,
+                                                                  max_event_length_bytes, 0,
+                                                                  &sbs,
+                                                                  &sbe);
+                                    } else if (!slot_bound_start_p && !slot_bound_end_p) {
+                                        // No slot boundaries given
+                                        net->process_announcement(node_id, lc_id, network_id, subject,
+                                                                  rt_p->getValue(), period_us,
+                                                                  max_event_length_bytes, 0,
+                                                                  0, 0);
+                                    } else {
+                                        ::logging::log::emit() << "Slot start or end boundary missing: ignoring announcement"
+                                                               << ::logging::log::endl;
+                                    }
                                 } else {
                                     ::logging::log::emit() << "Essential real time attribute missing: ignoring announcement"
                                                            << ::logging::log::endl;
