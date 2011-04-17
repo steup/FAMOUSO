@@ -67,6 +67,16 @@ namespace timefw {
                 return *this;
             }
 
+            Time & sub_sec(uint64_t s) {
+                time -= s * 1000000;
+                return *this;
+            }
+
+            Time & sub_usec(uint64_t us) {
+                time -= us;
+                return *this;
+            }
+
             uint64_t get_usec() const {
                 return time;
             }

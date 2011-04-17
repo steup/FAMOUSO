@@ -92,8 +92,25 @@ namespace timefw {
                 tasks.remove(&task);
             }
 
+            void futurify_start(Task & task) {
+                FAMOUSO_ASSERT(task.period != 0);
+                task.start.set(
+                    increase_by_multiple_above(
+                        task.start.get(),
+                        task.period,
+                        TimeSource::current().get()));
+            }
+
             void wait_for_next_task() {
                 // TODO: wenn nebenläufiges ändern von tasks (z.b. in callbacks während dispatcher läuft): warten ggf. abzubrechen
+                if (TimeSource::out_of_sync()) {
+                    ::logging::log::emit() << "[DISPATCH] Paused, because clock is out of sync!!!\n";
+                    do {
+                        if (usleep(250000))
+                            return;  // Interruped by signal
+                    } while (TimeSource::out_of_sync());
+                    ::logging::log::emit() << "[DISPATCH] Continue, clock in sync again.\n";
+                }
                 Task * task = static_cast<Task*>(tasks.select());
                 if (task) {
                     TimeSource::wait_until(task->start);
@@ -103,7 +120,7 @@ namespace timefw {
                 }
             }
 
-            void dispatch(Task & task, const Time & curr) {
+            void dispatch(Task & task) {
                 // Run task
                 task();
                 // Insert periodic task into queue again
@@ -111,7 +128,7 @@ namespace timefw {
                     // Ensure to increase starting time by one period
                     task.start.add_usec(task.period);
                     // Ensure to starting time is in the future
-                    task.start.set(increase_by_multiple_above(task.start.get(), task.period, curr.get()));
+                    futurify_start(task);
                     insert_task(task);
                 }
             }
@@ -122,10 +139,16 @@ namespace timefw {
             // Nicht nachträglich zu ändern!
             void enqueue(Task & task) {
 #ifdef DISPATCHER_OUTPUT
-                ::logging::log::emit() << "[DISPATCH] enqueued task scheduled for " << task.start << " (currtly " << timefw::TimeSource::current() << ')' << '\n';
+                ::logging::log::emit() << "[DISPATCH] enqueued task scheduled for " << task.start << " (currently " << timefw::TimeSource::current() << ')' << '\n';
 #endif
-                if (task.period)
-                    task.start.set(increase_by_multiple_above(task.start.get(), task.period, timefw::TimeSource::current().get()));
+                if (task.period) {
+                    //futurify_start(task);
+                    task.start.set(
+                        increase_by_multiple_above(
+                            task.start.get(),
+                            task.period,
+                            TimeSource::current().add_sec(1).get()));
+                }
                 insert_task(task);
             }
 
@@ -144,12 +167,12 @@ namespace timefw {
                 while (!___done) {
                     Task * next = static_cast<Task *>(tasks.unlink());
                     if (next) {
-                        Time curr = TimeSource::current();
 #ifdef DISPATCHER_OUTPUT
+                        Time curr = TimeSource::current();
                         ::logging::log::emit() << "[DISPATCH] task scheduled for " << next->start << " started " << curr << '\n';
 #endif
                         // Run task
-                        dispatch(*next, curr);
+                        dispatch(*next);
                     }
                     wait_for_next_task();
 //                    ::logging::log::emit() << '.';
@@ -178,7 +201,7 @@ namespace timefw {
 #ifdef DISPATCHER_OUTPUT
                     ::logging::log::emit() << "[DISPATCH] task scheduled for " << next->start << " started " << curr << " (NRT yielded for RT)\n";
 #endif
-                    dispatch(*next, curr);
+                    dispatch(*next);
                 }
             }
     };
