@@ -130,17 +130,21 @@ namespace famouso {
                         timefw::Time exp = ei.expire = timefw::TimeSource::current().add_usec(period);
                         tf.write_unlock();
 
+#if (RTPEC_OUTPUT >= 2)
                         ::logging::log::emit<RT>()
                             << "publish: chan " << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                             << " at " << timefw::TimeSource::current() << " expiring at " << exp << "\n";
+#endif
 
                         // Für alle Netze
                         if (reservation_state == NoReservation) {
+#if (RTPEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                 << " at " << timefw::TimeSource::current() << " NO RESERVATION\n";
                             signal_exception();
+#endif
                         }
                     }
 
@@ -223,10 +227,12 @@ namespace famouso {
                                     deliver_task.start.set(rd->tx_ready_time);
                                     tx_window_duration = rd->tx_window_time;
 
+#if (RTPEC_OUTPUT >= 1)
                                     ::logging::log::emit<RT>()
                                         << "successfully reserved: chan "
                                         << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                         << " at " << timefw::TimeSource::current() << '\n';
+#endif
                                 }
                             }
                             if (rd->event_type == el::ml::rt_deliv_event || rd->event_type == el::ml::rt_res_deliv_event) {
@@ -243,11 +249,13 @@ namespace famouso {
                                     deliver_task.realtime = true;
                                     timefw::Dispatcher::instance().enqueue(deliver_task);
 
+#if (RTPEC_OUTPUT >= 1)
                                     ::logging::log::emit<RT>()
                                         << "start deliver: chan "
                                         << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                         << " at " << timefw::TimeSource::current() << ": first deliver at "
                                         << ::logging::log::dec << deliver_task.start << "\n";
+#endif
                                 }
                             } else if (rd->event_type == el::ml::rt_no_deliv_event) {
                                 // Stop delivery
@@ -256,10 +264,12 @@ namespace famouso {
                                     timefw::Dispatcher::instance().dequeue(deliver_task);
                                     reservation_state = Unused;
 
+#if (RTPEC_OUTPUT >= 1)
                                     ::logging::log::emit<RT>()
                                         << "stop deliver: chan "
                                         << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                         << " at " << timefw::TimeSource::current() << "\n";
+#endif
                                 }
                             }
                             return 1;
@@ -288,10 +298,12 @@ namespace famouso {
                         // TODO: Wenn Ü-Kanal noch nicht reserviert -> Exception
                         if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
+#if (RTPEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                 << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
+#endif
 
                             /*! \todo   If the event contains a deadline attribute, also check this.
                              */
@@ -302,11 +314,13 @@ namespace famouso {
                             EC::ech().publish(*this, e, &pps);
                         } else {
                             // expire in past
+#if (RTPEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                 << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
                             signal_exception();
+#endif
                         }
                         tf.read_unlock();
 #endif

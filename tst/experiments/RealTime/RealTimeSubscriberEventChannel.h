@@ -133,10 +133,12 @@ namespace famouso {
                         const EventInfo & ei = tf.read_lock();
                         if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
+#ifdef RTSEC_OUTPUT
                             ::logging::log::emit<RT>()
                                 << "update notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                 << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
+#endif
                             if (notify_callback) {
                                 Event e(SEC::subject());
                                 e.data = const_cast<uint8_t*>(ei.data);
@@ -145,10 +147,12 @@ namespace famouso {
                             }
                         } else {
                             // expire in past
+#ifdef RTSEC_OUTPUT
                             ::logging::log::emit<RT>()
                                 << "exception notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                 << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
+#endif
                             if (exception_callback) {
                                 exception_callback();
                             }

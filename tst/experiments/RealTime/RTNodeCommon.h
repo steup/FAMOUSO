@@ -49,6 +49,11 @@
 
 //#define CLOCK_ACCURACY_OUTPUT
 //#define DISPATCHER_OUTPUT
+//#define RTSEC_OUTPUT
+
+// RT-PEC output verbosity: 0 - no output, 1 - only status changes, 2 - all activities
+#define RTPEC_OUTPUT 1
+
 
 //#define CLOCK_ACCURACY_TEST
 //#define RT_TEST_DATA_CHECK
