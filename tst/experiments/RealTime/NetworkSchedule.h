@@ -94,7 +94,7 @@ namespace famouso {
                     RTNetSchedulerBase & scheduler;
 
                     void log_res_state() {
-                        ::logging::log::emit() << "Real time communication channels on NetworkID " << network_id << '\n';
+                        ::logging::log::emit() << "\nReal time communication channels on NetworkID " << network_id << '\n';
                         rt_announcements.log();
                     }
 

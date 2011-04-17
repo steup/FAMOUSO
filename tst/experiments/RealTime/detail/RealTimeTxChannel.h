@@ -153,6 +153,7 @@ namespace famouso {
 
                 void log() {
                     using namespace ::logging;
+#if 0
                     log::emit()
                         << "- RTCC: "
                         << "Subject " << subject
@@ -181,6 +182,20 @@ namespace famouso {
                         }
                     }
                 }
+#else
+                    // Short output
+                    log::emit()
+                        << "- RTCC: "
+                        << "Subject " << subject
+                        << ", NodeID " << node_id << "\n"
+                        << "\tPeriod = " << log::dec << slot_aslot.period << " aSlots,\tLength = " << slot_aslot.length << " aSlots\n";
+                    if (status == waiting_for_reservation) {
+                        log::emit() << "\t==> Reservation failed!!!\n";
+                    } else {
+                        log::emit() << "\t==> Reserved\n";
+                    }
+                }
+#endif
             };
 
         } // namespace rt_net_sched
