@@ -81,11 +81,69 @@ class TestRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Re
         }
 };
 
+#include <map>
+
+class LatencyDistribution {
+        typedef std::map<int64_t, unsigned int> MapType;
+        MapType distri;
+
+        /*
+        int64_t max_lat;
+        int64_t min_lat;
+
+        double sum_lat;
+        unsigned int count_lat;
+        */
+
+        enum { intervall = 5 };
+    public:
+        /*
+        LatencyDistribution() :
+            max_lat(-1000000000000ll),
+            min_lat(1000000000000ll),
+            sum_lat(0),
+            count_lat(0) {
+        }
+        */
+
+        void add_latency(int64_t lat) {
+            if (intervall != 1)
+                lat = (lat / intervall) * intervall;
+
+            MapType::iterator it = distri.find(lat);
+            if (it == distri.end())
+                distri.insert(MapType::value_type(lat, 1));
+            else
+                it->second++;
+            /*
+            if (lat > max_lat)
+                max_lat = lat;
+            if (lat < min_lat)
+                min_lat = lat;
+            sum_lat += lat;
+            ++count_lat;
+            */
+        }
+
+        void log_latency_distribution() {
+            using namespace ::logging;
+            MapType::iterator it = distri.begin();
+            log::emit() << log::dec;
+            while (it != distri.end()) {
+                log::emit() << it->first << ' ' << it->second << '\n';
+                ++it;
+            }
+        }
+};
+
 template <class SEC, class Req>
 class TestRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase<SEC, Req> {
         // Subscriber task not used in all configurations
         timefw::Task sub_task;
         uint64_t counter;
+#if !defined(RT_TEST_DATA_CHECK)
+        LatencyDistribution lat_dist;
+#endif
     public:
         typedef famouso::mw::api::RealTimeSubscriberEventChannelBase<SEC, Req> Base;
 
@@ -112,6 +170,15 @@ class TestRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase<SE
             timefw::Dispatcher::instance().enqueue(sub_task);
 #endif
         }
+
+#if !defined(RT_TEST_DATA_CHECK)
+        ~TestRTSEC() {
+        printf("Destruktor\n");
+            ::logging::log::emit() << "## Latency distribution (subject " << Base::subject() << ") ###########\n";
+            lat_dist.log_latency_distribution();
+            ::logging::log::emit() << "##########################################################\n";
+        }
+#endif
 
         void notify_data_check(const famouso::mw::Event & event) {
             // Expect sequence number (if event.length > 8 the rest is zeroed)
@@ -154,6 +221,10 @@ class TestRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase<SE
                 ::logging::log::emit() << " lat -" << sent.get() - recv.get() << "us\n";
             else
                 ::logging::log::emit() << " lat " << recv.get() - sent.get() << "us\n";
+
+#if !defined(RT_TEST_DATA_CHECK)
+            lat_dist.add_latency((int64_t)recv.get() - (int64_t)sent.get());
+#endif
         }
 
         void exception() {
