@@ -65,6 +65,17 @@
 
 #ifdef RT_LOGGING
 // Real time logging
+
+// Define assert handler which without using deferred logging, which would not be displayed because of abort()
+#include <stdlib.h>
+#include <stdio.h>
+#include "logging/ProgramMemoryString.h"
+static inline void immediate_flush_assert_failed_handler(const ::logging::ProgramMemoryString & expr, const ::logging::ProgramMemoryString & file, const ::logging::ProgramMemoryString & line) {
+    fprintf(stderr, "%s:%s: Assertion '%s' failed.\n", file.str, line.str, expr.str);
+    abort();
+}
+#define FAMOUSO_ASSERT_FAILED_HANDLER ::immediate_flush_assert_failed_handler
+
 #define LOGGING_OUTPUT_FILE "log_" FAMOUSO_NODE_ID ".txt"
 #define LOGGING_DEFINE_EXTENDED_OUTPUT_TYPE
 #define LOGGING_DEFINE_OWN_OUTPUT_TYPE
