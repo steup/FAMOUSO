@@ -60,8 +60,8 @@ namespace famouso {
 
             template <typename SEC, typename Requirement,
                       template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
-            class RealTimeSubscriberEventChannel : public SEC {
-                    typedef RealTimeSubscriberEventChannel type;
+            class RealTimeSubscriberEventChannelBase : public SEC {
+                    typedef RealTimeSubscriberEventChannelBase type;
 
                 protected:
                     typedef typename Requirement::template find_ct< attributes::Period<0> >::type PeriodAttrib;
@@ -95,7 +95,7 @@ namespace famouso {
                     };
 
                 public:
-                    RealTimeSubscriberEventChannel(const Subject& subject) : SEC(subject) {
+                    RealTimeSubscriberEventChannelBase(const Subject& subject) : SEC(subject) {
                         SEC::trampoline.template bind<type, &type::trampoline_impl>(this);
                         SEC::callback.template bind<type, &type::callback_periodic_notify_impl>(this);
                     }
@@ -129,7 +129,7 @@ namespace famouso {
 
                 public:
                     // may run in another thread
-                    void notify_task() {
+                    void subscriber_task_func() {
                         const EventInfo & ei = tf.read_lock();
                         if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
@@ -156,13 +156,33 @@ namespace famouso {
                         tf.read_unlock();
                     }
 
-
                     /*!
                      *  \brief  
                      *  bei Subscriber anstelle des notify aufgerufen, wenn kein Event gemäß Spezifikation (Subject, Filter, QoS-Anforderungen) erhalten
                      */
                     famouso::mw::api::ExceptionCallBack exception_callback;
                     famouso::mw::api::SECCallBack notify_callback;
+            };
+
+            // TODO: Beispiel für Anhang hiermit
+            template <typename SEC, typename Requirement,
+                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
+            class RealTimeSubscriberEventChannel : public RealTimeSubscriberEventChannelBase<SEC, Requirement, TemporalFirewall> {
+                    typedef RealTimeSubscriberEventChannel type;
+                    typedef RealTimeSubscriberEventChannelBase<SEC, Requirement, TemporalFirewall> Base;
+
+                protected:
+                    timefw::Task subscriber_task;
+
+                public:
+                    RealTimeSubscriberEventChannel(const famouso::mw::Subject & subj,
+                                                   const timefw::Time & sub_task_start = timefw::TimeSource::current()) :
+                        Base(subj),
+                        subscriber_task(sub_task_start, Base::period, true)
+                    {
+                        subscriber_task.template bind<Base, &Base::subscriber_task_func>(this);
+                        timefw::Dispatcher::instance().enqueue(subscriber_task);
+                    }
             };
 
         } // namespace api

@@ -45,7 +45,6 @@
 
 template <class PEC, class Req>
 class TestRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> {
-        timefw::Task pub_task;
         famouso::mw::Event event;
         uint64_t counter;
     public:
@@ -53,14 +52,11 @@ class TestRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Re
 
         TestRTPEC(const famouso::mw::Subject & subj,
                   const timefw::Time & pub_task_start) :
-            Base(subj),
+            Base(subj, pub_task_start),
             event(subj),
             counter(0)
         {
-            pub_task.start = increase_by_multiple_above(pub_task_start.get(), (uint64_t)Base::period, timefw::TimeSource::current().get());
-            pub_task.period = Base::period;
-            pub_task.bind<TestRTPEC, &TestRTPEC::publish_task_func>(this);
-            timefw::Dispatcher::instance().enqueue(pub_task);
+            Base::publisher_task.template bind<TestRTPEC, &TestRTPEC::publish_task_func>(this);
         }
 
         void publish_task_func() {
@@ -86,11 +82,12 @@ class TestRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Re
 };
 
 template <class SEC, class Req>
-class TestRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannel<SEC, Req> {
+class TestRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase<SEC, Req> {
+        // Subscriber task not used in all configurations
         timefw::Task sub_task;
         uint64_t counter;
     public:
-        typedef famouso::mw::api::RealTimeSubscriberEventChannel<SEC, Req> Base;
+        typedef famouso::mw::api::RealTimeSubscriberEventChannelBase<SEC, Req> Base;
 
         TestRTSEC(const famouso::mw::Subject & subj,
                   const timefw::Time & sub_task_start) :
@@ -111,7 +108,7 @@ class TestRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannel<SEC, R
 
             sub_task.start = increase_by_multiple_above(sub_task_start.get(), (uint64_t)Base::period, timefw::TimeSource::current().get());
             sub_task.period = Base::period;
-            sub_task.template bind<Base, &Base::notify_task>(this);
+            sub_task.template bind<Base, &Base::subscriber_task_func>(this);
             timefw::Dispatcher::instance().enqueue(sub_task);
 #endif
         }

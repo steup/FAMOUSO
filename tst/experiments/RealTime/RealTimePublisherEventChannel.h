@@ -65,10 +65,11 @@ namespace famouso {
         namespace api {
 
             // Idee: exception handler Unterstützung als Policy (deaktivierbar)
+            // Basic Service without publisher task (e.g. one task for multi channels)
             template <typename EC, typename Requirement,
                       template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
-            class RealTimePublisherEventChannel : public EC {
-                    typedef RealTimePublisherEventChannel type;
+            class RealTimePublisherEventChannelBase : public EC {
+                    typedef RealTimePublisherEventChannelBase type;
 
                 protected:
                     typedef typename Requirement::template find_ct< attributes::Period<0> >::type PeriodAttrib;
@@ -109,7 +110,7 @@ namespace famouso {
                     /*!
                      *  \brief  Constructor
                      */
-                    RealTimePublisherEventChannel(const Subject& subject) : EC(subject) {
+                    RealTimePublisherEventChannelBase(const Subject& subject) : EC(subject) {
                         EC::trampoline.template bind<type, &type::trampoline_impl>(this);
                         reservation_state = NoReservation;
                     }
@@ -319,6 +320,29 @@ namespace famouso {
                     }
             };
 
+            template <typename EC, typename Requirement,
+                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
+            class RealTimePublisherEventChannel : public RealTimePublisherEventChannelBase<EC, Requirement, TemporalFirewall> {
+                    typedef RealTimePublisherEventChannel type;
+                    typedef RealTimePublisherEventChannelBase<EC, Requirement, TemporalFirewall> Base;
+
+                public:
+                    /*!
+                     *  \brief  Constructor
+                     */
+                    RealTimePublisherEventChannel(const Subject& subject,
+                                                  const timefw::Time pub_task_start = timefw::TimeSource::current()) :
+                            Base(subject),
+                            publisher_task(pub_task_start, Base::period, true)
+                    {
+                        // Bind empty implementation (should be overwritten by application)
+                        publisher_task.bind<&ecb>();
+
+                        timefw::Dispatcher::instance().enqueue(publisher_task);
+                    }
+
+                    timefw::Task publisher_task;
+            };
 
         } // namespace api
     } // namespace mw
