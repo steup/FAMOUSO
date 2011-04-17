@@ -61,7 +61,7 @@ namespace device {
 
                 public:
 
-                    /// Return last timestamp
+                    /// Return last timestamp (WARNING: may be overwritten by another thread before read!!!!)
                     static nanosecs_abs_t & last_timestamp() {
                         static nanosecs_abs_t ts = 0;
                         return ts;
@@ -110,28 +110,14 @@ namespace device {
             /*!
              *  \brief  XenomaiRTCAN driver taking timestamp on send
              */
-            class SendTimestampingXenomaiRTCANDriver : public XenomaiRTCANDriver<>  {
+            class SendTimestampingXenomaiRTCANDriver : public RecvTimestampingXenomaiRTCANDriver  {
+                    typedef RecvTimestampingXenomaiRTCANDriver Base;
                     class LoopbackSock : public RecvTimestampingXenomaiRTCANDriver {
                         public:
                             void init(nanosecs_abs_t & timestamp_storage) {
                                 RecvTimestampingXenomaiRTCANDriver::init();
                                 msg.msg_control = (void *)&timestamp_storage;
-
-                                /*
-                                int loopback = 1;
-                                int ret = rt_dev_setsockopt(_can_socket, SOL_CAN_RAW, CAN_RAW_LOOPBACK, &loopback, sizeof(loopback));
-                                if (ret < 0) {
-                                    report_error_and_exit(ret, "__FILE__:__LINE__: rt_dev_setsockopt ");
-                                }
-                                */
-
                             }
-/*
-                            void read_timestamp() {
-                                MOB mob;
-                                RecvTimestampingXenomaiRTCANDriver::read(mob);
-                            }
-                            */
                     };
 
                     LoopbackSock loopback;
@@ -145,7 +131,7 @@ namespace device {
 
                     /// Initialization
                     void init() {
-                        XenomaiRTCANDriver<>::init();
+                        Base::init();
                         loopback.init(last_timestamp());
                     }
 
@@ -157,7 +143,7 @@ namespace device {
                     }
 
                     void write(MOB& mob) {
-                        XenomaiRTCANDriver<>::write(mob);
+                        Base::write(mob);
                         //log_mob(mob);
                         MOB loopback_mob;
                         ::logging::log::emit() << "loopback";

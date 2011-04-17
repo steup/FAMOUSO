@@ -60,6 +60,11 @@
 #define RT_TEST_E2E_LAT
 //#define RT_TEST_COM_LAT
 
+//#define RT_TEST_OUTPUT_PER_PERIOD
+#define RT_TEST_STATISTICS
+
+#define CLOCK_ACC_US 10
+
 //-----------------------------------------------------------------------------
 
 
@@ -96,12 +101,17 @@ LOGGING_DEFINE_OUTPUT( ::logging::OutputLevelSwitchDisabled< ::logging::OutputSt
 // Global clock definition
 #include "timefw/TimeSourceProvider.h"
 #include "timefw/ClockDriverPosix.h"
+#ifdef USE_LOCAL_CLOCK
+#include "timefw/LocalClock.h"
+typedef timefw::LocalClock<timefw::ClockDriverPosix> Clock;
+#else
 #ifdef __XENOMAI__
 #include "XenomaiClock.h"
-typedef GlobalXenomaiClock<timefw::ClockDriverPosix, 50 /* 50ms = max sync accurancy */> Clock;
+typedef GlobalXenomaiClock<timefw::ClockDriverPosix, CLOCK_ACC_US> Clock;
 #else
 #include "NonXenomaiGlobalClock.h"
 typedef GlobalClock<timefw::ClockDriverPosix> Clock;
+#endif
 #endif
 FAMOUSO_TIME_SOURCE(Clock)
 
@@ -123,8 +133,13 @@ UID getNodeID<void>() {
 #else
 #include "devices/nic/can/SocketCAN/SocketCAN.h"
 #endif
+#ifdef BE_CAN_BROKER
+#include "mw/nl/can/etagBP/Broker.h"
+#include "mw/nl/can/ccp/Broker.h"
+#else
 #include "mw/nl/can/etagBP/Client.h"
 #include "mw/nl/can/ccp/Client.h"
+#endif
 #include "mw/nl/CANNL.h"
 
 #include "mw/anl/AbstractNetworkLayer.h"
@@ -151,13 +166,22 @@ UID getNodeID<void>() {
 namespace famouso {
     class config {
 #ifdef __XENOMAI__
+#ifdef BE_CAN_BROKER
+            typedef device::nic::CAN::SendTimestampingXenomaiRTCAN can;
+#else
             typedef device::nic::CAN::RecvTimestampingXenomaiRTCAN can;
+#endif
 #else
             typedef device::nic::CAN::SocketCAN can;
 #endif
-            typedef famouso::mw::nl::CAN::ccp::Client<can> ccpClient;
-            typedef famouso::mw::nl::CAN::etagBP::Client<can> etagClient;
-            typedef famouso::mw::nl::CANNL<can, ccpClient, etagClient> NL;
+#ifdef BE_CAN_BROKER
+            typedef famouso::mw::nl::CAN::ccp::Broker<can> ccp;
+            typedef famouso::mw::nl::CAN::etagBP::Broker<can> etag;
+#else
+            typedef famouso::mw::nl::CAN::ccp::Client<can> ccp;
+            typedef famouso::mw::nl::CAN::etagBP::Client<can> etag;
+#endif
+            typedef famouso::mw::nl::CANNL<can, ccp, etag> NL;
             //typedef famouso::mw::nl::voidNL NL;
             typedef famouso::mw::guard::NetworkGuard<
                             NL,
@@ -165,8 +189,6 @@ namespace famouso {
                             famouso::mw::guard::NRT_HandledByNL
                         > NG;
             typedef famouso::mw::anl::AbstractNetworkLayer<NG> ANL;
-
-            //typedef famouso::mw::el::EventLayerClientStub BaseEL;
         public:
             typedef famouso::mw::el::EventLayer<ANL, famouso::mw::el::ml::ManagementLayer> EL;
             typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
@@ -184,7 +206,7 @@ namespace famouso {
     while (timefw::TimeSource::out_of_sync()) { \
         usleep(1000);   \
     }   \
-    printf("Clock in sync\n");
+    ::logging::log::emit() << "Clock in sync\n";
 
 
 
