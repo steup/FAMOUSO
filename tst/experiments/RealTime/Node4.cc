@@ -54,7 +54,11 @@ void nrt_publish_func() {
 
     famouso::mw::Event event(nrt_pec.subject());
     char buffer [160];
-    event.length = snprintf(buffer, 160, "This is some NRT message published at (%llu ms, %u us) content to create high load on the transmission medium.", ms, us) + 1;
+    static int i = 0;
+    if (++i % 5 == 0)
+        event.length = snprintf(buffer, 160, "This is some NRT message published at (%llu ms, %u us) content to create high load on the transmission medium.", ms, us) + 1;
+    else
+        event.length = snprintf(buffer, 160, "1234567") + 1;
     event.data = (uint8_t*)buffer;
 
     nrt_pec.publish(event);
