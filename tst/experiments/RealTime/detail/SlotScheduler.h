@@ -77,6 +77,9 @@ namespace famouso {
                     // Parameter in atomic slots, shift_min and shift_width may be -1 to be ignored
                     bool reserve(unsigned int period, unsigned int length, int shift_min, int shift_width, unsigned int & shift) {
 
+                        if (length > period)
+                            return false;
+
                         enum { invalid = (unsigned int)(-1) };
 
                         unsigned int old_cycle_len = cycle_length();
