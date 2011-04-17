@@ -177,8 +177,15 @@
                                 */
 
 #ifdef CLOCK_ACCURACY_OUTPUT
+#ifdef RT_TEST_STATISTICS
+                            ::logging::log::emit() << "[CLK t[us] a[ns]] "
+                                << ::logging::log::dec
+                                << server_timestamp(glob_i)
+                                << ' ' << static_cast<int64_t>(accuracy) << '\n';
+#else
                             ::logging::log::emit() << "[SYNC] at "
-                                << timefw::Time(server_timestamp(glob_i))
+                                << ::logging::log::dec
+                                << timefw::Time(server_timestamp(glob_i)/1000)
                                 << " acc " << static_cast<int64_t>(accuracy) << " ns\n";
 #endif
 #ifdef CLOCK_ACCURACY_TEST
@@ -220,7 +227,9 @@
             bool out_of_sync() {
                 // TODO: mutex
                 // TODO: get out of sync if there are no sync events anymore
-                return impl.get_accuracy() > accuracy_us * 1000;
+                double acc = impl.get_accuracy();
+                double abs_acc = acc < 0 ? -acc : acc;
+                return abs_acc > accuracy_us * 1000;
             }
 
             // Timestamp in us
