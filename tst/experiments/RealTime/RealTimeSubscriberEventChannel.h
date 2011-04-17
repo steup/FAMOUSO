@@ -59,7 +59,7 @@ namespace famouso {
         namespace api {
 
             template <typename SEC, typename Requirement,
-                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
+                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
             class RealTimeSubscriberEventChannelBase : public SEC {
                     typedef RealTimeSubscriberEventChannelBase type;
 
@@ -170,7 +170,7 @@ namespace famouso {
 
             // TODO: Beispiel für Anhang hiermit
             template <typename SEC, typename Requirement,
-                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
+                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
             class RealTimeSubscriberEventChannel : public RealTimeSubscriberEventChannelBase<SEC, Requirement, TemporalFirewall> {
                     typedef RealTimeSubscriberEventChannel type;
                     typedef RealTimeSubscriberEventChannelBase<SEC, Requirement, TemporalFirewall> Base;

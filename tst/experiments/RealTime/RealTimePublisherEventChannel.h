@@ -67,7 +67,7 @@ namespace famouso {
             // Idee: exception handler Unterstützung als Policy (deaktivierbar)
             // Basic Service without publisher task (e.g. one task for multi channels)
             template <typename EC, typename Requirement,
-                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
+                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
             class RealTimePublisherEventChannel : public EC {
                     typedef RealTimePublisherEventChannel type;
 

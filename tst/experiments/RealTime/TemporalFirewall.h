@@ -71,6 +71,85 @@ namespace detail {
             }
         };
 
+template <class Data>
+class TemporalFirewallThreadUnsafe {
+        Data buffer;
+
+    public:
+        Data & write_lock() {
+            return buffer;
+        }
+
+        void write_unlock() {
+        }
+
+        const Data & read_lock() {
+            return buffer;
+        }
+
+        void read_unlock() {
+        }
+};
+#ifdef __AVR__
+template <class Data>
+class TemporalFirewallDoubleBuffered {
+
+        // Locking by disabling interrupts
+        struct scoped_lock {
+            char sreg;
+            scoped_lock() {
+                sreg = SREG;
+                cli();
+            }
+            ~scoped_lock() {
+                SREG = sreg;
+            }
+        }
+
+        Data buffer[2];
+
+        enum {
+            buffer_mask = 0x1,
+            reading = 0x2,
+            swap_after_reading = 0x4
+        };
+        uint8_t state;
+
+    public:
+        TemporalFirewallDoubleBuffered() :
+            state(0) {
+        }
+
+        Data & write_lock() {
+            return buffer[state & buffer_mask];
+        }
+
+        void write_unlock() {
+            scoped_lock lock;
+            if (state & reading) {
+                state |= swap_after_reading;
+            } else {
+                state ^= buffer_mask;   // Swap buffers
+            }
+        }
+
+        const Data & read_lock() {
+            scoped_lock lock;
+            state |= reading;
+            return buffer[(state ^ buffer_mask) & buffer_mask];
+        }
+
+        void read_unlock() {
+            scoped_lock lock;
+            state &= ~reading;
+            if (swap_after_reading) {
+                state ^= buffer_mask;   // Swap buffers
+                state &= ~swap_after_reading;
+            }
+        }
+};
+
+#else
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
@@ -81,7 +160,7 @@ namespace detail {
 // Reader only gets to see a buffer updated by the writer if he calls read_unlock().
 // "special concurrency/thread-safe container", no init of elements
 template <class Data>
-class TemporalFirewallDoubleBufferedBoost {
+class TemporalFirewallDoubleBuffered {
 
         typedef boost::lock_guard<boost::mutex> scoped_lock;
 
@@ -99,7 +178,7 @@ class TemporalFirewallDoubleBufferedBoost {
         }
 
     public:
-        TemporalFirewallDoubleBufferedBoost() :
+        TemporalFirewallDoubleBuffered() :
             write(&buffer[0]),
             read(&buffer[1]),
             reading(false),
@@ -134,6 +213,7 @@ class TemporalFirewallDoubleBufferedBoost {
             }
         }
 };
+#endif
 
 // AVR: Blocking geht nicht, weil aus Interrupt-Kontext beschrieben
 // -> Double-Buffered
