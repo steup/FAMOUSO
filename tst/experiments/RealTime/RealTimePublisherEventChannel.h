@@ -68,8 +68,8 @@ namespace famouso {
             // Basic Service without publisher task (e.g. one task for multi channels)
             template <typename EC, typename Requirement,
                       template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
-            class RealTimePublisherEventChannelBase : public EC {
-                    typedef RealTimePublisherEventChannelBase type;
+            class RealTimePublisherEventChannel : public EC {
+                    typedef RealTimePublisherEventChannel type;
 
                 protected:
                     typedef typename Requirement::template find_ct< attributes::Period<0> >::type PeriodAttrib;
@@ -110,7 +110,7 @@ namespace famouso {
                     /*!
                      *  \brief  Constructor
                      */
-                    RealTimePublisherEventChannelBase(const Subject& subject) : EC(subject) {
+                    RealTimePublisherEventChannel(const Subject& subject) : EC(subject) {
                         EC::trampoline.template bind<type, &type::trampoline_impl>(this);
                         reservation_state = NoReservation;
                         deliver_task.period = period;
@@ -324,18 +324,17 @@ namespace famouso {
                     }
             };
 
-            template <typename EC, typename Requirement,
-                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBufferedBoost>
-            class RealTimePublisherEventChannel : public RealTimePublisherEventChannelBase<EC, Requirement, TemporalFirewall> {
-                    typedef RealTimePublisherEventChannel type;
-                    typedef RealTimePublisherEventChannelBase<EC, Requirement, TemporalFirewall> Base;
+            template <typename EC>
+            class AddPublisherTask : public EC {
+                    typedef AddPublisherTask type;
+                    typedef EC Base;
 
                 public:
                     /*!
                      *  \brief  Constructor
                      */
-                    RealTimePublisherEventChannel(const Subject& subject,
-                                                  const timefw::Time pub_task_start = timefw::TimeSource::current()) :
+                    AddPublisherTask(const Subject& subject,
+                                     const timefw::Time pub_task_start = timefw::TimeSource::current()) :
                             Base(subject),
                             publisher_task(pub_task_start, Base::period, true)
                     {
@@ -343,8 +342,8 @@ namespace famouso {
                         publisher_task.bind<&ecb>();
 
                         timefw::Dispatcher::instance().enqueue(publisher_task);
-                        ::logging::log::emit<typename Base::RT>()
-                            << "start publisher task: chan "
+                        ::logging::log::emit()
+                            << "[RT PUB] start publisher task: chan "
                             << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                             << " at " << publisher_task.start << '\n';
                     }

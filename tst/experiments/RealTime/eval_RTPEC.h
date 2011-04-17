@@ -43,11 +43,11 @@
 #include "RealTimePublisherEventChannel.h"
 
 template <class PEC, class Req>
-class EvalRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> {
+class EvalRTPEC : public famouso::mw::api::AddPublisherTask<famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> > {
         famouso::mw::Event event;
         uint64_t counter;
     public:
-        typedef famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> Base;
+        typedef famouso::mw::api::AddPublisherTask<famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> > Base;
 
         EvalRTPEC(const famouso::mw::Subject & subj,
                   const timefw::Time & pub_task_start) :

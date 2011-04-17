@@ -59,7 +59,7 @@ class EvalLatRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase
                   const timefw::Time & sub_task_start) :
             Base(subj)
         {
-#if defined(RT_TEST_COM_LAT)
+#if defined(RT_TEST_COM_LAT) || defined(RT_TEST_ALL_NRT)
             // Use receive callback and no periodic subscriber notify task
             Base::callback.template bind<EvalLatRTSEC, &EvalLatRTSEC::notify_latency>(this);
 #else

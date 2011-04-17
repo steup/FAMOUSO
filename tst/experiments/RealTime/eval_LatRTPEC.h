@@ -43,18 +43,51 @@
 #include "RealTimePublisherEventChannel.h"
 
 template <class PEC, class Req>
-class EvalLatRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> {
+class ProvideSimpleAttribAccess : public PEC {
+    public:
+        typedef typename Req::template find_ct< famouso::mw::attributes::Period<0> >::type PeriodAttrib;
+        typedef typename Req::template find_ct< famouso::mw::attributes::MaxEventLength<0> >::type MELAttrib;
+
+        enum {
+            /// Period given in requirement attributes
+            period = PeriodAttrib::value,
+
+            /// Maximum event length given in requirement attributes
+            mel = MELAttrib::value
+        };
+
+        ProvideSimpleAttribAccess(const famouso::mw::Subject & subj) :
+                PEC(subj) {
+        }
+};
+
+template <class PEC, class Req>
+class EvalLatRTPEC :
+    public famouso::mw::api::AddPublisherTask<
+#ifndef RT_TEST_ALL_NRT
+        famouso::mw::api::RealTimePublisherEventChannel<PEC, Req>
+#else
+        ProvideSimpleAttribAccess<PEC, Req>
+#endif
+    >
+{
         famouso::mw::Event event;
 
-        typedef famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> Base;
+#ifndef RT_TEST_ALL_NRT
+        typedef famouso::mw::api::AddPublisherTask<
+            famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> > Base;
+#else
+        typedef famouso::mw::api::AddPublisherTask<
+            ProvideSimpleAttribAccess<PEC, Req> > Base;
+#endif
     public:
 
         EvalLatRTPEC(const famouso::mw::Subject & subj,
-                  const timefw::Time & pub_task_start) :
+                     const timefw::Time & pub_task_start) :
             Base(subj, pub_task_start),
             event(subj)
         {
-#if defined(RT_TEST_COM_LAT)
+#if defined(RT_TEST_COM_LAT) && !defined(RT_TEST_ALL_NRT)
             Base::deliver_task.template bind<EvalLatRTPEC, &EvalLatRTPEC::publish_task_func>(this);
 #else
             Base::publisher_task.template bind<EvalLatRTPEC, &EvalLatRTPEC::publish_task_func>(this);
@@ -69,7 +102,7 @@ class EvalLatRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC,
             *reinterpret_cast<uint64_t*>(buffer) = htonll(curr.get());
             event.length = Base::mel;
             event.data = buffer;
-#if defined(RT_TEST_COM_LAT)
+#if defined(RT_TEST_COM_LAT) && !defined(RT_TEST_ALL_NRT)
             Base::deliver_to_net(event);
 #else
             Base::publish(event);
