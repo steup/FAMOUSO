@@ -37,11 +37,29 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeSeMo"
+#define FAMOUSO_NODE_ID "NodeOth2"
 #include "RTNodeCommon.h"
-#include "eval_LatRTPEC.h"
-#include "eval_LatRTSEC.h"
+#include "eval_RTPEC.h"
+#include "eval_RTSEC.h"
 #include "eval_app_def.h"
+
+
+#ifdef HIGH_NRT_LOAD
+famouso::config::PEC nrt_pec("nrt_____");
+
+void nrt_publish_func() {
+    timefw::Time curr = timefw::TimeSource::current();
+    unsigned long long ms = curr.get() / 1000;
+    unsigned int us = curr.get() % 1000;
+
+    famouso::mw::Event event(nrt_pec.subject());
+    char buffer [160];
+    event.length = snprintf(buffer, 160, "This is some NRT message published at (%llu ms, %u us) content to create high load on the transmission medium.", ms, us) + 1;
+    event.data = (uint8_t*)buffer;
+
+    nrt_pec.publish(event);
+}
+#endif
 
 
 int main(int argc, char ** argv) {
@@ -50,25 +68,45 @@ int main(int argc, char ** argv) {
 
     using namespace famouso;
 
-    EvalLatRTPEC<
+    // Currently we have no driver supporting parallel NRT/RT tx from one node
+    // -> do only one of both
+#ifdef HIGH_NRT_LOAD
+    timefw::Task nrt_task(0, 5 * 1000, false);
+    nrt_task.bind<&nrt_publish_func>();
+    timefw::Dispatcher::instance().enqueue(nrt_task);
+    nrt_pec.announce();
+#else
+
+    EvalRTPEC<
         config::PEC,
         mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
+             mw::attributes::Period<motor2::period>,
+             mw::attributes::MaxEventLength<motor2::mel>/*,
+             mw::attributes::RealTimeSlotStartBoundary<motor2::dt_start>,
+             mw::attributes::RealTimeSlotEndBoundary<motor2::dt_end>
+             */
         >::attrSet
-    > sensor1_pec("sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
+    > motor2_pec("motor__2", 0/*motor2::pt_start*/);
+    motor2_pec.announce();
 
-    EvalLatRTSEC<
+    EvalRTSEC<
         config::SEC,
         mw::attributes::detail::SetProvider<
-             mw::attributes::Period<motor1::period>,
-             mw::attributes::MaxEventLength<motor1::mel>
+             mw::attributes::Period<sensor2::period>,
+             mw::attributes::MaxEventLength<sensor2::mel>
         >::attrSet
-    > motor1_sec("motor__1", motor1::st_start);
-    motor1_sec.subscribe();
+    > sensor2_sec("sensor_2", 1000/*sensor2::st_start*/);
+    sensor2_sec.subscribe();
+
+    EvalRTSEC<
+        config::SEC,
+        mw::attributes::detail::SetProvider<
+             mw::attributes::Period<emrgstop::period>,
+             mw::attributes::MaxEventLength<emrgstop::mel>
+        >::attrSet
+    > es_sec("emrgstop", 200/*emrgstop::st_start*/);
+    es_sec.subscribe();
+#endif
 
     printf("Start dispatcher\n");
     ::logging::log::emit() << "Start dispatcher\n";

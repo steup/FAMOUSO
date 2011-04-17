@@ -37,43 +37,46 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeSeMo"
-#include "RTNodeCommon.h"
-#include "eval_LatRTPEC.h"
-#include "eval_LatRTSEC.h"
-#include "eval_app_def.h"
+#ifndef __EVAL_LATRTPEC_H_2192A365C65E77__
+#define __EVAL_LATRTPEC_H_2192A365C65E77__
 
+#include "RealTimePublisherEventChannel.h"
 
-int main(int argc, char ** argv) {
-    famouso::init<famouso::config>(argc, argv);
-    CLOCK_SYNC_INIT;
+template <class PEC, class Req>
+class EvalLatRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> {
+        famouso::mw::Event event;
 
-    using namespace famouso;
+        typedef famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> Base;
+    public:
 
-    EvalLatRTPEC<
-        config::PEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
-        >::attrSet
-    > sensor1_pec("sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
+        EvalLatRTPEC(const famouso::mw::Subject & subj,
+                  const timefw::Time & pub_task_start) :
+            Base(subj, pub_task_start),
+            event(subj)
+        {
+#if defined(RT_TEST_COM_LAT)
+            Base::deliver_task.template bind<EvalLatRTPEC, &EvalLatRTPEC::publish_task_func>(this);
+#else
+            Base::publisher_task.template bind<EvalLatRTPEC, &EvalLatRTPEC::publish_task_func>(this);
+#endif
+        }
 
-    EvalLatRTSEC<
-        config::SEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<motor1::period>,
-             mw::attributes::MaxEventLength<motor1::mel>
-        >::attrSet
-    > motor1_sec("motor__1", motor1::st_start);
-    motor1_sec.subscribe();
+        void publish_task_func() {
+            timefw::Time curr = timefw::TimeSource::current().get();
+            uint8_t buffer[Base::mel];
+            memset(buffer, 0, Base::mel);
+            FAMOUSO_ASSERT(Base::mel >= 8);
+            *reinterpret_cast<uint64_t*>(buffer) = htonll(curr.get());
+            event.length = Base::mel;
+            event.data = buffer;
+#if defined(RT_TEST_COM_LAT)
+            Base::deliver_to_net(event);
+#else
+            Base::publish(event);
+#endif
+        }
+};
 
-    printf("Start dispatcher\n");
-    ::logging::log::emit() << "Start dispatcher\n";
-    timefw::Dispatcher::instance().run();
+#endif // __EVAL_LATRTPEC_H_2192A365C65E77__
 
-    return 0;
-}
 

@@ -37,43 +37,47 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeSeMo"
-#include "RTNodeCommon.h"
-#include "eval_LatRTPEC.h"
-#include "eval_LatRTSEC.h"
-#include "eval_app_def.h"
+#ifndef __EVAL_OMISSIONCOUNTER_H_9DB12B2503BF78__
+#define __EVAL_OMISSIONCOUNTER_H_9DB12B2503BF78__
 
+class EvalOmissionCounter {
+        bool received_anything;
+        uint64_t omission_counter;
+        uint64_t consecutive_omissions;
+        uint64_t events;
+    public:
+        EvalOmissionCounter() :
+            received_anything(false),
+            omission_counter(0),
+            consecutive_omissions(0),
+            events(0) {
+        }
 
-int main(int argc, char ** argv) {
-    famouso::init<famouso::config>(argc, argv);
-    CLOCK_SYNC_INIT;
+        void received_event() {
+            if (!received_anything) {
+                // Filter out omissions before first received event
+                received_anything = true;
+                consecutive_omissions = 0;
+            } else {
+                // Filter out omissions after last received event
+                omission_counter += consecutive_omissions;
+                consecutive_omissions = 0;
+            }
+            events++;
+        }
 
-    using namespace famouso;
+        void omitted_event() {
+            consecutive_omissions++;
+        }
 
-    EvalLatRTPEC<
-        config::PEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
-        >::attrSet
-    > sensor1_pec("sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
+        void log_results(const famouso::mw::Subject & s) {
+            ::logging::log::emit()
+                << "Subscriber on channel " << s << ":\n"
+                << "\t=> omission count (in between of received events): " << omission_counter
+                << "\n\t=> received events: " << events << "\n";
+        }
+};
 
-    EvalLatRTSEC<
-        config::SEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<motor1::period>,
-             mw::attributes::MaxEventLength<motor1::mel>
-        >::attrSet
-    > motor1_sec("motor__1", motor1::st_start);
-    motor1_sec.subscribe();
+#endif // __EVAL_OMISSIONCOUNTER_H_9DB12B2503BF78__
 
-    printf("Start dispatcher\n");
-    ::logging::log::emit() << "Start dispatcher\n";
-    timefw::Dispatcher::instance().run();
-
-    return 0;
-}
 

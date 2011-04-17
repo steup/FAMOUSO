@@ -93,6 +93,11 @@ namespace famouso {
 
                     RTNetSchedulerBase & scheduler;
 
+                    void log_res_state() {
+                        ::logging::log::emit() << "Real time communication channels on NetworkID " << network_id << '\n';
+                        rt_announcements.log();
+                    }
+
                     void reserv(RealTimeTxChannel & rt_pub) {
                         // Try to reserve communication channel
                         unsigned int aslot_shift = 0;
@@ -128,8 +133,7 @@ namespace famouso {
                             ::logging::log::emit() << "failure!" << ::logging::log::endl;
                         }
                         slot_scheduler.log_free_list();
-                        ::logging::log::emit() << "Real time communication channels on NetworkID " << network_id << '\n';
-                        rt_announcements.log();
+                        log_res_state();
                     }
 
                     /// Return whether there is a subscriber of subject in network
@@ -228,6 +232,7 @@ namespace famouso {
                                 if (s.subject == subject && s.network_id == network_id && s.status == RealTimeTxChannel::waiting_for_subscriber) {
                                     // Start delivery of events
                                     scheduler.publish_deliv(s.node_id, s.lc_id, s.network_id);
+                                    log_res_state();
                                 }
                                 ++it;
                             }

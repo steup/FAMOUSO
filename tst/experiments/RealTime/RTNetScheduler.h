@@ -199,8 +199,10 @@ namespace famouso {
                         el::ml::NetworkID network_id;
                         crr.read_head(msg_type, node_id, network_id);
 
+                        /*
                         ::logging::log::emit() << "Announcements from node " << node_id
                                                << ::logging::log::endl;
+                                               */
                         //hexdump(event.data, event.length);
 
                         NetworkSchedule * net = get_network(network_id);
@@ -214,7 +216,7 @@ namespace famouso {
                             Subject subject; el::ml::LocalChanID lc_id; const AttrSet * req_attr;
                             crr.read_channel(subject, lc_id, req_attr);
 
-                            print_pub_info(subject, lc_id, network_id, req_attr);
+                            //print_pub_info(subject, lc_id, network_id, req_attr);
 
                             // Extract attributes
                             const ReservationStateType * rt_p = req_attr->template find_rt<const ReservationStateType>();
@@ -267,8 +269,10 @@ namespace famouso {
                         el::ml::NetworkID network_id;
                         crr.read_head(msg_type, node_id, network_id);
 
+                        /*
                         ::logging::log::emit() << "Subscriptions from node " << node_id
                                                << ::logging::log::endl;
+                                               */
 
                         NetworkSchedule * net = get_network(network_id);
                         if (!net) return;
@@ -281,10 +285,12 @@ namespace famouso {
                             Subject subject; el::ml::LocalChanID lc_id; const AttrSet * req_attr;
                             crr.read_channel(subject, lc_id, req_attr);
 
+                            /*
                             ::logging::log::emit() << "\tsubscriber : subject " << subject
                                                    << ", lc_id " << lc_id
                                                    << ", network_id " << ::logging::log::hex << network_id
                                                    << ::logging::log::endl;
+                                                   */
                             net->process_subscription(node_id, lc_id, network_id, subject);
                         }
 

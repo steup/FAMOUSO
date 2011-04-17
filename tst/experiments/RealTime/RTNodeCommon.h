@@ -45,25 +45,29 @@
 //-----------------------------------------------------------------------------
 
 #define RT_LOGGING
-//#define RT_LOGGING_TO_FILE
+#define RT_LOGGING_TO_FILE
 
 //#define CLOCK_ACCURACY_OUTPUT
 //#define DISPATCHER_OUTPUT
-//#define RTSEC_OUTPUT
 
-// RT-PEC output verbosity: 0 - no output, 1 - only status changes, 2 - all activities
+// utput verbosity: 0 - no output, 1 - only status changes, 2 - all activities
+#define RTSEC_OUTPUT 1
 #define RTPEC_OUTPUT 1
 
-
-//#define CLOCK_ACCURACY_TEST
-//#define RT_TEST_DATA_CHECK
-#define RT_TEST_E2E_LAT
-//#define RT_TEST_COM_LAT
-
+// Output by evaluation code
 //#define RT_TEST_OUTPUT_PER_PERIOD
 #define RT_TEST_STATISTICS
 
 #define CLOCK_ACC_US 10
+
+// TODO: test with NRT
+//#define HIGH_NRT_LOAD
+
+// Communication or end-to-end latency test
+#define RT_TEST_COM_LAT
+
+// Define to perform accuracy test for about 300 sec and exit
+//#define CLOCK_ACCURACY_TEST
 
 //-----------------------------------------------------------------------------
 
@@ -107,7 +111,7 @@ typedef timefw::LocalClock<timefw::ClockDriverPosix> Clock;
 #else
 #ifdef __XENOMAI__
 #include "XenomaiClock.h"
-typedef GlobalXenomaiClock<timefw::ClockDriverPosix, CLOCK_ACC_US> Clock;
+typedef GlobalXenomaiClock<timefw::ClockDriverPosix, CLOCK_ACC_US, 5> Clock;
 #else
 #include "NonXenomaiGlobalClock.h"
 typedef GlobalClock<timefw::ClockDriverPosix> Clock;
@@ -190,7 +194,11 @@ namespace famouso {
                         > NG;
             typedef famouso::mw::anl::AbstractNetworkLayer<NG> ANL;
         public:
+#ifdef BE_CAN_BROKER
+            typedef famouso::mw::el::EventLayer<ANL> EL;
+#else
             typedef famouso::mw::el::EventLayer<ANL, famouso::mw::el::ml::ManagementLayer> EL;
+#endif
             typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
             typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
     };

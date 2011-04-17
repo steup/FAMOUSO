@@ -108,13 +108,21 @@ namespace famouso {
 
                     /// Returns whether a real time packet can be transmitted now
                     bool rt_access_right() {
-                        if (timefw::TimeSource::out_of_sync())
+                        if (timefw::TimeSource::out_of_sync()) {
+                            ::logging::log::emit()
+                                << "[NetGuard] Real time tx time error: clock out of sync\n";
                             return false;
+                        }
                         timefw::Time curr = timefw::TimeSource::current();
-                        if (curr < ready || deadline < curr)
+                        if (/*curr < ready ||*/ deadline < curr) {
+                            ::logging::log::emit()
+                                << "[NetGuard] Real time tx time error: tx window "
+                                << ready << " - " << deadline
+                                << ", tx time check " << curr << '\n';
                             return false;
-                        else
+                        } else {
                             return true;
+                        }
                     }
 
                     /*!

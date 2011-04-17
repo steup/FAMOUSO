@@ -37,43 +37,43 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeSeMo"
-#include "RTNodeCommon.h"
-#include "eval_LatRTPEC.h"
-#include "eval_LatRTSEC.h"
-#include "eval_app_def.h"
+#ifndef __EVAL_LATENCYDISTRIBUTION_H_EA269D010C1232__
+#define __EVAL_LATENCYDISTRIBUTION_H_EA269D010C1232__
 
+#include "eval_FileWriter.h"
+#include <map>
 
-int main(int argc, char ** argv) {
-    famouso::init<famouso::config>(argc, argv);
-    CLOCK_SYNC_INIT;
+class EvalLatencyDistribution {
+        typedef std::map<int64_t, unsigned int> MapType;
+        MapType distri;
 
-    using namespace famouso;
+        enum { intervall = 1 };
+    public:
 
-    EvalLatRTPEC<
-        config::PEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
-        >::attrSet
-    > sensor1_pec("sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
+        void add_latency(int64_t lat) {
+            if (intervall != 1)
+                lat = (lat / intervall) * intervall;
 
-    EvalLatRTSEC<
-        config::SEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<motor1::period>,
-             mw::attributes::MaxEventLength<motor1::mel>
-        >::attrSet
-    > motor1_sec("motor__1", motor1::st_start);
-    motor1_sec.subscribe();
+            MapType::iterator it = distri.find(lat);
+            if (it == distri.end())
+                distri.insert(MapType::value_type(lat, 1));
+            else
+                it->second++;
+        }
 
-    printf("Start dispatcher\n");
-    ::logging::log::emit() << "Start dispatcher\n";
-    timefw::Dispatcher::instance().run();
+        void log_latency_distribution(const char * file) {
+            EvalFileWriter fw(file);
+            using namespace ::logging;
+            MapType::iterator it = distri.begin();
+            while (it != distri.end()) {
+                fw.write(it->first);
+                fw.write((uint64_t)it->second);
+                fw.newline();
+                ++it;
+            }
+        }
+};
 
-    return 0;
-}
+#endif // __EVAL_LATENCYDISTRIBUTION_H_EA269D010C1232__
+
 

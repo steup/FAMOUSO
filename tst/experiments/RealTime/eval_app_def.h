@@ -37,43 +37,81 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeSeMo"
-#include "RTNodeCommon.h"
-#include "eval_LatRTPEC.h"
-#include "eval_LatRTSEC.h"
-#include "eval_app_def.h"
+#ifndef __EVAL_APP_DEF_H_33419184CB55EE__
+#define __EVAL_APP_DEF_H_33419184CB55EE__
 
 
-int main(int argc, char ** argv) {
-    famouso::init<famouso::config>(argc, argv);
-    CLOCK_SYNC_INIT;
+namespace motor1 {
+    const uint64_t period = 20 * 1000;
+    const uint64_t mel = 8;
 
-    using namespace famouso;
+    // Node 2
+    const uint64_t pt_start = 100;
+    const uint64_t dt_start = 200;
+    const uint64_t dt_end = 10 * 1000;
 
-    EvalLatRTPEC<
-        config::PEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
-        >::attrSet
-    > sensor1_pec("sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
-
-    EvalLatRTSEC<
-        config::SEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<motor1::period>,
-             mw::attributes::MaxEventLength<motor1::mel>
-        >::attrSet
-    > motor1_sec("motor__1", motor1::st_start);
-    motor1_sec.subscribe();
-
-    printf("Start dispatcher\n");
-    ::logging::log::emit() << "Start dispatcher\n";
-    timefw::Dispatcher::instance().run();
-
-    return 0;
+    // Node 1
+    const uint64_t st_start = dt_end + 100;
 }
+
+namespace sensor1 {
+    const uint64_t period = 100 * 1000;
+    const uint64_t mel = 32;
+
+    // Node 1
+    const uint64_t pt_start = 10 * 1000;
+    const uint64_t dt_start = pt_start + 100;
+    const uint64_t dt_end = dt_start + 20 * 1000;
+
+    // Node 2
+    const uint64_t st_start = 0;
+}
+
+namespace motor2 {
+    const uint64_t period = 20 * 1000;
+    const uint64_t mel = 8;
+
+/*
+    // Node 4
+    const uint64_t pt_start = 100;
+    const uint64_t dt_start = 200;
+    const uint64_t dt_end = 10 * 1000;
+
+    // Node 3
+    const uint64_t st_start = dt_end + 100;
+    */
+}
+
+namespace sensor2 {
+    const uint64_t period = 10 * 1000;
+    const uint64_t mel = 4;
+
+/*
+    // Node 3
+    const uint64_t pt_start = 0;
+    const uint64_t dt_start = pt_start + 100;
+    const uint64_t dt_end = 0;
+
+    // Node 4
+    const uint64_t st_start = dt_end + 100;
+    */
+}
+
+namespace emrgstop {
+    const uint64_t period = 50 * 1000;
+    const uint64_t mel = 0;
+
+/*
+    // Node 3
+    const uint64_t pt_start = 0;
+    const uint64_t dt_start = pt_start + 100;
+    const uint64_t dt_end = 0;
+
+    // Node 4
+    const uint64_t st_start = dt_end + 100;
+    */
+}
+
+
+#endif // __EVAL_APP_DEF_H_33419184CB55EE__
 

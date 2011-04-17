@@ -66,7 +66,7 @@ class TimeMaster {
             last_tx_time(0),
             last_tx_time_endian(0),
             event(time_channel.subject()),
-            time_master_task(timefw::Time(first_time), interval_us)
+            time_master_task(timefw::Time(first_time), interval_us, false)
         {
             time_channel.announce();
             event.length = 8;

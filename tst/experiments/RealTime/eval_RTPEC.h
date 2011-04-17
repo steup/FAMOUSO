@@ -37,43 +37,49 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeSeMo"
-#include "RTNodeCommon.h"
-#include "eval_LatRTPEC.h"
-#include "eval_LatRTSEC.h"
-#include "eval_app_def.h"
+#ifndef __EVAL_RTPEC_H_D03B33C2AEFBC7__
+#define __EVAL_RTPEC_H_D03B33C2AEFBC7__
 
+#include "RealTimePublisherEventChannel.h"
 
-int main(int argc, char ** argv) {
-    famouso::init<famouso::config>(argc, argv);
-    CLOCK_SYNC_INIT;
+template <class PEC, class Req>
+class EvalRTPEC : public famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> {
+        famouso::mw::Event event;
+        uint64_t counter;
+    public:
+        typedef famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> Base;
 
-    using namespace famouso;
+        EvalRTPEC(const famouso::mw::Subject & subj,
+                  const timefw::Time & pub_task_start) :
+            Base(subj, pub_task_start),
+            event(subj),
+            counter(0)
+        {
+            Base::publisher_task.template bind<EvalRTPEC, &EvalRTPEC::publish_task_func>(this);
+        }
 
-    EvalLatRTPEC<
-        config::PEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
-        >::attrSet
-    > sensor1_pec("sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
+        void publish_task_func() {
+            if (Base::mel) {
+                uint8_t buffer[Base::mel];
+                memset(buffer, 0, Base::mel);
+                // Tx sequence number (if MaxEventLength > 8 the rest is zeroed)
+                uint64_t tmp = counter;
+                for (int i = Base::mel - 1; i >= 0 && tmp; --i) {
+                    buffer[i] = tmp & 0xff;
+                    tmp >>= 8;
+                }
+                event.data = buffer;
+                event.length = Base::mel;
+                Base::publish(event);
+            } else {
+                event.data = (uint8_t*)"";
+                event.length = Base::mel;
+                Base::publish(event);
+            }
+            ++counter;
+        }
+};
 
-    EvalLatRTSEC<
-        config::SEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<motor1::period>,
-             mw::attributes::MaxEventLength<motor1::mel>
-        >::attrSet
-    > motor1_sec("motor__1", motor1::st_start);
-    motor1_sec.subscribe();
+#endif // __EVAL_RTPEC_H_D03B33C2AEFBC7__
 
-    printf("Start dispatcher\n");
-    ::logging::log::emit() << "Start dispatcher\n";
-    timefw::Dispatcher::instance().run();
-
-    return 0;
-}
 

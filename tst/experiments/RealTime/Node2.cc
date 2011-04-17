@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,51 +37,41 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "RT_Node2"
+#define FAMOUSO_NODE_ID "NodeCtrl"
 #include "RTNodeCommon.h"
-#include "evaluation.h"
+#include "eval_LatRTPEC.h"
+#include "eval_LatRTSEC.h"
+#include "eval_app_def.h"
 
-
-void subscriber_callback(const famouso::mw::api::SECCallBackData& event) {
-    ::logging::log::emit() << "callback: subject " << event.subject
-                           << ", length " << ::logging::log::dec << event.length
-                           << ", data " << event.data
-                           << ", time " << timefw::TimeSource::current()
-                           << logging::log::endl;
-}
 
 int main(int argc, char ** argv) {
-    famouso::init<famouso::config>();
+    famouso::init<famouso::config>(argc, argv);
     CLOCK_SYNC_INIT;
 
+    using namespace famouso;
 
-    /*
-    famouso::config::SEC sec1("rt_____0");
-    sec1.callback.bind<&subscriber_callback>();
-    sec1.subscribe();
+    EvalLatRTPEC<
+        config::PEC,
+        mw::attributes::detail::SetProvider<
+             mw::attributes::Period<motor1::period>,
+             mw::attributes::MaxEventLength<motor1::mel>,
+             mw::attributes::RealTimeSlotStartBoundary<motor1::dt_start>,
+             mw::attributes::RealTimeSlotEndBoundary<motor1::dt_end>
+        >::attrSet
+    > motor1_pec("motor__1", motor1::pt_start);
+    motor1_pec.announce();
 
-    famouso::config::PEC pec1("nrt____0");
-    pec1.announce();
-    */
-
-//    {
-    // PEC QoS
-    const uint64_t period = 200000;        // 200 ms
-    const uint64_t mel = 70;//17;               // 17 Byte -> bei CAN 3 Fragmente
-
-    // Local CPU schedule
-    const uint64_t subscribe_start_time = period / 2;
-
-    typedef famouso::mw::attributes::detail::SetProvider<
-             famouso::mw::attributes::Period<period>,
-             famouso::mw::attributes::MaxEventLength<mel>
-            >::attrSet Req;
-
-    TestRTSEC<famouso::config::SEC, Req> sec("rt1_(n1)", subscribe_start_time);
-    sec.subscribe();
-//    }
+    EvalLatRTSEC<
+        config::SEC,
+        mw::attributes::detail::SetProvider<
+             mw::attributes::Period<sensor1::period>,
+             mw::attributes::MaxEventLength<sensor1::mel>
+        >::attrSet
+    > sensor1_sec("sensor_1", sensor1::st_start);
+    sensor1_sec.subscribe();
 
     printf("Start dispatcher\n");
+    ::logging::log::emit() << "Start dispatcher\n";
     timefw::Dispatcher::instance().run();
 
     return 0;

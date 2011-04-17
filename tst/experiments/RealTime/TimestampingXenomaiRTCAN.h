@@ -146,15 +146,15 @@ namespace device {
                         Base::write(mob);
                         //log_mob(mob);
                         MOB loopback_mob;
-                        ::logging::log::emit() << "loopback";
+                        //::logging::log::emit() << "loopback";
                         do {
                             loopback.read(loopback_mob);
-                            ::logging::log::emit() << '.';
+                            //::logging::log::emit() << '.';
                             //log_mob(loopback_mob);
                         } while ((mob.id()._value & 0x1fffffff) != (loopback_mob.id()._value & 0x1fffffff) ||
                                  mob.len() != loopback_mob.len() ||
                                  memcmp(mob.data(), loopback_mob.data(), mob.len()));
-                        ::logging::log::emit() << '\n';
+                        //::logging::log::emit() << '\n';
                     }
             };
 

@@ -113,6 +113,9 @@ namespace famouso {
                     RealTimePublisherEventChannelBase(const Subject& subject) : EC(subject) {
                         EC::trampoline.template bind<type, &type::trampoline_impl>(this);
                         reservation_state = NoReservation;
+                        deliver_task.period = period;
+                        deliver_task.realtime = true;
+                        deliver_task.bind<type, &type::deliver>(this);
                     }
 
                     /*!
@@ -168,7 +171,7 @@ namespace famouso {
                         timefw::Dispatcher::instance().dequeue(deliver_task);
                     }
 
-                private:
+                protected:
 
                     enum ReservationState {
                         NoReservation = 2,
@@ -244,9 +247,6 @@ namespace famouso {
 
                                     // Schedule periodic deliver task
                                     deliver_task.start.set(increase_by_multiple_above(deliver_task.start.get(), static_cast<uint64_t>(period), timefw::TimeSource::current().get()));
-                                    deliver_task.period = period;
-                                    deliver_task.bind<type, &type::deliver>(this);
-                                    deliver_task.realtime = true;
                                     timefw::Dispatcher::instance().enqueue(deliver_task);
 
 #if (RTPEC_OUTPUT >= 1)
@@ -277,25 +277,17 @@ namespace famouso {
                         return 0;
                     }
 
+                    // For comm. lat test
+                    void deliver_to_net(const Event & e/*, NetworkID */) {
+                        PublishParamSet pps(deliver_task.start, tx_window_duration);
+                        EC::ech().publish(*this, e, &pps);
+                    }
+
                     void deliver(/* NetworkID */) {
                         // publish_local bei voidNL?
                         // bei "erstem" netz publish_local
 
-#if defined(RT_TEST_COM_LAT)
-                        // Communication latency test: payload is timestamp
-                        FAMOUSO_ASSERT(mel >= 8);
-                        PublishParamSet pps(deliver_task.start, tx_window_duration);
-
-                        Event e(EC::subject());
-                        uint8_t buffer[mel];
-                        memset(buffer, 0, mel);
-                        *reinterpret_cast<uint64_t*>(buffer) = htonll(timefw::TimeSource::current().get());
-                        e.length = mel;
-                        e.data = buffer;
-                        EC::ech().publish(*this, e, &pps);
-#else
                         const EventInfo & ei = tf.read_lock();
-                        // TODO: Wenn Ü-Kanal noch nicht reserviert -> Exception
                         if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
 #if (RTPEC_OUTPUT >= 2)
@@ -307,11 +299,10 @@ namespace famouso {
 
                             /*! \todo   If the event contains a deadline attribute, also check this.
                              */
-                            PublishParamSet pps(deliver_task.start, tx_window_duration);
                             Event e(EC::subject());
                             e.length = ei.length;
                             e.data = const_cast<uint8_t*>(ei.data);
-                            EC::ech().publish(*this, e, &pps);
+                            deliver_to_net(e);
                         } else {
                             // expire in past
 #if (RTPEC_OUTPUT >= 2)
@@ -323,7 +314,6 @@ namespace famouso {
 #endif
                         }
                         tf.read_unlock();
-#endif
                     }
 
 
@@ -353,6 +343,10 @@ namespace famouso {
                         publisher_task.bind<&ecb>();
 
                         timefw::Dispatcher::instance().enqueue(publisher_task);
+                        ::logging::log::emit<typename Base::RT>()
+                            << "start publisher task: chan "
+                            << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                            << " at " << publisher_task.start << '\n';
                     }
 
                     timefw::Task publisher_task;

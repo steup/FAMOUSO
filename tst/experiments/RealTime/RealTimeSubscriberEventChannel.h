@@ -133,7 +133,7 @@ namespace famouso {
                         const EventInfo & ei = tf.read_lock();
                         if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
-#ifdef RTSEC_OUTPUT
+#if (RTSEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "update notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
@@ -147,7 +147,7 @@ namespace famouso {
                             }
                         } else {
                             // expire in past
-#ifdef RTSEC_OUTPUT
+#if (RTSEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "exception notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
@@ -186,6 +186,12 @@ namespace famouso {
                     {
                         subscriber_task.template bind<Base, &Base::subscriber_task_func>(this);
                         timefw::Dispatcher::instance().enqueue(subscriber_task);
+#if (RTSEC_OUTPUT >= 1)
+                        ::logging::log::emit<typename Base::RT>()
+                            << "start subscriber task: chan "
+                            << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                            << " at " << subscriber_task.start << '\n';
+#endif
                     }
             };
 

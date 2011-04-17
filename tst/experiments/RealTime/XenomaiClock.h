@@ -178,7 +178,10 @@
 
 #ifdef CLOCK_ACCURACY_OUTPUT
 #ifdef RT_TEST_STATISTICS
+                            /*
                             ::logging::log::emit() << "[CLK t[us] a[ns]] "
+                            */
+                            ::logging::log::emit() << "[CLK] "
                                 << ::logging::log::dec
                                 << server_timestamp(glob_i)
                                 << ' ' << static_cast<int64_t>(accuracy) << '\n';
@@ -187,6 +190,7 @@
                                 << ::logging::log::dec
                                 << timefw::Time(server_timestamp(glob_i)/1000)
                                 << " acc " << static_cast<int64_t>(accuracy) << " ns\n";
+#endif
 #endif
 #ifdef CLOCK_ACCURACY_TEST
                             static double max_acc = 0;

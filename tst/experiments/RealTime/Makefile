@@ -61,6 +61,8 @@ CXXFLAGS += -lrt
 
 all: $(BINS)
 
+Nodes: Node1 Node2 Node3 Node4
+
 
 clean:
 	rm -f $(BINS) *.d *.hex *.elf

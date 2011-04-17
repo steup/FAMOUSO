@@ -50,10 +50,11 @@ int main(int argc, char ** argv) {
     NetworkSchedule can(famouso::mw::el::ml::NetworkID(/*"CAN0@1Mb"*/(uint64_t)0),
                         CanNetworkTimingConfig(
                             250000,     // Bits per second
-                            1000,       // Uhrengranularität in us
+                            50,        // Uhrengranularität in us
                             1000,       // Planungsgranularität in us
-                            1000,       // Trigger bis USF in nano sec
-                            1000        // USF bis auf Medium in nano sec
+                            //100,       // Planungsgranularität in us
+                            10000,      // Trigger bis USF in nano sec
+                            10000       // USF bis auf Medium in nano sec
                         ),
                         sched);
 

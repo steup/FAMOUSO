@@ -37,12 +37,22 @@
  *
  ******************************************************************************/
 
-#define FAMOUSO_NODE_ID "NodeSeMo"
+#define FAMOUSO_NODE_ID "NodeOth1"
 #include "RTNodeCommon.h"
-#include "eval_LatRTPEC.h"
-#include "eval_LatRTSEC.h"
+#include "eval_RTPEC.h"
+#include "eval_RTSEC.h"
 #include "eval_app_def.h"
 
+
+#ifdef HIGH_NRT_LOAD
+void subscriber_callback(const famouso::mw::api::SECCallBackData& event) {
+    ::logging::log::emit() << "callback: subject " << event.subject
+                           << ", length " << ::logging::log::dec << event.length
+                           << ", time " << timefw::TimeSource::current()
+                           << ", data " << event.data
+                           << logging::log::endl;
+}
+#endif
 
 int main(int argc, char ** argv) {
     famouso::init<famouso::config>(argc, argv);
@@ -50,25 +60,47 @@ int main(int argc, char ** argv) {
 
     using namespace famouso;
 
-    EvalLatRTPEC<
+    // Currently we have no driver supporting parallel NRT/RT tx from one node
+    // -> do only one of both
+#ifdef HIGH_NRT_LOAD
+    config::SEC nrt_sec("nrt_____");
+    nrt_sec.callback.bind<&subscriber_callback>();
+    nrt_sec.subscribe();
+#else
+
+    EvalRTPEC<
         config::PEC,
         mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
+             mw::attributes::Period<sensor2::period>,
+             mw::attributes::MaxEventLength<sensor2::mel>/*,
+             mw::attributes::RealTimeSlotStartBoundary<sensor2::dt_start>,
+             mw::attributes::RealTimeSlotEndBoundary<sensor2::dt_end>
+             */
         >::attrSet
-    > sensor1_pec("sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
+    > sensor2_pec("sensor_2", 0 /*sensor2::pt_start*/);
+    sensor2_pec.announce();
 
-    EvalLatRTSEC<
+    EvalRTSEC<
         config::SEC,
         mw::attributes::detail::SetProvider<
-             mw::attributes::Period<motor1::period>,
-             mw::attributes::MaxEventLength<motor1::mel>
+             mw::attributes::Period<motor2::period>,
+             mw::attributes::MaxEventLength<motor2::mel>
         >::attrSet
-    > motor1_sec("motor__1", motor1::st_start);
-    motor1_sec.subscribe();
+    > motor2_sec("motor__2", 1000/*motor2::st_start*/);
+    motor2_sec.subscribe();
+
+    EvalRTPEC<
+        config::PEC,
+        mw::attributes::detail::SetProvider<
+             mw::attributes::Period<emrgstop::period>,
+             mw::attributes::MaxEventLength<emrgstop::mel>/*,
+             mw::attributes::RealTimeSlotStartBoundary<emrgstop::dt_start>,
+             mw::attributes::RealTimeSlotEndBoundary<emrgstop::dt_end>
+             */
+        >::attrSet
+    > es_pec("emrgstop", 2000/*emrgstop::pt_start*/);
+    es_pec.announce();
+#endif
 
     printf("Start dispatcher\n");
     ::logging::log::emit() << "Start dispatcher\n";
