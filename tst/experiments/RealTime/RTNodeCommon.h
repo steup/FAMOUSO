@@ -111,7 +111,7 @@ typedef timefw::LocalClock<timefw::ClockDriverPosix> Clock;
 #else
 #ifdef __XENOMAI__
 #include "XenomaiClock.h"
-typedef GlobalXenomaiClock<timefw::ClockDriverPosix, CLOCK_ACC_US, 5> Clock;
+typedef GlobalXenomaiClock<timefw::ClockDriverPosix, CLOCK_ACC_US, 10> Clock;
 #else
 #include "NonXenomaiGlobalClock.h"
 typedef GlobalClock<timefw::ClockDriverPosix> Clock;
@@ -167,6 +167,11 @@ UID getNodeID<void>() {
 #include "guard/NRT_HandledByNL.h"
 #include "guard/NRT_PollSlave.h"
 
+#ifdef __ETHERNET__
+#include "mw/nl/UDPBroadCastNL.h"
+#include "eval_NetworkAdapter.h"
+#endif
+
 namespace famouso {
     class config {
 #ifdef __XENOMAI__
@@ -185,6 +190,7 @@ namespace famouso {
             typedef famouso::mw::nl::CAN::ccp::Client<can> ccp;
             typedef famouso::mw::nl::CAN::etagBP::Client<can> etag;
 #endif
+#ifndef __ETHERNET__
             typedef famouso::mw::nl::CANNL<can, ccp, etag> NL;
             //typedef famouso::mw::nl::voidNL NL;
             typedef famouso::mw::guard::NetworkGuard<
@@ -193,6 +199,18 @@ namespace famouso {
                             famouso::mw::guard::NRT_HandledByNL
                         > NG;
             typedef famouso::mw::anl::AbstractNetworkLayer<NG> ANL;
+#else
+            typedef famouso::mw::nl::CANNL<can, ccp, etag> NL1;
+            typedef famouso::mw::nl::UDPBroadCastNL NL2;
+            typedef famouso::mw::guard::NetworkGuard<
+                            NL2,
+                            famouso::mw::guard::RT_WindowCheck,
+                            famouso::mw::guard::NRT_PollSlave
+                        > NG2;
+            typedef famouso::mw::anl::AbstractNetworkLayer<NL1> ANL1;
+            typedef famouso::mw::anl::AbstractNetworkLayer<NG2> ANL2;
+            typedef famouso::mw::nal::EvalNetworkAdapter<ANL1, ANL2> ANL;  // CAN needs to be the first, Ethernet the second
+#endif
         public:
 #ifdef BE_CAN_BROKER
             typedef famouso::mw::el::EventLayer<ANL> EL;

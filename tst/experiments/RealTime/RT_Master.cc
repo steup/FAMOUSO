@@ -49,6 +49,7 @@ int main(int argc, char ** argv) {
 
     using namespace famouso::mw::rt_net_sched;
     RTNetScheduler<famouso::config::PEC, famouso::config::SEC> sched;
+#ifndef __ETHERNET__
     NetworkSchedule can(famouso::mw::el::ml::NetworkID(/*"CAN0@1Mb"*/(uint64_t)0),
                         CanNetworkTimingConfig(
                             250000,     // Bits per second
@@ -59,6 +60,18 @@ int main(int argc, char ** argv) {
                             10000       // USF bis auf Medium in nano sec
                         ),
                         sched);
+#else
+    NetworkSchedule can(famouso::mw::el::ml::NetworkID(/*"CAN0@1Mb"*/(uint64_t)0),
+                        EthernetNetworkTimingConfig(
+                            100 * 1000000,     // Bits per second
+                            50,        // Uhrengranularität in us
+                            1000,       // Planungsgranularität in us
+                            //100,       // Planungsgranularität in us
+                            10000,      // Trigger bis USF in nano sec
+                            10000       // USF bis auf Medium in nano sec
+                        ),
+                        sched);
+#endif
 
     TimeMaster<famouso::config::PEC> time_master;
 

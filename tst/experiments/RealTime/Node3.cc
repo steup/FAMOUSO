@@ -46,11 +46,13 @@
 
 #ifdef HIGH_NRT_LOAD
 void subscriber_callback(const famouso::mw::api::SECCallBackData& event) {
+    /*
     ::logging::log::emit() << "callback: subject " << event.subject
                            << ", length " << ::logging::log::dec << event.length
                            << ", time " << timefw::TimeSource::current()
                            << ", data " << event.data
                            << logging::log::endl;
+                           */
 }
 #endif
 

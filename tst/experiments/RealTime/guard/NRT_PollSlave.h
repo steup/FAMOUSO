@@ -57,11 +57,11 @@ namespace famouso {
             class NRT_PollSlave : public NL {
 
                     volatile bool nrt_ar_expired;
-                    volatile timefw::Time nrt_ar_expire_time;
+                    volatile uint64_t nrt_ar_expire_time;
 
                     /// Grants NRT access for a given duration
-                    void grant_nrt_access_right(timefw::Time & duration) {
-                        nrt_ar_expire_time = timefw::TimeSource::current() + duration;
+                    void grant_nrt_access_right(uint64_t duration) {
+                        nrt_ar_expire_time = timefw::TimeSource::current().get() + duration;
                         nrt_ar_expired = false;
                     }
 
@@ -71,7 +71,7 @@ namespace famouso {
                         while (1) {
                             if (!nrt_ar_expired) {
                                 // We may have access
-                                if (nrt_ar_expire_time < timefw::TimeSource::current()) {
+                                if (nrt_ar_expire_time < timefw::TimeSource::current().get()) {
                                     // Access granted
                                     return;
                                 } else {
@@ -99,8 +99,14 @@ namespace famouso {
                     bool handle_poll_event() {
                         if (NL::lastPacketSNN() == poll_snn) {
                             typename NL::Packet_t packet;
-                            NL::fetch(packet);
-                            grant_nrt_access_right();
+                            NL::take(packet);
+                            if (packet.data_length == sizeof(NodeID) + sizeof(uint32_t)) {
+                                NodeID node_id = *reinterpret_cast<NodeID *>(packet.data);
+                                if (node_id == getNodeID<void>()) {
+                                    uint32_t grant_us = ntohl(*reinterpret_cast<uint32_t *>(packet.data + sizeof(NodeID)));
+                                    grant_nrt_access_right(grant_us);
+                                }
+                            }
                             return true;
                         } else {
                             return false;

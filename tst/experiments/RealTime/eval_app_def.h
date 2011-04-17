@@ -56,7 +56,11 @@ namespace motor1 {
 
 namespace sensor1 {
     const uint64_t period = 100 * 1000;
+#ifndef __ETHERNET__
     const uint64_t mel = 32;
+#else
+    const uint64_t mel = 65000;
+#endif
 
     // Node 1
     const uint64_t pt_start = 10 * 1000;
@@ -84,7 +88,11 @@ namespace motor2 {
 
 namespace sensor2 {
     const uint64_t period = 10 * 1000;
+#ifndef __ETHERNET__
     const uint64_t mel = 4;
+#else
+    const uint64_t mel = 16000;
+#endif
 
 /*
     // Node 3

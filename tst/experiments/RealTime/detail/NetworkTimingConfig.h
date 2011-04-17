@@ -147,7 +147,7 @@ namespace famouso {
                 ntc.clock_granul_ns = clock_granul_microsec * 1000;
                 ntc.plan_granul_us = plan_granul_microsec;
                 ntc.plan_granul_ns = plan_granul_microsec * 1000;
-                ntc.mtu = 1500;
+                ntc.mtu = 1500 - 9;     // 9 Bytes used by network layer for header info
                 ntc.need_free_slots = true;
 
                 ntc.trigger_to_usf_ns = max_trigger_to_usf_time_nanosec;
