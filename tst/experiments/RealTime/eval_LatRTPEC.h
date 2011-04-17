@@ -41,25 +41,8 @@
 #define __EVAL_LATRTPEC_H_2192A365C65E77__
 
 #include "RealTimePublisherEventChannel.h"
+#include "eval_ProvideSimpleAttribAccess.h"
 
-template <class PEC, class Req>
-class ProvideSimpleAttribAccess : public PEC {
-    public:
-        typedef typename Req::template find_ct< famouso::mw::attributes::Period<0> >::type PeriodAttrib;
-        typedef typename Req::template find_ct< famouso::mw::attributes::MaxEventLength<0> >::type MELAttrib;
-
-        enum {
-            /// Period given in requirement attributes
-            period = PeriodAttrib::value,
-
-            /// Maximum event length given in requirement attributes
-            mel = MELAttrib::value
-        };
-
-        ProvideSimpleAttribAccess(const famouso::mw::Subject & subj) :
-                PEC(subj) {
-        }
-};
 
 template <class PEC, class Req>
 class EvalLatRTPEC :

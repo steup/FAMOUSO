@@ -37,65 +37,29 @@
  *
  ******************************************************************************/
 
-#ifndef __EVAL_RTPEC_H_D03B33C2AEFBC7__
-#define __EVAL_RTPEC_H_D03B33C2AEFBC7__
+#ifndef __EVAL_PROVIDESIMPLEATTRIBACCESS_H_8B8726EC532A37__
+#define __EVAL_PROVIDESIMPLEATTRIBACCESS_H_8B8726EC532A37__
 
-#include "RealTimePublisherEventChannel.h"
-#include "eval_ProvideSimpleAttribAccess.h"
 
 template <class PEC, class Req>
-class EvalRTPEC :
-    public famouso::mw::api::AddPublisherTask<
-#ifndef RT_TEST_ALL_NRT
-        famouso::mw::api::RealTimePublisherEventChannel<PEC, Req>
-#else
-        ProvideSimpleAttribAccess<PEC, Req>
-#endif
-    >
-{
-        famouso::mw::Event event;
-        uint64_t counter;
-
-#ifndef RT_TEST_ALL_NRT
-        typedef famouso::mw::api::AddPublisherTask<
-            famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> > Base;
-#else
-        typedef famouso::mw::api::AddPublisherTask<
-            ProvideSimpleAttribAccess<PEC, Req> > Base;
-#endif
+class ProvideSimpleAttribAccess : public PEC {
     public:
+        typedef typename Req::template find_ct< famouso::mw::attributes::Period<0> >::type PeriodAttrib;
+        typedef typename Req::template find_ct< famouso::mw::attributes::MaxEventLength<0> >::type MELAttrib;
 
-        EvalRTPEC(const famouso::mw::Subject & subj,
-                  const timefw::Time & pub_task_start) :
-            Base(subj, pub_task_start),
-            event(subj),
-            counter(0)
-        {
-            Base::publisher_task.template bind<EvalRTPEC, &EvalRTPEC::publish_task_func>(this);
-        }
+        enum {
+            /// Period given in requirement attributes
+            period = PeriodAttrib::value,
 
-        void publish_task_func() {
-            if (Base::mel) {
-                uint8_t buffer[Base::mel];
-                memset(buffer, 0, Base::mel);
-                // Tx sequence number (if MaxEventLength > 8 the rest is zeroed)
-                uint64_t tmp = counter;
-                for (int i = Base::mel - 1; i >= 0 && tmp; --i) {
-                    buffer[i] = tmp & 0xff;
-                    tmp >>= 8;
-                }
-                event.data = buffer;
-                event.length = Base::mel;
-                Base::publish(event);
-            } else {
-                event.data = (uint8_t*)"";
-                event.length = Base::mel;
-                Base::publish(event);
-            }
-            ++counter;
+            /// Maximum event length given in requirement attributes
+            mel = MELAttrib::value
+        };
+
+        ProvideSimpleAttribAccess(const famouso::mw::Subject & subj) :
+                PEC(subj) {
         }
 };
 
-#endif // __EVAL_RTPEC_H_D03B33C2AEFBC7__
+#endif // __EVAL_PROVIDESIMPLEATTRIBACCESS_H_8B8726EC532A37__
 
 
