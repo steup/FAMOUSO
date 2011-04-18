@@ -99,7 +99,7 @@ class EvalLatRTSEC : public
         void notify_latency(const famouso::mw::Event & event) {
             timefw::Time recv = timefw::TimeSource::current();
             FAMOUSO_ASSERT(event.length >= 8);
-            timefw::Time sent = timefw::Time::usec(ntohll(*reinterpret_cast<uint64_t *>(event.data)));
+            timefw::Time sent = timefw::Time::nsec(ntohll(*reinterpret_cast<uint64_t *>(event.data)));
 
 #if defined(RT_TEST_OUTPUT_PER_PERIOD)
 #if defined(RT_TEST_COM_LAT)
@@ -108,13 +108,15 @@ class EvalLatRTSEC : public
             ::logging::log::emit() << "[TEST_EL]: sent " << sent << " recv " << recv;
 #endif
             if (recv < sent)
-                ::logging::log::emit() << " lat -" << sent.get() - recv.get() << "us\n";
+                ::logging::log::emit() << " lat -" << (sent - recv).get_nsec() << "ns\n";
             else
-                ::logging::log::emit() << " lat " << recv.get() - sent.get() << "us\n";
+                ::logging::log::emit() << " lat " << (recv - sent).get_nsec() << "ns\n";
 #endif
 
 #if defined(RT_TEST_STATISTICS)
-            lat_dist.add_latency((int64_t)recv.get_usec() - (int64_t)sent.get_usec());
+            int64_t lat_ns = ((int64_t)recv.get_nsec() - (int64_t)sent.get_nsec());
+            int64_t lat_us = (lat_ns + 500) / 1000;     // round
+            lat_dist.add_latency(lat_us);
 #endif
             oc.received_event();
         }

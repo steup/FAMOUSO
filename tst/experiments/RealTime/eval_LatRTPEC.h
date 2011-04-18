@@ -82,7 +82,7 @@ class EvalLatRTPEC :
             uint8_t buffer[Base::mel];
             memset(buffer, 0, Base::mel);
             FAMOUSO_ASSERT(Base::mel >= 8);
-            *reinterpret_cast<uint64_t*>(buffer) = htonll(curr.get_usec());
+            *reinterpret_cast<uint64_t*>(buffer) = htonll(curr.get_nsec());
             event.length = Base::mel;
             event.data = buffer;
 #if defined(RT_TEST_COM_LAT) && !defined(RT_TEST_ALL_NRT)
