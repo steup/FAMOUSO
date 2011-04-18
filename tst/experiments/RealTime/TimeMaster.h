@@ -41,6 +41,7 @@
 #include "mw/common/Event.h"
 #include "timefw/Dispatcher.h"
 
+#if 0
 // Publishes timestamp in nanosec
 template <class PEC>
 class TimeMaster {
@@ -92,4 +93,56 @@ class TimeMaster {
 
 };
 
+#else
+#include "RealTimePublisherEventChannel.h"
+
+typedef famouso::mw::attributes::detail::SetProvider<
+             famouso::mw::attributes::Period<1000*1000>,
+             famouso::mw::attributes::MaxEventLength<8>/*,
+             famouso::mw::attributes::RealTimeSlotStartBoundary<2000>,
+             famouso::mw::attributes::RealTimeSlotEndBoundary<10000>*/
+        >::attrSet RTM_Req;
+
+template <class PEC>
+class TimeMaster : protected famouso::mw::api::RealTimePublisherEventChannel<PEC, RTM_Req> {
+        typedef famouso::mw::api::RealTimePublisherEventChannel<PEC, RTM_Req>  Base;
+
+        const clockid_t clock;
+
+        uint64_t last_tx_time;
+        uint64_t last_tx_time_endian;
+
+        famouso::mw::Event event;
+
+    public:
+
+        TimeMaster() :
+            Base("TimeSync"),
+            clock(CLOCK_REALTIME),
+            last_tx_time(0),
+            last_tx_time_endian(0),
+            event(Base::subject())
+        {
+            Base::announce();
+            event.length = 8;
+            event.data = reinterpret_cast<uint8_t*>(&last_tx_time_endian);
+            // Use deliver task, because we need send timestamp
+            Base::deliver_task.template bind<TimeMaster, &TimeMaster::publish_sync>(this);
+        }
+
+        void publish_sync() {
+            Base::deliver_to_net(event);
+#ifndef SEND_TIMESTAMPING_DRIVER
+            // Assumption: no time between tx interrupt and following timestamp
+            // Update last tx time for next publishing
+            last_tx_time = timefw::TimeSource::instance().current().get_nsec();
+            last_tx_time_endian = htonll(last_tx_time);
+
+#else
+#error SEND_TIMESTAMPING_DRIVER currently unsupported
+#endif
+        }
+
+};
+#endif
 

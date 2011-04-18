@@ -182,11 +182,12 @@ namespace famouso {
             typedef famouso::mw::nal::EvalNetworkAdapter<ANL1, ANL2> ANL;  // CAN needs to be the first, Ethernet the second
 #endif
         public:
-#ifdef BE_CAN_BROKER
+/*#ifdef BE_CAN_BROKER
             typedef famouso::mw::el::EventLayer<ANL> EL;
 #else
+*/
             typedef famouso::mw::el::EventLayer<ANL, famouso::mw::el::ml::ManagementLayer> EL;
-#endif
+//#endif
             typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
             typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
     };
