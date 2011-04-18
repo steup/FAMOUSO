@@ -116,7 +116,17 @@ class EvalLatRTSEC : public
 #if defined(RT_TEST_STATISTICS)
             int64_t lat_ns = ((int64_t)recv.get_nsec() - (int64_t)sent.get_nsec());
             int64_t lat_us = (lat_ns + 500) / 1000;     // round
+
+#if defined(RT_TEST_STATISTICS_NO_NRT)
+            // Start recording latency after 5 minutes
+            static uint64_t first_add = 0;
+            if (!first_add)
+                first_add = recv.get_sec() + 5 * 60;
+            else if (first_add < recv.get_sec())
+                lat_dist.add_latency(lat_us);
+#else
             lat_dist.add_latency(lat_us);
+#endif
 #endif
             oc.received_event();
         }

@@ -18,8 +18,9 @@
 #define RTPEC_OUTPUT 1
 
 // Output by evaluation code
-#define RT_TEST_OUTPUT_PER_PERIOD
-//#define RT_TEST_STATISTICS
+//#define RT_TEST_OUTPUT_PER_PERIOD
+#define RT_TEST_STATISTICS
+//#define RT_TEST_STATISTICS_NO_NRT
 
 #define CLOCK_ACC_US 10
 
