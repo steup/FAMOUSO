@@ -39,7 +39,7 @@
 
 CONFIG=linux/xenomai
 #CONFIG=avr
-#ADD_FLAGS=-O3
+ADD_FLAGS=-O3
 
 include ../../../make/Makefile
 ADDITIONAL_CFLAGS+= -I../../../Bindings/include
@@ -62,6 +62,8 @@ CXXFLAGS += -lrt
 all: $(BINS)
 
 Nodes: Node1 Node2 Node3 Node4
+
+eval: Nodes RT_Master
 
 
 clean:
