@@ -160,7 +160,7 @@ namespace famouso {
             typedef famouso::mw::nl::CAN::ccp::Client<can> ccp;
             typedef famouso::mw::nl::CAN::etagBP::Client<can> etag;
 #endif
-#ifndef __ETHERNET__
+#if !defined(__ETHERNET__) || defined(BE_CAN_BROKER)
             typedef famouso::mw::nl::CANNL<can, ccp, etag> NL;
             //typedef famouso::mw::nl::voidNL NL;
             typedef famouso::mw::guard::NetworkGuard<
