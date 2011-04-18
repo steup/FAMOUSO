@@ -37,9 +37,8 @@
 ##
 ################################################################################
 
-#CONFIG=linux/xenomai
+CONFIG=linux/xenomai
 #CONFIG=avr
-ADD_FLAGS=-Os
 #ADD_FLAGS=-Wfatal-errors
 
 
@@ -59,8 +58,12 @@ ifneq ($(ADD_FLAGS),)
 CXXFLAGS += $(ADD_FLAGS)
 endif
 
-ifneq ($(CONFIG),avr)
+ifneq ($(CONFIG),linux/xenomai)
 CXXFLAGS += -lrt
+endif
+ifeq ($(CONFIG),avr)
+CXXFLAGS += -Os
+LDFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections
 endif
 
 eval: Nodes RT_Master
