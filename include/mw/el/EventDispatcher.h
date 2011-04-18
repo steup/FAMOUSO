@@ -153,7 +153,7 @@ namespace famouso {
                             << ::logging::log::hex
                             << reinterpret_cast<const void*>(&ec)
                             << PROGMEMSTRING(" with Subject -> [")
-                            << ec.subject().value() << ']'
+                            << ec.subject() << ']'
                             << ::logging::log::endl;
                         // publish on all  lower layers/subnets
                         LL::write(ec.snn(), e, pps);
@@ -174,7 +174,7 @@ namespace famouso {
                             << ::logging::log::hex
                             << reinterpret_cast<const void*>(&ec)
                             << PROGMEMSTRING(" with Subject -> [")
-                            << ec.subject().value() << ']'
+                            << ec.subject() << ']'
                             << ::logging::log::endl;
                         LL::bind(ec.subject(), ec.snn());
                         Subscriber.append(ec);
