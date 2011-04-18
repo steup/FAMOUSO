@@ -148,6 +148,7 @@ namespace famouso {
                 ntc.plan_granul_us = plan_granul_microsec;
                 ntc.plan_granul_ns = plan_granul_microsec * 1000;
                 ntc.mtu = 1500 - 9;     // 9 Bytes used by network layer for header info
+                // TODO <- header
                 ntc.need_free_slots = true;
 
                 ntc.trigger_to_usf_ns = max_trigger_to_usf_time_nanosec;
@@ -159,7 +160,7 @@ namespace famouso {
                     ntc.tx_min_ns = (512 + 8) * 8 * ns_per_bit;
                 else
                     ntc.tx_min_ns = (64 + 8) * 8 * ns_per_bit;
-                ntc.med_contention_ns = ntc.tx_overhead_ns + ntc.mtu * ntc.tx_per_byte_ns;
+                ntc.med_contention_ns = 0;
 
                 return ntc;
             }

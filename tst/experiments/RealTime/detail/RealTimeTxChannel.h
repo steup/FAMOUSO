@@ -125,13 +125,21 @@ namespace famouso {
                         uint64_t length_us = increase_to_multiple(slot_usec.length, net.plan_granul_us);
                         this->slot_usec.shift_min = increase_to_multiple(*slot_bound_start_us, net.plan_granul_us);
                         this->slot_usec.shift_max = reduce_to_multiple(*slot_bound_end_us, net.plan_granul_us);
-                        FAMOUSO_ASSERT(slot_usec.shift_min + length_us <= slot_usec.shift_max);
+                        if (slot_usec.shift_min + length_us <= slot_usec.shift_max) {
 
-                        this->slot_aslot.shift_min   = div_round_up(increase_by_multiple_above(slot_usec.shift_min, (uint64_t)period_us, cycle_start_time_us) - cycle_start_time_us,
+                            uint64_t a = increase_by_multiple_above(slot_usec.shift_min, (uint64_t)period_us, cycle_start_time_us) - cycle_start_time_us;
+                            this->slot_aslot.shift_min   = div_round_up(a,
+                                                                        net.plan_granul_us);
+                            this->slot_aslot.shift_min  %= slot_aslot.period;
+                            this->slot_aslot.shift_width = div_round_up(slot_usec.shift_max - length_us - slot_usec.shift_min,
                                                                     net.plan_granul_us);
-                        this->slot_aslot.shift_width = div_round_up(slot_usec.shift_max - length_us - slot_usec.shift_min,
-                                                                    net.plan_granul_us);
-                        FAMOUSO_ASSERT(0 <= slot_aslot.shift_min && slot_aslot.shift_min < slot_aslot.period);
+                            FAMOUSO_ASSERT(0 <= slot_aslot.shift_min && slot_aslot.shift_min < slot_aslot.period);
+                        } else {
+                            // TODO: Handle this properly
+                            log();
+                            printf("Slot phase selection range to small!!\n");
+                            exit(1);
+                        }
                     } else {
                         slot_bounds_given = false;
                     }
@@ -153,7 +161,7 @@ namespace famouso {
 
                 void log() {
                     using namespace ::logging;
-#if 0
+#if 1
                     log::emit()
                         << "- RTCC: "
                         << "Subject " << subject
