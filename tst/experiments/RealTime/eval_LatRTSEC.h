@@ -45,7 +45,13 @@
 #include "eval_OmissionCounter.h"
 
 template <class SEC, class Req>
-class EvalLatRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase<SEC, Req> {
+class EvalLatRTSEC : public
+#if defined(RT_TEST_COM_LAT) || defined(RT_TEST_ALL_NRT)
+        famouso::mw::api::RealTimeSubscriberEventChannelBase<SEC, Req>
+#else
+        famouso::mw::api::RealTimeSubscriberEventChannel<SEC, Req>
+#endif
+{
         // Subscriber task not used in all configurations
         timefw::Task sub_task;
 
@@ -53,11 +59,19 @@ class EvalLatRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase
         EvalLatencyDistribution lat_dist;
 
     public:
+#if defined(RT_TEST_COM_LAT) || defined(RT_TEST_ALL_NRT)
         typedef famouso::mw::api::RealTimeSubscriberEventChannelBase<SEC, Req> Base;
+#else
+        typedef famouso::mw::api::RealTimeSubscriberEventChannel<SEC, Req> Base;
+#endif
 
         EvalLatRTSEC(const famouso::mw::Subject & subj,
-                  const timefw::Time & sub_task_start) :
+                     const timefw::Time & sub_task_start) :
+#if defined(RT_TEST_COM_LAT) || defined(RT_TEST_ALL_NRT)
             Base(subj)
+#else
+            Base(subj, sub_task_start)
+#endif
         {
 #if defined(RT_TEST_COM_LAT) || defined(RT_TEST_ALL_NRT)
             // Use receive callback and no periodic subscriber notify task
@@ -65,12 +79,6 @@ class EvalLatRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase
 #else
             Base::notify_callback.template bind<EvalLatRTSEC, &EvalLatRTSEC::notify_latency>(this);
             Base::exception_callback.template bind<EvalLatRTSEC, &EvalLatRTSEC::exception>(this);
-
-            sub_task.start = sub_task_start.get();
-            sub_task.period = Base::period;
-            sub_task.template bind<Base, &Base::subscriber_task_func>(this);
-            sub_task.realtime = true;
-            timefw::Dispatcher::instance().enqueue(sub_task);
 #endif
         }
 

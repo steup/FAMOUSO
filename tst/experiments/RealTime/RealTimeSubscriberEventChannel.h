@@ -58,8 +58,7 @@ namespace famouso {
     namespace mw {
         namespace api {
 
-            template <typename SEC, typename Requirement,
-                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
+            template <typename SEC, typename Requirement>
             class RealTimeSubscriberEventChannelBase : public SEC {
                     typedef RealTimeSubscriberEventChannelBase type;
 
@@ -74,13 +73,6 @@ namespace famouso {
                         /// Maximum event length given in requirement attributes
                         mel = MELAttrib::value
                     };
-
-                    /// Event information struct
-                    typedef detail::EventInfoStruct<mel> EventInfo;
-
-                    /// Temporal firewall containing event information
-                    TemporalFirewall<EventInfo> tf;
-
 
                     // logging helper
                     struct RT {
@@ -97,7 +89,6 @@ namespace famouso {
                 public:
                     RealTimeSubscriberEventChannelBase(const Subject& subject) : SEC(subject) {
                         SEC::trampoline.template bind<type, &type::trampoline_impl>(this);
-                        SEC::callback.template bind<type, &type::callback_periodic_notify_impl>(this);
                     }
 
                 private:
@@ -114,27 +105,50 @@ namespace famouso {
                         }
                         return 0;
                     }
+            };
+
+
+            template <typename SEC, typename Requirement,
+                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
+            class RealTimeSubscriberEventChannel : public RealTimeSubscriberEventChannelBase<SEC, Requirement> {
+                    typedef RealTimeSubscriberEventChannel type;
+                    typedef RealTimeSubscriberEventChannelBase<SEC, Requirement> Base;
+
+                protected:
+
+                    /// Event information struct
+                    typedef detail::EventInfoStruct<Base::mel> EventInfo;
+
+                    /// Temporal firewall containing event information
+                    TemporalFirewall<EventInfo> tf;
+
+                    timefw::Task subscriber_task;
 
                     // Middleware notify callback writing temporal firewall
                     void callback_periodic_notify_impl(const Event & event) {
                         // TODO: Deadline prüfen, Filter anwenden, Strength prüfen (z.B. previous_strength als member-var zwischenspeichern)...
-                        if (event.length > mel)
+                        if (event.length > Base::mel)
                             return;
                         EventInfo & ei = tf.write_lock();
                         memcpy(ei.data, event.data, event.length);
                         ei.length = event.length;
-                        ei.expire = timefw::TimeSource::current().add(timefw::Time::usec(period)); // oder deadline, TODO: omission beachten
+                        ei.expire = timefw::TimeSource::current().add(timefw::Time::usec(Base::period)); // oder deadline, TODO: omission beachten
                         tf.write_unlock();
                     }
 
-                public:
                     // may run in another thread
                     void subscriber_task_func() {
                         const EventInfo & ei = tf.read_lock();
+#if 0
+                        // More stable concerning time errors
                         if (timefw::TimeSource::current() < ei.expire) {
+#else
+                        // Less end-to-end latency jitter
+                        if (subscriber_task.start < ei.expire) {
+#endif
                             // expire in future
 #if (RTSEC_OUTPUT >= 2)
-                            ::logging::log::emit<RT>()
+                            ::logging::log::emit<typename Base::RT>()
                                 << "update notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                 << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
@@ -148,7 +162,7 @@ namespace famouso {
                         } else {
                             // expire in past
 #if (RTSEC_OUTPUT >= 2)
-                            ::logging::log::emit<RT>()
+                            ::logging::log::emit<typename Base::RT>()
                                 << "exception notify: chan "
                                 << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
                                 << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
@@ -160,31 +174,14 @@ namespace famouso {
                         tf.read_unlock();
                     }
 
-                    /*!
-                     *  \brief  
-                     *  bei Subscriber anstelle des notify aufgerufen, wenn kein Event gemäß Spezifikation (Subject, Filter, QoS-Anforderungen) erhalten
-                     */
-                    famouso::mw::api::ExceptionCallBack exception_callback;
-                    famouso::mw::api::SECCallBack notify_callback;
-            };
-
-            // TODO: Beispiel für Anhang hiermit
-            template <typename SEC, typename Requirement,
-                      template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
-            class RealTimeSubscriberEventChannel : public RealTimeSubscriberEventChannelBase<SEC, Requirement, TemporalFirewall> {
-                    typedef RealTimeSubscriberEventChannel type;
-                    typedef RealTimeSubscriberEventChannelBase<SEC, Requirement, TemporalFirewall> Base;
-
-                protected:
-                    timefw::Task subscriber_task;
-
                 public:
                     RealTimeSubscriberEventChannel(const famouso::mw::Subject & subj,
                                                    const timefw::Time & sub_task_start = timefw::TimeSource::current()) :
                         Base(subj),
                         subscriber_task(sub_task_start, timefw::Time::usec(Base::period), true)
                     {
-                        subscriber_task.template bind<Base, &Base::subscriber_task_func>(this);
+                        SEC::callback.template bind<type, &type::callback_periodic_notify_impl>(this);
+                        subscriber_task.template bind<type, &type::subscriber_task_func>(this);
                         timefw::Dispatcher::instance().enqueue(subscriber_task);
 #if (RTSEC_OUTPUT >= 1)
                         ::logging::log::emit<typename Base::RT>()
@@ -193,6 +190,13 @@ namespace famouso {
                             << " at " << subscriber_task.start << '\n';
 #endif
                     }
+
+                    /*!
+                     *  \brief  
+                     *  bei Subscriber anstelle des notify aufgerufen, wenn kein Event gemäß Spezifikation (Subject, Filter, QoS-Anforderungen) erhalten
+                     */
+                    famouso::mw::api::ExceptionCallBack exception_callback;
+                    famouso::mw::api::SECCallBack notify_callback;
             };
 
         } // namespace api
