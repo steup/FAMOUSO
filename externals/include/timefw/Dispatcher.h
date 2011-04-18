@@ -43,23 +43,27 @@
 
 #include "case/Delegate.h"
 #include "object/Queue.h"
-#include "util/ios.h"
 #include "util/math.h"
 
 #include "timefw/Time.h"
 #include "timefw/Singleton.h"
+
+#ifndef __AVR__
+#include "util/ios.h"
 #include <signal.h>
+#endif
 
 
 namespace timefw {
 
+#ifndef __AVR__
     volatile bool ___done = false;
 
     void siginthandler(int) {
         // Unlock the idle() thread
         ___done=true;
     }
-
+#endif
 
 
     // Later we need argument binding (multiple Deliver-Tasks on one RT-PEC)
@@ -157,14 +161,20 @@ namespace timefw {
             }
 
             void run() {
+#ifndef __AVR__
                 signal(SIGINT, siginthandler);
                 signal(SIGHUP, siginthandler);
                 signal(SIGQUIT,siginthandler);
                 signal(SIGTERM,siginthandler);
                 signal(SIGPIPE,siginthandler);
+#endif
 
                 wait_for_next_task();
+#ifndef __AVR__
                 while (!___done) {
+#else
+                while (1) {
+#endif
                     Task * next = static_cast<Task *>(tasks.unlink());
                     if (next) {
 #ifdef DISPATCHER_OUTPUT
@@ -177,8 +187,10 @@ namespace timefw {
                     wait_for_next_task();
 //                    ::logging::log::emit() << '.';
                 }
+#ifndef __AVR__
                 // signalise the ios to exit
                 famouso::util::impl::exit_ios();
+#endif
             }
 
             /// Should be called by NRT tasks to when waiting for ressources (cooperative flow transfer to RT tasks)
