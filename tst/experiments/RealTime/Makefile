@@ -37,7 +37,7 @@
 ##
 ################################################################################
 
-CONFIG=linux/xenomai
+#CONFIG=linux/xenomai
 #CONFIG=avr
 ADD_FLAGS=-Os
 #ADD_FLAGS=-Wfatal-errors
@@ -63,11 +63,14 @@ ifneq ($(CONFIG),avr)
 CXXFLAGS += -lrt
 endif
 
+eval: Nodes RT_Master
+
 all: $(BINS)
+
+avr: AVR_Node1 AVR_Node2 AVR_NodeNRT1 AVR_NodeNRT2
 
 Nodes: Node1 Node2 Node3 Node4
 
-eval: Nodes RT_Master
 
 
 clean:

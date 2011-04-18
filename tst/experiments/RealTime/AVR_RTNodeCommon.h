@@ -63,11 +63,13 @@ static inline bool usleep(uint32_t t) {
     return true;
 }
 
+#ifndef TEST_AVR_NRT
 // Global clock definition
 #include "timefw/TimeSourceProvider.h"
 #include "AVR_GlobalClock.h"
 typedef GlobalAVRClock Clock;
 FAMOUSO_TIME_SOURCE(Clock)
+#endif
 
 
 // Node ID definition
@@ -93,9 +95,10 @@ UID getNodeID<void>() {
 #include "mw/common/Event.h"
 #include "famouso.h"
 
-#include "mw/el/ml/ManagementLayer.h"
 #include "mw/el/EventLayer.h"
 
+#ifndef TEST_AVR_NRT
+#include "mw/el/ml/ManagementLayer.h"
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/Period.h"
 #include "mw/attributes/MaxEventLength.h"
@@ -105,6 +108,7 @@ UID getNodeID<void>() {
 #include "guard/RT_WindowCheck.h"
 #include "guard/RT_NoWindowCheck.h"
 #include "guard/NRT_HandledByNL.h"
+#endif
 
 namespace famouso {
     class config {
@@ -112,18 +116,30 @@ namespace famouso {
             typedef mw::nl::CAN::ccp::Client<can> ccpClient;
             typedef mw::nl::CAN::etagBP::Client<can> etagClient;
             typedef mw::nl::CANNL<can, ccpClient, etagClient> NL;
+#ifndef TEST_AVR_NRT
             typedef mw::guard::NetworkGuard<
                             NL,
                             mw::guard::RT_WindowCheck,
                             mw::guard::NRT_HandledByNL
                         > NG;
             typedef mw::anl::AbstractNetworkLayer<NG> ANL;
+#else
+            typedef mw::anl::AbstractNetworkLayer<NL> ANL;
+#endif
+
         public:
+#ifndef TEST_AVR_NRT
             typedef mw::el::EventLayer<ANL, mw::el::ml::ManagementLayer> EL;
+#else
+            typedef mw::el::EventLayer<ANL> EL;
+#endif
             typedef mw::api::PublisherEventChannel<EL> PEC;
             typedef mw::api::SubscriberEventChannel<EL> SEC;
     };
 }
+
+
+#ifndef TEST_AVR_NRT
 
 #include "timefw/Dispatcher.h"
 
@@ -136,6 +152,7 @@ namespace famouso {
     }   \
     ::logging::log::emit() << "Clock in sync\n";
 
+#endif
 
 
 #endif // __RTAVRNODECOMMON_H_0E9783D55B8B9B__

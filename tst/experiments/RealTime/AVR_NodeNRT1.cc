@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
+ * Copyright (c) 2011 Philipp Werner <philipp.werner@st.ovgu.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,82 +37,47 @@
  *
  ******************************************************************************/
 
+#define FAMOUSO_NODE_ID "SeMoNode"
+#define F_CPU 16000000
+#define LOGGING_DISABLE
+#define NDEBUG
 
-#ifndef __MATH_H_B17EDA6C8EF650__
-#define __MATH_H_B17EDA6C8EF650__
+#define TEST_AVR_NRT
 
-// TODO: rename div_round_up to div_ceil
-#include "mw/afp/shared/div_round_up.h"
-using famouso::mw::afp::shared::div_round_up;
+#include "AVR_RTNodeCommon.h"
 
 
-inline bool odd(int a) {
-    return a & 1;
-}
+int main() {
+    famouso::init<famouso::config>();
 
-// by stein
-int greatest_common_divisor(int a, int b) {
-    int k, t;
-    k = 0;
+    using namespace famouso;
 
-    while (!odd(a) && !odd(b)) {
-        a >>= 1;   // a /= 2;
-        b >>= 1;   // b /= 2;
-        k++;
+    config::PEC sensor1_pec("Sensor_1");
+    sensor1_pec.announce();
+
+    famouso::mw::Event event(sensor1_pec.subject());
+    uint64_t counter = 0;
+
+    while (1) {
+        usleep(50000);
+
+        uint8_t buffer[8];
+        memset(buffer, 0, 8);
+        // Tx sequence number (if MaxEventLength > 8 the rest is zeroed)
+        uint64_t tmp = counter;
+        for (int i = 8 - 1; i >= 0 && tmp; --i) {
+            buffer[i] = tmp & 0xff;
+            tmp >>= 8;
+        }
+        event.data = buffer;
+        event.length = 8;
+
+        sensor1_pec.publish(event);
+
+        ++counter;
     }
 
-    if (odd(a))
-        t = -b;
-    else
-        t = a;
 
-    while (t != 0) {
-        while (!odd(t))
-            t >>= 1;    // t /= 2;
-        if (t > 0)
-            a = t;
-        else
-            b = -t;
-        t = a - b;
-    }
-
-    return a * (1 << k);
+    return 0;
 }
-
-int least_common_multiple(int a, int b) {
-    return /*abs*/(a * b) / greatest_common_divisor(a,b);
-}
-
-/*!
- *  \brief  Increase \p a by multpile of \p b to a return value greater than \p c
- */
-template <typename T>
-static inline T increase_by_multiple_above(T a, T b, T c) {
-    // while (a < c) a += b;
-    if (a < c) {
-        a += (((c - a) / b) + (T)1) * b;
-    }
-    return a;
-}
-
-/*!
- *  \brief  Return \p a increased to a multpile of \p b
- *  \note   Only for integral types
- */
-template <typename T>
-static inline T increase_to_multiple(T a, T b) {
-    return div_round_up(a, b) * b;
-}
-
-/*!
- *  \brief  Return \p a reduced to a multpile of \p b
- *  \note   Only for integral types
- */
-template <typename T>
-static inline T reduce_to_multiple(T a, T b) {
-    return (a / b) * b;
-}
-
-
-#endif // __MATH_H_B17EDA6C8EF650__
 

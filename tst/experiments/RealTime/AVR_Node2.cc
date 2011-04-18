@@ -56,24 +56,13 @@ int main() {
 
     using namespace famouso;
 
-    EvalRTPEC<
-        config::PEC,
-        mw::attributes::detail::SetProvider<
-             mw::attributes::Period<sensor1::period>,
-             mw::attributes::MaxEventLength<sensor1::mel>,
-             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
-             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
-        >::attrSet
-    > sensor1_pec("Sensor_1", sensor1::pt_start);
-    sensor1_pec.announce();
-
     EvalRTSEC<
         config::SEC,
         mw::attributes::detail::SetProvider<
              mw::attributes::Period<motor1::period>,
              mw::attributes::MaxEventLength<motor1::mel>
         >::attrSet
-    > motor1_sec("Motor__1", motor1::st_start);
+    > motor1_sec("Motor__1", timefw::Time::usec(motor1::st_start));
     motor1_sec.subscribe();
 
     ::logging::log::emit() << "Start dispatcher\n";
