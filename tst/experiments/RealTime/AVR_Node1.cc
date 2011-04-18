@@ -37,89 +37,46 @@
  *
  ******************************************************************************/
 
-#ifndef __EVAL_APP_DEF_H_33419184CB55EE__
-#define __EVAL_APP_DEF_H_33419184CB55EE__
+#define FAMOUSO_NODE_ID "SeMoNode"
+#define F_CPU 16000000
+#define LOGGING_DISABLE
+#define NDEBUG
+
+#include "AVR_RTNodeCommon.h"
+#include "eval_RTPEC.h"
+#include "eval_RTSEC.h"
+#include "eval_app_def.h"
 
 
-namespace motor1 {
-    const uint64_t period = 20llu * 1000llu;
-    const uint64_t mel = 8;
+int main() {
+    famouso::init<famouso::config>();
+    CLOCK_SYNC_INIT;
 
-    // Node 2
-    const uint64_t pt_start = 100;
-    const uint64_t dt_start = 200;
-    const uint64_t dt_end = 10 * 1000;
+    using namespace famouso;
 
-    // Node 1
-    const uint64_t st_start = dt_end + 100;
+    EvalRTPEC<
+        config::PEC,
+        mw::attributes::detail::SetProvider<
+             mw::attributes::Period<sensor1::period>,
+             mw::attributes::MaxEventLength<sensor1::mel>,
+             mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
+             mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
+        >::attrSet
+    > sensor1_pec("Sensor_1", sensor1::pt_start);
+    sensor1_pec.announce();
+
+    EvalRTSEC<
+        config::SEC,
+        mw::attributes::detail::SetProvider<
+             mw::attributes::Period<motor1::period>,
+             mw::attributes::MaxEventLength<motor1::mel>
+        >::attrSet
+    > motor1_sec("Motor__1", motor1::st_start);
+    motor1_sec.subscribe();
+
+    ::logging::log::emit() << "Start dispatcher\n";
+    timefw::Dispatcher::instance().run();
+
+    return 0;
 }
-
-namespace sensor1 {
-    const uint64_t period = 100llu * 1000llu;
-#ifndef __ETHERNET__
-    const uint64_t mel = 32;
-#else
-    const uint64_t mel = 32000;
-#endif
-
-    // Node 1
-    const uint64_t pt_start = 10 * 1000;
-    const uint64_t dt_start = pt_start + 100;
-    const uint64_t dt_end = dt_start + 20 * 1000;
-
-    // Node 2
-    const uint64_t st_start = 40llu * 1000llu;
-}
-
-namespace motor2 {
-    const uint64_t period = 20 * 1000;
-    const uint64_t mel = 8;
-
-/*
-    // Node 4
-    const uint64_t pt_start = 100;
-    const uint64_t dt_start = 200;
-    const uint64_t dt_end = 10 * 1000;
-
-    // Node 3
-    const uint64_t st_start = dt_end + 100;
-    */
-}
-
-namespace sensor2 {
-    const uint64_t period = 10 * 1000;
-#ifndef __ETHERNET__
-    const uint64_t mel = 4;
-#else
-    const uint64_t mel = 16000;
-#endif
-
-/*
-    // Node 3
-    const uint64_t pt_start = 0;
-    const uint64_t dt_start = pt_start + 100;
-    const uint64_t dt_end = 0;
-
-    // Node 4
-    const uint64_t st_start = dt_end + 100;
-    */
-}
-
-namespace emrgstop {
-    const uint64_t period = 50llu * 1000llu;
-    const uint64_t mel = 0;
-
-/*
-    // Node 3
-    const uint64_t pt_start = 0;
-    const uint64_t dt_start = pt_start + 100;
-    const uint64_t dt_end = 0;
-
-    // Node 4
-    const uint64_t st_start = dt_end + 100;
-    */
-}
-
-
-#endif // __EVAL_APP_DEF_H_33419184CB55EE__
 

@@ -39,7 +39,9 @@
 
 CONFIG=linux/xenomai
 #CONFIG=avr
-ADD_FLAGS=-O3
+ADD_FLAGS=-Os
+#ADD_FLAGS=-Wfatal-errors
+
 
 include ../../../make/Makefile
 ADDITIONAL_CFLAGS+= -I../../../Bindings/include
@@ -57,7 +59,9 @@ ifneq ($(ADD_FLAGS),)
 CXXFLAGS += $(ADD_FLAGS)
 endif
 
+ifneq ($(CONFIG),avr)
 CXXFLAGS += -lrt
+endif
 
 all: $(BINS)
 

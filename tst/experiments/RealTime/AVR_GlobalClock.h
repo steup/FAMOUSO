@@ -37,89 +37,46 @@
  *
  ******************************************************************************/
 
-#ifndef __EVAL_APP_DEF_H_33419184CB55EE__
-#define __EVAL_APP_DEF_H_33419184CB55EE__
+#ifndef __AVRGLOBALCLOCK_H_6C5968787888BE__
+#define __AVRGLOBALCLOCK_H_6C5968787888BE__
 
+#include "timefw/Time.h"
+#include "timefw/ClockDriverAVR.h"
+#include "mw/common/Event.h"
 
-namespace motor1 {
-    const uint64_t period = 20llu * 1000llu;
-    const uint64_t mel = 8;
+    // interface: nanosec
+    // internal: nanosec
+    // Global = local time
+    class GlobalAVRClock : public timefw::ClockDriverAVR {
+            typedef timefw::ClockDriverAVR ClockDriver;
+            bool sync;
+        public:
+            GlobalAVRClock() {
+                last_macrotick = 0;
+                sync = false;
+            }
 
-    // Node 2
-    const uint64_t pt_start = 100;
-    const uint64_t dt_start = 200;
-    const uint64_t dt_end = 10 * 1000;
+            void sync_event(const famouso::mw::Event & e) {
+                FAMOUSO_ASSERT(e.length == 8);
+                last_macrotick = ntohll(*reinterpret_cast<uint64_t*>(e.data));
+                sync = true;
+            }
 
-    // Node 1
-    const uint64_t st_start = dt_end + 100;
-}
+            bool out_of_sync() {
+                return sync;
+            }
 
-namespace sensor1 {
-    const uint64_t period = 100llu * 1000llu;
-#ifndef __ETHERNET__
-    const uint64_t mel = 32;
-#else
-    const uint64_t mel = 32000;
-#endif
+            // Timestamp in us
+            uint64_t current() {
+                return ClockDriver::current_local();
+            }
 
-    // Node 1
-    const uint64_t pt_start = 10 * 1000;
-    const uint64_t dt_start = pt_start + 100;
-    const uint64_t dt_end = dt_start + 20 * 1000;
+            bool wait_until(uint64_t global_time) {
+                // Assumption: time is not too far in future (the later the less
+                //             accurate will be the wakeup in case of drifting clocks)
+                return ClockDriver::wait_until(global_time);
+            }
+    };
 
-    // Node 2
-    const uint64_t st_start = 40llu * 1000llu;
-}
-
-namespace motor2 {
-    const uint64_t period = 20 * 1000;
-    const uint64_t mel = 8;
-
-/*
-    // Node 4
-    const uint64_t pt_start = 100;
-    const uint64_t dt_start = 200;
-    const uint64_t dt_end = 10 * 1000;
-
-    // Node 3
-    const uint64_t st_start = dt_end + 100;
-    */
-}
-
-namespace sensor2 {
-    const uint64_t period = 10 * 1000;
-#ifndef __ETHERNET__
-    const uint64_t mel = 4;
-#else
-    const uint64_t mel = 16000;
-#endif
-
-/*
-    // Node 3
-    const uint64_t pt_start = 0;
-    const uint64_t dt_start = pt_start + 100;
-    const uint64_t dt_end = 0;
-
-    // Node 4
-    const uint64_t st_start = dt_end + 100;
-    */
-}
-
-namespace emrgstop {
-    const uint64_t period = 50llu * 1000llu;
-    const uint64_t mel = 0;
-
-/*
-    // Node 3
-    const uint64_t pt_start = 0;
-    const uint64_t dt_start = pt_start + 100;
-    const uint64_t dt_end = 0;
-
-    // Node 4
-    const uint64_t st_start = dt_end + 100;
-    */
-}
-
-
-#endif // __EVAL_APP_DEF_H_33419184CB55EE__
+#endif // __AVRGLOBALCLOCK_H_6C5968787888BE__
 

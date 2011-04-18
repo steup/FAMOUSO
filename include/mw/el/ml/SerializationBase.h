@@ -100,7 +100,7 @@ namespace famouso {
                         }
 
                         bool further_space(uint16_t bytes) const {
-                            return data_end - data.u8 >= bytes;
+                            return (uint16_t)(data_end - data.u8) >= bytes;
                         }
                         bool buffer_full() const {
                             return data_end  == data.u8;

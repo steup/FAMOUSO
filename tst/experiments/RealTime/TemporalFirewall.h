@@ -104,7 +104,7 @@ class TemporalFirewallDoubleBuffered {
             ~scoped_lock() {
                 SREG = sreg;
             }
-        }
+        };
 
         Data buffer[2];
 
