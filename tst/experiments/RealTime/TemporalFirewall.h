@@ -67,7 +67,7 @@ namespace detail {
              *          firewall content is invalid. This prevents delivery
              *          of an uninitialized event.
              */
-            EventInfoStruct() : expire(0) {
+            EventInfoStruct() : expire() {
             }
         };
 

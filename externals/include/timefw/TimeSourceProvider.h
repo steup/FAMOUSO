@@ -57,12 +57,12 @@ namespace timefw {
 
             /// Returns current (global) time
             static Time current() {
-                return Time(Base::instance().current() / 1000LLU);
+                return Base::instance().current();
             }
 
             /// Returns current local time
             static Time current_local() {
-                return Time(Base::instance().current_local() / 1000LLU);
+                return Base::instance().current_local();
             }
 
             /// Check whether out of sync
@@ -72,7 +72,7 @@ namespace timefw {
 
             /// Wait until given (global) time (returns false if interrupted by system signal)
             static bool wait_until(const Time & time) {
-                return Base::instance().wait_until(time.get() * 1000LLU);
+                return Base::instance().wait_until(time);
             }
     };
 

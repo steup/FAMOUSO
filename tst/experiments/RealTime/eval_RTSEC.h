@@ -47,26 +47,34 @@ template <class SEC, class Req>
 class EvalRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannel<SEC, Req> {
         uint64_t counter;
 
+#ifdef RT_TEST_STATISTICS
         EvalOmissionCounter oc;
+#endif
 
     public:
         typedef famouso::mw::api::RealTimeSubscriberEventChannel<SEC, Req> Base;
 
         EvalRTSEC(const famouso::mw::Subject & subj,
                   const timefw::Time & sub_task_start) :
-            Base(subj),
-            counter(0)
+            Base(subj)
+#ifdef RT_TEST_STATISTICS
+            , counter(0)
+#endif
         {
             Base::notify_callback.template bind<EvalRTSEC, &EvalRTSEC::notify_data_check>(this);
             Base::exception_callback.template bind<EvalRTSEC, &EvalRTSEC::exception>(this);
         }
 
         ~EvalRTSEC() {
+#ifdef RT_TEST_STATISTICS
             oc.log_results(Base::subject());
+#endif
         }
 
         void notify_data_check(const famouso::mw::Event & event) {
+#ifdef RT_TEST_STATISTICS
             oc.received_event();
+#endif
 #if defined(RT_TEST_OUTPUT_PER_PERIOD)
             ::logging::log::emit()
                 << "[TEST_DC] " << timefw::TimeSource::current()
@@ -102,7 +110,9 @@ class EvalRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannel<SEC, R
         }
 
         void exception() {
+#ifdef RT_TEST_STATISTICS
             oc.omitted_event();
+#endif
 #if defined(RT_TEST_OUTPUT_PER_PERIOD)
             ::logging::log::emit()
                 << "[TEST_DC] " << timefw::TimeSource::current()

@@ -52,26 +52,24 @@
 // Interrupt needed for EggTimer<Timer2>
 UseInterrupt(SIG_OUTPUT_COMPARE2);
 
+#include "Time.h"
 
 
 namespace timefw {
 
-    /// Clock driver for posix environment
+    /// Clock driver for AVR (granularity 1 ms)
     class ClockDriverAVR {
         protected:
-            uint64_t last_macrotick;
+            Time last_macrotick;
 
             void tick() {
-                last_macrotick += granularity_ns;
+                last_macrotick.add(Time::msec(1));
                 timer.start(1);
             }
 
             ExactEggTimer<Timer2> timer;
 
         public:
-            enum {
-                granularity_ns = 1000llu * 1000llu // 1000 us = 1 ms
-            };
 
             ClockDriverAVR() {
                 timer.onTimerDelegate.bind<ClockDriverAVR, & ClockDriverAVR::tick> (this);
@@ -79,14 +77,14 @@ namespace timefw {
             }
 
             /// Returns current local time in nanosecs
-            uint64_t current_local() {
+            Time current_local() {
                 return last_macrotick;
             }
 
             /*! \brief Sleeps until local_time (given in nanosecs)
              *  \return Whether waiting was not interrupted by a system signal
              */
-            bool wait_until(uint64_t local_time) {
+            bool wait_until(const Time & local_time) {
                 while (current_local() < local_time)
                     ;
                 return true;

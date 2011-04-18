@@ -62,7 +62,7 @@ int main(int argc, char ** argv) {
              mw::attributes::RealTimeSlotStartBoundary<sensor1::dt_start>,
              mw::attributes::RealTimeSlotEndBoundary<sensor1::dt_end>
         >::attrSet
-    > sensor1_pec("Sensor_1", sensor1::pt_start);
+    > sensor1_pec("Sensor_1", timefw::Time::usec(sensor1::pt_start));
     sensor1_pec.announce();
 
     EvalLatRTSEC<
@@ -71,7 +71,7 @@ int main(int argc, char ** argv) {
              mw::attributes::Period<motor1::period>,
              mw::attributes::MaxEventLength<motor1::mel>
         >::attrSet
-    > motor1_sec("Motor__1", motor1::st_start);
+    > motor1_sec("Motor__1", timefw::Time::usec(motor1::st_start));
     motor1_sec.subscribe();
 
     printf("Start dispatcher\n");

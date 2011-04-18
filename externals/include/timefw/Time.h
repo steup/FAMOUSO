@@ -48,81 +48,231 @@ namespace timefw {
     /*!
      * \brief Represents a time
      */
-    class Time {
+    template <typename time_type_>
+    class TimeBase {
+
+        protected:
+            typedef time_type_ time_type;
 
             /// time in microseconds (us)
-            uint64_t time;
+            time_type time;
+
+            TimeBase(time_type t) :
+                time(t) {
+            }
 
         public:
-            Time(uint64_t time_us = 0) : time(time_us) {
+
+            void add(const TimeBase & s) {
+                time += s.time;
             }
 
-            Time & add_sec(uint64_t s) {
-                time += s * 1000000;
-                return *this;
+            void sub(const TimeBase & s) {
+                time -= s.time;
             }
 
-            Time & add_usec(uint64_t us) {
-                time += us;
-                return *this;
+            bool is_zero() {
+                return time == 0;
             }
 
-            Time & sub_sec(uint64_t s) {
-                time -= s * 1000000;
-                return *this;
+            bool operator ! () const {
+                return !time;
             }
 
-            Time & sub_usec(uint64_t us) {
-                time -= us;
-                return *this;
-            }
-
-            uint64_t get_usec() const {
-                return time;
-            }
-
-            uint64_t get_sec() const {
-                return time / 1000000;
-            }
-
-            Time operator + (const Time & t2) const {
-                return Time(time + t2.time);
-            }
-
-            bool operator < (const Time & t2) const {
+            bool operator < (const TimeBase & t2) const {
                 return time < t2.time;
             }
 
-            bool operator <= (const Time & t2) const {
+            bool operator <= (const TimeBase & t2) const {
                 return time <= t2.time;
             }
 
-            bool operator > (const Time & t2) const {
+            bool operator > (const TimeBase & t2) const {
                 return time > t2.time;
             }
 
-            bool operator >= (const Time & t2) const {
+            bool operator >= (const TimeBase & t2) const {
                 return time >= t2.time;
             }
 
-            bool operator == (const Time & t2) const {
+            bool operator == (const TimeBase & t2) const {
                 return time == t2.time;
             }
 
-            bool operator != (const Time & t2) const {
+            bool operator != (const TimeBase & t2) const {
                 return time != t2.time;
             }
 
-            // Get representation for binary transmission (usec)
-            uint64_t get() const {
+            void futurify(const TimeBase & period, const TimeBase & current) {
+                time = increase_by_multiple_above(
+                            time,
+                            period.time,
+                            current.time);
+
+            }
+    };
+
+#ifndef __AVR__
+    // Time in nanosec
+    class Time : public TimeBase<uint64_t> {
+            typedef TimeBase<uint64_t> Base;
+
+        public:
+            typedef Base::time_type time_type;
+
+        protected:
+            // t: Time in nanosec
+            Time(time_type t) : Base(t) {
+            }
+
+        public:
+            Time() : Base(0) {
+            }
+
+            static Time sec(time_type t) {
+                return Time(t * 1000000000llu);
+            }
+
+            static Time msec(time_type t) {
+                return Time(t * 1000000llu);
+            }
+
+            static Time usec(time_type t) {
+                return Time(t * 1000llu);
+            }
+
+            static Time nsec(time_type t) {
+                return Time(t);
+            }
+
+            void set_sec(time_type t) {
+                time = t * 1000000000llu;
+            }
+
+            void set_msec(time_type t) {
+                time = t * 1000000llu;
+            }
+
+            void set_usec(time_type t) {
+                time = t * 1000llu;
+            }
+
+            void set_nsec(time_type t) {
+                time = t;
+            }
+
+            time_type get_sec() const {
+                return time / 1000000000llu;
+            }
+
+            time_type get_msec() const {
+                return time / 1000000llu;
+            }
+
+            time_type get_usec() const {
+                return time / 1000llu;
+            }
+
+            time_type get_nsec() const {
                 return time;
             }
 
-            // Set from representation for binary transmission (usec)
-            void set(uint64_t t) {
-                time = t;
+            Time & add(const Time & s) {
+                Base::add(s);
+                return *this;
+            }
+
+            Time & sub(const Time & s) {
+                Base::sub(s);
+                return *this;
             }
     };
+#else
+    // Time in usec
+    class Time : public TimeBase<uint32_t> {
+            typedef TimeBase<uint32_t> Base;
+
+        public:
+            typedef Base::time_type time_type;
+
+        protected:
+            // t: Time in usec
+            Time(time_type t) : Base(t) {
+            }
+
+        public:
+            Time() : Base(0) {
+            }
+
+            static Time sec(time_type t) {
+                return Time(t * 1000000lu);
+            }
+
+            static Time msec(time_type t) {
+                return Time(t * 1000lu);
+            }
+
+            static Time usec(time_type t) {
+                return Time(t);
+            }
+
+            static Time nsec(time_type t) {
+                return Time(t / 1000lu);
+            }
+
+            void set_sec(time_type t) {
+                time = t * 1000000lu;
+            }
+
+            void set_msec(time_type t) {
+                time = t * 1000lu;
+            }
+
+            void set_usec(time_type t) {
+                time = t;
+            }
+
+            void set_nsec(time_type t) {
+                time = t / 1000lu;
+            }
+
+            time_type get_sec() const {
+                return time / 1000000lu;
+            }
+
+            time_type get_msec() const {
+                return time / 1000lu;
+            }
+
+            time_type get_usec() const {
+                return time;
+            }
+
+            /*
+            time_type get_nsec() const {
+                return time * 1000000llu;
+            }
+            */
+
+            Time & add(const Time & s) {
+                Base::add(s);
+                return *this;
+            }
+
+            Time & sub(const Time & s) {
+                Base::sub(s);
+                return *this;
+            }
+    };
+#endif
+
+    Time operator-(const Time & t1, const Time & t2) {
+        return Time(t1).sub(t2);
+    }
+
+    Time operator+(const Time & t1, const Time & t2) {
+        return Time(t1).add(t2);
+    }
 
 } // namespace timefw
 

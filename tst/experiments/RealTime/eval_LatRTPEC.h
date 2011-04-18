@@ -78,11 +78,11 @@ class EvalLatRTPEC :
         }
 
         void publish_task_func() {
-            timefw::Time curr = timefw::TimeSource::current().get();
+            timefw::Time curr = timefw::TimeSource::current();
             uint8_t buffer[Base::mel];
             memset(buffer, 0, Base::mel);
             FAMOUSO_ASSERT(Base::mel >= 8);
-            *reinterpret_cast<uint64_t*>(buffer) = htonll(curr.get());
+            *reinterpret_cast<uint64_t*>(buffer) = htonll(curr.get_usec());
             event.length = Base::mel;
             event.data = buffer;
 #if defined(RT_TEST_COM_LAT) && !defined(RT_TEST_ALL_NRT)

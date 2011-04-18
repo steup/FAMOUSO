@@ -90,7 +90,7 @@ int main(int argc, char ** argv) {
              mw::attributes::RealTimeSlotEndBoundary<motor2::dt_end>
              */
         >::attrSet
-    > motor2_pec("Motor__2", 0/*motor2::pt_start*/);
+    > motor2_pec("Motor__2", timefw::Time::usec(0/*motor2::pt_start*/));
     motor2_pec.announce();
 
     EvalRTSEC<
@@ -99,7 +99,7 @@ int main(int argc, char ** argv) {
              mw::attributes::Period<sensor2::period>,
              mw::attributes::MaxEventLength<sensor2::mel>
         >::attrSet
-    > sensor2_sec("Sensor_2", 1000/*sensor2::st_start*/);
+    > sensor2_sec("Sensor_2", timefw::Time::usec(1000/*sensor2::st_start*/));
     sensor2_sec.subscribe();
 
     EvalRTSEC<
@@ -108,7 +108,7 @@ int main(int argc, char ** argv) {
              mw::attributes::Period<emrgstop::period>,
              mw::attributes::MaxEventLength<emrgstop::mel>
         >::attrSet
-    > es_sec("Not-Aus_", 200/*emrgstop::st_start*/);
+    > es_sec("Not-Aus_", timefw::Time::usec(200/*emrgstop::st_start*/));
     es_sec.subscribe();
 
     EvalRTPEC<
@@ -121,7 +121,7 @@ int main(int argc, char ** argv) {
              mw::attributes::MaxEventLength<20>
 #endif
         >::attrSet
-    > sensor3_pec("Sensor_3", 0);
+    > sensor3_pec("Sensor_3", timefw::Time::usec(0));
     sensor3_pec.announce();
 #endif
 

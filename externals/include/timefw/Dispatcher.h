@@ -70,9 +70,9 @@ namespace timefw {
     struct Task : public famouso::util::Delegate<void>, public Chain {
         bool realtime;
         Time start;
-        uint64_t period;                        // in usec, Zero for non-periodic
+        Time period;                        // Zero for non-periodic
         Task() : realtime(false) {}
-        Task(const Time & s, uint64_t p = 0, bool rt = false) : realtime(rt), start(s), period(p) {}
+        Task(const Time & s, const Time p = Time(), bool rt = false) : realtime(rt), start(s), period(p) {}
     };
 
     // simple function dispatcher sketch for first testing
@@ -94,15 +94,6 @@ namespace timefw {
 
             void remove_task(Task & task) {
                 tasks.remove(&task);
-            }
-
-            void futurify_start(Task & task) {
-                FAMOUSO_ASSERT(task.period != 0);
-                task.start.set(
-                    increase_by_multiple_above(
-                        task.start.get(),
-                        task.period,
-                        TimeSource::current().get()));
             }
 
             void wait_for_next_task() {
@@ -128,11 +119,11 @@ namespace timefw {
                 // Run task
                 task();
                 // Insert periodic task into queue again
-                if (task.period != 0) {
+                if (!task.period.is_zero()) {
                     // Ensure to increase starting time by one period
-                    task.start.add_usec(task.period);
+                    task.start.add(task.period);
                     // Ensure to starting time is in the future
-                    futurify_start(task);
+                    task.start.futurify(task.period, TimeSource::current());
                     insert_task(task);
                 }
             }
@@ -145,13 +136,9 @@ namespace timefw {
 #ifdef DISPATCHER_OUTPUT
                 ::logging::log::emit() << "[DISPATCH] enqueued task scheduled for " << task.start << " (currently " << timefw::TimeSource::current() << ')' << '\n';
 #endif
-                if (task.period) {
+                if (!task.period.is_zero()) {
                     //futurify_start(task);
-                    task.start.set(
-                        increase_by_multiple_above(
-                            task.start.get(),
-                            task.period,
-                            TimeSource::current().add_sec(1).get()));
+                    task.start.futurify(task.period, TimeSource::current().add(Time::sec(1)));
                 }
                 insert_task(task);
             }

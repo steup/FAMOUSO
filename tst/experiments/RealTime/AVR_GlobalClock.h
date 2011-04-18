@@ -52,13 +52,13 @@
             bool sync;
         public:
             GlobalAVRClock() {
-                last_macrotick = 0;
                 sync = false;
             }
 
             void sync_event(const famouso::mw::Event & e) {
                 FAMOUSO_ASSERT(e.length == 8);
-                last_macrotick = ntohll(*reinterpret_cast<uint64_t*>(e.data));
+                // TODO: write time server (sending ms timestamps for offset correction)
+                last_macrotick = timefw::Time::msec(ntohll(*reinterpret_cast<uint64_t*>(e.data)));
                 sync = true;
             }
 
@@ -67,11 +67,11 @@
             }
 
             // Timestamp in us
-            uint64_t current() {
+            timefw::Time current() {
                 return ClockDriver::current_local();
             }
 
-            bool wait_until(uint64_t global_time) {
+            bool wait_until(const timefw::Time & global_time) {
                 // Assumption: time is not too far in future (the later the less
                 //             accurate will be the wakeup in case of drifting clocks)
                 return ClockDriver::wait_until(global_time);

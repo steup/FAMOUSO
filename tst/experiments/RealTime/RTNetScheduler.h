@@ -113,8 +113,8 @@ namespace famouso {
                             << "Publishing " << (deliver ? "ResDeliv" : "Res")
                             << " to node " << node_id << ", lc_id " << lc_id
                             << ", network_id " << network_id
-                            << " with tx_ready " << timefw::Time(tx_ready_time)
-                            << ", tx_window " << timefw::Time(tx_window_time) << '\n';
+                            << " with tx_ready " << timefw::Time::usec(tx_ready_time)
+                            << ", tx_window " << timefw::Time::usec(tx_window_time) << '\n';
                         uint16_t len = el::ml::RealTimeSetResStateEvent::size(true);
                         uint8_t buffer[len];
                         el::ml::RealTimeSetResStateEvent rw(buffer, len);

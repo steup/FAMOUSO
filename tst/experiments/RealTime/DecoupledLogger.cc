@@ -29,7 +29,7 @@ int main() {
     timefw::Task t;
     //t.period = 10 * 1000 * 1000;        // 1000 ms
     t.period = 10;
-    t.start = timefw::TimeSource::current().add_sec(1);
+    t.start = timefw::TimeSource::current().add(timefw::Time::sec(1));
     ::logging::log::emit() << "Task start " << t.start << '\n';
     t.bind<&task>();
 

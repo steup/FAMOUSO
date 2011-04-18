@@ -123,7 +123,7 @@ namespace famouso {
                         EventInfo & ei = tf.write_lock();
                         memcpy(ei.data, event.data, event.length);
                         ei.length = event.length;
-                        ei.expire = timefw::TimeSource::current().add_usec(period); // oder deadline, TODO: omission beachten
+                        ei.expire = timefw::TimeSource::current().add(timefw::Time::usec(period)); // oder deadline, TODO: omission beachten
                         tf.write_unlock();
                     }
 
@@ -182,7 +182,7 @@ namespace famouso {
                     RealTimeSubscriberEventChannel(const famouso::mw::Subject & subj,
                                                    const timefw::Time & sub_task_start = timefw::TimeSource::current()) :
                         Base(subj),
-                        subscriber_task(sub_task_start, Base::period, true)
+                        subscriber_task(sub_task_start, timefw::Time::usec(Base::period), true)
                     {
                         subscriber_task.template bind<Base, &Base::subscriber_task_func>(this);
                         timefw::Dispatcher::instance().enqueue(subscriber_task);

@@ -41,6 +41,7 @@
 #ifndef __CLOCKDRIVERPOSIX_H_079AA6945D312F__
 #define __CLOCKDRIVERPOSIX_H_079AA6945D312F__
 
+#include "Time.h"
 #include <time.h>
 #include <errno.h>
 
@@ -50,22 +51,23 @@ namespace timefw {
     class ClockDriverPosix {
         public:
             /// Returns current local time in nanosecs
-            uint64_t current_local() {
+            Time current_local() {
                 timespec time;
                 clock_gettime(CLOCK_REALTIME, &time);
-                return time.tv_sec * 1000000000LLU + time.tv_nsec;
+                return Time::sec(time.tv_sec).add(Time::nsec(time.tv_nsec));
             }
 
             /*! \brief Sleeps until local_time (given in nanosecs)
              *  \return Whether waiting was not interrupted by a system signal
              */
-            bool wait_until(uint64_t local_time) {
-                uint64_t curr = current_local();
+            bool wait_until(const Time & local_time) {
+                Time curr = current_local();
                 if (curr < local_time) {
                     // Only wait if time is in future
                     timespec wakeup_time;
-                    wakeup_time.tv_sec = local_time / 1000000000LLU;
-                    wakeup_time.tv_nsec = local_time % 1000000000LLU;
+                    uint64_t ns = local_time.get_nsec();
+                    wakeup_time.tv_sec =  ns / 1000000000LLU;
+                    wakeup_time.tv_nsec = ns % 1000000000LLU;
                     if (clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &wakeup_time, 0) != 0)
                         return false;
                 }

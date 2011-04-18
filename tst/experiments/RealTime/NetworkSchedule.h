@@ -80,7 +80,7 @@ namespace famouso {
                     uint64_t cycle_start_us;
 
                     uint64_t get_next_cycle_start() {
-                        uint64_t curr = timefw::TimeSource::current().get();
+                        uint64_t curr = timefw::TimeSource::current().get_usec();
                         return increase_by_multiple_above(cycle_start_us, cycle_duration_us, curr);
                     }
 

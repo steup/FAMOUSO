@@ -62,11 +62,11 @@ class TimeMaster {
             time_channel("TimeSync"),
             interval_us(1000 * 1000), // 1000 ms
             clock(CLOCK_REALTIME),
-            first_time(timefw::TimeSource::current().add_usec(100).get()),
+            first_time(timefw::TimeSource::current().get_usec() + 100),
             last_tx_time(0),
             last_tx_time_endian(0),
             event(time_channel.subject()),
-            time_master_task(timefw::Time(first_time), interval_us, false)
+            time_master_task(timefw::Time::usec(first_time), timefw::Time::usec(interval_us), false)
         {
             time_channel.announce();
             event.length = 8;
@@ -80,7 +80,7 @@ class TimeMaster {
 #ifndef SEND_TIMESTAMPING_DRIVER
             // Assumption: no time between tx interrupt and following timestamp
             // Update last tx time for next publishing
-            last_tx_time = timefw::TimeSource::instance().current();
+            last_tx_time = timefw::TimeSource::instance().current().get_nsec();
             last_tx_time_endian = htonll(last_tx_time);
 
 #else

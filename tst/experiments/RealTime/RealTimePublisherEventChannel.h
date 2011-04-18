@@ -113,7 +113,7 @@ namespace famouso {
                     RealTimePublisherEventChannel(const Subject& subject) : EC(subject) {
                         EC::trampoline.template bind<type, &type::trampoline_impl>(this);
                         reservation_state = NoReservation;
-                        deliver_task.period = period;
+                        deliver_task.period = timefw::Time::usec(period);
                         deliver_task.realtime = true;
                         deliver_task.bind<type, &type::deliver>(this);
                     }
@@ -130,7 +130,7 @@ namespace famouso {
                         EventInfo & ei = tf.write_lock();
                         memcpy(ei.data, event.data, event.length);
                         ei.length = event.length;
-                        timefw::Time exp = ei.expire = timefw::TimeSource::current().add_usec(period);
+                        timefw::Time exp = ei.expire = timefw::TimeSource::current().add(timefw::Time::usec(period));
                         tf.write_unlock();
 
 #if (RTPEC_OUTPUT >= 2)
@@ -183,7 +183,7 @@ namespace famouso {
                     // je netz: (slot-length), timer-handles, (RT-State)
                     uint8_t reservation_state;
                     timefw::Task deliver_task;
-                    uint32_t tx_window_duration;
+                    timefw::Time tx_window_duration;
 
                     // int8_t local_deliver_net; // TODO: -1: bei publish_local bei publish, >=0 bei deliver für 1. netz mit reservierung
 
@@ -227,8 +227,8 @@ namespace famouso {
                                     reservation_state = Unused;
 
                                     // Save tx channel params
-                                    deliver_task.start.set(rd->tx_ready_time);
-                                    tx_window_duration = rd->tx_window_time;
+                                    deliver_task.start.set_usec(rd->tx_ready_time);
+                                    tx_window_duration = timefw::Time::usec(rd->tx_window_time);
 
 #if (RTPEC_OUTPUT >= 1)
                                     ::logging::log::emit<RT>()
@@ -246,7 +246,7 @@ namespace famouso {
                                     reservation_state = Delivering;
 
                                     // Schedule periodic deliver task
-                                    deliver_task.start.set(increase_by_multiple_above(deliver_task.start.get(), static_cast<uint64_t>(period), timefw::TimeSource::current().get()));
+                                    deliver_task.start.futurify(timefw::Time::usec(period), timefw::TimeSource::current());
                                     timefw::Dispatcher::instance().enqueue(deliver_task);
 
 #if (RTPEC_OUTPUT >= 1)
@@ -336,7 +336,7 @@ namespace famouso {
                     AddPublisherTask(const Subject& subject,
                                      const timefw::Time pub_task_start = timefw::TimeSource::current()) :
                             Base(subject),
-                            publisher_task(pub_task_start, Base::period, true)
+                            publisher_task(pub_task_start, timefw::Time::usec(Base::period), true)
                     {
                         // Bind empty implementation (should be overwritten by application)
                         publisher_task.bind<&ecb>();

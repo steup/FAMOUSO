@@ -41,6 +41,7 @@
 #ifndef __LOCALCLOCK_H_68A2D13D1E1687__
 #define __LOCALCLOCK_H_68A2D13D1E1687__
 
+#include "Time.h"
 #include <stdint.h>
 
 namespace timefw {
@@ -48,9 +49,12 @@ namespace timefw {
     /// Local clock
     template <class ClockDriver>
     class LocalClock : public ClockDriver {
-            uint64_t first;
+
+            // Only used to increse readablity, may be a configuration parameter
+            Time first;
+
         public:
-            LocalClock() : first(0) {
+            LocalClock() : first() {
             }
 
             /// Returns whether the clock is out of sync
@@ -59,18 +63,20 @@ namespace timefw {
             }
 
             /// Returns current time in nanosecs
-            uint64_t current() {
-                uint64_t tmp2 = ClockDriver::current_local();
+            Time current() {
+                Time tmp2 = ClockDriver::current_local();
                 if (!first) {
                     first = tmp2;
-                    return 0;
+                    return Time();
                 } else {
                     return tmp2 - first;
                 }
             }
 
             /// Waits until local_time (given in nanosecs)
-            bool wait_until(uint64_t local_time) {
+            bool wait_until(const Time & local_time) {
+                if (!first)
+                    current();
                 return ClockDriver::wait_until(local_time + first);
             }
     };

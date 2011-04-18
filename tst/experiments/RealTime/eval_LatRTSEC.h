@@ -91,7 +91,7 @@ class EvalLatRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase
         void notify_latency(const famouso::mw::Event & event) {
             timefw::Time recv = timefw::TimeSource::current();
             FAMOUSO_ASSERT(event.length >= 8);
-            timefw::Time sent = ntohll(*reinterpret_cast<uint64_t *>(event.data));
+            timefw::Time sent = timefw::Time::usec(ntohll(*reinterpret_cast<uint64_t *>(event.data)));
 
 #if defined(RT_TEST_OUTPUT_PER_PERIOD)
 #if defined(RT_TEST_COM_LAT)
@@ -106,7 +106,7 @@ class EvalLatRTSEC : public famouso::mw::api::RealTimeSubscriberEventChannelBase
 #endif
 
 #if defined(RT_TEST_STATISTICS)
-            lat_dist.add_latency((int64_t)recv.get() - (int64_t)sent.get());
+            lat_dist.add_latency((int64_t)recv.get_usec() - (int64_t)sent.get_usec());
 #endif
             oc.received_event();
         }

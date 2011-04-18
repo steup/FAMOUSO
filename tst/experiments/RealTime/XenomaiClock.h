@@ -206,7 +206,7 @@
 #else
                             ::logging::log::emit() << "[SYNC] at "
                                 << ::logging::log::dec
-                                << timefw::Time(server_timestamp(glob_i)/1000)
+                                << timefw::Time::nsec(server_timestamp(glob_i))
                                 << " acc " << static_cast<int64_t>(accuracy) << " ns\n";
 #endif
 #endif
@@ -230,12 +230,12 @@
             };
             GergeleitStrechPIDriftCorrector impl;
 
-            uint64_t local_to_global(uint64_t local_time) {
-                return impl.local_to_global(local_time);
+            timefw::Time local_to_global(const timefw::Time & local_time) {
+                return timefw::Time::nsec(impl.local_to_global(local_time.get_nsec()));
             }
 
-            uint64_t global_to_local(uint64_t global_time) {
-                return impl.global_to_local(global_time);
+            timefw::Time global_to_local(const timefw::Time & global_time) {
+                return timefw::Time::nsec(impl.global_to_local(global_time.get_nsec()));
             }
 
         public:
@@ -257,11 +257,11 @@
             }
 
             // Timestamp in us
-            uint64_t current() {
+            timefw::Time current() {
                 return local_to_global(ClockDriver::current_local());
             }
 
-            bool wait_until(uint64_t global_time) {
+            bool wait_until(const timefw::Time & global_time) {
                 // Assumption: time is not too far in future (the later the less
                 //             accurate will be the wakeup in case of drifting clocks)
                 return ClockDriver::wait_until(global_to_local(global_time));

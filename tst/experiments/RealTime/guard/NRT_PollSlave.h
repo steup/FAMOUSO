@@ -60,8 +60,8 @@ namespace famouso {
                     volatile uint64_t nrt_ar_expire_time;
 
                     /// Grants NRT access for a given duration
-                    void grant_nrt_access_right(uint64_t duration) {
-                        nrt_ar_expire_time = timefw::TimeSource::current().get() + duration;
+                    void grant_nrt_access_right(timefw::Time duration) {
+                        nrt_ar_expire_time = (timefw::TimeSource::current() + duration).get_usec();
                         nrt_ar_expired = false;
                     }
 
@@ -71,7 +71,7 @@ namespace famouso {
                         while (1) {
                             if (!nrt_ar_expired) {
                                 // We may have access
-                                if (nrt_ar_expire_time < timefw::TimeSource::current().get()) {
+                                if (nrt_ar_expire_time < timefw::TimeSource::current().get_usec()) {
                                     // Access granted
                                     return;
                                 } else {
@@ -104,7 +104,7 @@ namespace famouso {
                                 NodeID node_id = *reinterpret_cast<NodeID *>(packet.data);
                                 if (node_id == getNodeID<void>()) {
                                     uint32_t grant_us = ntohl(*reinterpret_cast<uint32_t *>(packet.data + sizeof(NodeID)));
-                                    grant_nrt_access_right(grant_us);
+                                    grant_nrt_access_right(timefw::Time::usec(grant_us));
                                 }
                             }
                             return true;

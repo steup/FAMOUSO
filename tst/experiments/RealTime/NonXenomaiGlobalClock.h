@@ -50,18 +50,18 @@
 // offset-correction, garantiert nicht die monotonie und stetigkeit der zeit...
 template <class ClockDriver>
 class GlobalClock : public ClockDriver {
-        uint64_t curr_global;
+        timefw::Time curr_global;
 
         volatile bool sync;
 
-        uint64_t last_tick_local;
+        timefw::Time last_tick_local;
 
 
-        uint64_t local_to_global(uint64_t local) {
+        timefw::Time local_to_global(const timefw::Time & local) {
             return curr_global + (local - last_tick_local);
         }
 
-        uint64_t global_to_local(uint64_t global) {
+        timefw::Time global_to_local(const timefw::Time & global) {
             return global - curr_global + last_tick_local;
         }
 
@@ -75,22 +75,22 @@ class GlobalClock : public ClockDriver {
             return "[ CLOCK  ] ";
         }
 
-        GlobalClock() : curr_global(0), sync(false), last_tick_local(0) {
+        GlobalClock() : curr_global(), sync(false), last_tick_local() {
         }
 
         void sync_event(const famouso::mw::Event & e) {
             last_tick_local = ClockDriver::current_local();
 
             FAMOUSO_ASSERT(e.length == 8);
-            curr_global = ntohll(*reinterpret_cast<uint64_t*>(e.data));
+            curr_global = timefw::Time::nsec(ntohll(*reinterpret_cast<uint64_t*>(e.data)));
 
             // TODO: get out of sync after rounds (assume pessimistic drift)
             sync = true;
 
 #ifdef CLOCK_ACCURACY_OUTPUT
             ::logging::log::emit<GlobalClock>() << "recv sync "
-                << timefw::Time(curr_global)
-                << " at local " << timefw::Time(last_tick_local) << "\n";
+                << curr_global
+                << " at local " << last_tick_local << "\n";
 #endif
         }
 
@@ -100,11 +100,11 @@ class GlobalClock : public ClockDriver {
         }
 
         // Timestamp
-        uint64_t current() {
+        timefw::Time current() {
             return local_to_global(ClockDriver::current_local());
         }
 
-        bool wait_until(uint64_t global_time) {
+        bool wait_until(const timefw::Time & global_time) {
             // Assumption: time is not too far in future (the later the less
             //             accurate will be the wakeup in case of drifting clocks)
             return ClockDriver::wait_until(global_to_local(global_time));
