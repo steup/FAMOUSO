@@ -12,6 +12,7 @@
 #include "mw/attributes/Omission.h"
 #include "mw/attributes/Throughput.h"
 #include "mw/attributes/PacketLoss.h"
+#include "mw/attributes/AttributeSet.h"
 #include "mw/common/ExtendedEvent.h"
 #include "mw/common/Subject.h"
 
@@ -43,13 +44,12 @@ typedef famouso::mw::ExtendedEvent<16, TTL<1>, TTL<2> > ev7; // error -> duplica
 
 typedef famouso::mw::ExtendedEvent<> ev8; // OK -> no attribute is given at all
 
-typedef detail::SetProvider<TTL<5>, Jitter<5>, Latency<10>, Throughput<310> >::attrSet prov;
-typedef detail::SetProvider<Jitter<6>, Latency<20>, Throughput<310> >::attrSet req;
+typedef detail::SetProvider<Jitter<5>, Latency<10>, Throughput<310> >::attrSet prov;
+typedef detail::SetProvider<TTL<5>, Jitter<6>, Latency<20>, Throughput<310> >::attrSet req;
 
 typedef detail::RequirementChecker<prov, req, true> checker;
 
 typedef detail::TagSet<>::type tagset;
-
 
 typedef boost::mpl::vector<Omission<3>, TTL<1>, Throughput<20>, Latency<150> >::type toSort;
 
@@ -62,16 +62,12 @@ typedef type_traits::is_null<foundAttr>::type res;
 
 template <typename T>
 struct B {
-        B() {
-            int i;
-        }
+        B() {}
 };
 
 template <bool b>
 struct C {
-        C() {
-            int i;
-        }
+        C() {}
 };
 
 B<foundAttr> b;
