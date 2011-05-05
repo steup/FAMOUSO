@@ -40,8 +40,10 @@
 #ifndef __famouso_h__
 #define __famouso_h__
 
-#include "mw/el/EventChannelHandler.h"
 #include "util/CommandLineParameter.h"
+
+#include "mw/el/EventLayerCreatorPolicy.h"
+#include "mw/el/EventLayerMissingPolicy.h"
 
 #include "config/type_traits/if_contains_type.h"
 #include "config/policies/StaticCreatorPolicy.h"
@@ -55,6 +57,15 @@ namespace famouso {
      *        entities in one place to bar namespace clashes.
      */
     namespace configuration {
+        /*! \brief This macro generates a compile time tester and selector class
+         *         for checking if EL (famouso::mw::el::EventLayer)
+         *         is a subtype of a class/%configuration. This feasibility is used
+         *         for %configuration decisions during the %configuration process of
+         *         the middleware and if this type is missing, the compilation process
+         *         will stop with a meaningful error message.
+         */
+        IF_CONTAINS_TYPE_(EL);
+
         /*! \brief This macro generates a compile time tester and selector class
          *         for checking if ELMS (famouso::mw::el::EventLayerMiddlewareStub)
          *         is a subtype of a class/%configuration. This feasibility is used
@@ -80,8 +91,12 @@ namespace famouso {
      */
     template <class T>
     inline void init() {
-        famouso::mw::el::EventChannelHandler<typename T::EL>::create();
-        famouso::mw::el::EventChannelHandler<typename T::EL>::ech().init();
+        // dependent initialization or error generation, if the event layer is configured
+        configuration::if_contains_type_EL<T>::template ThenElse<
+                                                            EventLayerCreatorPolicy,
+                                                            EventLayerMissingPolicy
+                                                        >::process();
+
 
         // dependent initialization, if the event layer middleware stub is configured
         configuration::if_contains_type_ELMS<T>::template ThenElse<StaticCreatorPolicy>::process();
