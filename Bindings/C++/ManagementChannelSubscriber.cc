@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2011 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -37,47 +37,43 @@
  *
  ******************************************************************************/
 
-// voidNL specific only local communication supported
-#include "mw/nl/voidNL.h"
+#include "debug.h"
+#include <boost/thread/thread.hpp>
+#include <boost/thread/xtime.hpp>
 
-// common famouso middlware includes
-#include "mw/anl/AbstractNetworkLayer.h"
-#include "mw/el/EventLayer.h"
-#include "mw/el/EventLayerMiddlewareStub.h"
-#include "mw/api/PublisherEventChannel.h"
-#include "mw/api/SubscriberEventChannel.h"
-#include "mw/el/ml/ManagementLayer.h"
+// the include contains the famouso
+// configuration for local event
+// propagation
+#include "famouso_bindings.h"
 
-#include "config/generator/description.h"
-
-namespace famouso {
-
-    namespace Local {
-        class config {
-                typedef famouso::mw::nl::voidNL nl;
-                typedef famouso::mw::anl::AbstractNetworkLayer< nl > anl;
-            public:
-                typedef famouso::mw::el::EventLayer<anl, famouso::mw::el::ml::ManagementLayer> EL;
-//                typedef famouso::mw::el::EventLayer< anl > EL;
-
-                typedef famouso::mw::el::EventLayerMiddlewareStub< EL > ELMS;
-                typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
-                typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
-
-                DESCRIPTION("Project: FAMOUSO\n"
-                            "local Event Channel Handler with a void network layer\n\n"
-                            "Author: Michael Schulze\n"
-                            "Revision: $Rev$\n"
-                            "$Date$\n"
-                            "last changed by $Author$\n\n"
-                            "build Time: "__TIME__"\n"
-                            "build Date: "__DATE__"\n\n");
-
-        };
-    }
-
-    typedef Local::config config;
+// definition of a simple event callback that
+// prints the received event data out
+void cb(famouso::mw::api::SECCallBackData& cbd) {
+    ::logging::log::emit() << FUNCTION_SIGNATURE << " Length="
+    << cbd.length << " Event data="
+    << cbd.data << ::logging::log::endl;
 }
 
-#include "generic-main.impl"
+int main(int argc, char **argv) {
 
+    famouso::init<famouso::config>();
+
+    // create a SubscriberEventChannel
+    // with a specific Subject
+    famouso::config::SEC sec(famouso::mw::Subject("ManChan!"));
+    // subscribe and register the respective
+    // callback that is called if an event
+    // occurs
+    sec.subscribe();
+    sec.callback.bind<cb>();
+
+    // busy waiting is possible, however giving up
+    // the cpu is much more better for other processes
+    // that have something to do
+    while (1) {
+        boost::xtime time;
+        boost::xtime_get(&time, boost::TIME_UTC);
+        time.sec += 100;
+        boost::thread::sleep(time);
+    }
+}
