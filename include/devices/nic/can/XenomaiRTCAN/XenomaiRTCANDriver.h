@@ -106,7 +106,7 @@ namespace device {
                         rt_dev_close(_can_socket);
                     }
 
-                    void report_error_and_exit(int error_value, const char* reporter) {
+                    void report_error_and_exit(int error_value, const char * file, int line, const char* reporter) {
                         const char *error = 0;
                         switch (error_value) {
                             case -ETIMEDOUT:
@@ -120,7 +120,8 @@ namespace device {
                                 break;
                         }
 
-                        ::logging::log::emit< ::logging::Error>() << reporter
+                        ::logging::log::emit< ::logging::Error>() << file
+                            << ':' << ::logging::log::dec << line << ':' << ' ' << reporter << ' '
                             << error << ::logging::log::endl;
                         exit(errno);
                     }
@@ -135,7 +136,7 @@ namespace device {
                     bool read(MOB& mob) {
                         int ret = 0;
                         if ((ret = rt_dev_recv(_can_socket, &mob, sizeof(MOB), 0))  != sizeof(MOB) ) {
-                            report_error_and_exit(ret,"__FILE__:__LINE__ : rt_dev_recv ");
+                            report_error_and_exit(ret,__FILE__,__LINE__,"rt_dev_recv");
                         }
                         return true;
                     }
@@ -148,7 +149,7 @@ namespace device {
                         /* send frame */
                         int ret = 0;
                         if ( (ret = rt_dev_send(_can_socket, &mob, sizeof(mob), 0)) != sizeof(MOB)) {
-                            report_error_and_exit(ret,"__FILE__:__LINE__ : rt_dev_send ");
+                            report_error_and_exit(ret,__FILE__,__LINE__,"rt_dev_send");
                         }
                     }
 
