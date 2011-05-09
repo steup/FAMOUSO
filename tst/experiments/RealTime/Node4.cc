@@ -49,8 +49,8 @@ famouso::config::PEC nrt_pec("nrt_____");
 
 void nrt_publish_func() {
     timefw::Time curr = timefw::TimeSource::current();
-    unsigned long long ms = curr.get() / 1000;
-    unsigned int us = curr.get() % 1000;
+    unsigned long long ms = curr.get_usec() / 1000;
+    unsigned int us = curr.get_usec() % 1000;
 
     famouso::mw::Event event(nrt_pec.subject());
     char buffer [160];
@@ -60,6 +60,10 @@ void nrt_publish_func() {
     else
         event.length = snprintf(buffer, 160, "1234567") + 1;
     event.data = (uint8_t*)buffer;
+    /*
+    event.length = 8;
+    event.data = (uint8_t*)"01234567";
+    */
 
     nrt_pec.publish(event);
 }
@@ -75,10 +79,14 @@ int main(int argc, char ** argv) {
     // Currently we have no driver supporting parallel NRT/RT tx from one node
     // -> do only one of both
 #ifdef HIGH_NRT_LOAD
+    /*
     timefw::Task nrt_task(0, 1, false);
     nrt_task.bind<&nrt_publish_func>();
     timefw::Dispatcher::instance().enqueue(nrt_task);
     nrt_pec.announce();
+    */
+    while (1)
+        nrt_publish_func();
 #else
 
     EvalRTPEC<
