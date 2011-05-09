@@ -42,6 +42,7 @@
 #define __TIME_H_ECC196CA04CBCE__
 
 #include <stdint.h>
+#include "increase_by_multiple_above.h"
 
 namespace timefw {
 

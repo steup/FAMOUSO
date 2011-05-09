@@ -41,7 +41,6 @@
 #ifndef __MATH_H_B17EDA6C8EF650__
 #define __MATH_H_B17EDA6C8EF650__
 
-// TODO: rename div_round_up to div_ceil
 #include "mw/afp/shared/div_round_up.h"
 using famouso::mw::afp::shared::div_round_up;
 
@@ -51,7 +50,7 @@ inline bool odd(int a) {
 }
 
 // by stein
-int greatest_common_divisor(int a, int b) {
+static inline int greatest_common_divisor(int a, int b) {
     int k, t;
     k = 0;
 
@@ -79,20 +78,8 @@ int greatest_common_divisor(int a, int b) {
     return a * (1 << k);
 }
 
-int least_common_multiple(int a, int b) {
+static inline int least_common_multiple(int a, int b) {
     return /*abs*/(a * b) / greatest_common_divisor(a,b);
-}
-
-/*!
- *  \brief  Increase \p a by multpile of \p b to a return value greater than \p c
- */
-template <typename T>
-static inline T increase_by_multiple_above(T a, T b, T c) {
-    // while (a < c) a += b;
-    if (a < c) {
-        a += (((c - a) / b) + (T)1) * b;
-    }
-    return a;
 }
 
 /*!

@@ -43,7 +43,6 @@
 
 #include "case/Delegate.h"
 #include "object/Queue.h"
-#include "util/math.h"
 
 #include "timefw/Time.h"
 #include "timefw/Singleton.h"

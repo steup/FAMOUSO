@@ -55,7 +55,6 @@
 #include "mw/attributes/detail/AttributeSetProvider.h"
 
 #include "TemporalFirewall.h"
-#include "math.h"
 
 #include <string.h>
 

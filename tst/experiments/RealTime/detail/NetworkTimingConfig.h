@@ -43,7 +43,7 @@
 #include <stdint.h>
 
 #include "value_types.h"
-#include "util/math.h"
+#include "math.h"
 
 
 namespace famouso {
