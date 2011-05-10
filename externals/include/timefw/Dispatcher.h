@@ -187,13 +187,13 @@ namespace timefw {
                     do {
                         next = static_cast<Task *>(tasks.unlink());
                         if (!next)
-                            return;
+                            goto out;
                     } while (!next->realtime);
 
                     // Check if it should have been started
                     Time curr = TimeSource::current();
                     if (curr < next->start)
-                        return;
+                        goto out;
 
                     // Task start time not in future -> run task
 #ifdef DISPATCHER_OUTPUT
@@ -201,6 +201,8 @@ namespace timefw {
 #endif
                     dispatch(*next);
                 }
+            out:
+                usleep(50);
             }
     };
 
