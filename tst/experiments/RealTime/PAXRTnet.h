@@ -55,7 +55,7 @@ namespace device {
             class PAXRTnet : public Driver {
                 public:
 
-                    PAXRTnet() : sbb(1), rcv_to_use(0) {}
+                    PAXRTnet() : sbb(3), rcv_to_use(0) {}
 
                     /*! \brief initialize the subclasses */
                     void init() {
@@ -118,7 +118,6 @@ namespace device {
                      */
                     bool interrupt_condition () {
                         if (Driver::read(rcv_mob[rcv_to_use]) == true ) {
-                            ::logging::log::emit() << "PAX: interrupt_condition() " << rcv_to_use <<  "\n";
                             sbb.push_front(&rcv_mob[rcv_to_use]);
                             rcv_to_use++;
                             rcv_to_use %= buf_count;

@@ -82,6 +82,12 @@ namespace device {
                      */
                     void simulatedInterruptViaThread() {
                         typename Base::MOB mob;
+#ifdef __XENOMAI__
+                        struct sched_param param;
+                        memset(&param, 0, sizeof(param));
+                        param.sched_priority = 97;
+                        pthread_setschedparam(pthread_self(), SCHED_FIFO, &param);
+#endif
                         while (1) {
                             if (Base::interrupt_condition ()) {
                                 /* Post the interrupt service routine to the

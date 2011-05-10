@@ -51,6 +51,12 @@ namespace famouso {
                 volatile bool running=true;
 
                 void run() {
+#ifdef __XENOMAI__
+                    struct sched_param param;
+                    memset(&param, 0, sizeof(param));
+                    param.sched_priority = 96;
+                    pthread_setschedparam(pthread_self(), SCHED_FIFO, &param);
+#endif
                     try {
                         boost::asio::io_service::work work(famouso::util::ios::instance());
                         while(running) {
