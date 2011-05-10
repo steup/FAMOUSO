@@ -37,63 +37,45 @@
  *
  ******************************************************************************/
 
-#ifndef __EVAL_LATRTPEC_H_2192A365C65E77__
-#define __EVAL_LATRTPEC_H_2192A365C65E77__
 
-#include "RealTimePublisherEventChannel.h"
-#include "AddPublisherTask.h"
-#include "eval_ProvideSimpleAttribAccess.h"
+#ifndef __ADDPUBLISHERTASK_H_EF4BA438DDB920__
+#define __ADDPUBLISHERTASK_H_EF4BA438DDB920__
 
 
-template <class PEC, class Req>
-class EvalLatRTPEC :
-    public AddPublisherTask<
-#ifndef RT_TEST_ALL_NRT
-        famouso::mw::api::RealTimePublisherEventChannel<PEC, Req>
-#else
-        ProvideSimpleAttribAccess<PEC, Req>
-#endif
-    >
-{
-        famouso::mw::Event event;
+#include "debug.h"
+#include "timefw/Time.h"
+#include "timefw/Dispatcher.h"
+#include "mw/common/Subject.h"
+#include "mw/api/CallBack.h"
+#include "mw/el/ml/LocalChanID.h"
 
-#ifndef RT_TEST_ALL_NRT
-        typedef AddPublisherTask<
-            famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> > Base;
-#else
-        typedef AddPublisherTask<
-            ProvideSimpleAttribAccess<PEC, Req> > Base;
-#endif
+
+template <typename EC>
+class AddPublisherTask : public EC {
+        typedef AddPublisherTask type;
+        typedef EC Base;
+
     public:
-
-        EvalLatRTPEC(const famouso::mw::Subject & subj,
-                     const timefw::Time & pub_task_start) :
-            Base(subj, pub_task_start),
-            event(subj)
+        /*!
+         *  \brief  Constructor
+         */
+        AddPublisherTask(const famouso::mw::Subject& subject,
+                         const timefw::Time pub_task_start = timefw::TimeSource::current()) :
+                Base(subject),
+                publisher_task(pub_task_start, timefw::Time::usec(Base::period), true)
         {
-#if defined(RT_TEST_COM_LAT) && !defined(RT_TEST_ALL_NRT)
-            Base::deliver_task.template bind<EvalLatRTPEC, &EvalLatRTPEC::publish_task_func>(this);
-#else
-            Base::publisher_task.template bind<EvalLatRTPEC, &EvalLatRTPEC::publish_task_func>(this);
-#endif
+            // Bind empty implementation (should be overwritten by application)
+            publisher_task.template bind < &famouso::mw::api::ecb >();
+
+            timefw::Dispatcher::instance().enqueue(publisher_task);
+            ::logging::log::emit()
+                << "[ RT PUB ] start publisher task: chan "
+                << famouso::mw::el::ml::getLocalChanID(this)
+                << " at " << publisher_task.start << '\n';
         }
 
-        void publish_task_func() {
-            timefw::Time curr = timefw::TimeSource::current();
-            uint8_t buffer[Base::mel];
-            memset(buffer, 0, Base::mel);
-            FAMOUSO_ASSERT(Base::mel >= 8);
-            *reinterpret_cast<uint64_t*>(buffer) = htonll(curr.get_nsec());
-            event.length = Base::mel;
-            event.data = buffer;
-#if defined(RT_TEST_COM_LAT) && !defined(RT_TEST_ALL_NRT)
-            Base::deliver_to_net(event);
-#else
-            Base::publish(event);
-#endif
-        }
+        timefw::Task publisher_task;
 };
 
-#endif // __EVAL_LATRTPEC_H_2192A365C65E77__
-
+#endif  // __ADDPUBLISHERTASK_H_EF4BA438DDB920__
 

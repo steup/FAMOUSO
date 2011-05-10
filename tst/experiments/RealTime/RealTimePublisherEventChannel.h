@@ -323,33 +323,6 @@ namespace famouso {
                     }
             };
 
-            template <typename EC>
-            class AddPublisherTask : public EC {
-                    typedef AddPublisherTask type;
-                    typedef EC Base;
-
-                public:
-                    /*!
-                     *  \brief  Constructor
-                     */
-                    AddPublisherTask(const Subject& subject,
-                                     const timefw::Time pub_task_start = timefw::TimeSource::current()) :
-                            Base(subject),
-                            publisher_task(pub_task_start, timefw::Time::usec(Base::period), true)
-                    {
-                        // Bind empty implementation (should be overwritten by application)
-                        publisher_task.bind<&ecb>();
-
-                        timefw::Dispatcher::instance().enqueue(publisher_task);
-                        ::logging::log::emit()
-                            << "[RT PUB] start publisher task: chan "
-                            << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
-                            << " at " << publisher_task.start << '\n';
-                    }
-
-                    timefw::Task publisher_task;
-            };
-
         } // namespace api
     } // namespace mw
 } // namespace famouso

@@ -40,12 +40,15 @@
 #ifndef __EVAL_RTPEC_H_D03B33C2AEFBC7__
 #define __EVAL_RTPEC_H_D03B33C2AEFBC7__
 
+#ifndef RT_TEST_ALL_NRT
 #include "RealTimePublisherEventChannel.h"
+#endif
+#include "AddPublisherTask.h"
 #include "eval_ProvideSimpleAttribAccess.h"
 
 template <class PEC, class Req>
 class EvalRTPEC :
-    public famouso::mw::api::AddPublisherTask<
+    public AddPublisherTask<
 #ifndef RT_TEST_ALL_NRT
         famouso::mw::api::RealTimePublisherEventChannel<PEC, Req>
 #else
@@ -57,10 +60,10 @@ class EvalRTPEC :
         uint64_t counter;
 
 #ifndef RT_TEST_ALL_NRT
-        typedef famouso::mw::api::AddPublisherTask<
+        typedef AddPublisherTask<
             famouso::mw::api::RealTimePublisherEventChannel<PEC, Req> > Base;
 #else
-        typedef famouso::mw::api::AddPublisherTask<
+        typedef AddPublisherTask<
             ProvideSimpleAttribAccess<PEC, Req> > Base;
 #endif
     public:
