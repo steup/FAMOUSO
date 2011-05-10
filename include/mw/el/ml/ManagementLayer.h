@@ -74,8 +74,9 @@ namespace famouso {
                  *
                  *  \tparam LL  Lower (sub)layer type
                  *  \tparam EL  Event layer type
+                 *  \tparam Config Management layer configuration
                  */
-                template <class LL, class EL>
+                template <class LL, class EL, class Config>
                 class ManagementLayer : public LL {
 
                         /// Layer below the event layer (Abstract NL or Network Adapter)
@@ -98,20 +99,16 @@ namespace famouso {
                         typedef famouso::mw::api::detail::ChannelTrampoline ChannelTrampolinePolicy;
 
                     protected:
-                        struct config {
+                        struct config : public Config {
                             enum {
                                 /*! \todo   It should be part of the famouso config, whether real time
                                  *          and forwarding support should be included.
                                  */
-                                support_real_time = 1,
-                                support_forwarding = 1,
+                                publish_announcements = Config::support_real_time_publisher,
+                                publish_subscriptions = Config::support_real_time_subscriber | Config::support_forwarding,
 
-                                publish_announcements = support_real_time,
-                                publish_subscriptions = support_real_time | support_forwarding,
-
-                                subscribe_man_chan = support_real_time,
+                                subscribe_man_chan = Config::support_real_time_publisher,
                                 announce_man_chan = publish_announcements | publish_subscriptions
-
                             };
                         };
 
@@ -125,7 +122,7 @@ namespace famouso {
 
                         /// Handles incoming event on management channel
                         void incoming_event(famouso::mw::api::SECCallBackData & event) {
-                            if (config::support_real_time) {
+                            if (config::support_real_time_publisher) {
                                 // Is this event a real time reservation protocol event?
                                 uint8_t event_type = ml::get_event_type(event.data, event.length);
                                 if (event_type < ml::rt_res_event ||
@@ -299,8 +296,8 @@ namespace famouso {
                         }
                 };
 
-                template <class LL, class EL>
-                const char * const ManagementLayer<LL, EL>::man_chan_subject = "ManChan!";
+                template <class LL, class EL, class Config>
+                const char * const ManagementLayer<LL, EL, Config>::man_chan_subject = "ManChan!";
 
             } // namespace ml
         } // namespace el

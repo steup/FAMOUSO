@@ -56,31 +56,47 @@ namespace famouso {
     namespace mw {
         namespace el {
 
-            template <typename LL, typename EL>
+            template <typename LL, typename EL, typename Config>
             struct NoManagementLayer {};
 
+            /// Default management layer config
+            struct DefaultConfig {
+                enum {
+                    /// Whether to support real time publisher event channels
+                    support_real_time_publisher = 1,
+
+                    /// Whether there are real time channels in the network and a subscriber on this node
+                    support_real_time_subscriber = 1,
+
+                    /// Whether to support forwarding on gateways
+                    support_forwarding = 1
+                };
+            };
+
             template <class LL,
-                      template <class, class> class ManLayPolicy = NoManagementLayer>
+                      template <class, class, class> class ManLayPolicy = NoManagementLayer,
+                      class Config = DefaultConfig>
             class EventLayer;
 
             /// Configurator for the sublayers of the event layer
-            template <class LL, template <class, class> class ManLayPolicy>
+            template <class LL, template <class, class, class> class ManLayPolicy, class Config>
             class EventSublayerConfigurator {
-                    typedef EventLayer<LL, ManLayPolicy> EL;
+                    typedef EventLayer<LL, ManLayPolicy, Config> EL;
                 public:
                     typedef ManLayPolicy <
                                 famouso::mw::el::EventDispatcher<
                                     LL,
                                     EL
                                 >,
-                                EL
+                                EL,
+                                Config
                             > type;
             };
 
             /// Configurator for the sublayers of the event layer (omits management layer)
-            template <class LL>
-            class EventSublayerConfigurator<LL, NoManagementLayer> {
-                    typedef EventLayer<LL, NoManagementLayer> EL;
+            template <class LL, class Config>
+            class EventSublayerConfigurator<LL, NoManagementLayer, Config> {
+                    typedef EventLayer<LL, NoManagementLayer, Config> EL;
                 public:
                     typedef famouso::mw::el::EventDispatcher<
                                 LL,
@@ -102,16 +118,17 @@ namespace famouso {
              *  \tparam ManLayPolicy the management layer policy is a configurable component.
              *          Pass the type ml::ManagementLayer to include the management layer,
              *          otherwise it is omitted.
+             *  \tparam Config Management layer configuration
              *
              *  \pre    The type of template parameter LL can be an famouso::mw::anl:AbstractNetworkLayer
              *          or an famouso::mw::nal::NetworkAdapter dependent on the configuration of the
              *          middleware stack
              */
-            template <class LL, template <class, class> class ManLayPolicy>
-            class EventLayer : public EventSublayerConfigurator<LL, ManLayPolicy>::type {
+            template <class LL, template <class, class, class> class ManLayPolicy, class Config>
+            class EventLayer : public EventSublayerConfigurator<LL, ManLayPolicy, Config>::type {
 
                     /// First sublayer
-                    typedef typename EventSublayerConfigurator<LL, ManLayPolicy>::type SL;
+                    typedef typename EventSublayerConfigurator<LL, ManLayPolicy, Config>::type SL;
 
                     /// Event channel type
                     typedef famouso::mw::api::EventChannel<EventLayer> EC;
