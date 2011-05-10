@@ -83,7 +83,8 @@ class EvalRTPEC :
                 memset(buffer, 0, Base::mel);
                 // Tx sequence number (if MaxEventLength > 8 the rest is zeroed)
                 uint64_t tmp = counter;
-                for (int i = Base::mel - 1; i >= 0 && tmp; --i) {
+                unsigned int last = Base::mel <= 8 ? Base::mel-1 : 7;
+                for (int i = last; i >= 0 && tmp; --i) {
                     buffer[i] = tmp & 0xff;
                     tmp >>= 8;
                 }
