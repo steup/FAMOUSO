@@ -50,6 +50,9 @@
 #ifndef __AVR__
 #include "util/ios.h"
 #include <signal.h>
+#include <unistd.h>
+#else
+#include "avr-halib/share/delay.h"
 #endif
 
 
@@ -61,6 +64,12 @@ namespace timefw {
     void siginthandler(int) {
         // Unlock the idle() thread
         ___done=true;
+    }
+#else
+    // Define POSIX function on AVR
+    static inline bool usleep(uint32_t t) {
+        delay_ms(t / 1000lu);
+        return true;
     }
 #endif
 

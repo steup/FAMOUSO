@@ -46,12 +46,12 @@ namespace motor1 {
     const uint64_t mel = 8;
 
     // Node 2
-    const uint64_t pt_start = 100 +                   10 * 1000;
-    const uint64_t dt_start = 200 +                   10 * 1000;
-    const uint64_t dt_end = 10 * 1000 +               10 * 1000;
+    const uint64_t pt_start = 100 +                   10 * 1000llu;
+    const uint64_t dt_start = 200 +                   10 * 1000llu;
+    const uint64_t dt_end = 10 * 1000 +               10 * 1000llu;
 
     // Node 1
-    const uint64_t st_start = 10 * 1000 + 100 +       10 * 1000;
+    const uint64_t st_start = 10 * 1000 + 100 +       10 * 1000llu;
 }
 
 namespace sensor1 {
@@ -63,16 +63,16 @@ namespace sensor1 {
 #endif
 
     // Node 1
-    const uint64_t pt_start = 10 * 1000 +             10 * 1000;
-    const uint64_t dt_start = 10 * 1000 + 200 +       10 * 1000;
-    const uint64_t dt_end =   30 * 1000 + 100 +       10 * 1000;
+    const uint64_t pt_start = 10 * 1000llu +          10 * 1000llu;
+    const uint64_t dt_start = 10 * 1000llu + 200 +    10 * 1000llu;
+    const uint64_t dt_end =   30 * 1000llu + 100 +    10 * 1000llu;
 
     // Node 2
-    const uint64_t st_start = 40llu * 1000llu +       10 * 1000;
+    const uint64_t st_start = 40llu * 1000llu +       10 * 1000llu;
 }
 
 namespace motor2 {
-    const uint64_t period = 20 * 1000;
+    const uint64_t period = 20 * 1000llu;
     const uint64_t mel = 8;
 
 /*
@@ -87,11 +87,11 @@ namespace motor2 {
 }
 
 namespace sensor2 {
-    const uint64_t period = 10 * 1000;
+    const uint64_t period = 10 * 1000llu;
 #ifndef __ETHERNET__
     const uint64_t mel = 4;
 #else
-    const uint64_t mel = 16000;
+    const uint64_t mel = 16000llu;
 #endif
 
 /*

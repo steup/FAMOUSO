@@ -63,11 +63,6 @@
 #include "debug.h"
 //#include "logging/logging.h"
 
-#include "avr-halib/share/delay.h"
-static inline bool usleep(uint32_t t) {
-    delay_ms(t / 1000lu);
-    return true;
-}
 
 #ifndef TEST_AVR_NO_CLOCK
 // Global clock definition

@@ -48,6 +48,7 @@
 #define TEST_AVR_NO_NG
 
 #include "AVR_RTNodeCommon.h"
+#include "avr-halib/share/delay.h"
 
 
 int main() {
@@ -62,7 +63,7 @@ int main() {
     uint64_t counter = 0;
 
     while (1) {
-        usleep(50000);
+        delay_ms(50);
 
         uint8_t buffer[8];
         memset(buffer, 0, 8);
