@@ -80,7 +80,7 @@ namespace device {
 
                         int ret = rt_dev_ioctl(_can_socket, RTCAN_RTIOC_TAKE_TIMESTAMP, RTCAN_TAKE_TIMESTAMPS);
                         if (ret) {
-                            report_error_and_exit(ret, "__FILE__:__LINE__: rt_dev_ioctl ");
+                            report_error_and_exit(ret, __FILE__, __LINE__, "rt_dev_ioctl");
                         }
                     }
 
@@ -98,7 +98,7 @@ namespace device {
                         ret = rt_dev_recvmsg(_can_socket, &msg, 0);
                         //printf("XenoDriver: receive\n");
                         if (ret != sizeof(MOB) ) {
-                            report_error_and_exit(ret, "__FILE__:__LINE__: rt_dev_recvmsg ");
+                            report_error_and_exit(ret, __FILE__, __LINE__, "rt_dev_recvmsg");
                         }
                         return true;
                     }

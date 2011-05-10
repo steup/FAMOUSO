@@ -117,7 +117,7 @@ namespace device {
                         close(sock);
                     }
 
-                    void report_error_and_exit(int error_value, const char* reporter) {
+                    void report_error_and_exit(int error_value, const char * file, int line, const char* reporter) {
                         const char *error = 0;
                         switch (error_value) {
                             case -ETIMEDOUT:
@@ -131,12 +131,13 @@ namespace device {
                                 break;
                         }
 
-                        ::logging::log::emit< ::logging::Error>() << reporter
+                        ::logging::log::emit< ::logging::Error>() << file
+                            << ':' << ::logging::log::dec << line << ':' << ' ' << reporter << ' '
                             << error << ::logging::log::endl;
                         exit(errno);
                     }
 
-                    /*! try receiving a %CAN message %object
+                    /*! try receiving a %RTnet message %object
                      *
                      * \param[out] mob is filled with a received message
                      *
@@ -146,20 +147,20 @@ namespace device {
                     bool read(MOB& mob) {
                         int ret = 0;
                         if ((ret = recv(sock, &mob, MOB::max_io_len, 0)) < 0) {
-                            report_error_and_exit(ret,"__FILE__:__LINE__ : recv ");
+                            report_error_and_exit(ret,__FILE__,__LINE__, "recv");
                         }
                         mob.len() = ret;
                         return true;
                     }
 
-                    /*! \brief transmits a %CAN message %object
+                    /*! \brief transmits a %RTnet message %object
                      *
                      * \param[in] mob that has to be transmitted
                      */
                     void write(MOB &mob) {
                         int ret = 0;
                         if ( (ret = send(sock, &mob, mob.io_len(), 0)) < 0) {
-                            report_error_and_exit(ret,"__FILE__:__LINE__ : send ");
+                            report_error_and_exit(ret,__FILE__,__LINE__, "send");
                         }
                         FAMOUSO_ASSERT(ret == mob.io_len());
                     }
@@ -167,20 +168,15 @@ namespace device {
                     /*! \brief initalize the driver by trying to open and bind a socket */
                     void init() {
                         if ((sock = socket(PF_PACKET, SOCK_RAW, htons(0x1234))) < 0) {
-                            ::logging::log::emit< ::logging::Error>()
-                                << "can't create XenomaiRTnet socket"
-                                << ::logging::log::endl;
-                            perror("socket cannot be created");
-                            exit(errno);
+                            report_error_and_exit(sock,__FILE__, __LINE__, "socket");
                         }
 
+                        int ret;
                         struct ifreq ifr;
                         memset(&ifr, 0, sizeof(ifr));
                         strncpy(ifr.ifr_name, "rteth0", IFNAMSIZ);
-                        if (ioctl(sock, SIOCGIFINDEX, &ifr) < 0) {
-                            perror("cannot get interface index");
-                            close(sock);
-                            exit(1);
+                        if ((ret = ioctl(sock, SIOCGIFINDEX, &ifr)) < 0) {
+                            report_error_and_exit(ret,__FILE__,__LINE__,"ioctl");
                         }
 
                         struct sockaddr_ll addr;
@@ -188,16 +184,13 @@ namespace device {
                         addr.sll_family   = AF_PACKET;
                         addr.sll_protocol = htons(0x1234);
                         addr.sll_ifindex  = ifr.ifr_ifindex;
-
-                        if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-                            perror("cannot bind to local ip/port");
-                            close(sock);
-                            exit(1);
+                        if ((ret = bind(sock, (struct sockaddr *)&addr, sizeof(addr))) < 0) {
+                            report_error_and_exit(ret,__FILE__,__LINE__, "bind");
                         }
                     }
 
                 protected:
-                    /*! \brief The data structure of the underlying CAN-Driver
+                    /*! \brief The data structure of the underlying RTnet-Driver
                      *         and in this case it is a socket aka an int.
                      */
                     int sock;
