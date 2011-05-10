@@ -43,186 +43,220 @@
 #include "mw/common/Event.h"
 #include "timefw/Time.h"
 
+#ifndef __AVR__
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
+#endif
+
 namespace famouso {
-namespace mw {
-namespace api {
-namespace detail {
+    namespace mw {
+        namespace api {
+            namespace detail {
 
-        template <famouso::mw::Event::Type max_length>
-        struct EventInfoStruct {
-            /// Length of the event (is <= max_length)
-            famouso::mw::Event::Type length;
+                /// Event information that is stored in a temporal firewall
+                template <famouso::mw::Event::Type max_length>
+                struct EventInfoStruct {
+                    /// Length of the event (is <= max_length)
+                    famouso::mw::Event::Type length;
 
-            /// Event data buffer (may include attributes)
-            uint8_t data[max_length];
+                    /// Event data buffer (may include attributes)
+                    uint8_t data[max_length];
 
-            // Subject not needed
+                    // Subject not needed
 
-            /// Expire time of the event
-            timefw::Time expire;
+                    /// Expire time of the event
+                    timefw::Time expire;
 
-            /*!
-             *  \brief  Constructor
-             *  \note   Initial expire time in past, so initial temporal
-             *          firewall content is invalid. This prevents delivery
-             *          of an uninitialized event.
-             */
-            EventInfoStruct() : expire() {
-            }
-        };
+                    /*!
+                     *  \brief  Constructor
+                     *  \note   Initial expire time in past, so initial temporal
+                     *          firewall content is invalid. This prevents delivery
+                     *          of an uninitialized event.
+                     */
+                    EventInfoStruct() : expire() {
+                    }
+                };
 
-template <class Data>
-class TemporalFirewallThreadUnsafe {
-        Data buffer;
+                /// Temporal firewall without mutal exclusion
+                template <class Data>
+                class TemporalFirewallThreadUnsafe {
+                        Data buffer;
 
-    public:
-        Data & write_lock() {
-            return buffer;
-        }
+                    public:
+                        Data & write_lock() {
+                            return buffer;
+                        }
 
-        void write_unlock() {
-        }
+                        void write_unlock() {
+                        }
 
-        const Data & read_lock() {
-            return buffer;
-        }
+                        const Data & read_lock() {
+                            return buffer;
+                        }
 
-        void read_unlock() {
-        }
-};
+                        void read_unlock() {
+                        }
+                };
+
 #ifdef __AVR__
-template <class Data>
-class TemporalFirewallDoubleBuffered {
+                /*!
+                 *  \brief  Temporal firewall with mutual exclusion
+                 *          (double buffered with atomic switch)
+                 *  \tparam Data    Data type to store
+                 *
+                 *  Prevents race conditions during concurrent access by reader and writer,
+                 *  but allows concurrent reading and writing.
+                 *  Reader only gets to see a buffer that was updated by the writer if he
+                 *  calls read_unlock(). So read and write locks should be only hold as
+                 *  long as necessary.
+                 *
+                 *  \note   Assumes there are only one writer and one reader.
+                 */
+                template <class Data>
+                class TemporalFirewallDoubleBuffered {
 
-        // Locking by disabling interrupts
-        struct scoped_lock {
-            char sreg;
-            scoped_lock() {
-                sreg = SREG;
-                cli();
-            }
-            ~scoped_lock() {
-                SREG = sreg;
-            }
-        };
+                        // Locking by disabling interrupts
+                        struct scoped_lock {
+                            char sreg;
+                            scoped_lock() {
+                                sreg = SREG;
+                                cli();
+                            }
+                            ~scoped_lock() {
+                                SREG = sreg;
+                            }
+                        };
 
-        Data buffer[2];
+                        Data buffer[2];
 
-        enum {
-            buffer_mask = 0x1,
-            reading = 0x2,
-            swap_after_reading = 0x4
-        };
-        uint8_t state;
+                        enum {
+                            buffer_mask = 0x1,
+                            reading = 0x2,
+                            swap_after_reading = 0x4
+                        };
+                        uint8_t state;
 
-    public:
-        TemporalFirewallDoubleBuffered() :
-            state(0) {
-        }
+                    public:
+                        /// Constructor
+                        TemporalFirewallDoubleBuffered() :
+                            state(0) {
+                        }
 
-        Data & write_lock() {
-            return buffer[state & buffer_mask];
-        }
+                        /// Lock for writing
+                        Data & write_lock() {
+                            return buffer[state & buffer_mask];
+                        }
 
-        void write_unlock() {
-            scoped_lock lock;
-            if (state & reading) {
-                state |= swap_after_reading;
-            } else {
-                state ^= buffer_mask;   // Swap buffers
-            }
-        }
+                        /// Undo write_lock()
+                        void write_unlock() {
+                            scoped_lock lock;
+                            if (state & reading) {
+                                state |= swap_after_reading;
+                            } else {
+                                state ^= buffer_mask;   // Swap buffers
+                            }
+                        }
 
-        const Data & read_lock() {
-            scoped_lock lock;
-            state |= reading;
-            return buffer[(state ^ buffer_mask) & buffer_mask];
-        }
+                        /// Lock for reading
+                        const Data & read_lock() {
+                            scoped_lock lock;
+                            state |= reading;
+                            return buffer[(state ^ buffer_mask) & buffer_mask];
+                        }
 
-        void read_unlock() {
-            scoped_lock lock;
-            state &= ~reading;
-            if (swap_after_reading) {
-                state ^= buffer_mask;   // Swap buffers
-                state &= ~swap_after_reading;
-            }
-        }
-};
+                        /// Undo read_lock()
+                        void read_unlock() {
+                            scoped_lock lock;
+                            state &= ~reading;
+                            if (swap_after_reading) {
+                                state ^= buffer_mask;   // Swap buffers
+                                state &= ~swap_after_reading;
+                            }
+                        }
+                };
 
 #else
 
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/locks.hpp>
+                /*!
+                 *  \brief  Temporal firewall with mutual exclusion
+                 *          (double buffered with atomic switch)
+                 *  \tparam Data    Data type to store
+                 *
+                 *  Prevents race conditions during concurrent access by reader and writer,
+                 *  but allows concurrent reading and writing.
+                 *  Reader only gets to see a buffer that was updated by the writer if he
+                 *  calls read_unlock(). So read and write locks should be only hold as
+                 *  long as necessary.
+                 *
+                 *  \note   Assumes there are only one writer and one reader.
+                 */
+                template <class Data>
+                class TemporalFirewallDoubleBuffered {
 
-// AVR-Implementation with disabled interrupts
-// Prevents race conditions during concurrent access by reader and writer.
-// Assumes one writer and one reader
-// Reader only gets to see a buffer updated by the writer if he calls read_unlock().
-// "special concurrency/thread-safe container", no init of elements
-template <class Data>
-class TemporalFirewallDoubleBuffered {
+                        typedef boost::lock_guard<boost::mutex> scoped_lock;
 
-        typedef boost::lock_guard<boost::mutex> scoped_lock;
+                        boost::mutex mutex;
+                        Data buffer[2];
+                        Data * write;
+                        Data * read;
+                        bool reading;
+                        bool swap_after_reading;
 
-        boost::mutex mutex;
-        Data buffer[2];
-        Data * write;
-        Data * read;
-        bool reading;
-        bool swap_after_reading;
+                        /// Swap buffers
+                        void swap() {
+                            Data * tmp = read;
+                            read = write;
+                            write = tmp;
+                        }
 
-        void swap() {
-            Data * tmp = read;
-            read = write;
-            write = tmp;
-        }
+                    public:
+                        /// Constructor
+                        TemporalFirewallDoubleBuffered() :
+                            write(&buffer[0]),
+                            read(&buffer[1]),
+                            reading(false),
+                            swap_after_reading(false) {
+                        }
 
-    public:
-        TemporalFirewallDoubleBuffered() :
-            write(&buffer[0]),
-            read(&buffer[1]),
-            reading(false),
-            swap_after_reading(false) {
-        }
+                        /// Lock for writing
+                        Data & write_lock() {
+                            return *write;
+                        }
 
-        Data & write_lock() {
-            return *write;
-        }
+                        /// Undo write_lock()
+                        void write_unlock() {
+                            scoped_lock lock(mutex);
+                            if (reading) {
+                                swap_after_reading = true;
+                            } else {
+                                swap();
+                            }
+                        }
 
-        void write_unlock() {
-            scoped_lock lock(mutex);
-            if (reading) {
-                swap_after_reading = true;
-            } else {
-                swap();
-            }
-        }
+                        /// Lock for reading
+                        const Data & read_lock() {
+                            scoped_lock lock(mutex);
+                            reading = true;
+                            return *read;
+                        }
 
-        const Data & read_lock() {
-            scoped_lock lock(mutex);
-            reading = true;
-            return *read;
-        }
-
-        void read_unlock() {
-            scoped_lock lock(mutex);
-            reading = false;
-            if (swap_after_reading) {
-                swap();
-                swap_after_reading = false;
-            }
-        }
-};
+                        /// Undo read_lock()
+                        void read_unlock() {
+                            scoped_lock lock(mutex);
+                            reading = false;
+                            if (swap_after_reading) {
+                                swap();
+                                swap_after_reading = false;
+                            }
+                        }
+                };
 #endif
 
-// AVR: Blocking geht nicht, weil aus Interrupt-Kontext beschrieben
-// -> Double-Buffered
-// für Publisher auch ohne Locking denkbar, wenn Nebenläufigkeit vermieden
 
+            } // namespace detail
+        } // namespace api
+    } // namespace mw
 } // namespace famouso
-} // namespace mw
-} // namespace api
-} // namespace detail
 
 #endif // __TEMPORALFIREWALL_H_0154DA24DD73BA__
 

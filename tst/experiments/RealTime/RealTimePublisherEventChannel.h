@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Philipp Werner <philipp.werner@st.ovgu.de>
- *                    Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2010-2011 Philipp Werner <philipp.werner@st.ovgu.de>
+ *                         Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without

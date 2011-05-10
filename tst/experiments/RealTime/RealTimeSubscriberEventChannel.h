@@ -58,6 +58,13 @@ namespace famouso {
     namespace mw {
         namespace api {
 
+            /*!
+             *  \brief  Real time subscriber channel without periodic
+             *          notification
+             *  \tparam SEC Subscriber event channel class
+             *  \tparam Requirement AttributeSet of the channel's
+             *          requirements (published on management channel)
+             */
             template <typename SEC, typename Requirement>
             class RealTimeSubscriberEventChannelBase : public SEC {
                     typedef RealTimeSubscriberEventChannelBase type;
@@ -74,7 +81,7 @@ namespace famouso {
                         mel = MELAttrib::value
                     };
 
-                    // logging helper
+                    /// logging helper
                     struct RT {
                         /*! \brief delivers the current %level of %logging */
                         static ::logging::Level::levels level() {
@@ -87,6 +94,7 @@ namespace famouso {
                     };
 
                 public:
+                    /// Constructor
                     RealTimeSubscriberEventChannelBase(const Subject& subject) : SEC(subject) {
                         SEC::trampoline.template bind<type, &type::trampoline_impl>(this);
                     }
@@ -95,6 +103,7 @@ namespace famouso {
 
                     typedef typename SEC::Action Action;
 
+                    /// Implementation of the event channel trampoline delegate function
                     uint16_t trampoline_impl(Action & action) {
                         if (action.action == Action::get_requirements) {
                             // Return requirement attribute set
@@ -108,6 +117,16 @@ namespace famouso {
             };
 
 
+            /*!
+             *  \brief  Real time subscriber event channel with periodic
+             *          notification
+             *  \tparam SEC Subscriber event channel class
+             *  \tparam Requirement AttributeSet of the channel's
+             *          requirements (published on management channel).
+             *          The Period and MaxEventLength attributes are
+             *          mandatory.
+             *  \tparam TemporalFirewall Temporal firewall to use.
+             */
             template <typename SEC, typename Requirement,
                       template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
             class RealTimeSubscriberEventChannel : public RealTimeSubscriberEventChannelBase<SEC, Requirement> {
@@ -122,21 +141,24 @@ namespace famouso {
                     /// Temporal firewall containing event information
                     TemporalFirewall<EventInfo> tf;
 
+                    /// The subscriber task calls callbacks periodically
                     timefw::Task subscriber_task;
 
-                    // Middleware notify callback writing temporal firewall
+                    /// Middleware notify callback writing temporal firewall
                     void callback_periodic_notify_impl(const Event & event) {
-                        // TODO: Deadline prüfen, Filter anwenden, Strength prüfen (z.B. previous_strength als member-var zwischenspeichern)...
+                        /*! \todo Check for deadline and strength context
+                         *        attribute, apply filter etc. before notification.
+                         */
                         if (event.length > Base::mel)
                             return;
                         EventInfo & ei = tf.write_lock();
                         memcpy(ei.data, event.data, event.length);
                         ei.length = event.length;
-                        ei.expire = timefw::TimeSource::current().add(timefw::Time::usec(Base::period)); // oder deadline, TODO: omission beachten
+                        ei.expire = timefw::TimeSource::current().add(timefw::Time::usec(Base::period)); // TODO: use deadline, take care of omission attribute
                         tf.write_unlock();
                     }
 
-                    // may run in another thread
+                    /// Subscriber task function (may run in another thread, mutex by temp. firewall)
                     void subscriber_task_func() {
                         const EventInfo & ei = tf.read_lock();
 #if 0
@@ -175,6 +197,11 @@ namespace famouso {
                     }
 
                 public:
+                    /*!
+                     *  \brief  Constructor
+                     *  \param  subj    Subject to subscribe to
+                     *  \param  sub_task_start  Starting time for periodic subscriber task.
+                     */
                     RealTimeSubscriberEventChannel(const famouso::mw::Subject & subj,
                                                    const timefw::Time & sub_task_start = timefw::TimeSource::current()) :
                         Base(subj),
@@ -192,10 +219,21 @@ namespace famouso {
                     }
 
                     /*!
-                     *  \brief  
-                     *  bei Subscriber anstelle des notify aufgerufen, wenn kein Event gemäß Spezifikation (Subject, Filter, QoS-Anforderungen) erhalten
+                     *  \brief  Exception callback
+                     *
+                     *  The exception callback is called by the subscriber task if the
+                     *  QoS requirement specification is violated.
                      */
                     famouso::mw::api::ExceptionCallBack exception_callback;
+
+                    /*!
+                     *  \brief  Notification callback
+                     *
+                     *  The notification callback is called periodically, each time
+                     *  delivering a newly arrived event to the application. If the
+                     *  QoS requirement specification is violated the exception
+                     *  callback will be executed instead.
+                     */
                     famouso::mw::api::SECCallBack notify_callback;
             };
 
