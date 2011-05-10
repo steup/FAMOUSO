@@ -56,6 +56,13 @@ $(LIBFEC):
 	make -C $(EXTERNALSDIR)/FEC
 	@cp $(EXTERNALSDIR)/FEC/libfec.a $(LIBDIR)
 
-$(EXTERNALSDIR)/include:
+$(EXTERNALSDIR)/include: $(EXTERNALSDIR)/include/firstRun
 	@echo Checking out logging framework
 	svn export --force --ignore-externals -q https://logging-cpp.svn.sourceforge.net/svnroot/logging-cpp/include $@
+
+$(EXTERNALSDIR)/include/firstRun:
+	@echo "Do not delete this file because it is part of the make system" > $@
+
+externalsclean:
+	@rm -rf $(EXTERNALSDIR)/include/logging
+	@rm -rf $(EXTERNALSDIR)/include/firstRun

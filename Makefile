@@ -115,10 +115,9 @@ distclean: clean
 	@find . -name externals -prune -o -name \*~ -exec rm -f {} \;
 	@make -C $(EXTERNALSDIR)/AVR distclean
 
-properclean: distclean
+properclean: distclean externalsclean
 	@rm -rf $(EXTERNALSDIR)/Boost
 	@rm -rf $(EXTERNALSDIR)/boost*
-	@rm -rf $(EXTERNALSDIR)/include
 
 debian:
 	ln -f -s ./tools/debian $(FAMOUSOROOTDIR)/debian
