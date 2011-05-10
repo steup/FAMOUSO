@@ -138,7 +138,8 @@ UID getNodeID<void>() {
 #include "guard/NRT_PollSlave.h"
 
 #ifdef __ETHERNET__
-#include "mw/nl/UDPBroadCastNL.h"
+#include "EthernetNL.h"
+#include "XenomaiRTnetDriver.h"
 #include "eval_NetworkAdapter.h"
 #endif
 
@@ -171,11 +172,14 @@ namespace famouso {
             typedef famouso::mw::anl::AbstractNetworkLayer<NG> ANL;
 #else
             typedef famouso::mw::nl::CANNL<can, ccp, etag> NL1;
-            typedef famouso::mw::nl::UDPBroadCastNL NL2;
+            typedef famouso::mw::nl::EthernetNL<
+                            device::nic::ethernet::XenomaiRTnet
+                        > NL2;
             typedef famouso::mw::guard::NetworkGuard<
                             NL2,
                             famouso::mw::guard::RT_WindowCheck,
-                            famouso::mw::guard::NRT_PollSlave
+                            //famouso::mw::guard::NRT_PollSlave
+                            famouso::mw::guard::NRT_HandledByNL
                         > NG2;
             typedef famouso::mw::anl::AbstractNetworkLayer<NL1> ANL1;
             typedef famouso::mw::anl::AbstractNetworkLayer<NG2> ANL2;
