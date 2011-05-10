@@ -47,6 +47,8 @@ ADDITIONAL_CFLAGS+= -I../../../Bindings/include
 
 SOURCES=$(wildcard *.cc)
 BINS=$(SOURCES:.cc=)
+AVR_SOURCES=$(wildcard AVR_*.cc)
+AVR_BINS=$(AVR_SOURCES:.cc=)
 
 .PHONY: all clean
 
@@ -58,9 +60,6 @@ ifneq ($(ADD_FLAGS),)
 CXXFLAGS += $(ADD_FLAGS)
 endif
 
-ifneq ($(CONFIG),linux/xenomai)
-CXXFLAGS += -lrt
-endif
 ifeq ($(CONFIG),avr)
 CXXFLAGS += -Os
 LDFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections
@@ -70,7 +69,9 @@ eval: Nodes RT_Master
 
 all: $(BINS)
 
-avr: AVR_Node1 AVR_Node2 AVR_NodeNRT1 AVR_NodeNRT2
+avr: $(AVR_BINS)
+	avr-size $(AVR_BINS)
+
 
 Nodes: Node1 Node2 Node3 Node4
 

@@ -110,7 +110,7 @@ namespace famouso {
                         }
 
                         void write_uid(const UID & val) {
-                            new (data.u8) UID(val);
+                            new (data.u8) UID(val.tab());
                             data.u8 += sizeof(UID);
                         }
                         void write_u8(uint8_t val) {

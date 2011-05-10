@@ -40,6 +40,8 @@
 #ifndef __EVAL_PROVIDESIMPLEATTRIBACCESS_H_8B8726EC532A37__
 #define __EVAL_PROVIDESIMPLEATTRIBACCESS_H_8B8726EC532A37__
 
+#include "mw/attributes/Period.h"
+#include "mw/attributes/MaxEventLength.h"
 
 template <class PEC, class Req>
 class ProvideSimpleAttribAccess : public PEC {

@@ -41,6 +41,10 @@
 #define __RTAVRNODECOMMON_H_0E9783D55B8B9B__
 
 //-----------------------------------------------------------------------------
+// NOTE: The real time channels have not been tested on AVR yet. Especially,
+//       the provisional time framework may cause problems, as it is strongly
+//       platform dependent.
+//-----------------------------------------------------------------------------
 // Configuration
 //-----------------------------------------------------------------------------
 
@@ -49,7 +53,9 @@
 #define RTPEC_OUTPUT 0
 #define RTSEC_OUTPUT 0
 
-
+#ifndef MAN_LAY_CONFIG
+#define MAN_LAY_CONFIG famouso::mw::el::DefaultConfig
+#endif
 //-----------------------------------------------------------------------------
 
 
@@ -63,7 +69,7 @@ static inline bool usleep(uint32_t t) {
     return true;
 }
 
-#ifndef TEST_AVR_NRT
+#ifndef TEST_AVR_NO_CLOCK
 // Global clock definition
 #include "timefw/TimeSourceProvider.h"
 #include "AVR_GlobalClock.h"
@@ -97,13 +103,18 @@ UID getNodeID<void>() {
 
 #include "mw/el/EventLayer.h"
 
-#ifndef TEST_AVR_NRT
+#include "mw/attributes/AttributeSet.h"
+#ifndef TEST_AVR_NO_ML
 #include "mw/el/ml/ManagementLayer.h"
+#endif
+#ifndef TEST_AVR_NRT
 #include "mw/attributes/detail/AttributeSetProvider.h"
 #include "mw/attributes/Period.h"
 #include "mw/attributes/MaxEventLength.h"
 #include "mw/attributes/RealTimeSlotStartBoundary.h"
 #include "mw/attributes/RealTimeSlotEndBoundary.h"
+#endif
+#ifndef TEST_AVR_NO_NG
 #include "guard/NetworkGuard.h"
 #include "guard/RT_WindowCheck.h"
 #include "guard/RT_NoWindowCheck.h"
@@ -116,7 +127,7 @@ namespace famouso {
             typedef mw::nl::CAN::ccp::Client<can> ccpClient;
             typedef mw::nl::CAN::etagBP::Client<can> etagClient;
             typedef mw::nl::CANNL<can, ccpClient, etagClient> NL;
-#ifndef TEST_AVR_NRT
+#ifndef TEST_AVR_NO_NG
             typedef mw::guard::NetworkGuard<
                             NL,
                             mw::guard::RT_WindowCheck,
@@ -128,8 +139,8 @@ namespace famouso {
 #endif
 
         public:
-#ifndef TEST_AVR_NRT
-            typedef mw::el::EventLayer<ANL, mw::el::ml::ManagementLayer> EL;
+#ifndef TEST_AVR_NO_ML
+            typedef mw::el::EventLayer<ANL, mw::el::ml::ManagementLayer, MAN_LAY_CONFIG> EL;
 #else
             typedef mw::el::EventLayer<ANL> EL;
 #endif
@@ -139,7 +150,7 @@ namespace famouso {
 }
 
 
-#ifndef TEST_AVR_NRT
+#ifndef TEST_AVR_NO_CLOCK
 
 #include "timefw/Dispatcher.h"
 

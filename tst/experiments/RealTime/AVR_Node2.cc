@@ -42,10 +42,16 @@
 #define LOGGING_DISABLE
 #define NDEBUG
 
-#define RT_TEST_ALL_NRT
+struct MyMLConf {
+    enum {
+        support_real_time_publisher = 0,
+        support_real_time_subscriber = 1,
+        support_forwarding = 1
+    };
+};
+#define MAN_LAY_CONFIG MyMLConf
 
 #include "AVR_RTNodeCommon.h"
-#include "eval_RTPEC.h"
 #include "eval_RTSEC.h"
 #include "eval_app_def.h"
 

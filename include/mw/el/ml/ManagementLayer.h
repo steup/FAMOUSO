@@ -130,8 +130,8 @@ namespace famouso {
                                     return;
 
                                 ml::RealTimeSetResStateEvent reserv(event.data, event.length);
-                                NodeID node_id;
                                 ml::ChannelReservationData crd;
+                                NodeID node_id;
 
                                 reserv.read_head(node_id);
 
@@ -148,7 +148,8 @@ namespace famouso {
                                 crd.event_type = event_type;
 
                                 // Inform channel
-                                EC * wanted = reinterpret_cast<EC*>(crd.lc_id.value());
+                                uint64_t * addr = reinterpret_cast<uint64_t *>(crd.lc_id.tab());
+                                EC * wanted = reinterpret_cast<EC*>(*addr);
                                 EC * ec = static_cast<EC*>(LL::Publisher.select());
                                 while (ec) {
                                     if (ec == wanted) {
@@ -191,7 +192,7 @@ namespace famouso {
                             crw.init(data_buffer, length);
                             {
                                 // TODO: networkIDs
-                                crw.write_head(msg_type, getNodeID<void>(), UID((uint64_t)0/* TODO */));
+                                crw.write_head(msg_type, getNodeID<void>(), UID() /* TODO: networkIDs */);
 
                                 ec = static_cast<EC*>(channel_list.select());
                                 while (ec) {
@@ -201,7 +202,7 @@ namespace famouso {
 
                                 // Add management channel
                                 if (add_manchan)
-                                    crw.write_channel< attributes::AttributeSet<> >(man_chan_subject, UID((uint64_t)0));
+                                    crw.write_channel< attributes::AttributeSet<> >(man_chan_subject, UID());
                             }
 
                             // Publish event

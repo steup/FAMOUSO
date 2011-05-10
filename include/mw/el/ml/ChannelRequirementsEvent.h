@@ -91,7 +91,8 @@ namespace famouso {
                             // Subject
                             write_uid(ec.subject());
                             // Local channel ID: this pointer
-                            write_uid(UID(reinterpret_cast<uint64_t>(&ec)));
+                            uint64_t ec_this = reinterpret_cast<uint64_t>(&ec);
+                            write_uid(UID(reinterpret_cast<uint8_t *>(&ec_this)));
                             // Attributes
                             uint8_t *& dp = data_pointer();
                             dp += ec.get_requirements(dp);

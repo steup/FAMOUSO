@@ -43,6 +43,9 @@
 #define NDEBUG
 
 #define TEST_AVR_NRT
+#define TEST_AVR_NO_CLOCK
+#define TEST_AVR_NO_ML
+#define TEST_AVR_NO_NG
 
 #include "AVR_RTNodeCommon.h"
 
