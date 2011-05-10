@@ -41,6 +41,7 @@
 #define __LOCALCHANID_H_9CCAE6FC60B110__
 
 #include "mw/common/UID.h"
+#include "mw/api/EventChannel.h"
 
 namespace famouso {
     namespace mw {
@@ -48,6 +49,12 @@ namespace famouso {
             namespace ml {
 
                 typedef UID LocalChanID;
+
+                template <class ECH>
+                LocalChanID getLocalChanID(const famouso::mw::api::EventChannel<ECH> * ec) {
+                    uint64_t ec_this = reinterpret_cast<uint64_t>(ec);
+                    return LocalChanID(reinterpret_cast<const uint8_t *>(&ec_this));
+                }
 
             } // namespace ml
         } // namespace el

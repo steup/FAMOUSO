@@ -202,7 +202,7 @@ namespace famouso {
 
                                 // Add management channel
                                 if (add_manchan)
-                                    crw.write_channel< attributes::AttributeSet<> >(man_chan_subject, UID());
+                                    crw.write_channel< attributes::AttributeSet<> >(man_chan_subject, LocalChanID());
                             }
 
                             // Publish event

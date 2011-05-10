@@ -150,7 +150,7 @@ namespace famouso {
 #if (RTSEC_OUTPUT >= 2)
                             ::logging::log::emit<typename Base::RT>()
                                 << "update notify: chan "
-                                << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                << el::ml::getLocalChanID(this)
                                 << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
 #endif
                             if (notify_callback) {
@@ -164,7 +164,7 @@ namespace famouso {
 #if (RTSEC_OUTPUT >= 2)
                             ::logging::log::emit<typename Base::RT>()
                                 << "exception notify: chan "
-                                << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                << el::ml::getLocalChanID(this)
                                 << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
 #endif
                             if (exception_callback) {
@@ -186,7 +186,7 @@ namespace famouso {
 #if (RTSEC_OUTPUT >= 1)
                         ::logging::log::emit<typename Base::RT>()
                             << "start subscriber task: chan "
-                            << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                            << el::ml::getLocalChanID(this)
                             << " at " << subscriber_task.start << '\n';
 #endif
                     }

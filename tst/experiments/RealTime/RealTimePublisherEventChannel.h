@@ -134,7 +134,7 @@ namespace famouso {
 
 #if (RTPEC_OUTPUT >= 2)
                         ::logging::log::emit<RT>()
-                            << "publish: chan " << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                            << "publish: chan " << el::ml::getLocalChanID(this)
                             << " at " << timefw::TimeSource::current() << " expiring at " << exp << "\n";
 #endif
 
@@ -143,7 +143,7 @@ namespace famouso {
 #if (RTPEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
-                                << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                << el::ml::getLocalChanID(this)
                                 << " at " << timefw::TimeSource::current() << " NO RESERVATION\n";
                             signal_exception();
 #endif
@@ -232,7 +232,7 @@ namespace famouso {
 #if (RTPEC_OUTPUT >= 1)
                                     ::logging::log::emit<RT>()
                                         << "successfully reserved: chan "
-                                        << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                        << el::ml::getLocalChanID(this)
                                         << " at " << timefw::TimeSource::current() << '\n';
 #endif
                                 }
@@ -251,7 +251,7 @@ namespace famouso {
 #if (RTPEC_OUTPUT >= 1)
                                     ::logging::log::emit<RT>()
                                         << "start deliver: chan "
-                                        << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                        << el::ml::getLocalChanID(this)
                                         << " at " << timefw::TimeSource::current() << ": first deliver at "
                                         << ::logging::log::dec << deliver_task.start << "\n";
 #endif
@@ -266,7 +266,7 @@ namespace famouso {
 #if (RTPEC_OUTPUT >= 1)
                                     ::logging::log::emit<RT>()
                                         << "stop deliver: chan "
-                                        << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                        << el::ml::getLocalChanID(this)
                                         << " at " << timefw::TimeSource::current() << "\n";
 #endif
                                 }
@@ -292,7 +292,7 @@ namespace famouso {
 #if (RTPEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
-                                << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                << el::ml::getLocalChanID(this)
                                 << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
 #endif
 
@@ -307,7 +307,7 @@ namespace famouso {
 #if (RTPEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
                                 << "deliver: chan "
-                                << el::ml::LocalChanID(reinterpret_cast<uint64_t>(this))
+                                << el::ml::getLocalChanID(this)
                                 << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
                             signal_exception();
 #endif
