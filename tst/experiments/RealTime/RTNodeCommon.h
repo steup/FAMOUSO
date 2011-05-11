@@ -131,11 +131,11 @@ UID getNodeID<void>() {
 #include "mw/attributes/RealTimeSlotStartBoundary.h"
 #include "mw/attributes/RealTimeSlotEndBoundary.h"
 #include "mw/api/ExtendedEventChannel.h"
-#include "guard/NetworkGuard.h"
-#include "guard/RT_WindowCheck.h"
-#include "guard/RT_NoWindowCheck.h"
-#include "guard/NRT_HandledByNL.h"
-#include "guard/NRT_PollSlave.h"
+#include "mw/anl/guard/NetworkGuard.h"
+#include "mw/anl/guard/RT_WindowCheck.h"
+#include "mw/anl/guard/RT_NoWindowCheck.h"
+#include "mw/anl/guard/NRT_HandledByNL.h"
+#include "mw/anl/guard/NRT_PollSlave.h"
 
 #ifdef __ETHERNET__
 #include "EthernetNL.h"

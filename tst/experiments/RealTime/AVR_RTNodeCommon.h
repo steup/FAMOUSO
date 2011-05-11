@@ -110,10 +110,10 @@ UID getNodeID<void>() {
 #include "mw/attributes/RealTimeSlotEndBoundary.h"
 #endif
 #ifndef TEST_AVR_NO_NG
-#include "guard/NetworkGuard.h"
-#include "guard/RT_WindowCheck.h"
-#include "guard/RT_NoWindowCheck.h"
-#include "guard/NRT_HandledByNL.h"
+#include "mw/anl/guard/NetworkGuard.h"
+#include "mw/anl/guard/RT_WindowCheck.h"
+#include "mw/anl/guard/RT_NoWindowCheck.h"
+#include "mw/anl/guard/NRT_HandledByNL.h"
 #endif
 
 namespace famouso {
