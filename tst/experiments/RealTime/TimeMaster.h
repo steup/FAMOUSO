@@ -98,7 +98,7 @@ class TimeMaster {
 };
 
 #else
-#include "RealTimePublisherEventChannel.h"
+#include "mw/api/RealTimePublisherEventChannel.h"
 
 typedef famouso::mw::attributes::detail::SetProvider<
              famouso::mw::attributes::Period<1000*1000>,

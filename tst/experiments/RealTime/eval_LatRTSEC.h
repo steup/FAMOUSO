@@ -40,7 +40,7 @@
 #ifndef __EVAL_LATRTSEC_H_563F48CC533E0B__
 #define __EVAL_LATRTSEC_H_563F48CC533E0B__
 
-#include "RealTimeSubscriberEventChannel.h"
+#include "mw/api/RealTimeSubscriberEventChannel.h"
 #include "eval_LatencyDistribution.h"
 #include "eval_OmissionCounter.h"
 

@@ -40,7 +40,7 @@
 #ifndef __EVAL_LATRTPEC_H_2192A365C65E77__
 #define __EVAL_LATRTPEC_H_2192A365C65E77__
 
-#include "RealTimePublisherEventChannel.h"
+#include "mw/api/RealTimePublisherEventChannel.h"
 #include "AddPublisherTask.h"
 #include "eval_ProvideSimpleAttribAccess.h"
 

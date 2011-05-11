@@ -41,7 +41,7 @@
 #define __EVAL_RTPEC_H_D03B33C2AEFBC7__
 
 #ifndef RT_TEST_ALL_NRT
-#include "RealTimePublisherEventChannel.h"
+#include "mw/api/RealTimePublisherEventChannel.h"
 #endif
 #include "AddPublisherTask.h"
 #include "eval_ProvideSimpleAttribAccess.h"

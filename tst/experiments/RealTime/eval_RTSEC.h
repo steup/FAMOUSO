@@ -40,7 +40,7 @@
 #ifndef __EVAL_RTSEC_H_B89BB49F2E2578__
 #define __EVAL_RTSEC_H_B89BB49F2E2578__
 
-#include "RealTimeSubscriberEventChannel.h"
+#include "mw/api/RealTimeSubscriberEventChannel.h"
 #include "eval_OmissionCounter.h"
 
 template <class SEC, class Req>

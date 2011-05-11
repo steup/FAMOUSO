@@ -54,7 +54,7 @@
 #include "mw/attributes/MaxEventLength.h"
 #include "mw/attributes/detail/AttributeSetProvider.h"
 
-#include "TemporalFirewall.h"
+#include "mw/api/detail/TemporalFirewall.h"
 
 #include <string.h>
 
