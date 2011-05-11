@@ -96,7 +96,6 @@ namespace device {
                         iov.iov_base = (void *)&mob;
                         iov.iov_len = sizeof(can_frame_t);
                         ret = rt_dev_recvmsg(_can_socket, &msg, 0);
-                        //printf("XenoDriver: receive\n");
                         if (ret != sizeof(MOB) ) {
                             report_error_and_exit(ret, __FILE__, __LINE__, "rt_dev_recvmsg");
                         }
@@ -104,6 +103,7 @@ namespace device {
                     }
             };
 
+            /// XenmaiRTCAN driver that takes a timestamp when receiving a message
             typedef SimulateInterruptViaThreadAdapter< PAXCAN < RecvTimestampingXenomaiRTCANDriver > > RecvTimestampingXenomaiRTCAN;
 
 
@@ -142,6 +142,7 @@ namespace device {
                             printf("\n");
                     }
 
+                    /// Write a MOB
                     void write(MOB& mob) {
                         Base::write(mob);
                         //log_mob(mob);
@@ -158,6 +159,7 @@ namespace device {
                     }
             };
 
+            /// XenmaiRTCAN driver that takes a timestamp on sending
             typedef SimulateInterruptViaThreadAdapter< PAXCAN < SendTimestampingXenomaiRTCANDriver > > SendTimestampingXenomaiRTCAN;
 
         } /* namespace CAN */

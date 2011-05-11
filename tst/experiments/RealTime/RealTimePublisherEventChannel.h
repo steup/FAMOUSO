@@ -63,11 +63,17 @@ namespace famouso {
     namespace mw {
         namespace api {
 
-            // Idee: exception handler Unterstützung als Policy (deaktivierbar)
-            // Basic Service without publisher task (e.g. one task for multi channels)
+            /*!
+             *  \brief  Real time publisher event channel
+             *  \tparam EC  Event channel type
+             *  \tparam TemporalFirewall    Temporal firewall to use
+             *  \note   Currently only supports single network configurations
+             */
             template <typename EC, typename Requirement,
                       template <class> class TemporalFirewall = detail::TemporalFirewallDoubleBuffered>
             class RealTimePublisherEventChannel : public EC {
+                    // Idea: exception handler support as a policy to save resources if not needed
+
                     typedef RealTimePublisherEventChannel type;
 
                 protected:
@@ -92,7 +98,7 @@ namespace famouso {
                     TemporalFirewall<EventInfo> tf;
 
 
-                    // logging helper
+                    /// Logging helper
                     struct RT {
                         /*! \brief delivers the current %level of %logging */
                         static ::logging::Level::levels level() {
@@ -108,6 +114,7 @@ namespace famouso {
 
                     /*!
                      *  \brief  Constructor
+                     *  \param  subject Subject of the channel
                      */
                     RealTimePublisherEventChannel(const Subject& subject) : EC(subject) {
                         EC::trampoline.template bind<type, &type::trampoline_impl>(this);
@@ -121,12 +128,12 @@ namespace famouso {
                      *  \brief  Publish the event
                      *  \note   This function should be called once a period. Calling it
                      *          less will be interpreted as a time error and cause an
-                     *          exception callback (NoEvent).
+                     *          exception callback
                      */
                     void publish(const Event & event) {
-                        // TODO: check size
                         // Copy event into temporal firewall buffer
                         EventInfo & ei = tf.write_lock();
+                        // TODO: check size of event
                         memcpy(ei.data, event.data, event.length);
                         ei.length = event.length;
                         timefw::Time exp = ei.expire = timefw::TimeSource::current().add(timefw::Time::usec(period));
@@ -138,7 +145,6 @@ namespace famouso {
                             << " at " << timefw::TimeSource::current() << " expiring at " << exp << "\n";
 #endif
 
-                        // Für alle Netze
                         if (reservation_state == NoReservation) {
 #if (RTPEC_OUTPUT >= 2)
                             ::logging::log::emit<RT>()
@@ -150,47 +156,64 @@ namespace famouso {
                         }
                     }
 
-                    // Inplace without copy
+                    // Idea: allow inplace event initialisation to avoid copying
                     //Event * get_event_buffer();
                     //void publish_event_buffer();
 
 
+                    /*!
+                     *  \brief  Exception callback that is called in case the QoS
+                     *          requirements cannot be met.
+                     */
                     famouso::mw::api::ExceptionCallBack exception_callback;
 
-                    // get_network_delivery_status() -> no_subscriber (alles vor reserved/reject), reserved, rejected
 
+                    /// Announce the publisher event channel
                     void announce() {
                         if (!exception_callback)
                             exception_callback.template bind<&ecb>();
                         EC::announce();
                     }
 
+                    /// Unannounce the publisher event channel
                     void unannounce() {
-                        // TODO: für alle Netze
                         timefw::Dispatcher::instance().dequeue(deliver_task);
                     }
 
                 protected:
 
+                    /// State of a network delivery channel
                     enum ReservationState {
+                        /// Currently no reserved resources
                         NoReservation = 2,
+
+                        /// Resources are reserved but there are no subscribers (no delivery)
                         Unused = 1,
+
+                        /// Using reserved resources for event delivery
                         Delivering = 0
                     };
 
-                    // TODO: einmal für jedes Netz
-                    // je netz: (slot-length), timer-handles, (RT-State)
+                    /*!
+                     *  \todo   The RealTimePublisherEventChannel needs an extension to support
+                     *          multi-network operation. The reservation_state, the
+                     *          deliver_task and the tx_window_duration are all needed once
+                     *          for each connected network.
+                     */
+
+                    /// State of the network delivery channel (ReservationState)
                     uint8_t reservation_state;
+
+                    /// Task used for event delivery over the network
                     timefw::Task deliver_task;
+
+                    /// Duration of the transmission window
                     timefw::Time tx_window_duration;
-
-                    // int8_t local_deliver_net; // TODO: -1: bei publish_local bei publish, >=0 bei deliver für 1. netz mit reservierung
-
-
 
 
                     typedef typename EC::Action Action;
 
+                    /// Implementation of the event channel trampoline delegate function
                     uint16_t trampoline_impl(Action & action) {
                         if (action.action == Action::get_requirements) {
                             // Return requirement attribute set (add real time state attrib)
@@ -276,16 +299,20 @@ namespace famouso {
                         return 0;
                     }
 
-                    // For comm. lat test
+                    /// Delivers the event \p e over the network
                     void deliver_to_net(const Event & e/*, NetworkID */) {
                         PublishParamSet pps(deliver_task.start, tx_window_duration);
                         EC::ech().publish(*this, e, &pps);
                     }
 
+                    /// Delivers the current event (read from temporal firewall)
                     void deliver(/* NetworkID */) {
-                        // publish_local bei voidNL?
-                        // bei "erstem" netz publish_local
-
+                        /*!
+                         *  \todo   To support multi- and no-network operation the deliver*
+                         *          functions of the RealTimePublisherEventChannel has to
+                         *          modified to ensure that each event is published locally
+                         *          only and exactly once in all configurations.
+                         */
                         const EventInfo & ei = tf.read_lock();
                         if (timefw::TimeSource::current() < ei.expire) {
                             // expire in future
@@ -296,7 +323,8 @@ namespace famouso {
                                 << " at " << timefw::TimeSource::current() << " expiring at " << ei.expire << "\n";
 #endif
 
-                            /*! \todo   If the event contains a deadline attribute, also check this.
+                            /*! \todo   If the event contains a deadline attribute,
+                             *          also check this. (RealTimePublisherEventChannel::deliver())
                              */
                             Event e(EC::subject());
                             e.length = ei.length;
@@ -315,10 +343,10 @@ namespace famouso {
                         tf.read_unlock();
                     }
 
-
+                    /// Signal an exception to the application
                     void signal_exception() {
-                        // Bei Verwendung von Temporal Firewall (komplette Flussentkopplung) in Wait-Condition, auf die von extra thread wartet
-                        //exception-Handler aufrufen!
+                        // This could by modified to post the exception for deferred
+                        // execution (for full flow decoupling).
                         exception_callback();
                     }
             };

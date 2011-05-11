@@ -64,7 +64,6 @@ namespace famouso {
     namespace mw {
         namespace rt_net_sched {
 
-            // PEC, SEC: BE-Channel
             /*!
              *  \brief  Real time network scheduler
              *  \tparam PEC Best-Effort PublisherEventChannel type

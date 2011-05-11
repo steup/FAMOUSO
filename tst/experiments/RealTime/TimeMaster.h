@@ -42,7 +42,11 @@
 #include "timefw/Dispatcher.h"
 
 #if 0
-// Publishes timestamp in nanosec
+/*!
+ *  \brief  Time master using non-real-time channel
+ *
+ *  Publishes timestamp in nanoseconds
+ */
 template <class PEC>
 class TimeMaster {
         PEC time_channel;
@@ -103,6 +107,11 @@ typedef famouso::mw::attributes::detail::SetProvider<
              famouso::mw::attributes::RealTimeSlotEndBoundary<10000>*/
         >::attrSet RTM_Req;
 
+/*!
+ *  \brief  Time master using real time channel
+ *
+ *  Publishes timestamp in nanoseconds
+ */
 template <class PEC>
 class TimeMaster : protected famouso::mw::api::RealTimePublisherEventChannel<PEC, RTM_Req> {
         typedef famouso::mw::api::RealTimePublisherEventChannel<PEC, RTM_Req>  Base;
