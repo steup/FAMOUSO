@@ -145,6 +145,16 @@ UID getNodeID<void>() {
 
 namespace famouso {
     class config {
+            template <typename SNN>
+            struct AFPConfig : famouso::mw::afp::MultiSubjectConfig<SNN> {
+                typedef object::RawStorageAllocator<famouso::mw::afp::EmptyType, 128*1024> Allocator;
+                enum {
+                    concurrent_events = 10,
+                    old_event_ids = 10,
+                    max_fragments = 256
+                };
+            };
+
 #ifdef __XENOMAI__
 #ifdef BE_CAN_BROKER
             typedef device::nic::CAN::SendTimestampingXenomaiRTCAN can;
@@ -169,7 +179,7 @@ namespace famouso {
                             famouso::mw::guard::RT_WindowCheck,
                             famouso::mw::guard::NRT_HandledByNL
                         > NG;
-            typedef famouso::mw::anl::AbstractNetworkLayer<NG> ANL;
+            typedef famouso::mw::anl::AbstractNetworkLayer<NG, AFPConfig<NG::SNN>, AFPConfig<NG::SNN> > ANL;
 #else
             typedef famouso::mw::nl::CANNL<can, ccp, etag> NL1;
             typedef famouso::mw::nl::EthernetNL<
@@ -181,8 +191,8 @@ namespace famouso {
                             //famouso::mw::guard::NRT_PollSlave
                             famouso::mw::guard::NRT_HandledByNL
                         > NG2;
-            typedef famouso::mw::anl::AbstractNetworkLayer<NL1> ANL1;
-            typedef famouso::mw::anl::AbstractNetworkLayer<NG2> ANL2;
+            typedef famouso::mw::anl::AbstractNetworkLayer<NL1, AFPConfig<NL1::SNN>, AFPConfig<NL1::SNN> > ANL1;
+            typedef famouso::mw::anl::AbstractNetworkLayer<NG2, AFPConfig<NG2::SNN>, AFPConfig<NG2::SNN> > ANL2;
             typedef famouso::mw::nal::EvalNetworkAdapter<ANL1, ANL2> ANL;  // CAN needs to be the first, Ethernet the second
 #endif
         public:
