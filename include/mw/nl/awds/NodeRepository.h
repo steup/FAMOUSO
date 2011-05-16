@@ -119,7 +119,7 @@ namespace famouso {
                                  * \return The elapsed time in seconds.
                                  */
                                 int elapsed() const {
-                                    return static_cast<int> (std::clock() - _time);
+                                    return static_cast<int> (std::clock() - _time) / CLOCKS_PER_SEC;
                                 }
 
                                 Attributes::type attribs; /**< The attributes from a subscriber. */
