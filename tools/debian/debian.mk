@@ -49,6 +49,7 @@ debian-all: debian-build
 
 debian-build: all
 	$(MAKE) -C ECHs ech-awds
+	$(MAKE) -C Bindings/client
 	$(MAKE) -C tst/experiments/QoS Publisher
 	$(MAKE) -C tst/experiments/QoS Subscriber
 
@@ -61,6 +62,7 @@ debian-install: debian-build
 
 	@echo "installing libs to $(LIB)"
 	@install -d $(LIB)
+	@install -t $(DESTDIR)/usr/lib Bindings/client/libfamouso.so*
 	@install -t $(LIB) $(LIBDIR)/*.a
 
 	@echo "installing header to $(INC)"
