@@ -138,6 +138,9 @@ namespace famouso {
 #ifdef RANDOM_ATTRIBUTES
                     AWDSAttributeSet as = createRandAttributes();
                     attribs = ComparableAttributeSet<>::create(as);
+#elif defined TEST_ATTRIBUTES
+                    AWDSAttributeSet as = createTestAttributes();
+                    attribs = ComparableAttributeSet<>::create(as);
 #else
                     // TODO: load Attributes from Packet_t p
                     attribs = ComparableAttributeSet<>::create();

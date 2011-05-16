@@ -57,33 +57,21 @@
 // definition of a simple event callback that
 // prints the received event data out
 void cb(famouso::mw::api::SECCallBackData& cbd) {
-    ::logging::log::emit() << cbd.subject << ": Length=" << cbd.length << " Event data=" << cbd.data << ::logging::log::endl;
+    ::logging::log::emit() << "Packet=" << *((int *) cbd.data) << ::logging::log::endl;
 }
 
-
 typedef famouso::config::SEC SEC;
-typedef boost::shared_ptr<SEC> pSEC;
 
 int main(int argc, char **argv) {
 
     famouso::init<famouso::config>();
 
-    std::list<pSEC> secs;
-
-    for (int i = 0; i < 10; i++) {
-
-        // create a SubscriberEventChannel
-        // with a specific Subject
-        char s[] = SUBJECT(i);
-        pSEC sec = pSEC( new SEC(famouso::mw::Subject(s)));
-        // subscribe and register the respective
-        // callback that is called if an event
-        // occurs
-        sec->subscribe();
-        sec->callback.bind<cb> ();
-        secs.push_back(sec);
-    }
-
+    SEC *sec = new SEC(famouso::mw::Subject(s));
+    // subscribe and register the respective
+    // callback that is called if an event
+    // occurs
+    sec->subscribe();
+    sec->callback.bind<cb> ();
     // busy waiting is possible, however giving up
     // the cpu is much more better for other processes
     // that have something to do
@@ -93,4 +81,6 @@ int main(int argc, char **argv) {
         time.sec += 100;
         boost::thread::sleep(time);
     }
+
+    return 0;
 }

@@ -110,8 +110,7 @@ namespace famouso {
                      * \tparam id Describes the initial value to be set
                      */
                     template< FlowId id >
-                    class FlowMgmtID: public Attribute<FlowMgmtID<0> , tags::integral_const_tag, FlowId, id,
-                                    FlowMgmtIDs::flowId,
+                    class FlowMgmtID: public Attribute<FlowMgmtID<0> , tags::integral_const_tag, FlowId, id, FlowMgmtIDs::flowId,
                                     attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef FlowMgmtID type;
@@ -125,8 +124,7 @@ namespace famouso {
                      */
                     template< uint8_t action >
                     class FlowMgmtAction: public Attribute<FlowMgmtAction<0> , tags::integral_const_tag, uint8_t, action,
-                                    FlowMgmtIDs::action,
-                                    attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
+                                    FlowMgmtIDs::action, attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef FlowMgmtAction type;
                     };
@@ -137,8 +135,7 @@ namespace famouso {
                      */
                     template< uint64_t snn >
                     class SubjectAttribute: public Attribute<SubjectAttribute<0> , tags::integral_const_tag, uint64_t, snn,
-                                    FlowMgmtIDs::subject,
-                                    attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
+                                    FlowMgmtIDs::subject, attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef SubjectAttribute type;
 
@@ -166,8 +163,7 @@ namespace famouso {
                      * \tparam prio Describes the initial value to be set
                      */
                     template< int8_t prio >
-                    class Priority: public Attribute<Priority<0> , tags::integral_const_tag, int8_t, prio,
-                                    FlowMgmtIDs::prio,
+                    class Priority: public Attribute<Priority<0> , tags::integral_const_tag, int8_t, prio, FlowMgmtIDs::prio,
                                     attributes::detail::TagSet<attributes::detail::HasLessThanRelation> > {
                         public:
                             typedef Priority type;
@@ -208,7 +204,8 @@ namespace famouso {
                 typedef detail::Priority<0xFF> Priority;
 
                 /** An attribute set used by the Famouso part of the flow management. */
-                typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID, Throughput, Priority>::attrSet FlowMgmtRequestAttributeSet;
+                typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID, Throughput, Priority>::attrSet
+                                FlowMgmtRequestAttributeSet;
 
                 /** An attribute set used by the AWDS part of the flow mamagement. */
                 typedef SetProvider<FlowMgmtAction, SubjectAttribute, FlowMgmtID>::attrSet FlowMgmtResponseAttributeSet;
@@ -262,7 +259,7 @@ namespace famouso {
                             break;
                         }
                         default:
-                            break;
+                        break;
                     }
                 }
 
@@ -274,22 +271,35 @@ namespace famouso {
                     AWDSAttributeSet::type res;
                     _createAttrSet(reinterpret_cast<uint8_t *> (&res));
 
-                    TTL *ttl = res.find<TTL> ();
+                    TTL *ttl = res.find_rt<TTL> ();
                     if (ttl)
-                        ttl->set(rand() % 20 + 1);
+                    ttl->setValue(rand() % 20 + 1);
 
-                    Latency *l = res.find<Latency> ();
+                    Latency *l = res.find_rt<Latency> ();
                     if (l)
-                        l->set(rand() % 50 + 20);
+                    l->setValue(rand() % 50 + 20);
 
-                    Throughput *b = res.find<Throughput> ();
+                    Throughput *b = res.find_rt<Throughput> ();
                     if (b)
-                        b->set((rand() % 1000 + 1000));
+                    b->setValue((rand() % 1000 + 1000));
 
-                    PacketLoss *p = res.find<PacketLoss> ();
+                    PacketLoss *p = res.find_rt<PacketLoss> ();
                     if (p)
-                        p->set(rand() % 20 + 1);
+                    p->setValue(rand() % 20 + 1);
 
+                    return res;
+                }
+#endif
+
+#ifdef TEST_ATTRIBUTES
+                inline AWDSAttributeSet::type createTestAttributes() {
+                    AWDSAttributeSet::type res;
+                    uint8_t * data = reinterpret_cast<uint8_t *> (&res);
+                    new (data) SetProvider<Latency>::attrSet;
+
+                    Latency *l = res.find_rt<Latency> ();
+                    if (l)
+                        l->setValue(10);
                     return res;
                 }
 #endif

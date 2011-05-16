@@ -168,17 +168,17 @@ namespace famouso {
                                     attrib *l = a.template find_rt<attrib> ();
                                     attrib *r = b.template find_rt<attrib> ();
 
-                                    ::logging::loggingReturnType &out = log::emit<ATTR>();
+                                    //::logging::loggingReturnType &out = log::emit<ATTR>();
 
-                                    out << "matching " << (int) attrib::id << ": ";
-                                    echo(out, l);
-                                    out << detail::op_printer<cmp>::op();
-                                    echo(out, r);
-                                    out << log::endl;
+                                    //out << "matching " << (int) attrib::id << ": ";
+                                    //echo(out, l);
+                                    //out << detail::op_printer<cmp>::op();
+                                    //echo(out, r);
+                                    //out << log::endl;
 
                                     // match attribute
                                     if (!match(l, r)) {
-                                        log::emit<ATTR>() << "unsuccessfull" << log::endl;
+                                        //log::emit<ATTR>() << "unsuccessfull" << log::endl;
                                         return false; // if attribs not match
                                     }
 
@@ -215,7 +215,7 @@ namespace famouso {
                             public:
 
                                 static bool match(const AttrSet &a, const AttrSet &b) {
-                                    log::emit<ATTR>() << "successfull" << log::endl;
+                                    //log::emit<ATTR>() << "successfull" << log::endl;
                                     return true;
                                 }
 

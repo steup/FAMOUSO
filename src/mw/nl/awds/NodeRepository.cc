@@ -57,20 +57,20 @@ namespace famouso {
                 }
 
                 Node::type NodeRepository::find(MAC &mac) {
-                    log::emit<AWDS>() << "Searching node ... ";
+                    //log::emit<AWDS>() << "Searching node ... ";
 
                     // look for a node with specified mac
 
                     for (NodeList::iterator it = _nodes.begin(); it != _nodes.end(); it++) {
                         if ((*it)->mac() == mac) {
-                            log::emit() << "found: " << *it << log::endl;
+                            //log::emit() << "found: " << *it << log::endl;
                             return *it;
                         }
                     }
 
                     // node not found, create a new and register
                     Node::type node = Node::create(mac);
-                    log::emit() << "not found: " << node << log::endl;
+                    //log::emit() << "not found: " << node << log::endl;
                     _nodes.push_back(node);
                     return node;
                 }
@@ -109,7 +109,7 @@ namespace famouso {
                         Attributes::type subAttr = it->second->attribs, // The subscriber attributes
                                         nodeAttr = node->attr(); // The actual network attributes
 
-                        log::emit<AWDS>() << "Node: " << node << " " << nodeAttr << log::endl;
+                        //log::emit<AWDS>() << "Node: " << node << " " << nodeAttr << log::endl;
 
                         // check if node is to old or network attributes doesn't match publisher attributes
                         if (!Attributes::match(nodeAttr, pubAttr)) {
@@ -153,7 +153,7 @@ namespace famouso {
                 }
 
                 void NodeRepository::remove(Node::type &node) {
-                    log::emit<AWDS>() << "Remove node: " << node << log::endl;
+                    //log::emit<AWDS>() << "Remove node: " << node << log::endl;
                     // unregister node from all subjects
                     unreg(node);
 
@@ -168,7 +168,7 @@ namespace famouso {
                 }
 
                 void NodeRepository::remove(SNN &subject) {
-                    log::emit<AWDS>() << "Remove subject: " << subject << log::endl;
+                    //log::emit<AWDS>() << "Remove subject: " << subject << log::endl;
 
                     SubscriberMap::iterator it = _snnmap.find(subject);
 
@@ -195,7 +195,7 @@ namespace famouso {
                 }
 
                 void NodeRepository::reg(SNN subject, Attributes::type &attribs) {
-                    log::emit<AWDS>() << "Register subject: " << subject << log::endl;
+                    //log::emit<AWDS>() << "Register subject: " << subject << log::endl;
                     // look for registered subject
                     SubscriberMap::iterator it = _snnmap.find(subject);
 
@@ -207,7 +207,7 @@ namespace famouso {
                 }
 
                 void NodeRepository::unreg(Node::type &node) {
-                    log::emit<AWDS>() << "Unregister node from subjects: " << node << log::endl;
+                    //log::emit<AWDS>() << "Unregister node from subjects: " << node << log::endl;
 
                     // remove node from all subjects, loop over all subjects
                     for (SubscriberMap::iterator it = _snnmap.begin(); it != _snnmap.end(); it++) {
@@ -216,7 +216,7 @@ namespace famouso {
                 }
 
                 void NodeRepository::unreg(Node::type &node, SNN subject) {
-                    log::emit<AWDS>() << "Unregister node from subject: " << node << log::endl;
+                    //log::emit<AWDS>() << "Unregister node from subject: " << node << log::endl;
 
                     // find the subject
                     SubscriberMap::iterator it = _snnmap.find(subject);

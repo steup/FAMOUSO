@@ -53,42 +53,32 @@
 // propagation
 #include "config.h"
 
-typedef famouso::config::PEC PEC;
-typedef boost::shared_ptr<PEC> pPEC;
-typedef std::list<pPEC> PECS;
-
 int main(int argc, char **argv) {
 
     famouso::init<famouso::config>();
 
-    PECS pecs;
-    pPEC pec;
-    // create a PublisherEventChannel
-    // with a specific Subject
-    for (int i = 0; i < SUBJECTS_MAX; i++) {
-        char s[] = SUBJECT(i);
-        pec = pPEC(new PEC(famouso::mw::Subject(s)));
+    famouso::config::PEC *pec = new famouso::config::PEC(famouso::mw::Subject(s));
 
-        // announce the channel
-        pec->announce();
-        pecs.push_back(pec);
-    }
+    // announce the channel
+    pec->announce();
 
-    // busy waiting is possible, however giving up
-    // the cpu is much more better for other processes
-    // that have something to do
+    int pnum = 0;
+
+    famouso::mw::Event e(pec->subject());
+    e.length = sizeof(int);
+    e.data = (uint8_t *)&pnum;
+
     while (1) {
-        for (PECS::iterator it = pecs.begin(); it != pecs.end(); it++) {
-            pec = *it;
-            famouso::mw::Event e(pec->subject());
-            e.length = 7;
-            e.data = (uint8_t*) "Publish";
-            pec->publish(e);
 
-            boost::xtime time;
-            boost::xtime_get(&time, boost::TIME_UTC);
-            time.sec += 3;
-            boost::thread::sleep(time);
-        }
+        ::logging::log::emit() << "Packet=" << *((int *) e.data) << ::logging::log::endl;
+        pec->publish(e);
+        pnum++;
+
+        boost::xtime time;
+        boost::xtime_get(&time, boost::TIME_UTC);
+        time.sec += 3;
+        boost::thread::sleep(time);
     }
+
+    return 0;
 }
