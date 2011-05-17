@@ -41,9 +41,27 @@
 #ifndef _STATIC_ERROR_H_
 #define _STATIC_ERROR_H_
 
-#include "boost/mpl/assert.hpp"
+#include "config/type_traits/if_select_type.h"
 
-#define FAMOUSO_STATIC_ASSERT_ERROR(expr, msg, types) \
-    BOOST_MPL_ASSERT_MSG(expr, msg, types)
+namespace failed_assertion {
+
+    struct args;
+
+    template< bool C, typename T>
+    int assertion_failed( typename if_select_type<(C), void*, void>::type, T);
+}
+
+#define FAMOUSO_STATIC_ASSERT_ERROR(expr, msg, types)                       \
+    struct JOIN(_ERROR_MSG_,msg);                                           \
+    enum {                                                                  \
+        JOIN(E,__LINE__)=                                                   \
+            sizeof( ::failed_assertion::assertion_failed<(expr)>(           \
+                static_cast<JOIN(_ERROR_MSG_,msg)************>(0),          \
+                static_cast< ::failed_assertion::args (*) types >(0)        \
+            )                                                               \
+        )                                                                   \
+    }
+
+
 
 #endif
