@@ -52,6 +52,9 @@ SubscriberEC::~SubscriberEC() {
     delete [] events;
 }
 
+void SubscriberEC::notify() {
+}
+
 void SubscriberEC::cb(famouso::mw::api::SECCallBackData &cb) {
     if (!events[first].used) {
         events[first].used = 1;
@@ -59,6 +62,7 @@ void SubscriberEC::cb(famouso::mw::api::SECCallBackData &cb) {
         events[first].event.len = cb.length;
         memcpy(events[first].event.data, cb.data, cb.length);
         first = (first + 1) % max;
+        notify();
     }
 }
 

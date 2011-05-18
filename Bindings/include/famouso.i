@@ -55,6 +55,7 @@
         JCALL4(SetByteArrayRegion, jenv, $result, 0, arg1->len, (jbyte*)arg1->data);
     }
 }
+%rename(event_notify) SubscriberEC::notify;
 #endif
 
 %include "famouso_bindings.h"

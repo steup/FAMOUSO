@@ -71,6 +71,7 @@ class SubscriberEC {
         int subscribe();
         int unsubscribe();
         int poll(event_t &e);
+        virtual void notify();
 };
 
 
