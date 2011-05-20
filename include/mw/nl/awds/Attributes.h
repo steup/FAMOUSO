@@ -143,7 +143,7 @@ namespace famouso {
                              *
                              *  \return The subject.
                              */
-                            Subject subject() {
+                            Subject subject() const {
                                 return Subject(this->getValue());
                             }
 
