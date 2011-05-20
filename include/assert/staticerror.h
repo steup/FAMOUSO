@@ -42,6 +42,7 @@
 #define _STATIC_ERROR_H_
 
 #include "config/type_traits/if_select_type.h"
+#include "assert/staticwarning.h"
 
 namespace failed_assertion {
 
@@ -56,10 +57,10 @@ namespace failed_assertion {
     enum {                                                                  \
         JOIN(E,__LINE__)=                                                   \
             sizeof( ::failed_assertion::assertion_failed<(expr)>(           \
-                static_cast<JOIN(_ERROR_MSG_,msg)************>(0),          \
-                static_cast< ::failed_assertion::args (*) types >(0)        \
+                        static_cast<JOIN(_ERROR_MSG_,msg)**>(0),            \
+                        static_cast< ::failed_assertion::args(*)types >(0)  \
+                    )                                                       \
             )                                                               \
-        )                                                                   \
     }
 
 
