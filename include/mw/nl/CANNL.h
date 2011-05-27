@@ -49,6 +49,8 @@
 #include "mw/common/Event.h"
 #include "mw/el/EventLayerCallBack.h"
 #include "mw/nl/can/canID.h"
+#include "mw/nl/can/etagBP/Client.h"
+#include "mw/nl/can/ccp/Client.h"
 #include "debug.h"
 #include <stdio.h>
 
@@ -64,8 +66,11 @@ namespace famouso {
              *  the CAN Configuration Protocol is used to ensure uniquenesss of CAN IDs.
              *
              */
-            template< class CAN_Driver, class CCP, class BP >
-            class CANNL : public DistinctNL {
+            template<
+                class CAN_Driver,
+                class CCP = ::famouso::mw::nl::CAN::ccp::Client<CAN_Driver>,
+                class BP  = ::famouso::mw::nl::CAN::etagBP::Client<CAN_Driver>
+            > class CANNL : public DistinctNL {
                     typedef CANNL   type;
                     uint16_t tx_node;
                     CAN_Driver driver;
