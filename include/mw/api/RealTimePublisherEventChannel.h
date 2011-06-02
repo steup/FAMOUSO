@@ -151,8 +151,8 @@ namespace famouso {
                                 << "deliver: chan "
                                 << el::ml::getLocalChanID(this)
                                 << " at " << timefw::TimeSource::current() << " NO RESERVATION\n";
-                            signal_exception();
 #endif
+                            signal_exception();
                         }
                     }
 
@@ -337,8 +337,8 @@ namespace famouso {
                                 << "deliver: chan "
                                 << el::ml::getLocalChanID(this)
                                 << " at " << timefw::TimeSource::current() << " EXPIRED at " << ei.expire << "\n";
-                            signal_exception();
 #endif
+                            signal_exception();
                         }
                         tf.read_unlock();
                     }
