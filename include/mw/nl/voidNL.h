@@ -57,7 +57,7 @@ namespace famouso {
                 public:
                     struct info {
                         enum {
-                            payload = 65534
+                            payload = 32738
                         };
                     };
 
