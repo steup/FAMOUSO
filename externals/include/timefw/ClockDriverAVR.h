@@ -77,7 +77,7 @@ namespace timefw {
             }
 
             /// Returns current local time in nanosecs
-            Time current_local() {
+            const Time& current_local() {
                 return last_macrotick;
             }
 
