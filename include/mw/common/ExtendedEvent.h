@@ -94,6 +94,9 @@ namespace famouso {
                 uint8_t _edata[attribsLen + payLoadSize];
 
             public:
+                /// the event's maximum size
+                static const famouso::mw::Event::Type maxSize = attribsLen + payLoadSize;
+
                 ExtendedEvent(const famouso::mw::Subject& sub) :
                     Event(sub) {
                     // Construct the attributes
