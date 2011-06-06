@@ -49,8 +49,7 @@ filtered=$(filter-out %.cc %.h %.sh %.impl %Makefile,$(shell find . -maxdepth 1 
 
 .PHONY: all clean
 
-#CXXFLAGS += -DNDEBUG -DFAMOUSO_DEBUG_DISABLE -DLOGGING_DISABLE -fno-keep-inline-functions -ffunction-sections
-CXXFLAGS += -DNDEBUG -DFAMOUSO_DEBUG_DISABLE -DLOGGING_DISABLE -ffunction-sections
+CXXFLAGS += -DNDEBUG -DFAMOUSO_DEBUG_DISABLE -DLOGGING_DISABLE -fno-keep-inline-functions -ffunction-sections
 
 ifneq ($(ADD_FLAGS),)
 CXXFLAGS += $(ADD_FLAGS)
