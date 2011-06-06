@@ -42,6 +42,7 @@
 
 #ifdef __AVR__
 #include <avr/io.h>
+#include <avr/interrupt.h>
     typedef uint8_t storage;
 #else
     typedef uint32_t storage;
