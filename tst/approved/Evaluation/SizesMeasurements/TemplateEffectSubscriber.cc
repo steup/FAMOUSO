@@ -37,35 +37,8 @@
  *
  ******************************************************************************/
 
-#include "famouso.h"
-
-#include "mw/nl/voidNL.h"
-
-#include "mw/afp/Config.h"
-#include "mw/anl/AbstractNetworkLayer.h"
-
-
-#include "mw/api/PublisherEventChannel.h"
-#include "mw/api/SubscriberEventChannel.h"
-
-#include "mw/el/ml/ManagementLayer.h"
-#include "mw/el/EventLayer.h"
-
-namespace famouso {
-    class config {
-            typedef famouso::mw::nl::voidNL nl;
-            typedef famouso::mw::anl::AbstractNetworkLayer<
-                        nl,
-                        famouso::mw::afp::Disable,
-                        famouso::mw::afp::Disable
-                    > anl;
-        public:
-            typedef famouso::mw::el::EventLayer< anl > EL;
-            typedef famouso::mw::api::PublisherEventChannel<EL> PEC;
-            typedef famouso::mw::api::SubscriberEventChannel<EL> SEC;
-    };
-
-}
+#define TemplateEffect
+#include "11_can-config-pubsubman.cc"
 
 #include <avr/io.h>
 
