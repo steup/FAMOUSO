@@ -66,7 +66,7 @@ namespace famouso {
                      *         \sa EventLayer::announce
                      *         \sa AbstractNetworkLayer::announce
                      */
-                    void announce() {
+                    void announce() __attribute__ ((noinline)) {
                         TRACE_FUNCTION;
                         EventChannel<ECH>::ech().announce(*this);
                     }
@@ -77,13 +77,13 @@ namespace famouso {
                      *         \sa EventLayer::publish
                      *         \sa AbstractNetworkLayer::publish
                      */
-                    void publish(const Event& e) {
+                    void publish(const Event& e)  __attribute__ ((noinline)) {
                         TRACE_FUNCTION;
                         EventChannel<ECH>::ech().publish(*this, e);
                     }
 
                 private:
-                    void unannounce() {
+                    void unannounce()  __attribute__ ((noinline)) {
                         TRACE_FUNCTION;
                         EventChannel<ECH>::ech().unannounce(*this);
                     }

@@ -75,7 +75,7 @@ namespace famouso {
                      *         \sa EventLayer::subscribe
                      *         \sa AbstractNetworkLayer::subscribe
                      */
-                    void subscribe() {
+                    void subscribe() __attribute__ ((noinline)) {
                         TRACE_FUNCTION;
                         // initialize a dummy callback if necessary
                         if (!callback)
@@ -85,7 +85,7 @@ namespace famouso {
                     }
 
                 protected:
-                    void unsubscribe() {
+                    void unsubscribe() __attribute__ ((noinline)) {
                         TRACE_FUNCTION;
                         EventChannel<ECH>::ech().unsubscribe(*this);
                     }
