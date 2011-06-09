@@ -39,6 +39,8 @@
 
 #include <avr/io.h>
 
+#ifndef TemplateEffect
+
 template<>
 inline UID getNodeID<void>(){
     return UID();
@@ -60,3 +62,5 @@ int main(int argc, char** argv) {
     famouso::mw::Event event(pec.subject());
     pec.publish(event);
 }
+
+#endif

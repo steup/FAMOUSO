@@ -37,8 +37,20 @@
  *
  ******************************************************************************/
 
+#include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+#ifndef FAMOUSOCONFIG
+    #define  FAMOUSOCONFIG 11_can-config-pubsubman.cc
+#endif
+
 #define TemplateEffect
-#include "11_can-config-pubsubman.cc"
+#include BOOST_PP_STRINGIZE(FAMOUSOCONFIG)
+
+#include "mw/api/ExtendedEventChannel.h"
+#include "mw/attributes/Latency.h"
+#include "mw/attributes/AttributeSeq.h"
 
 #include <avr/io.h>
 
@@ -51,20 +63,29 @@ inline UID getNodeID<void>(){
     #define COUNT 1
 #endif
 
-#include <boost/preprocessor/repetition/repeat.hpp>
 
-#define DECL(z, n, text) famouso::config::PEC pec ## n("SUBJECT_");
+/*#define DECL(z, n, text) \
+    famouso::mw::api::ExtendedEventChannel < \
+        famouso::config::PEC, \
+        famouso::mw::attributes::AttributeSeq< \
+            famouso::mw::attributes::Latency<n> \
+        >::type, false \
+    > pec ## n (BOOST_PP_STRINGIZE(BOOST_PP_CAT(SUBJEC, n)));
+*/
+
+#define DECL(z, n, text) \
+    famouso::config::PEC pec ## n (BOOST_PP_STRINGIZE(BOOST_PP_CAT(SUBJEC, n)));
+
 #define USAGE(z, n, text) \
     pec ## n.announce(); \
-    pec ## n.publish(event);
+    famouso::mw::Event event ## n(pec ## n.subject()); \
+    pec ## n.publish(event ## n);
 
 BOOST_PP_REPEAT(COUNT, DECL, int)
 
 int main(int argc, char** argv) {
 
     famouso::init<famouso::config>();
-
-    famouso::mw::Event event(pec0.subject());
 
     BOOST_PP_REPEAT(COUNT, USAGE, int)
 }

@@ -83,6 +83,4 @@ namespace famouso {
 
 }
 
-#ifndef TemplateEffect
 #include "generic-main.impl"
-#endif

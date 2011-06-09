@@ -52,14 +52,17 @@ inline UID getNodeID<void>(){
 #endif
 
 #include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 
 #define DECL(z, n, text) \
     void cb ## n (famouso::mw::api::SECCallBackData& cbd) {} \
-    famouso::config::SEC sec ## n("SUBJECT_");
+    famouso::config::SEC sec ## n (BOOST_PP_STRINGIZE(BOOST_PP_CAT(SUBJEC, n)));
 
 #define USAGE(z, n, text) \
-    sec ## n.subscribe(); \
-    sec ## n.callback.bind< cb ##n >();
+    sec ## n.subscribe();
+//    sec ## n.callback.bind< cb ## n >();
 
 BOOST_PP_REPEAT(COUNT, DECL, int)
 
@@ -68,4 +71,5 @@ int main(int argc, char** argv) {
     famouso::init<famouso::config>();
 
     BOOST_PP_REPEAT(COUNT, USAGE, int)
+
 }
