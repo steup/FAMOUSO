@@ -40,6 +40,8 @@
 #ifndef __etagBP_Client_h__
 #define __etagBP_Client_h__
 
+#include <cstddef>
+
 #include "mw/nl/can/constants.h"
 #include "mw/nl/can/canETAGS.h"
 #include "mw/common/Subject.h"
