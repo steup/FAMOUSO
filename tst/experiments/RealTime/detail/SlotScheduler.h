@@ -68,6 +68,10 @@ namespace famouso {
                         return free_slots.size();
                     }
 
+                    BitArray & get_bit_array() {
+                        return free_slots;
+                    }
+
 
                     // hinzufügen: Netz-ID, ...
                     // Interface-Funktion

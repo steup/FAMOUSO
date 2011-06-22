@@ -40,6 +40,7 @@
 #ifndef __NRT_POLLSLAVE_H_69BEA0DB97942E__
 #define __NRT_POLLSLAVE_H_69BEA0DB97942E__
 
+#include "mw/common/Subject.h"
 #include "timefw/Time.h"
 #include "timefw/Dispatcher.h"
 
@@ -63,33 +64,51 @@ namespace famouso {
                     void grant_nrt_access_right(timefw::Time duration) {
                         nrt_ar_expire_time = (timefw::TimeSource::current() + duration).get_usec();
                         nrt_ar_expired = false;
+                        ::logging::log::emit() << "[NRT-Poll-Slave] granting access right at " << timefw::TimeSource::current() << " for " << duration << "\n";
                     }
 
                 protected:
                     /// Returns when the NRT packet can be transmitted
                     void ensure_nrt_access_right() {
+                        ::logging::log::emit() << "[NRT-Poll-Slave] waiting for nrt access right...\n";
                         while (1) {
                             if (!nrt_ar_expired) {
                                 // We may have access
-                                if (nrt_ar_expire_time < timefw::TimeSource::current().get_usec()) {
+                                if (nrt_ar_expire_time > timefw::TimeSource::current().get_usec()) {
                                     // Access granted
+                                    ::logging::log::emit() << "[NRT-Poll-Slave] ...access granted\n";
                                     return;
                                 } else {
                                     nrt_ar_expired = true;
                                 }
                             }
-                            timefw::Dispatcher::instance().yield_for_rt();
+                            if (!timefw::Dispatcher::instance().yield_for_rt())
+                                return;     // Interrupted by signal
                         }
                     }
 
                     /// Short network name of the poll channel
                     typename NL::SNN poll_snn;
 
+                    /// Process poll packet (returns whether sent to this node)
+                    bool process_poll_packet(const typename NL::Packet_t & packet) {
+                        if (packet.data_length == sizeof(NodeID) + sizeof(uint32_t)) {
+                            NodeID * node_id = reinterpret_cast<NodeID *>(packet.data);
+                            if (*node_id == getNodeID<void>()) {
+                                uint32_t grant_us = ntohl(*reinterpret_cast<uint32_t *>(packet.data + sizeof(NodeID)));
+                                grant_nrt_access_right(timefw::Time::usec(grant_us));
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
                 public:
                     /// Initialization of this and lower layers
                     void init() {
+                        nrt_ar_expired = true;
                         NL::init();
-                        NL::bind("NRTPoll!", poll_snn);
+                        NL::bind(Subject("NRTPoll!"), poll_snn);
                     }
 
                     /*!
@@ -100,13 +119,7 @@ namespace famouso {
                         if (NL::lastPacketSNN() == poll_snn) {
                             typename NL::Packet_t packet;
                             NL::take(packet);
-                            if (packet.data_length == sizeof(NodeID) + sizeof(uint32_t)) {
-                                NodeID node_id = *reinterpret_cast<NodeID *>(packet.data);
-                                if (node_id == getNodeID<void>()) {
-                                    uint32_t grant_us = ntohl(*reinterpret_cast<uint32_t *>(packet.data + sizeof(NodeID)));
-                                    grant_nrt_access_right(timefw::Time::usec(grant_us));
-                                }
-                            }
+                            process_poll_packet(packet);
                             return true;
                         } else {
                             return false;
@@ -123,6 +136,15 @@ namespace famouso {
                             return !network_guard.handle_poll_event();
                         }
                     };
+
+                    // TODO: add NRT_PollMaster policy and move it to that policy
+                    void deliver(const typename NL::Packet_t& p) {
+                        // Only deliver poll messages to net, that are not addressed to this node.
+                        if (p.snn == poll_snn) {
+                            if (!process_poll_packet(p))
+                                NL::deliver(p);
+                        }
+                    }
 
             };
 

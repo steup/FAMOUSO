@@ -141,6 +141,10 @@ UID getNodeID<void>() {
 #include "EthernetNL.h"
 #include "XenomaiRTnetDriver.h"
 #include "eval_NetworkAdapter.h"
+#ifdef BE_CAN_BROKER
+// Master node is also Poll Master
+#include "PollMaster.h"
+#endif
 #endif
 
 namespace famouso {
@@ -171,7 +175,7 @@ namespace famouso {
             typedef famouso::mw::nl::CAN::ccp::Client<can> ccp;
             typedef famouso::mw::nl::CAN::etagBP::Client<can> etag;
 #endif
-#if !defined(__ETHERNET__) || defined(BE_CAN_BROKER)
+#if !defined(__ETHERNET__)// || defined(BE_CAN_BROKER)
             typedef famouso::mw::nl::CANNL<can, ccp, etag> NL;
             //typedef famouso::mw::nl::voidNL NL;
             typedef famouso::mw::guard::NetworkGuard<
@@ -188,8 +192,8 @@ namespace famouso {
             typedef famouso::mw::guard::NetworkGuard<
                             NL2,
                             famouso::mw::guard::RT_WindowCheck,
-                            //famouso::mw::guard::NRT_PollSlave
-                            famouso::mw::guard::NRT_HandledByNL
+                            famouso::mw::guard::NRT_PollSlave
+                            //famouso::mw::guard::NRT_HandledByNL
                         > NG2;
             typedef famouso::mw::anl::AbstractNetworkLayer<NL1, AFPConfig<NL1::SNN>, AFPConfig<NL1::SNN> > ANL1;
             typedef famouso::mw::anl::AbstractNetworkLayer<NG2, AFPConfig<NG2::SNN>, AFPConfig<NG2::SNN> > ANL2;

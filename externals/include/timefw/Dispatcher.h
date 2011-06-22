@@ -189,7 +189,7 @@ namespace timefw {
             }
 
             /// Should be called by NRT tasks to when waiting for ressources (cooperative flow transfer to RT tasks)
-            void yield_for_rt() {
+            bool yield_for_rt() {
                 Task * next;
                 while (1) {
                     // Look for next real time task
@@ -211,7 +211,10 @@ namespace timefw {
                     dispatch(*next);
                 }
             out:
-                usleep(50);
+                if (usleep(50))
+                    return false;   // Interrupted by signal
+                else
+                    return true;
             }
     };
 

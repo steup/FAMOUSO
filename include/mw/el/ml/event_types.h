@@ -81,8 +81,16 @@ namespace famouso {
                      */
                     rt_no_deliv_event = 5,
 
+                    /*! \brief  Poll cycle event (inform poll master about changes of the real time schedule)
+                     */
+                    poll_cycle_event = 6,
+
+                    /*! \brief  Poll cycle event ACK (acknowledge receipt of poll cycle event)
+                     */
+                    poll_cycle_ack_event = 7,
+
                     /// Highest event type value (needed for get_event_type() implementation)
-                    last_supported_event = 5,
+                    last_supported_event = 7,
 
                     /// Unsupported event
                     unsupported_event = 255

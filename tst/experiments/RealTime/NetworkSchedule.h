@@ -93,6 +93,8 @@ namespace famouso {
 
                     RTNetSchedulerBase & scheduler;
 
+                    bool poll_master;
+
                     void log_res_state() {
                         ::logging::log::emit() << "\nReal time communication channels on NetworkID " << network_id << '\n';
                         rt_announcements.log();
@@ -115,9 +117,13 @@ namespace famouso {
                             set_cycle_duration(slot_scheduler.cycle_length() * network_timing.plan_granul_us);
                             rt_pub.init_reserv(aslot_shift, network_timing);
 
-                            // TODO: if neccessary, send free_slots to BE-Poller and wait for ACK before sending reservation (only once per announcements msg?)
-                            // wait for subscribers?
+                            if (poll_master) {
+                                // TODO: build bit-array of aslots usable for NRT (including reserved but unused slots)
+                                scheduler.publish_poll_cycle_event(rt_pub.network_id, cycle_start_us, slot_scheduler.get_bit_array());
+                                // TODO: wait for ACK before sending reservation
+                            }
 
+                            // wait for subscribers?
                             bool deliver = check_subscriber(rt_pub.subject, rt_pub.network_id);
                             if (deliver)
                                 rt_pub.status = RealTimeTxChannel::delivering;
@@ -153,6 +159,12 @@ namespace famouso {
                         ::logging::log::emit() << "Unannouncement of real time channel " << pub.subject
                                                << ::logging::log::endl;
                         slot_scheduler.free(pub.slot_aslot.period, pub.slot_aslot.length, pub.slot_aslot.shift);
+
+                        if (poll_master) {
+                            // TODO: build bit-array of aslots usable for NRT (including reserved but unused slots)
+                            scheduler.publish_poll_cycle_event(pub.network_id, cycle_start_us, slot_scheduler.get_bit_array());
+                        }
+
                         slot_scheduler.log_free_list();
                         // TODO: check if a wait_for_resservation channel can be scheduled now (deferred)
                         return true;
@@ -167,10 +179,11 @@ namespace famouso {
 
                 public:
                     template <class RTNetScheduler>
-                    NetworkSchedule(const el::ml::NetworkID & network_id, const NetworkTimingConfig & ntc, RTNetScheduler & sched) :
+                    NetworkSchedule(const el::ml::NetworkID & network_id, const NetworkTimingConfig & ntc, RTNetScheduler & sched, bool poll_master_ = false) :
                             network_id(network_id), network_timing(ntc),
                             cycle_duration_us(ntc.plan_granul_us), cycle_start_us(0),
-                            scheduler(sched) {
+                            scheduler(sched), poll_master(poll_master_)
+                    {
                         sched.register_network(this);
                     }
 

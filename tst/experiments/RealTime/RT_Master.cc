@@ -44,6 +44,15 @@
 #include "RTNetScheduler.h"
 #include "TimeMaster.h"
 
+// for NRT-Polling test only
+void subscriber_callback(const famouso::mw::api::SECCallBackData& event) {
+    ::logging::log::emit() << "callback: subject " << event.subject
+                           << ", length " << ::logging::log::dec << event.length
+                           << ", time " << timefw::TimeSource::current()
+                           << ", data " << event.data
+                           << logging::log::endl;
+}
+
 int main(int argc, char ** argv) {
     famouso::init<famouso::config>();
 
@@ -61,7 +70,7 @@ int main(int argc, char ** argv) {
                         ),
                         sched);
 #else
-    NetworkSchedule can(famouso::mw::el::ml::NetworkID(/*"CAN0@1Mb"*/(uint64_t)0),
+    NetworkSchedule eth(famouso::mw::el::ml::NetworkID(/*"CAN0@1Mb"*/(uint64_t)0),
                         EthernetNetworkTimingConfig(
                             100 * 1000000,     // Bits per second
                             50,        // Uhrengranularität in us
@@ -70,12 +79,27 @@ int main(int argc, char ** argv) {
                             10000,      // Trigger bis USF in nano sec
                             10000       // USF bis auf Medium in nano sec
                         ),
-                        sched);
+                        sched,
+                        true);          // PollMaster
+    famouso::mw::poll_master::PollMaster<famouso::config::PEC, famouso::config::SEC> poll_m(
+                            1000,       // Planungsgranularität in us
+                            5000,       // Overhead
+                            10000       // Minimum poll slot length in us
+                        );
+    poll_m.push_back(getNodeID<void>());
+    poll_m.push_back(NodeID("SeMoNode"));
+    poll_m.push_back(NodeID("CtrlNode"));
+    poll_m.push_back(NodeID("Oth1Node"));
+    poll_m.push_back(NodeID("Oth2Node"));
 #endif
 
     TimeMaster<famouso::config::PEC> time_master;
 
-    // Idler would be sufficient at the moment
+    // for NRT-Polling test only
+    famouso::config::SEC nrt_sec("nrt_____");
+    nrt_sec.callback.bind<&subscriber_callback>();
+    nrt_sec.subscribe();
+
     ::logging::log::emit() << "Start dispatcher\n";
     timefw::Dispatcher::instance().run();
     ::logging::log::emit() << "Stop dispatcher\n";

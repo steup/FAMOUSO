@@ -173,7 +173,8 @@ namespace famouso {
                      *              (needed for real time events)
                      */
                     void write(const SNN &snn, const Event &e, const PublishParamSet * pps = 0) {
-                        if (e.subject == Subject("TimeSync") || e.subject == Subject("ManChan!") || pps == 0) {
+                        //if (e.subject == Subject("TimeSync") || e.subject == Subject("ManChan!") || pps == 0) {
+                        if (e.subject == Subject("TimeSync") || e.subject == Subject("ManChan!")) {
                             // TimeSync, management and NRT events to first network
                             _ANL_A.write(snn.SNN_A, e, pps);
                         } else {

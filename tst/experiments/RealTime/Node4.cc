@@ -83,8 +83,8 @@ int main(int argc, char ** argv) {
     timefw::Task nrt_task(0, 1, false);
     nrt_task.bind<&nrt_publish_func>();
     timefw::Dispatcher::instance().enqueue(nrt_task);
-    nrt_pec.announce();
     */
+    nrt_pec.announce();
     while (1)
         nrt_publish_func();
 #else

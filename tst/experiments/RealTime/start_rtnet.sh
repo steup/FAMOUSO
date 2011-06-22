@@ -11,8 +11,8 @@ insmod /usr/local/rtnet/modules/rtipv4.ko
 insmod /usr/local/rtnet/modules/rtudp.ko
 insmod /usr/local/rtnet/modules/rtcap.ko
 sleep 1
-#/usr/local/rtnet/sbin/rtifconfig rteth0 up `cat my_ip` promisc
-/usr/local/rtnet/sbin/rtifconfig rteth0 up `cat my_ip`
+/usr/local/rtnet/sbin/rtifconfig rteth0 up `cat my_ip` promisc
+#/usr/local/rtnet/sbin/rtifconfig rteth0 up `cat my_ip`
 sleep 3
 /usr/local/rtnet/sbin/rtroute add `cat the_route` dev rteth0
 ifconfig rteth0 up

@@ -86,6 +86,8 @@ namespace famouso {
                     PEC man_chan_pub;
                     SEC man_chan_sub;
 
+                    PEC poll_chan_pub;
+
                     typedef std::map<el::ml::NetworkID, NetworkSchedule *> NetworkContainer;
                     NetworkContainer networks;
 
@@ -151,6 +153,31 @@ namespace famouso {
                         el::ml::RealTimeSetResStateEvent rw(buffer, len);
                         rw.write_head(el::ml::rt_no_deliv_event, node_id);
                         rw.write_no_reserv_tail(lc_id, network_id);
+
+                        Event e(man_chan_pub.subject());
+                        e.data = buffer;
+                        e.length = len;
+                        man_chan_pub.publish(e);
+                    }
+
+                    void publish_poll_cycle_event(const el::ml::NetworkID & network_id, uint64_t last_cycle_start_us, const BitArray & usable_slots) {
+                        uint16_t aslot_buf_len = div_round_up(usable_slots.size(), 8);
+                        uint16_t len = 13 + aslot_buf_len;
+                        uint8_t buffer[len];
+
+                        ::logging::log::emit()
+                            << "Publishing PollCycleEvent network_id " << network_id
+                                << ", last_cycle_start_us "
+                                << ::logging::log::dec << last_cycle_start_us
+                                << ", bit_count " << usable_slots.size()
+                                << "\n";
+
+                        *buffer = el::ml::poll_cycle_event;
+                        // TODO: add network ID
+                        *(uint64_t *)(buffer + 1) = htonll(last_cycle_start_us);
+                        *(uint32_t *)(buffer + 9) = htonl(usable_slots.size());
+                        memcpy(buffer + 13, usable_slots.get_buffer(), aslot_buf_len);
+                        //hexdump(buffer + 13, aslot_buf_len);
 
                         Event e(man_chan_pub.subject());
                         e.data = buffer;
@@ -312,11 +339,13 @@ namespace famouso {
 
                     RTNetScheduler() :
                         man_chan_pub("ManChan!"),
-                        man_chan_sub("ManChan!")
+                        man_chan_sub("ManChan!"),
+                        poll_chan_pub("NRTPoll!")
                     {
                         man_chan_sub.callback.template bind<ThisType, & ThisType::incoming_management_event>(this);
                         man_chan_sub.subscribe();
                         man_chan_pub.announce();
+                        poll_chan_pub.announce();
                     }
 
             };

@@ -63,6 +63,9 @@ namespace famouso {
                     virtual void publish_no_deliv(const NodeID & node_id,
                                                   const el::ml::LocalChanID & lc_id,
                                                   const el::ml::NetworkID & net_id) = 0;
+                    virtual void publish_poll_cycle_event(const el::ml::NetworkID & network_id,
+                                                          uint64_t last_cycle_start_us,
+                                                          const BitArray & usable_slots) = 0;
             };
 
         } // namespace rt_net_sched

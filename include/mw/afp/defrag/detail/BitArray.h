@@ -243,6 +243,10 @@ namespace famouso {
 
                                 return true;
                             }
+
+                            uint8_t * get_buffer() const {
+                                return array;
+                            }
                     };
 
 

@@ -24,7 +24,7 @@
 
 #define CLOCK_ACC_US 10
 
-//#define HIGH_NRT_LOAD
+#define HIGH_NRT_LOAD
 
 // Communication or end-to-end latency test
 #define RT_TEST_COM_LAT
