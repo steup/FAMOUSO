@@ -80,5 +80,5 @@ done
 
 ${dir}/preprocess.sh
 R --no-save --args ${START} ${END} < ${dir}/analyze.R
-${dir}/genplot.sh results.plot > ${dir}/boxes.plot.tex
+${dir}/genplot.sh results.dat > ${dir}/boxes.plot.tex
 cd ${dir}
