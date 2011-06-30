@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2010-2011 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  * All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without
@@ -43,46 +43,37 @@
 
 #include "boost/mpl/eval_if.hpp"
 
-namespace failed_assertion {
-
-    template<int>
-    struct CompileTimeWarningTest;
-
+struct _warning {
     struct Integer {
         typedef Integer type;
         static const unsigned int w=8;
     };
 
     template<typename>
-    struct _warning_ {
-        typedef _warning_ type;
-        enum _ {w};
+    struct _ {
+        typedef _ type;
+        enum __ {w};
     };
+};
 
-    struct args;
-}
+struct _with_args;
 
-#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
-    struct JOIN(JOIN(_failed_assertion_in_line_,__LINE__),_with_message_) { \
-        enum JOIN(JOIN(__,msg),__) {w};                                     \
-        static void args types { }                                          \
-    };                                                                      \
-    typedef ::failed_assertion::CompileTimeWarningTest<                     \
-                JOIN(                                                       \
-                    JOIN(                                                   \
-                        _failed_assertion_in_line_,__LINE__                 \
-                    ),                                                      \
-                    _with_message_                                          \
-                )::w                                                        \
-                    ==                                                      \
-                boost::mpl::eval_if_c<                                      \
-                    expr,                                                   \
-                    ::failed_assertion::Integer,                            \
-                    ::failed_assertion::_warning_<                          \
-                        void**** (::failed_assertion::args::****) types     \
-                    >                                                       \
-                >::type::w                                                  \
-            > JOIN(__warning_in_line__,__LINE__)
+#define GEN_NAME(X) \
+  JOIN(JOIN(Line_,X),_WARNING_MSG_)
+
+#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types) \
+  struct GEN_NAME(__LINE__) {                           \
+    enum msg {w};                                       \
+  typedef boost::mpl::eval_if_c<                        \
+             expr,                                      \
+             ::_warning::Integer,                       \
+             ::_warning::_< _with_args (*) types >      \
+         > sel; \
+  };                                                    \
+  enum { JOIN(w_, __LINE__) =                           \
+           GEN_NAME(__LINE__)::w                        \
+                  ==                                    \
+           GEN_NAME(__LINE__)::sel::type::w }
 
 template <typename t>
 struct ClassTemplate {
@@ -106,5 +97,7 @@ int main() {
     FAMOUSO_STATIC_ASSERT_WARNING(false, MainContext, () );
 
     FunctionTemplate<long>();
+
+    FAMOUSO_STATIC_ASSERT_WARNING(sizeof(int) == sizeof(char), types_have_different_sizes, (int, char)) ;
 }
 

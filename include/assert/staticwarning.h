@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+ * Copyright (c) 2008-2011 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
  *                    2010 Marcus Förster <MarcusFoerster1@gmx.de>
  * All rights reserved.
  *
@@ -45,6 +45,10 @@
 #define DO_JOIN( X, Y ) DO_JOIN2(X,Y)
 #define DO_JOIN2( X, Y ) X##Y
 
+#define GEN_NAME(X) \
+  JOIN(JOIN(Line_,X),_WARNING_MSG_)
+
+
 #include "boost/mpl/eval_if.hpp"
 
 namespace failed_assertion {
@@ -57,42 +61,35 @@ namespace failed_assertion {
 
 #if defined __GNUC__
 
-namespace failed_assertion {
-
+struct _warning {
     struct Integer {
         typedef Integer type;
         static const unsigned int w=8;
     };
 
-
     template<typename>
-    struct _warning_ {
-        typedef _warning_ type;
-        enum _ {w};
+    struct _ {
+        typedef _ type;
+        enum __ {w};
     };
+};
 
-}
-#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types)                     \
-    struct JOIN(JOIN(_failed_assertion_in_line_,__LINE__),_with_message_) { \
-        enum JOIN(JOIN(__,msg),__) {w};                                     \
-        static void args types { }                                          \
-    };                                                                      \
-    typedef ::failed_assertion::CompileTimeWarningTest<                     \
-                JOIN(                                                       \
-                    JOIN(                                                   \
-                        _failed_assertion_in_line_,__LINE__                 \
-                    ),                                                      \
-                    _with_message_                                          \
-                )::w                                                        \
-                    ==                                                      \
-                boost::mpl::eval_if_c<                                      \
-                    expr,                                                   \
-                    ::failed_assertion::Integer,                            \
-                    ::failed_assertion::_warning_<                          \
-                        void**** (::failed_assertion::args::****) types     \
-                    >                                                       \
-                >::type::w                                                  \
-            > JOIN(__warning_in_line__,__LINE__)
+struct _with_args;
+
+
+#define FAMOUSO_STATIC_ASSERT_WARNING(expr, msg, types) \
+  struct GEN_NAME(__LINE__) {                           \
+    enum msg {w};                                       \
+  typedef boost::mpl::eval_if_c<                        \
+             expr,                                      \
+             ::_warning::Integer,                       \
+             ::_warning::_< _with_args (*) types >      \
+         > sel; \
+  };                                                    \
+  enum { JOIN(w_, __LINE__) =                           \
+           GEN_NAME(__LINE__)::w                        \
+                  ==                                    \
+           GEN_NAME(__LINE__)::sel::type::w }
 
 #elif defined _MSC_VER
 

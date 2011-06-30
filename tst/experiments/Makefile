@@ -41,6 +41,8 @@ include ../../make/Makefile
 
 filtered=$(filter-out %.cc %.h %.py %.impl %Makefile,$(shell find . -maxdepth 1 -type f))
 
+CXXFLAGS+=-Woverloaded-virtual
+
 .phony: all clean
 
 all:
