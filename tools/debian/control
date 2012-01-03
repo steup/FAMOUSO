@@ -24,3 +24,13 @@ Description: Famouso Middleware devel files
  refines the ideas and concepts of its predecessor COSMIC (COoperating SMart
  devICes). Additionally, FAMOUSO provides much more features like adaptation to
  a specific platform or the generic gateway architecture.
+
+Package: famouso-dbg
+Section: debug
+Architecture: any
+Depends: famouso (= ${binary:Version})
+Description: Famouso Middleware debug symbols
+ FAMOUSO is a publish/subscribe middleware that readopts, substantiates and
+ refines the ideas and concepts of its predecessor COSMIC (COoperating SMart
+ devICes). Additionally, FAMOUSO provides much more features like adaptation to
+ a specific platform or the generic gateway architecture.

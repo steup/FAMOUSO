@@ -48,6 +48,7 @@ INC=$(DESTDIR)/usr/include/famouso
 debian-all: debian-build
 
 debian-build: all
+	export FAMOUSO_DEBUG=-g
 	$(MAKE) -C ECHs ech-awds
 	$(MAKE) -C Bindings/client
 	$(MAKE) -C tst/experiments/QoS Publisher
