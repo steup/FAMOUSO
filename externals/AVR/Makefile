@@ -46,7 +46,7 @@ all: build
 
 avr-halib:
 	@echo Checking out latest AVR-halib
-	@svn export https://svn-eos.cs.uni-magdeburg.de/repos/Projects/AVR/halib/trunk avr-halib --force --ignore-externals -q
+	@svn export https://svn-eos.cs.ovgu.de/repos/Projects/AVR/halib/trunk avr-halib --force --ignore-externals -q
 
 build-avr-halib:
 	@echo Building avr-halib
@@ -55,7 +55,7 @@ build-avr-halib:
 
 avr-maclib:
 	@echo Checking out latest AVR-maclib
-	@svn export https://svn-eos.cs.uni-magdeburg.de/repos/stud/mafoerst/Code/maclib avr-maclib --force --ignore-externals -q
+	@svn export https://svn-eos.cs.ovgu.de/repos/stud/mafoerst/Code/maclib avr-maclib --force --ignore-externals -q
 
 build-avr-maclib:
 	@echo Building avr-maclib
