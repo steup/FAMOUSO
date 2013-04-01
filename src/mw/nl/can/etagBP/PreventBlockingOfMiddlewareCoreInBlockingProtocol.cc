@@ -42,7 +42,7 @@
 #include "util/ios.h"
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/pool/detail/singleton.hpp>
+#include <boost/thread/detail/singleton.hpp>
 #include <boost/thread/xtime.hpp>
 #ifdef __XENOMAI__
 #include <time.h>
@@ -64,7 +64,11 @@ namespace famouso {
                         clock_nanosleep(CLOCK_REALTIME, 0, &time, 0);
 #else
                         boost::xtime time;
+#if BOOST_VERSION >= 105000
+                        boost::xtime_get(&time, boost::TIME_UTC_);
+#else
                         boost::xtime_get(&time, boost::TIME_UTC);
+#endif
                         time.nsec += 10000000;
                         boost::thread::sleep(time);
 #endif
@@ -72,7 +76,7 @@ namespace famouso {
 
 
 
-                    typedef boost::details::pool::singleton_default<boost::mutex> _mutex;
+                    typedef boost::detail::thread::singleton<boost::mutex> _mutex;
 
                     void PreventBlockingOfMiddlewareCoreInBlockingProtocol::runMiddlewareCore() {
                         while (!passed) {

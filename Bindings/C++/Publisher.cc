@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     while (1) {
         pec.publish(e);
         boost::xtime time;
-        boost::xtime_get(&time, boost::TIME_UTC);
+        boost::xtime_get(&time, boost::TIME_UTC_);
         time.sec += 1;
         boost::thread::sleep(time);
     }

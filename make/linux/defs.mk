@@ -43,5 +43,5 @@ PCANLIB=$(shell test -f $(PCAN) && echo $(PCAN))
 LIBFEC = $(LIBDIR)/libfec.a
 
 ADDITIONAL_CFLAGS   += -DLINUX -I$(PCANINC) -I$(EXTERNALSDIR)/FEC
-ADDITIONAL_LIBS     += $(PCANLIB) -lpthread $(LIBFEC)
+ADDITIONAL_LIBS     += $(PCANLIB) -lpthread -lrt $(LIBFEC)
 EXTERNALS           += $(LIBFEC)

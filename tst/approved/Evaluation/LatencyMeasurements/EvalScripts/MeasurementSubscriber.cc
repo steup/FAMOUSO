@@ -71,7 +71,7 @@ int  main(int argc, char** argv) {
     sec.callback.bind<cb>();
 
     boost::xtime time;
-    boost::xtime_get(&time, boost::TIME_UTC);
+    boost::xtime_get(&time, boost::TIME_UTC_);
     time.sec += seconds;
     boost::thread::sleep(time);
 }

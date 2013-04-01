@@ -117,7 +117,11 @@ namespace famouso {
                     public:
 
                         static void get_current_time(Time & time) {
-                            boost::xtime_get(&time.time, boost::TIME_UTC);
+#if BOOST_VERSION >= 105000
+                            boost::xtime_get(&time.time, boost::TIME_UTC_);
+#else
+                            boost::xtime_get(&time.time, boost::TIME_UTC_);
+#endif
                         }
 
                         static Time current() {

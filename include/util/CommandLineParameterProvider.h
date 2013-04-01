@@ -40,7 +40,7 @@
 #ifndef __CommandLineParameterProvider_h__
 #define __CommandLineParameterProvider_h__
 
-#include <boost/pool/detail/singleton.hpp>
+#include <boost/thread/detail/singleton.hpp>
 #include <boost/program_options.hpp>
 
 namespace famouso {
@@ -59,7 +59,7 @@ namespace famouso {
          *         All components use this to summarize the options
          *         in one place
          */
-        typedef boost::details::pool::singleton_default<CommandLineParameter_type> cmdline_options;
+        typedef boost::detail::thread::singleton<CommandLineParameter_type> cmdline_options;
 
 
         /*! \brief This type describes the map, where the command
@@ -72,7 +72,7 @@ namespace famouso {
          *         from different places/components always to the same instance
          *         of the parsed parameter.
          */
-        typedef boost::details::pool::singleton_default<vm_type> vm;
+        typedef boost::detail::thread::singleton<vm_type> vm;
 
     }
 }

@@ -37,10 +37,12 @@
 ##
 ################################################################################
 
-CC		= i386-mingw32-gcc
-CXX		= i386-mingw32-g++
-AR		= i386-mingw32-ar
+PREFIX=i686-pc-mingw32-
+
+CC		= $(PREFIX)gcc
+CXX		= $(PREFIX)g++
+AR		= $(PREFIX)ar
 ARFLAGS	= ru
-RANLIB	= i386-mingw32-ranlib
-LD		= i386-mingw32-ld
-AS		= i386-mingw32-as
+RANLIB	= $(PREFIX)ranlib
+LD		= $(PREFIX)ld
+AS		= $(PREFIX)as

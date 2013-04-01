@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
         pnum++;
 
         boost::xtime time;
-        boost::xtime_get(&time, boost::TIME_UTC);
+        boost::xtime_get(&time, boost::TIME_UTC_);
         time.sec += 3;
         boost::thread::sleep(time);
     }

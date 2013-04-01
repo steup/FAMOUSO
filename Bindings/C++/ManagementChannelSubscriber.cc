@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
     // that have something to do
     while (1) {
         boost::xtime time;
-        boost::xtime_get(&time, boost::TIME_UTC);
+        boost::xtime_get(&time, boost::TIME_UTC_);
         time.sec += 100;
         boost::thread::sleep(time);
     }

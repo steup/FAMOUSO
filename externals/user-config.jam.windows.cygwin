@@ -1,4 +1,6 @@
-using gcc  : : gcc ; 
+import toolset ;
+
+using gcc  : : gcc ;
 toolset.add-requirements
   <toolset>gcc:<target-os>cygwin
-  <toolset>gcc:<threadapi>pthread ; 
+  <toolset>gcc:<threadapi>pthread ;

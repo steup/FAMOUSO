@@ -52,7 +52,7 @@
 
 #define CLP_CLASS_START(class_name, desc, option_name, option_desc, pd1, pd2, pd3, pd4, pd5) \
             class CLP::config::class_name {\
-                typedef boost::details::pool::singleton_default<class_name> class_name##__;\
+                typedef boost::detail::thread::singleton<class_name> class_name##__;\
                 bool _used;\
                 std::vector<std::string> ips;\
                 boost::program_options::options_description options;\

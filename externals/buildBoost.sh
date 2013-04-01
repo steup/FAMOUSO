@@ -50,11 +50,11 @@ echo Configure-Parameter $PARAMS
 echo BJAM-Parameter $BJAMCONFIG
 
 pushd Boost
-pushd tools/jam/src
+pushd tools/build/v2/engine/
 [ ! -x ./bootstrap/jam0 ] && ./build.sh
 arch=`./bootstrap/jam0 -d0 -f build.jam --toolset=gcc --show-locate-target`
 popd
-command="./tools/jam/src/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS -tx"
+command="./tools/build/v2/engine/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS -tx"
 rm -f user-config.* project-config.jam*
 echo $command
 $command
