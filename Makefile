@@ -43,32 +43,21 @@
 #                              M A K E F I L E
 #
 # -----------------------------------------------------------------------------
-include ./make/Makefile
 
-ALLSRC = $(SOURCES)
+.PHONY: forward all clean doc deb deb-clean
 
-# -------------------------------------------------------------------------
-# Namen der Unterverzeichnisse mit den Quelltexten
-# (wird automatisch aus den Quelltextdateien ermittelt und vom Compiler
-# benutzt, um die Quelltexte zu finden.)
+forward: all
 
-VPATH = $(sort $(dir $(ALLSRC) ))
+FAMOUSOROOTDIR := .
 
-# Listen mit den Objektdateien, die beim Kompilieren entstehen:
-# (werden automatisch aus den Quelltextdateinamen ermittelt)
-# Objekt fuer die LIB
-LIBOBJ   = $(addprefix $(MODULEDIR)/,$(notdir $(SOURCES:.cc=.o)))
+include  ./make/global.mk
+include  ./make/sources.mk
+include  ./make/externalsRules.mk
+-include ./make/$(PLATFORM)/sources.mk
+-include ./make/$(PLATFORM)/$(FLAVOR)/sources.mk
+include  ./make/rules.mk
 
-# Listen mit den Dependency-dateien, die beim Kompilieren entstehen:
-# (werden automatisch aus den Quelltextdateinamen ermittelt)
-DEPS = $(notdir $(ALLSRC:.cc=.d))
-DEPSPRE = $(addprefix $(DEPENDDIR)/,$(DEPS))
-
-# --------------------------------------------------------------------------
-# Definition der Targets
-.PHONY: all clean doc deb deb-clean
-
-all: $(LIBDIR) $(MODULEDIR) $(DEPENDDIR) $(EXTERNALS) depend $(LIBFAMOUSO)
+all: ${LIBFAMOUSO} ${NEEDS}
 
 doc:
 	doxygen doc/doxygen.conf
@@ -85,53 +74,12 @@ website:
 	cp ./tools/install-cygwin.bat ./doc/www/docu/online
 
 
-$(LIBDIR):
-	@mkdir -p $@
-
-$(MODULEDIR):
-	@mkdir -p $@
-
-$(DEPENDDIR):
-	@mkdir -p $@
-
-# -------------------------------------------------
-# Bauen der lib
-$(LIBFAMOUSO): $(LIBOBJ)
-	@echo "generate lib *.o -> $(notdir $@)"
-	@$(AR) $(ARFLAGS) $@ $(LIBOBJ)
-	@$(RANLIB) $@
-
-include ./make/externals.mk
-
 clean:
-	@rm -rf $(MODULEDIR) $(LIBFAMOUSO) $(DEPENDDIR)
+	@rm -rf $(LIBFAMOUSO) $(BUILDDIR)
 
-distclean: clean
-	@rm -rf $(MODDIRBASE) $(LIBBASE) $(DEPDIRBASE)
+distclean: clean externalsclean
+	@rm -rf ./build ./lib
 	@rm -rf ./doc/html
 	@rm -rf ./doc/www/docu
 	@rm -rf ./doc/latex
-	@find . -name externals -prune -o -name \#*\# -exec rm -f {} \;
-	@find . -name externals -prune -o -name \*~ -exec rm -f {} \;
 	@make -C $(EXTERNALSDIR)/AVR distclean
-
-properclean: distclean externalsclean
-	@rm -rf $(EXTERNALSDIR)/Boost
-	@rm -rf $(EXTERNALSDIR)/boost*
-
-debian:
-	ln -f -s ./tools/debian $(FAMOUSOROOTDIR)/debian
-
-deb: debian
-	@debuild -i -I
-
-deb-clean: debian
-	@debuild clean
-	@rm -f $(FAMOUSOROOTDIR)/debian
-
-depend: $(DEPENDDIR) $(DEPSPRE)
-
-ifneq ($(subst dist,,$(MAKECMDGOALS)),depend)
--include $(DEPENDDIR)/*
-endif
-

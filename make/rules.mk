@@ -1,6 +1,7 @@
 ################################################################################
 ##
 ## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+##							 2014			 Christoph Steup <steup@ivs.cs.ovgu.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -37,57 +38,38 @@
 ##
 ################################################################################
 
-RULEECHO = echo "$(notdir $<) -> $@"
+RULEECHO     = echo "$(notdir $<) -> $@"
+LIBS         := $(addprefix -l, ${LIBS})
+LDPATHS      := $(addprefix -L, ${LDPATHS})
+INCLUDES     := $(addprefix -I, ${INCLUDES})
+DEPENDANCIES := $(wildcard ${BUILDDIR}/*.d)
+OBJECTS      := $(foreach src,$(notdir $(basename ${SOURCES})),${BUILDDIR}/${src}.o)
 
-# How to compile a C++ file.
-%.o:    %.cc
-	@$(RULEECHO) ; \
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXOPTIONS) -o $@ -c $<
+vpath %.cc $(sort $(dir $(shell find ${SRCDIR} -type f -name *.cc)))
+vpath %.c  $(sort $(dir $(shell find ${SRCDIR} -type f -name *.c)))
+vpath %.S  $(sort $(dir $(shell find ${SRCDIR} -type f -name *.S)))
 
-# How to compile a C file.
-%.o:    %.c
-	@$(RULEECHO) ; \
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CCOPTIONS) -o $@ -c $<
+${BUILDDIR}/%.o: %.cc | ${BUILDDIR}
+	@${RULEECHO}
+	@${CXX} -MM -MT $@ ${CXXFLAGS} ${INCLUDES} $< -o $@.d
+	@${CXX} -c ${CXXFLAGS} ${INCLUDES} $< -o $@
 
-# How to compile a C file.
-%.o:    %.C
-	@$(RULEECHO) ; \
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(CXXOPTIONS) -o $@ -c $<
+${BUILDDIR}/%.o: %.c | ${BUILDDIR}
+	@${RULEECHO}
+	@${CC} -MM -MT $@ ${CFLAGS} ${INCLUDES} $< -o $@.d
+	@${CC} -c ${CFLAGS} ${INCLUDES} $< -o $@ 
+  
+${BUILDDIR}/%.o: %.S | ${BUILDDIR}
+	@${RULEECHO}
+	@${ASM} -MM -MT $@ $(ASMFLAGS) ${INCLUDES} $< -o $@.d
+	@${ASM} -c ${ASMFLAGS} ${INCLUDES} $< -o $@
 
-# How to assemble a C++ file.
-%.s:    %.cc
-	@$(RULEECHO) ; \
-	$(CXX) $(ASMOUT) $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(CXXOPTIONS) -o $@ -c $<
+$(LIBFAMOUSO): $(OBJECTS) ${NEEDS} | ${LIBDIR}
+	@echo "generate lib *.o -> $(notdir $@)"
+	@$(AR) $(ARFLAGS) $@ $^
+	@$(RANLIB) $@
 
-# How to compile an assembler file.
-%.o: %.S
-	@$(RULEECHO) ; \
-	$(CC) -c $< -o $@
+${DIRS}: %:
+	mkdir -p $@
 
-# --------------------------------------------------------------------------
-# Regeln zur Erzeugung der Objektdateien
-$(MODULEDIR)/%.o : %.cc
-	@$(RULEECHO) ; \
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
-
-# --------------------------------------------------------------------------
-# Regeln zur Erzeugung der Dependency-dateien
-$(DEPENDDIR)/%.d : %.cc
-	@$(RULEECHO) ; \
-	$(CXX) -MM $(CXXFLAGS) $< -o $@
-	@sed -e "s#.*:#$(MODULEDIR)\/&#;s#$(INCDIR)/boost/[a-z|A-Z|_|\.|\/|0-9]*##g;/^ *\\\/d;/[\s]/!d" $@ -i
-	@sed -i -e '$$s/\ \\//' $@
-
-# rule for creating the depend file and
-# for linking the application and give it
-# the correct name dependend of the platform
-%:%.cc
-	@$(RULEECHO) ; \
-    $(CXX) -MM $(CXXFLAGS) $< -o $@-$(MACHINETYPE)-$(GCCVERSION).d ;
-	@sed -e "s#.*:#$@:#;s#$(INCDIR)/boost/[a-z|A-Z|_|\.|\/|0-9]*##g;/^ *\\\/d;/[\s]/!d" $@-$(MACHINETYPE)-$(GCCVERSION).d -i
-	@sed -i -e '$$s/\ \\//' $@-$(MACHINETYPE)-$(GCCVERSION).d
-	@sed -i '$$i\ $(LIBFAMOUSO) \\' $@-$(MACHINETYPE)-$(GCCVERSION).d
-	@$(CXX) $< -o $@.foobar $(CXXFLAGS) $(CXXOPTIONS) $(LDFLAGS) ; \
-	mv $@.foobar $(basename $@)$(SUFFIX)
-
-
+-include ${DEPENDANCIES}

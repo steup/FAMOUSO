@@ -37,7 +37,7 @@
 ##
 ################################################################################
 
-include ../../make/Makefile
+include ../../make/famousoApp.mk
 INC=-I../include
 FILE=../include/famouso.i
 GEN=generated
@@ -49,7 +49,7 @@ all:
 	swig -python -c++ -outdir $(GEN) -o famouso_wrap.cxx -module famouso $(INC) $(FILE)
 	$(CXX) -Wall -fpic -c ../client/famouso.cc -o $(GEN)/famouso.o $(CXXFLAGS) $(INC)
 	$(CXX) -Wall -fpic -c famouso_wrap.cxx -o $(GEN)/famouso_wrap.o $(CXXFLAGS) $(INC)
-	$(CXX) -shared $(GEN)/famouso.o $(GEN)/famouso_wrap.o -o _$(LIBNAME).so $(LIB) $(ADDITIONAL_LIBS)
+	$(CXX) -shared $(GEN)/famouso.o $(GEN)/famouso_wrap.o -o _$(LIBNAME).so ${LOADLIBES} $(LDLIBS)
 
 clean:
 	rm -fr *.o *~ _famouso.so $(GEN) famouso_wrap.*

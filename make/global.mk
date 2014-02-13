@@ -1,6 +1,7 @@
 ################################################################################
 ##
 ## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+##							 2014			 Christoph Steup <steup@ivs.cs.ovgu.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -37,60 +38,52 @@
 ##
 ################################################################################
 
-GCCVERSION  = gcc-$(shell $(CXX) -dumpversion)
-ENVIRONMENT = $(PLATFORM)/$(FLAVOR)/$(GCCVERSION)
+include $(FAMOUSOROOTDIR)/config.mk
 
-EXTERNALSDIR= $(FAMOUSOROOTDIR)/externals
+ifeq (${CXX},g++)
+VERSION      := $(shell ${CXX} -dumpversion)
+else 
+ifeq (${VERSION},)
+$(error Please set the version of your compiler as VERSION in config.mk)
+endif
+endif
 
-MODDIRBASE  = $(FAMOUSOROOTDIR)/module
-MODULEDIR   = $(MODDIRBASE)/$(ENVIRONMENT)
+CC		        ?= gcc
+CXX		        ?= g++
+AR		        ?= ar
+ARFLAGS		    ?= ru
+RANLIB		    ?= ranlib
+LD		        ?= $(CXX)
+AS		        ?= as
 
-INCDIR      = $(FAMOUSOROOTDIR)/include
+ENVIRONMENT   := ${PLATFORM}/${FLAVOR}/${CXX}-${VERSION}
+EXTERNALSDIR  := $(FAMOUSOROOTDIR)/externals
+INCDIR        := $(FAMOUSOROOTDIR)/include
+SRCDIR        := $(FAMOUSOROOTDIR)/src
+BUILDDIR      := $(FAMOUSOROOTDIR)/build/${ENVIRONMENT}
+BUILDDIRBASE  := $(FAMOUSOROOTDIR)/build
+LIBDIR        := $(FAMOUSOROOTDIR)/lib/${ENVIRONMENT}
+LIBDIRBASE    := $(FAMOUSOROOTDIR)/lib
+SAMPLEDIR     := $(FAMOUSOROOTDIR)/testsuite
 
-SRCDIR      = $(FAMOUSOROOTDIR)/src
+DIRS          := ${LIBDIR} ${BUILDDIR}
 
-DEPDIRBASE  = $(FAMOUSOROOTDIR)/depend
-DEPENDDIR   = $(DEPDIRBASE)/$(ENVIRONMENT)
+LIBNAME       := famouso
+LIBFAMOUSO    := $(LIBDIR)/lib$(LIBNAME).a
 
-SAMPLEDIR   = $(FAMOUSOROOTDIR)/testsuite
-
-LIBNAME     = famouso
-LIBBASE     = $(FAMOUSOROOTDIR)/lib
-LIBDIR      = $(LIBBASE)/$(ENVIRONMENT)
-LIBFAMOUSO  = $(LIBDIR)/lib$(LIBNAME).a
-
-LIB         = -L$(LIBDIR) -lfamouso
-INCLUDE     = -I$(INCDIR) -I$(SRCDIR)
+LDPATHS       := $(LIBDIR)
+LIBS          := ${LIBNAME}
+INCLUDES      += $(INCDIR)
 
 FAMOUSO_DEBUG ?= -g -DFAMOUSO_DEBUG_DISABLE
 
-# external header dependencies
-# this variable definition leads to downloading and checking out
-# the needed externals. In the include dir resides all header only
-# dependencies
-EXTERNALS    = $(EXTERNALSDIR)/include
-# define Boost also as external
-EXTERNALS   += $(EXTERNALSDIR)/Boost
+CFLAGS        := -Os -Wall $(FAMOUSO_DEBUG) -fno-strict-aliasing ${CFLAGS}
+CXXFLAGS      := ${CFLAGS} ${CXXFLAGS}
+LDFLAGS       := -Wl,--gc-sections
 
-# prefix until now defined externals with -I to allow using it as
-# include path for compiler runs
-ADDITIONAL_CFLAGS := $(patsubst %,-I%,$(EXTERNALS))
-
-ifneq ($(FAMOUSO_CONFIG),avr)
-LIBBOOST             = $(LIBDIR)/libboost_system.a $(LIBDIR)/libboost_thread$(THREADTAG).a $(LIBDIR)/libboost_program_options.a
-EXTERNALS           += $(LIBBOOST)
-ADDITIONAL_LIBS     += $(LIBBOOST)
-endif
-
-
-OPTLEVEL	= -Os
-
-ADDITIONAL_CFLAGS   += -fno-strict-aliasing
-
-CCFLAGS     = -Wall $(FAMOUSO_DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
-CCOPTIONS   = $(OPTLEVEL)
-
-CXXOPTIONS  = $(CCOPTIONS)
-CXXFLAGS    = -Wall $(FAMOUSO_DEBUG) -I$(INCDIR) $(ADDITIONAL_CFLAGS)
-
-LDFLAGS     = $(LIBFAMOUSO) $(ADDITIONAL_LIBS) $(LIBFAMOUSO) -Wl,--gc-sections
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/defs.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/gcc.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/tags.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/additional_defs.mk
+-include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/gcc.mk
+include ${FAMOUSOROOTDIR}/make/externalsDefs.mk

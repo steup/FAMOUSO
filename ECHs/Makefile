@@ -37,7 +37,9 @@
 ##
 ################################################################################
 
-include ../make/Makefile
+CXXFLAGS := -O0
+
+include ../make/famousoApp.mk
 
 filtered=$(filter-out %.cc %.h %.py %.impl %Makefile,$(shell find . -maxdepth 1 -type f))
 
@@ -48,5 +50,3 @@ all:
 
 clean:
 	@rm -rf $(filtered)
-
--include *-$(MACHINETYPE)-$(GCCVERSION).d

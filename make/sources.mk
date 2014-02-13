@@ -44,5 +44,5 @@
 # -----------------------------------------------------------------------------
 
 SOURCES  = \
-src/mw/api/CallBack.cc \
-src/mw/el/EventLayerCallback.cc
+mw/api/CallBack.cc \
+mw/el/EventLayerCallback.cc

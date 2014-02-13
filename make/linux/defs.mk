@@ -1,6 +1,7 @@
 ################################################################################
 ##
 ## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+##							 2014			 Christoph Steup <steup@ivs.cs.ovgu.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -36,12 +37,10 @@
 ## $Id$
 ##
 ################################################################################
-PCAN=/usr/lib/libpcan.so
-PCANINC=/PCANINCLUDE
-PCANLIB=$(shell test -f $(PCAN) && echo $(PCAN))
 
-LIBFEC = $(LIBDIR)/libfec.a
-
-ADDITIONAL_CFLAGS   += -DLINUX -I$(PCANINC) -I$(EXTERNALSDIR)/FEC
-ADDITIONAL_LIBS     += $(PCANLIB) -lpthread -lrt $(LIBFEC)
-EXTERNALS           += $(LIBFEC)
+LIBS     += fec pthread rt boost_system boost_thread boost_program_options
+#LIBS     += pcan
+#INCLUDES += /PCANINCLUDE
+NEEDS    += ${LIBDIR}/libfec.a
+CFLAGS   += -DLINUX -fPIC
+CXXFLAGS += -DLINUX -fPIC

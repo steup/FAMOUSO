@@ -37,7 +37,7 @@
 ##
 ################################################################################
 
-include ../../make/Makefile
+include ../../make/famousoApp.mk
 INC=-I../include
 FILE=../include/famouso.i
 GEN=generated

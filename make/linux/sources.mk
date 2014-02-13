@@ -44,12 +44,12 @@
 # -----------------------------------------------------------------------------
 
 SOURCES  += \
-src/mw/nl/UDPMultiCastNL.cc \
-src/mw/nl/UDPBroadCastNL.cc \
-src/mw/nl/awds/NodeRepository.cc \
-src/mw/nl/AWDSNL.cc \
-src/util/ios.cc \
-src/util/Idler.cc \
-src/util/CommandLineParameter.cc \
-src/mw/nl/can/etagBP/PreventBlockingOfMiddlewareCoreInBlockingProtocol.cc
+mw/nl/UDPMultiCastNL.cc \
+mw/nl/UDPBroadCastNL.cc \
+mw/nl/awds/NodeRepository.cc \
+mw/nl/AWDSNL.cc \
+util/ios.cc \
+util/Idler.cc \
+util/CommandLineParameter.cc \
+mw/nl/can/etagBP/PreventBlockingOfMiddlewareCoreInBlockingProtocol.cc
 

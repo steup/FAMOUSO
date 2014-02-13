@@ -1,6 +1,7 @@
 ################################################################################
 ##
 ## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+##							 2014			 Christoph Steup <steup@ivs.cs.ovgu.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -37,10 +38,23 @@
 ##
 ################################################################################
 
-CC		= gcc
-CXX		= g++
-AR		= ar
-ARFLAGS		= ru
-RANLIB		= ranlib
-LD		= $(CXX)
-AS		= as
+${LIBAVR}: | ${LIBDIR}
+	@echo Building needed ${LIBAVR}
+	make -C $(EXTERNALSDIR)/AVR build
+	@$(RANLIB) $(LIBDIR)/*
+
+${LIBDIR}/libfec.a: ${FEC}/libfec.a | ${LIBDIR}
+	@cp ${FEC}/libfec.a $@
+
+${FEC}/libfec.a:
+	@echo Buildung needed forward error correction library
+	make -C ${FEC}
+
+${LOGGING}:
+	@echo Checking out logging framework
+	@git submodule init
+	@git submodule update
+
+externalsclean:
+	@make -C $(LOGGING) clean
+	@make -C ${FEC} clean

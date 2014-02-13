@@ -1,6 +1,0 @@
-import toolset ;
-
-using gcc : mingw32 : i686-pc-mingw32-gcc ;
-toolset.add-requirements
-   <toolset>gcc:<target-os>windows
-   <toolset>gcc:<threadapi>win32 ;

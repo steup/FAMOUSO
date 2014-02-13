@@ -1,6 +1,7 @@
 ################################################################################
 ##
 ## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+##							 2014			 Christoph Steup <steup@ivs.cs.ovgu.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -37,33 +38,9 @@
 ##
 ################################################################################
 
-# autodetect FAMOUSO's root directory
-# get the path of this makefile
-this_makefile_dir := $(dir ./$(lastword $(MAKEFILE_LIST)))
+LOGGING := ${EXTERNALSDIR}/logging
+FEC     := ${EXTERNALSDIR}/FEC
+TIMEFW  := ${EXTERNALSDIR}/timefw
+PEAK    := ${EXTERNALSDIR}/PEAK
 
-# erase the trailing /make/ in order to get the correct root of FAMOUSO
-FAMOUSOROOTDIR:= $(patsubst %/make/,%,$(this_makefile_dir))
-
-
-# include all needed Makefiles in the right order
-#
-# read target configuration and additional definitions
-include $(FAMOUSOROOTDIR)/make/config.mk
-
-# load definitions that are always equal
-include $(FAMOUSOROOTDIR)/make/global.mk
-include $(FAMOUSOROOTDIR)/make/sources.mk
-
-#default compiler definition
-include $(FAMOUSOROOTDIR)/make/buildtools.mk
-
-# read definitions that are dependent on the target and platform
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/defs.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/sources.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/gcc.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/tags.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/additional_defs.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/sources.mk
--include $(FAMOUSOROOTDIR)/make/$(PLATFORM)/$(FLAVOR)/gcc.mk
-
-include $(FAMOUSOROOTDIR)/make/rules.mk
+INCLUDES += ${LOGGING}/include ${FEC} ${TIMEFW} ${PEAK}

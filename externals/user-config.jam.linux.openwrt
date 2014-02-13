@@ -1,2 +1,0 @@
-using gcc  : 4.1.2 : mipsel-linux-uclibc-g++ :  <cxxflags>-mips32 <cxxflags> ;
-

@@ -1,7 +1,7 @@
-#!/bin/bash
 ################################################################################
 ##
 ## Copyright (c) 2008-2010 Michael Schulze <mschulze@ivs.cs.uni-magdeburg.de>
+##							 2014			 Christoph Steup <steup@ivs.cs.ovgu.de>
 ## All rights reserved.
 ##
 ##    Redistribution and use in source and binary forms, with or without
@@ -38,35 +38,10 @@
 ##
 ################################################################################
 
+FAMOUSOROOTDIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))..)
 
-pushd `dirname $0`
+include $(FAMOUSOROOTDIR)/make/global.mk
 
-[ ! -d Boost ] && sh wget.sh && sh patchBoost.sh
-if [ -d Boost ]; then
-
-PARAMS=" --libdir=$1 --includedir=$2 "
-BJAMCONFIG="toolset=gcc --layout=system --with-system --with-thread --with-program_options link=static --user-config=`pwd`/user-config.jam.${3%/*} install threading=multi variant=release runtime-link=static"
-echo Configure-Parameter $PARAMS
-echo BJAM-Parameter $BJAMCONFIG
-
-pushd Boost
-pushd tools/build/v2/engine/
-[ ! -x ./bootstrap/jam0 ] && ./build.sh
-arch=`./bootstrap/jam0 -d0 -f build.jam --toolset=gcc --show-locate-target`
-popd
-command="./tools/build/v2/engine/$arch/bjam -d0 -j10 $BJAMCONFIG $PARAMS -tx"
-rm -f user-config.* project-config.jam*
-echo $command
-$command
-popd
-
-for file in $1/* ; do
-	mv $file ${file%.*}.fam
-	mv ${file%.*}.fam ${file%.*}.a
-done
-
-
-fi
-
-popd
-
+CXXFLAGS  += $(addprefix -I, ${INCLUDES})
+LOADLIBES := $(addprefix -L,${LDPATHS})
+LDLIBS    := $(addprefix -l,${LIBS})
