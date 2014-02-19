@@ -42,6 +42,6 @@ FAMOUSOROOTDIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))..)
 
 include $(FAMOUSOROOTDIR)/make/global.mk
 
-CXXFLAGS  += $(addprefix -I, ${INCLUDES})
+CPPFLAGS  += $(addprefix -I, ${INCLUDES})
 LOADLIBES := $(addprefix -L,${LDPATHS})
 LDLIBS    := $(addprefix -l,${LIBS})
