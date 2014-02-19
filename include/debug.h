@@ -57,7 +57,7 @@ LOGGING_DISABLE_LEVEL(::logging::Info);
 #define TRACE_FUNCTION do {                                         \
     ::logging::log::emit< ::logging::Trace>()                       \
        << '"' << FUNCTION_SIGNATURE << '"'                          \
-       << PROGMEMSTRING(" -> "__FILE__":" __TOSTR__(__LINE__)" ")    \
+       << PROGMEMSTRING(" -> " __FILE__ ":" __TOSTR__(__LINE__)" ")    \
        << ::logging::log::endl;                                     \
 } while(0)
 
