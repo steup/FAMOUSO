@@ -74,11 +74,11 @@ namespace famouso {
                         uint8_t recvBuffer[BUFSIZE];
                         int recvMsgSize;
                         try {
-                            while ((recvMsgSize = boost::asio::read(*sec.snn(), boost::asio::buffer(recvBuffer, 13))) > 0) {
+                            while ((recvMsgSize = boost::asio::read(sec.snn(), boost::asio::buffer(recvBuffer, 13))) > 0) {
                                 // ermitteln der Laenge des Events
                                 unsigned int len = ntohl(*(uint32_t *) & (recvBuffer[9]));
                                 // und den Rest aus dem Socket holen
-                                if ((recvMsgSize = boost::asio::read(*sec.snn(), boost::asio::buffer(recvBuffer, len))) > 0) {
+                                if ((recvMsgSize = boost::asio::read(sec.snn(), boost::asio::buffer(recvBuffer, len))) > 0) {
                                     // Event aufbauen und veroeffentlichen
                                     Event e(sec.subject());
                                     e.length = len;
@@ -105,12 +105,10 @@ namespace famouso {
 
                     void do_connection_socket(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
                         ec.snn() = new boost::asio::ip::tcp::socket(famouso::util::ios::instance());
-                        // Establish connection with the ech
                         boost::asio::ip::tcp::endpoint endpoint(
                             boost::asio::ip::address::from_string(servAddress), ServPort);
-
                         try {
-                            ec.snn()->connect(endpoint);
+                            ec.snn().connect(endpoint);
                         } catch (...) {
                             ::logging::log::emit< ::logging::Error>()
                                 << "An error occurred while connecting to the ech"
@@ -119,7 +117,9 @@ namespace famouso {
                         }
                     }
                 public:
-                    typedef boost::asio::ip::tcp::socket *SNN;
+                    struct SNN : public boost::asio::ip::tcp::socket{
+                        SNN() : boost::asio::ip::tcp::socket(famouso::util::ios::instance()){};
+                    };
 
                     /*! \brief  Channel trampoline policy: no trampoline needed
                      */
@@ -129,7 +129,7 @@ namespace famouso {
                         famouso::util::impl::start_ios();
                     }
 
-                    EventLayerClientStub() {
+                    EventLayerClientStub(){
                         init();
                     }
 
@@ -142,7 +142,7 @@ namespace famouso {
                         for (uint8_t i = 0;i < 8;++i)
                             transferBuffer[i+1] = ec.subject().tab()[i];
                         // Send the announcement to the ech
-                        boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
+                        boost::asio::write(ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
                     }
 
                     // Publish uebermittelt die Daten
@@ -164,8 +164,8 @@ namespace famouso {
                         uint32_t *len = (uint32_t *) & transferBuffer[9];
                         *len = htonl(e.length);
                         // Send the announcement to the ech
-                        boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
-                        boost::asio::write(*ec.snn(), boost::asio::buffer(e.data, e.length));
+                        boost::asio::write(ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
+                        boost::asio::write(ec.snn(), boost::asio::buffer(e.data, e.length));
                     }
 
                     // Verbindung  zum  ECH oeffnen und Subject subscribieren
@@ -179,7 +179,7 @@ namespace famouso {
                         for (uint8_t i = 0;i < 8;++i)
                             transferBuffer[i+1] = ec.subject().tab()[i];
                         // Send the announcement to the ech
-                        boost::asio::write(*ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
+                        boost::asio::write(ec.snn(), boost::asio::buffer(transferBuffer, sizeof(transferBuffer)));
                         // create a thread that gets the ec and if a messages arrives at the
                         // socket connection the ec is called back
                         NotifyWorkerThread<SEC> * nwt = new NotifyWorkerThread<SEC>(ec);
@@ -203,9 +203,9 @@ namespace famouso {
                         NotifyThreadMap::iterator it = notify_threads.find(&ec);
                         if (it != notify_threads.end()) {
                             NotifyThreadData t = it->second;
-                            ec.snn()->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
+                            ec.snn().shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
                             t.first->join();
-                            ec.snn()->close();
+                            ec.snn().close();
                             delete t.first;
                             delete t.second;
                             notify_threads.erase(&ec);
@@ -217,7 +217,7 @@ namespace famouso {
                     void unannounce(famouso::mw::api::PublisherEventChannel<EventLayerClientStub> &ec) {
                         TRACE_FUNCTION;
                         ::logging::log::emit< ::logging::Info>() << "close connection" << ::logging::log::endl;
-                        ec.snn()->close();
+                        ec.snn().close();
                     }
             };
         } // namespace el
