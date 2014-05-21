@@ -104,7 +104,6 @@ namespace famouso {
                     boost::mutex notify_threads_mutex;
 
                     void do_connection_socket(famouso::mw::api::EventChannel<EventLayerClientStub> &ec) {
-                        ec.snn() = new boost::asio::ip::tcp::socket(famouso::util::ios::instance());
                         boost::asio::ip::tcp::endpoint endpoint(
                             boost::asio::ip::address::from_string(servAddress), ServPort);
                         try {
