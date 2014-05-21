@@ -40,6 +40,9 @@
 #ifndef __PreventBlockingOfMiddlewareCoreInBlockingProtocol_h__
 #define __PreventBlockingOfMiddlewareCoreInBlockingProtocol_h__
 
+#include <thread>
+#include <mutex>
+
 namespace famouso {
     namespace mw {
         namespace nl {
@@ -54,7 +57,8 @@ namespace famouso {
                      */
                     class PreventBlockingOfMiddlewareCoreInBlockingProtocol {
                             volatile bool passed;
-                            void * thrd;
+                            ::std::thread t;
+                            ::std::mutex m;
 
                             void runMiddlewareCore();
 

@@ -43,4 +43,4 @@ LIBS     += fec pthread rt boost_system boost_thread boost_program_options
 #INCLUDES += /PCANINCLUDE
 NEEDS    += ${LIBDIR}/libfec.a
 CFLAGS   += -DLINUX -fPIC
-CXXFLAGS += -DLINUX -fPIC
+CXXFLAGS += -DLINUX -fPIC -std=c++11

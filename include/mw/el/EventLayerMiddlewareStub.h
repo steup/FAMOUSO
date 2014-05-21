@@ -51,6 +51,7 @@
 #include <boost/asio/placeholders.hpp>
 #include <string.h>
 #include <queue>
+#include <array>
 
 #include "debug.h"
 
@@ -362,7 +363,7 @@ namespace famouso {
                              *  After completion of the async write operation write_hanlder() will be called.
                              */
                             void post_async_write(data_ptr event_preamble, data_ptr event_data, uint32_t event_length) {
-                                boost::array<boost::asio::const_buffer, 2> bufs = {{
+                                std::array<boost::asio::const_buffer, 2> bufs = {{
                                     boost::asio::buffer(event_preamble.get(), 13),
                                     boost::asio::buffer(event_data.get(), event_length)
                                 }};
@@ -516,7 +517,7 @@ namespace famouso {
                             std::queue<AsyncWriteRequest> async_write_requests;
 
                             /// Buffer used to store data received from the client
-                            boost::array<uint8_t, 13> event_head;
+                            std::array<uint8_t, 13> event_head;
                     };
 
 

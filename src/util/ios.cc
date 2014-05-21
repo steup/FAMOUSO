@@ -59,10 +59,7 @@ namespace famouso {
 #endif
                     try {
                         boost::asio::io_service::work work(famouso::util::ios::instance());
-                        while(running) {
-                            famouso::util::ios::instance().reset();
-                            famouso::util::ios::instance().run();
-                        }
+                        famouso::util::ios::instance().run();
                     } catch (const char *c) {
                         ::logging::log::emit< ::logging::Error>() << "Exception : " << c << ::logging::log::endl;
                         abort();

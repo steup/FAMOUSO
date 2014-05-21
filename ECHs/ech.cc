@@ -70,8 +70,8 @@ namespace famouso {
                             "Revision: $Rev$\n"
                             "$Date$\n"
                             "last changed by $Author$\n\n"
-                            "build Time: "__TIME__"\n"
-                            "build Date: "__DATE__"\n\n");
+                            "build Time: " __TIME__ "\n"
+                            "build Date: " __DATE__ "\n\n");
 
         };
     }

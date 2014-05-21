@@ -40,45 +40,22 @@
 #include "mw/nl/can/etagBP/PreventBlockingOfMiddlewareCoreInBlockingProtocol.h"
 
 #include "util/ios.h"
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/detail/singleton.hpp>
-#include <boost/thread/xtime.hpp>
-#ifdef __XENOMAI__
-#include <time.h>
-#endif
 
-#include <stdio.h>
+#include <chrono>
+
 namespace famouso {
     namespace mw {
         namespace nl {
             namespace CAN {
                 namespace etagBP {
 
+
+
                     static void sleep() {
-#ifdef __XENOMAI__
-                        // boost::thread::sleep() does not behave correctly in XENOMAI
-                        timespec time;
-                        time.tv_sec = 0;
-                        time.tv_nsec = 100000000LLU;
-                        clock_nanosleep(CLOCK_REALTIME, 0, &time, 0);
-#else
-                        boost::xtime time;
-#if BOOST_VERSION >= 105000
-                        boost::xtime_get(&time, boost::TIME_UTC_);
-#else
-                        boost::xtime_get(&time, boost::TIME_UTC);
-#endif
-                        time.nsec += 10000000;
-                        boost::thread::sleep(time);
-#endif
+                      std::this_thread::sleep_for(std::chrono::nanoseconds(10000000));
                     }
 
-
-
-                    typedef boost::detail::thread::singleton<boost::mutex> _mutex;
-
-                    void PreventBlockingOfMiddlewareCoreInBlockingProtocol::runMiddlewareCore() {
+                     void PreventBlockingOfMiddlewareCoreInBlockingProtocol::runMiddlewareCore() {
                         while (!passed) {
                             famouso::util::ios::instance().poll();
                             sleep();
@@ -87,16 +64,15 @@ namespace famouso {
 
                     // launch a thread that lead the MiddlewareCore  proceed
                     PreventBlockingOfMiddlewareCoreInBlockingProtocol::PreventBlockingOfMiddlewareCoreInBlockingProtocol() :
-                            passed(false) {
-                        thrd = new boost::thread(boost::bind(&PreventBlockingOfMiddlewareCoreInBlockingProtocol::runMiddlewareCore, this));
-                        _mutex::instance().lock();
+                            passed(false),
+                            t([this](){runMiddlewareCore();}){
+                        m.lock();
                     }
 
                     PreventBlockingOfMiddlewareCoreInBlockingProtocol::~PreventBlockingOfMiddlewareCoreInBlockingProtocol() {
                         passed = true;
-                        _mutex::instance().unlock();
-                        reinterpret_cast<boost::thread*>(thrd)->join();
-                        delete reinterpret_cast<boost::thread*>(thrd);
+                        m.unlock();
+                        t.join();
                     }
 
                     void PreventBlockingOfMiddlewareCoreInBlockingProtocol::process() {
